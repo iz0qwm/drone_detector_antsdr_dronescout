@@ -83,7 +83,7 @@ Funzionalità:
 
 * Riceve dati via HTTP da `dji_receiver.py` e `remotetrack`
 * Visualizza in tempo reale i droni rilevati su una **mappa web** accessibile da browser
-* Espone la mappa su `http://<IP_RPI>:5000`
+* Espone la mappa su `http://<IP_RPI>:8080`
 
 La parte frontend è contenuta nella cartella:
 
