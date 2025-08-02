@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Droni ricevuti</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #map {
+      flex-grow: 1;
+    }
+
+    #logwindow {
+      height: 150px;
+      overflow-y: auto;
+      background: #111;
+      color: #0f0;
+      font-family: monospace;
+      font-size: 12px;
+      padding: 8px;
+      box-sizing: border-box;
+      border-top: 2px solid #333;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div id="logwindow">
+    Caricamento log...
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([41.9, 12.5], 11);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19
+    }).addTo(map);
+
+    let markers = {};
+
+    async function fetchDrones() {
+      try {
+        const res = await fetch("http://" + location.hostname + ":8080/drones");
+        const drones = await res.json();
+
+        drones.forEach(drone => {
+          if (!drone.lat || !drone.lon) return;
+
+          const id = `${drone.source}_${drone.id}`;
+          const coords = [drone.lat, drone.lon];
+          const popup = `<b>${drone.model || "Drone"}</b><br>${drone.source}<br>Alt: ${drone.altitude || "?"} m`;
+
+          const icon = L.icon({
+            iconUrl: drone.source === "DJI" ? "drone.png" : "plane.png",
+            iconSize: [30, 30],
+            iconAnchor: [15, 15],
+            popupAnchor: [0, -10]
+          });
+
+          if (markers[id]) {
+            markers[id].setLatLng(coords).setPopupContent(popup);
+          } else {
+            markers[id] = L.marker(coords, { icon: icon }).addTo(map).bindPopup(popup);
+          }
+        });
+
+      } catch (e) {
+        console.error("Errore nel fetch dei droni:", e);
+      }
+    }
+
+    async function updateLogs() {
+      try {
+        const res = await fetch("http://" + location.hostname + ":8080/logs");
+        const logs = await res.json();
+	const maxLines = 5;
+	const logElem = document.getElementById("logwindow");
+	const recentLogs = logs.slice(-maxLines).map(d => JSON.stringify(d)).join('\n');
+	logElem.textContent = recentLogs;
+	logElem.scrollTop = logElem.scrollHeight;
+      } catch (e) {
+        console.error("Errore nel fetch log:", e);
+      }
+    }
+
+    setInterval(fetchDrones, 2000);
+    setInterval(updateLogs, 2000);
+  </script>
+</body>
+</html>
+
