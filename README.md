@@ -1,6 +1,6 @@
-# 📡 Drone Detector con ANTSDR E200 e Raspberry Pi
+# 📡 Drone Detector con SDR e Raspberry Pi
 
-Questo progetto permette di utilizzare l'SDR **ANTSDR E200** insieme a una **Raspberry Pi** per rilevare droni DJI con DroneID e droni con Remote ID, visualizzandoli su una mappa web e inviandoli a una rete Firebase (es. Drone Pilot App).
+Questo progetto permette di utilizzare due SDR **ANTSDR E200** e **HackRF ONE** insieme a una **Raspberry Pi** per rilevare droni DJI con DroneID e droni generici con un approccio **CRPC (Cognitive Radio Protocol Cracking)** mentre, i droni con Remote ID, tramite **Dronescout bridge**, visualizzandoli su una mappa web e inviandoli a una rete Firebase (es. Drone Pilot App).
 
 ---
 
@@ -8,6 +8,7 @@ Questo progetto permette di utilizzare l'SDR **ANTSDR E200** insieme a una **Ras
 
 * **Rilevamento DJI DroneID** tramite ANTSDR E200
 * **Rilevamento Remote ID** tramite DroneScout Bridge
+* **Rilevamento droni generici** tramite HackRF ONE
 * **Server Web con mappa** integrato su Raspberry Pi
 * **Invio automatico dei dati** alla rete locale o a Firebase
 
