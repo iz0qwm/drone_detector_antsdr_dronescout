@@ -26,7 +26,7 @@ start_background "python3 $DJI_SCRIPT --debug"
 start_background "python3 $REMOTE_SCRIPT"
 
 # Avvia bridge uploader unificato
-nohup python3 $BRIDGE_SCRIPT > /home/pi/bridge.log 2>&1 &
+nohup ~/.pyenv/versions/3.10.14/bin/python $BRIDGE_SCRIPT > /home/pi/bridge.log 2>&1 &
 
 #start_background "python3 $BRIDGE_SCRIPT"
 
