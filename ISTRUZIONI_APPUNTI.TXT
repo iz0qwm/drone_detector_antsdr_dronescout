@@ -60,7 +60,7 @@ CRPC
 -----------------------
 192.168.1.6
 login: raffaello
-password: RaDa0707
+password: solita
 
 IMMAGINI RF:
 https://universe.roboflow.com/rui-shi/drone-signal-detect-few-shot/dataset/6/images
@@ -106,6 +106,108 @@ m.train(
 )
 PY
 -----------------------------------------------------------------
+Dove trovare i pesi e i risultati
+-----------------------------------
+Cartella run: /home/raffaello/yolo_runs/rf_yolo3/
+
+Pesi: weights/best.pt (il migliore) e weights/last.pt
+
+Log/metrics: results.csv nella root della run
+
+------------------------------------------
+HACK-RF
+------------------------------------------
+mkfifo /tmp/hackrf_2400_2500.fifo
+mkfifo /tmp/hackrf_5725_5875.fifo
+
+SCRIPTS
+
+File di configurazione:  /etc/default/crpc 
+/etc/systemd/system/crpc.target
+/etc/systemd/system/crpc-prepare.service
+/etc/systemd/system/crpc-sweep.service
+/etc/systemd/system/crpc-tiles.service
+/etc/systemd/system/crpc-yolo.service
+/etc/systemd/system/crpc-tracker.service
+# /etc/systemd/system/crpc-assoc.service
+/etc/systemd/system/crpc-rfscan.service
+/etc/systemd/system/crpc-cleanup.service
+
+----------------------------------
+# Stato generale
+systemctl status crpc.target
+
+# Servizi singoli
+systemctl status crpc-sweep.service
+journalctl -u crpc-sweep.service -f
+
+systemctl status crpc-tiles.service
+journalctl -u crpc-yolo.service -f   # qui vedi YOLO + detections
+
+systemctl status crpc-tracker.service
+journalctl -u crpc-rfscan.service -f
+
+-----------------------------------
+Modifica /etc/default/crpc (es. YOLO_CONF=0.05) e poi:
+
+sudo systemctl restart crpc-yolo.service
+
+------------------------------------
+start_all/stop_all MANUALE
+
+/usr/local/bin/start_crpc 
+/usr/local/bin/stop_crpc
+------------------------------------
+PULIZIA FILES
+/usr/local/bin/crpc_cleanup.sh
+
+-------------------------------------
+CONTROLLO
+crpc_monitor
+
+CLASSIFICATORE:
+-------------------------------------------
+BILANCIATO
+
+python3 rf_scan_classifier.py \
+  --w-model 0.45 --w-csv 0.35 --w-img 0.20 \
+  --min-track-len 1 --fprint-min 0.05 \
+  --dets-tail-kb 200 --dets-tail-lines 2000
+-------------------------------------------
+RUMOROSO:
+
+python3 /mnt/data/rf_scan_classifier.py \
+  --w-model 0.35 --w-csv 0.30 --w-img 0.35
+-------------------------------------------
+VIDEO FORTE:
+
+python3 /mnt/data/rf_scan_classifier.py \
+  --w-model 0.40 --w-csv 0.45 --w-img 0.15
+-------------------------------------------
+ALTA PRECISIONE:
+python3 rf_scan_classifier.py \
+  --fprint-min 0.20
+  
+  OPPURE
+  
+  --fprint-min 0.35
+-------------------------------------------
+YOLO "video" aiuta:
+python3 rf_scan_classifier.py \
+  --w-model 0.45 --w-csv 0.35 --w-img 0.20
+
+
+------------------------------------------------
+HACKRF MODALITA' WATERFALL
+------------------------------------------------
+mkfifo /tmp/hackrf.iq
+
+# Centra dove vuoi guardare (es. 2.44 GHz), SR 10 Msps; regola guadagni se serve
+hackrf_transfer -f 2440000000 -s 10000000 -a 1 -l 16 -g 32 -r /tmp/hackrf.iq
+
+Utilizza in un'altra finestra:
+python waterfall_web.py
+
 
 
 
