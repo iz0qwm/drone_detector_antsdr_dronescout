@@ -1,0 +1,24 @@
+
+[2025-08-10 16:40:29] 📚 Fingerprint DB caricato: 37 righe (fingerprint_db_full.csv)
+[2025-08-10 16:40:30] 🧠 Modello RF caricato: rf_model.pkl
+[2025-08-10 16:40:30] 🔎 RF scan classifier attivo (senza bridge)…
+[2025-08-10 16:41:02]    ⤷ votes  model=DJI:0.49  csv=DJI MINI4 PRO:0.21  img=None:0.00
+[2025-08-10 16:41:02] ✅ RFscan T1 [24] 2459.158MHz bw=7.623 → DJI MINI4 PRO (model/csv/img(fam) 0.25)
+[2025-08-10 16:41:07]    ⤷ votes  model=DJI:0.49  csv=DJI MINI4 PRO:0.21  img=None:0.00
+[2025-08-10 16:41:07] ✅ RFscan T6 [24] 2459.158MHz bw=7.623 → DJI MINI4 PRO (model/csv/img(fam) 0.25)
+[2025-08-10 16:41:11]    ⤷ votes  model=DJI:0.49  csv=DJI MINI4 PRO:0.21  img=None:0.00
+[2025-08-10 16:41:11] ✅ RFscan T11 [24] 2459.158MHz bw=7.623 → DJI MINI4 PRO (model/csv/img(fam) 0.25)
+[2025-08-10 16:41:15]    ⤷ votes  model=DJI:0.49  csv=DJI MINI4 PRO:0.21  img=None:0.00
+[2025-08-10 16:41:15] ✅ RFscan T16 [24] 2459.158MHz bw=7.623 → DJI MINI4 PRO (model/csv/img(fam) 0.25)
+[2025-08-10 16:41:20]    ⤷ votes  model=DJI:0.38  csv=DJI MINI4 PRO:0.21  img=None:0.00
+[2025-08-10 16:41:20] ✅ RFscan T21 [24] 2448.150MHz bw=0.542 → DJI MINI4 PRO (model/csv/img(fam) 0.21)
+[2025-08-10 16:41:30]    ⤷ votes  model=DJI:0.39  csv=DJI AVTA2:0.25  img=None:0.00
+[2025-08-10 16:41:30] ✅ RFscan T26 [58] 5771.944MHz bw=1.483 → DJI AVTA2 (model/csv/img(fam) 0.22)
+[2025-08-10 16:41:34]    ⤷ votes  model=DJI:0.39  csv=DJI AVTA2:0.25  img=None:0.00
+[2025-08-10 16:41:34] ✅ RFscan T33 [58] 5771.944MHz bw=1.483 → DJI AVTA2 (model/csv/img(fam) 0.22)
+[2025-08-10 16:41:39]    ⤷ votes  model=DJI:0.39  csv=DJI AVTA2:0.25  img=None:0.00
+[2025-08-10 16:41:39] ✅ RFscan T40 [58] 5771.944MHz bw=1.483 → DJI AVTA2 (model/csv/img(fam) 0.22)
+[2025-08-10 16:41:43]    ⤷ votes  model=DJI:0.52  csv=DJI AVTA2:0.25  img=None:0.00
+[2025-08-10 16:41:43] ✅ RFscan T47 [58] 5834.235MHz bw=4.837 → DJI AVTA2 (model/csv/img(fam) 0.27)
+[2025-08-10 16:41:48]    ⤷ votes  model=DJI:0.52  csv=DJI AVTA2:0.25  img=None:0.00
+[2025-08-10 16:41:48] ✅ RFscan T55 [58] 5834.235MHz bw=4.837 → DJI AVTA2 (model/csv/img(fam) 0.27)

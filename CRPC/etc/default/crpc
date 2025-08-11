@@ -1,0 +1,13 @@
+CRPC_USER=raffaello
+CRPC_HOME=/home/raffaello
+CRPC_DIR=/home/raffaello/crpc
+
+# YOLO (usa il python del venv, NIENTE source necessario)
+YOLO_PYTHON=/home/raffaello/yolo-venv/bin/python3
+YOLO_SCRIPT=/home/raffaello/scripts/predict_yolo.py
+YOLO_MODEL=/home/raffaello/yolo_runs/rf_yolo3/weights/best.pt
+YOLO_DATA=/home/raffaello/dataset/yolo_vision/data.yaml
+YOLO_CONF=0.10
+YOLO_IMGSZ=640
+YOLO_PROJECT=/tmp/yolo_runs
+YOLO_NAME=crpc_watch

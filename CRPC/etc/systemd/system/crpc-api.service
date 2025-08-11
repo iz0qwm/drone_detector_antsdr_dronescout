@@ -1,0 +1,34 @@
+[Unit]
+Description=CRPC Dashboard API (Flask) with HTML serving
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=raffaello
+Group=raffaello
+WorkingDirectory=/home/raffaello/crpc
+Environment=CRPC_PORT=8080
+Environment=CRPC_LOG_DIR=/tmp/crpc_logs
+Environment=CRPC_TILES_DIR=/tmp/tiles
+Environment=CRPC_TILES_DONE_DIR=/tmp/tiles_done
+Environment=CRPC_SWEEP24=/tmp/hackrf_sweeps_text/sweep_2400_2500.txt
+Environment=CRPC_SWEEP58=/tmp/hackrf_sweeps_text/sweep_5725_5875.txt
+Environment=CRPC_GT_CSV=/home/raffaello/crpc/ground_truth.csv
+Environment=CRPC_EVAL_TAIL=6000
+EnvironmentFile=-/etc/default/crpc-api
+ExecStart=/usr/bin/python3 /home/raffaello/crpc/crpc_api.py --host 0.0.0.0 --port ${CRPC_PORT}
+Restart=always
+RestartSec=1
+
+# --- Hardening (safe defaults; comment lines if they cause issues) ---
+#NoNewPrivileges=yes
+PrivateTmp=false
+ProtectSystem=false
+#ProtectKernelTunables=yes
+#ProtectKernelModules=yes
+#ProtectControlGroups=yes
+#LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target

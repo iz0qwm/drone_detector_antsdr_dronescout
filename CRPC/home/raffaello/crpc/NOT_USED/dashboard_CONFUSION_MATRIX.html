@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRPC Dashboard</title>
+<style>
+  :root{
+    --bg:#0e1117; --card:#161b22; --muted:#8b949e; --text:#e6edf3; --ok:#2ea043; --bad:#da3633; --warn:#d29922; --chip:#30363d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.4 system-ui,Segoe UI,Roboto,Helvetica,Arial}
+  header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #30363d}
+  h1{font-size:18px;margin:0}
+  .grid{display:grid;gap:12px;padding:12px}
+  .cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+  @media (max-width: 1100px){.cols-3{grid-template-columns:1fr}.cols-2{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid #30363d;border-radius:14px;padding:12px}
+  .card h2{font-size:15px;margin:0 0 8px 0}
+  .kpi{display:flex;gap:10px;flex-wrap:wrap}
+  .chip{background:var(--chip);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted)}
+  .ok{color:var(--ok)} .bad{color:var(--bad)} .warn{color:var(--warn)}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th,td{padding:6px 8px;border-bottom:1px solid #30363d;vertical-align:top}
+  th{color:var(--muted);text-align:left;font-weight:600}
+  code, pre{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px}
+  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+  .row{display:flex;gap:12px;align-items:stretch}
+  .grow{flex:1}
+  .muted{color:var(--muted)}
+  .right{float:right}
+  .spark{height:36px;width:100%}
+  .svc{display:grid;grid-template-columns:160px auto;gap:8px;align-items:center;margin:4px 0}
+  .tabbar{display:flex;gap:8px;padding:0 12px}
+  .tabbar button{background:var(--chip);border:1px solid #30363d;color:var(--text);padding:8px 10px;border-radius:10px;cursor:pointer}
+  .tabbar button.active{outline:2px solid #58a6ff}
+  .tab{display:none}
+  .tab.active{display:block}
+  .imgrow{display:flex;gap:8px;flex-wrap:wrap}
+  .imgrow img{max-width:32%;height:auto;border:1px solid #30363d;border-radius:8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🚦 CRPC Dashboard</h1>
+  <div>
+    <span class="chip" id="now">--:--:--</span>
+    <span class="chip">refresh <span id="refreshMs">2000</span> ms</span>
+  </div>
+</header>
+
+<div class="tabbar">
+  <button id="tabMainBtn" class="active">Main</button>
+  <button id="tabEvalBtn">Eval</button>
+</div>
+
+<div id="tabMain" class="tab active">
+  <div class="grid cols-3">
+    <div class="card">
+      <h2>🧩 Servizi</h2>
+      <div id="services"></div>
+    </div>
+
+    <div class="card">
+      <h2>💾 /tmp</h2>
+      <div class="kpi">
+        <div class="chip">Total: <span id="tmpTotal">-</span></div>
+        <div class="chip">Used: <span id="tmpUsed">-</span></div>
+        <div class="chip">Free: <span id="tmpFree">-</span></div>
+        <div class="chip">Usage: <span id="tmpPct">-</span></div>
+      </div>
+      <div style="margin-top:8px">
+        <canvas id="tmpSpark" class="spark"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🖼️ Tiles</h2>
+      <div class="kpi">
+        <div class="chip">In coda: <b id="tilesQueue">0</b></div>
+        <div class="chip">Completate: <b id="tilesDone">0</b></div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <div class="grow">
+          <div class="muted">Queue latest</div>
+          <div id="tilesLatestQ" class="mono muted">—</div>
+        </div>
+        <div class="grow">
+          <div class="muted">Done latest</div>
+          <div id="tilesLatestD" class="mono muted">—</div>
+        </div>
+      </div>
+      <div class="imgrow" id="tilesPreview"></div>
+    </div>
+  </div>
+
+  <div class="grid cols-2">
+    <div class="card">
+      <h2>🎯 Detections (tail)</h2>
+      <pre id="detTail" class="mono" style="white-space:pre-wrap;max-height:180px;overflow:auto">—</pre>
+    </div>
+    <div class="card">
+      <h2>📜 Assoc log (tail)</h2>
+      <pre id="assocLog" class="mono" style="white-space:pre-wrap;max-height:180px;overflow:auto">—</pre>
+    </div>
+  </div>
+
+  <div class="grid cols-2">
+    <div class="card">
+      <h2>🧭 Tracks current</h2>
+      <table id="tracksTbl">
+        <thead><tr><th>ID</th><th>Band</th><th>f (MHz)</th><th>bw</th><th>hop</th><th>len</th><th>seen</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h2>🤖 RFScan (fusion)</h2>
+      <table id="rfTbl">
+        <thead><tr><th>ID</th><th>Band</th><th>f (MHz)</th><th>bw</th><th>Family</th><th>Label</th><th>Score</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div style="margin-top:8px">
+        <h3 class="muted" style="margin:0 0 6px 0">Breakdown per banda</h3>
+        <table id="bandTbl">
+          <thead><tr><th>Banda</th><th>Famiglia</th><th>Count</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid cols-2">
+    <div class="card">
+      <h2>📡 Sweep tails</h2>
+      <div class="row">
+        <div class="grow">
+          <div class="muted">2.4 GHz</div>
+          <pre id="s24" class="mono" style="white-space:pre-wrap;max-height:120px;overflow:auto"></pre>
+        </div>
+        <div class="grow">
+          <div class="muted">5.8 GHz</div>
+          <pre id="s58" class="mono" style="white-space:pre-wrap;max-height:120px;overflow:auto"></pre>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>⚠️ Warnings (journal)</h2>
+      <pre id="warnTail" class="mono" style="white-space:pre-wrap;max-height:120px;overflow:auto"></pre>
+    </div>
+  </div>
+</div>
+
+<div id="tabEval" class="tab">
+  <div class="grid cols-2">
+    <div class="card">
+      <h2>📊 Confusion Matrix (famiglia)</h2>
+      <div id="evalInfo" class="muted">—</div>
+      <table id="cmTbl">
+        <thead id="cmHead"></thead>
+        <tbody id="cmBody"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h2>✅ Precision / Recall</h2>
+      <table id="prTbl">
+        <thead><tr><th>Classe</th><th>Precision</th><th>Recall</th><th>Support</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const REFRESH_MS = 2000;
+const api = (p)=>fetch(p).then(r=>r.json());
+const byId = (id)=>document.getElementById(id);
+function bytes(v){ if(!v && v!==0) return "-"; const u=['B','KB','MB','GB']; let i=0; while(v>1024 && i<u.length-1){v/=1024;i++;} return v.toFixed( (i<2)?0:1 )+" "+u[i]; }
+function pct(p){ return (p==null)?"-":(p.toFixed? p.toFixed(0):p)+"%"; }
+function tsfmt(){ const d=new Date(); return d.toLocaleTimeString(); }
+
+// tabs
+const tabMainBtn = byId('tabMainBtn');
+const tabEvalBtn = byId('tabEvalBtn');
+const tabMain = byId('tabMain');
+const tabEval = byId('tabEval');
+tabMainBtn.onclick = ()=>{ tabMainBtn.classList.add('active'); tabEvalBtn.classList.remove('active'); tabMain.classList.add('active'); tabEval.classList.remove('active'); };
+tabEvalBtn.onclick = ()=>{ tabEvalBtn.classList.add('active'); tabMainBtn.classList.remove('active'); tabEval.classList.add('active'); tabMain.classList.remove('active'); };
+
+// Simple sparkline
+const spark = {
+  data: [], maxPoints: 60,
+  push(v){ this.data.push(v); if(this.data.length>this.maxPoints) this.data.shift(); },
+  draw(id){
+    const c = byId(id); if(!c) return;
+    const ctx = c.getContext('2d'); const W = c.width = c.clientWidth; const H = c.height = c.clientHeight;
+    ctx.clearRect(0,0,W,H); if(this.data.length<2) return;
+    const min = Math.min(...this.data), max = Math.max(...this.data);
+    const xr = (i)=> i*(W/(this.data.length-1));
+    const yr = (v)=> H - ((v-min)/(max-min||1))*H;
+    ctx.beginPath();
+    this.data.forEach((v,i)=>{ const x = xr(i), y = yr(v); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); });
+    ctx.lineWidth = 2; ctx.strokeStyle = "#58a6ff"; ctx.stroke();
+  }
+};
+
+function renderBandBreakdown(obj){
+  const tbody = byId('bandTbl').querySelector('tbody');
+  tbody.innerHTML = '';
+  const bands = Object.keys(obj||{});
+  bands.forEach(b=>{
+    const fams = obj[b] || {};
+    Object.keys(fams).forEach(f=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${b}</td><td>${f}</td><td class="mono">${fams[f]}</td>`;
+      tbody.appendChild(tr);
+    });
+  });
+}
+
+function renderPreviews(previews){
+  const div = byId('tilesPreview');
+  div.innerHTML = '';
+  const imgs = [...(previews?.done||[]), ...(previews?.queue||[])].slice(0,3);
+  imgs.forEach(n=>{
+    const img = document.createElement('img');
+    img.src = '/api/file/'+encodeURIComponent(n);
+    img.alt = n;
+    div.appendChild(img);
+  });
+}
+
+function renderConfMatrix(evalObj){
+  const info = byId('evalInfo');
+  const head = byId('cmHead');
+  const body = byId('cmBody');
+  const prBody = byId('prTbl').querySelector('tbody');
+  head.innerHTML = ''; body.innerHTML = ''; prBody.innerHTML='';
+
+  if(!evalObj?.available){
+    info.textContent = 'Ground truth non configurata (CRPC_GT_CSV).';
+    return;
+  }
+  info.textContent = `samples=${evalObj.n_samples} | accuracy=${(evalObj.accuracy*100).toFixed(1)}%`;
+  const labels = evalObj.labels || [];
+  // header
+  const trh = document.createElement('tr');
+  trh.innerHTML = '<th>True \\ Pred</th>' + labels.map(l=>`<th>${l}</th>`).join('');
+  head.appendChild(trh);
+  // rows
+  labels.forEach(t=>{
+    const tr = document.createElement('tr');
+    const cells = [ `<td>${t}</td>` ];
+    labels.forEach(p=> cells.push(`<td class="mono">${evalObj.confusion_matrix[t][p]}</td>`));
+    tr.innerHTML = cells.join('');
+    body.appendChild(tr);
+  });
+  // PR table
+  labels.forEach(l=>{
+    const tr = document.createElement('tr');
+    const pr = evalObj.precision[l] ?? 0, rc = evalObj.recall[l] ?? 0, sup = evalObj.support[l] ?? 0;
+    tr.innerHTML = `<td>${l}</td><td class="mono">${(pr*100).toFixed(1)}%</td><td class="mono">${(rc*100).toFixed(1)}%</td><td class="mono">${sup}</td>`;
+    prBody.appendChild(tr);
+  });
+}
+
+async function tick(){
+  try{
+    const j = await api('/api/status');
+    byId('now').textContent = tsfmt();
+
+    // services
+    const sDiv = byId('services'); sDiv.innerHTML = '';
+    Object.entries(j.services||{}).forEach(([name,state])=>{
+      const color = state==='active' ? 'ok' : (state==='failed' || state==='inactive' ? 'bad' : 'warn');
+      const el = document.createElement('div');
+      el.className = 'svc';
+      el.innerHTML = `<div class="mono">${name}</div><div class="state ${color}">${state}</div>`;
+      sDiv.appendChild(el);
+    });
+
+    // /tmp
+    if(j.tmp_usage){
+      byId('tmpTotal').textContent = bytes(j.tmp_usage.total);
+      byId('tmpUsed').textContent  = bytes(j.tmp_usage.used);
+      byId('tmpFree').textContent  = bytes(j.tmp_usage.free);
+      byId('tmpPct').textContent   = pct(j.tmp_usage.percent);
+      spark.push(j.tmp_usage.percent||0); spark.draw('tmpSpark');
+    }
+
+    // tiles
+    byId('tilesQueue').textContent = j.tiles?.queue ?? '-';
+    byId('tilesDone').textContent  = j.tiles?.done ?? '-';
+    byId('tilesLatestQ').textContent = (j.tiles?.latest_queue||[]).join('\\n') || '—';
+    byId('tilesLatestD').textContent = (j.tiles?.latest_done||[]).join('\\n') || '—';
+    renderPreviews(j.previews);
+
+    // logs tails
+    byId('detTail').textContent = (j.logs?.detections_tail||[]).join('\\n') || '—';
+    byId('assocLog').textContent = (j.logs?.assoc_log_tail||[]).join('\\n') || '—';
+    byId('warnTail').textContent = (j.logs?.warnings_tail||[]).join('\\n') || '—';
+
+    // sweeps
+    byId('s24').textContent = (j.sweeps?.["24"]||[]).join('\\n') || '—';
+    byId('s58').textContent = (j.sweeps?.["58"]||[]).join('\\n') || '—';
+
+    // tracks table
+    const tBody = document.querySelector('#tracksTbl tbody'); tBody.innerHTML = '';
+    (j.tracks_current||[]).forEach(o=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td class="mono">${o.track_id}</td>
+        <td>${o.band}</td>
+        <td class="mono">${(o.center_freq_mhz??0).toFixed(3)}</td>
+        <td class="mono">${(o.bandwidth_mhz??0).toFixed(3)}</td>
+        <td class="mono">${(o.hop_rate_mhz_s??0).toFixed(3)}</td>
+        <td class="mono">${o.len}</td>
+        <td class="mono">${(o.last_seen??0).toFixed(1)}</td>`;
+      tBody.appendChild(tr);
+    });
+
+    // rfscan table
+    const rBody = document.querySelector('#rfTbl tbody'); rBody.innerHTML = '';
+    (j.rfscan_current||[]).forEach(o=>{
+      const tr = document.createElement('tr');
+      const fam = o.family || '';
+      const famCls = fam==='DJI'?'ok': (fam==='FrSky'||fam==='FlySky'?'warn':'')
+      tr.innerHTML = `<td class="mono">${o.track_id}</td>
+        <td>${o.band||''}</td>
+        <td class="mono">${(o.center_freq_mhz??0).toFixed(3)}</td>
+        <td class="mono">${(o.bandwidth_mhz??0).toFixed(3)}</td>
+        <td class="${famCls}">${fam}</td>
+        <td class="mono">${o.label||''}</td>
+        <td class="mono">${(o.score??0).toFixed(2)}</td>`;
+      rBody.appendChild(tr);
+    });
+
+    renderBandBreakdown(j.breakdown_by_band);
+    renderConfMatrix(j.eval);
+
+  }catch(e){
+    console.error(e);
+  }finally{
+    setTimeout(tick, REFRESH_MS);
+  }
+}
+document.getElementById('refreshMs').textContent = REFRESH_MS;
+tick();
+</script>
+</body>
+</html>

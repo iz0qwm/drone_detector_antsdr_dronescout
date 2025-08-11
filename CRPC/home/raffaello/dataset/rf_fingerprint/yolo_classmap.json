@@ -1,0 +1,21 @@
+{
+  "by_id": {
+    "3": "DJI",     // Image_Transmission_signal_Square
+    "6": "FrSky",   // Taranis flight control
+    "7": "FlySky",  // LFMT
+    "9": "FrSky",   // SFLT
+    "11": "FlySky", // SFST
+    "12": "DJI",    // Square
+    "13": "FlySky"  // VLFMT
+  },
+  "by_name": {
+    "Image_Transmission_signal_Square": "DJI",
+    "Tarains_flight_control": "FrSky",
+    "frequency_hopping_signal_LFMT": "FlySky",
+    "frequency_hopping_signal_SFST": "FlySky",
+    "frequency_hopping_signal_SFLT": "FrSky",
+    "frequency_hopping_signal_VLFMT": "FlySky",
+    "frequency_hopping_signal_Square": "DJI"
+  }
+}
+

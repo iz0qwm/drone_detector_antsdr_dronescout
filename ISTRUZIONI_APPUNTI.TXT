@@ -1,0 +1,111 @@
+-----------------
+DRONE DETECTOR
+-----------------
+-----------------
+Drone ID e Remote ID
+-----------------
+
+
+192.168.1.10
+AntSDR - Firmware Alphafox:
+User: root
+Password: abawavearm
+-----------------------
+192.168.1.5
+Login: pi
+Password: raspberry
+-----------------------
+
+
+systemctl status drone_services.service
+
+sudo systemctl stop drone_services.service
+sudo systemctl start drone_services.service
+
+journalctl -u drone_services.service -f
+
+-------------------------------------
+VERSASYNC
+-------------------------------------
+Please read this page to understand how has been configured:
+http://www.unixwiz.net/techtips/raspberry-pi3-gps-time.html
+
+The important services are:
+ntpd
+gpsd
+
+The GPIO 4 is used for the PPS and is set in the boot. Look at /boot/config.txt
+It creates the /dev/pps0.
+You can test with: ppstest /dev/pps0
+
+To test the ntp: ntpq -p
+
+# ntpq -p
+remote refid st t when poll reach delay offset jitter
+==============================================================================
++SHM(0) .GPS. 0 l 15 64 17 0.000 -65.198 14.456
+*SHM(2) .PPS. 0 l 13 64 17 0.000 523.376 31.813
+
+If you see the * it means that the ntp is working with a clock reference.
+
+-------------------------------------
+VERSASYNC
+-------------------------------------
+
+
+
+
+-----------------------
+CRPC
+-----------------------
+192.168.1.6
+login: raffaello
+password: RaDa0707
+
+IMMAGINI RF:
+https://universe.roboflow.com/rui-shi/drone-signal-detect-few-shot/dataset/6/images
+
+
+
+-----------------------------------------------------------------------------------
+UTILIZZARE --break-system-packages   per installare con pip
+-----------------------------------------------------------------------------------
+python3 -m pip install --upgrade pip setuptools wheel --break-system-packages
+
+-----------------------------
+VENV solo per ADDESTRAMENTO
+-----------------------------
+python3 -m venv --system-site-packages ~/yolo-venv
+source ~/yolo-venv/bin/activate
+
+# Pin NumPy < 2 per compatibilità con i moduli apt
+pip install --upgrade "numpy==1.26.4" pip
+
+# Installa Ultralytics senza far aggiornare numpy
+pip install --no-deps ultralytics
+pip install "opencv-python<4.10" "pillow<11" "matplotlib<3.9"  # dipendenze base compatibili
+
+
+-----------------------------------------------------------------
+ADDESTRAMENTO
+-----------------------------------------------------------------
+# dentro al venv
+source ~/yolo-venv/bin/activate
+export PYTHONNOUSERSITE=1
+export MPLBACKEND=Agg
+
+python - <<'PY'
+from ultralytics import YOLO
+m = YOLO('yolov8n.pt')
+# plots=False evita matplotlib (meno rogne con numpy/font)
+m.train(
+    data='/home/raffaello/dataset/yolo_vision/data.yaml',
+    epochs=50, imgsz=640, batch=8, workers=2,
+    project='/home/raffaello/yolo_runs', name='rf_yolo',
+    plots=False
+)
+PY
+-----------------------------------------------------------------
+
+
+

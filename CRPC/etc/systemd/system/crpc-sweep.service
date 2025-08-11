@@ -1,0 +1,14 @@
+[Unit]
+Description=CRPC HackRF sweep (text)
+After=crpc-prepare.service
+PartOf=crpc.target
+
+[Service]
+Type=simple
+User=raffaello
+ExecStart=/usr/bin/bash -lc '/home/raffaello/crpc/run_hackrf_text.sh'
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=crpc.target

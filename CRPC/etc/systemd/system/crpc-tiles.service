@@ -1,0 +1,14 @@
+[Unit]
+Description=CRPC sweep_to_tiles.py
+After=crpc-sweep.service
+PartOf=crpc.target
+
+[Service]
+Type=simple
+User=raffaello
+ExecStart=/usr/bin/python3 /home/raffaello/crpc/sweep_to_tiles.py
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=crpc.target

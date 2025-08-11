@@ -1,0 +1,22 @@
+{
+  "domain": "family",
+  "labels": [
+    "DJI"
+  ],
+  "confusion_matrix": {
+    "DJI": {
+      "DJI": 1
+    }
+  },
+  "accuracy": 1.0,
+  "n_samples": 1,
+  "precision": {
+    "DJI": 1.0
+  },
+  "recall": {
+    "DJI": 1.0
+  },
+  "support": {
+    "DJI": 1
+  }
+}

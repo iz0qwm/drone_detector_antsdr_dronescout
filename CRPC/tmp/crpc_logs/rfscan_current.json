@@ -1,0 +1,79 @@
+[
+  {
+    "ts": 1754836908.2398055,
+    "track_id": 55,
+    "band": "58",
+    "img": "58_000005.png",
+    "center_freq_mhz": 5834.235,
+    "bandwidth_mhz": 4.837,
+    "hop_rate_mhz_s": 0.0,
+    "label": "DJI AVTA2",
+    "family": "DJI",
+    "score": 0.268,
+    "source": "model/csv/img(fam)",
+    "model": {
+      "label": "DJI",
+      "score": 0.516
+    },
+    "csv": {
+      "label": "DJI AVTA2",
+      "score": 0.249,
+      "top": [
+        {
+          "label": "DJI AVTA2",
+          "d": 1.438,
+          "f": 5770.0,
+          "bw_rf": 7.0,
+          "bw_vts": 10.0,
+          "hop": 2.0
+        },
+        {
+          "label": "DJI FPV COMBO",
+          "d": 2.496,
+          "f": 5760.0,
+          "bw_rf": 5.0,
+          "bw_vts": 10.0,
+          "hop": 4.0
+        },
+        {
+          "label": "DJI MAVIC3 PRO",
+          "d": 3.228,
+          "f": 5800.0,
+          "bw_rf": 4.78,
+          "bw_vts": 10.0,
+          "hop": 6.0
+        },
+        {
+          "label": "PARROT",
+          "d": 11.375,
+          "f": 5750.0,
+          "bw_rf": 18.36,
+          "bw_vts": 20.01,
+          "hop": 21.5
+        },
+        {
+          "label": "DAUTEL EVO NANO",
+          "d": 15.197,
+          "f": 5770.0,
+          "bw_rf": 4.0,
+          "bw_vts": 20.0,
+          "hop": 29.53
+        }
+      ],
+      "used_vts_for_knn": false
+    },
+    "image_hint": {
+      "label": null,
+      "score": 0.0,
+      "cls_id": null,
+      "votes": {
+        "0": 20,
+        "1": 100,
+        "8": 46,
+        "11": 2
+      }
+    },
+    "vts_bw_est_mhz": null,
+    "bandwidth_used_for_csv_mhz": 4.84
+  }
+]

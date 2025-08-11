@@ -1,0 +1,8 @@
+[Unit]
+Description=CRPC Drone Detector Pipeline (umbrella)
+Wants=crpc-prepare.service crpc-sweep.service crpc-tiles.service crpc-yolo.service crpc-tracker.service crpc-rfscan.service
+After=network-online.target
+AllowIsolate=yes
+
+[Install]
+WantedBy=multi-user.target

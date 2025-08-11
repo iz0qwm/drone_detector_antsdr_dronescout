@@ -1,0 +1,22 @@
+[Unit]
+Description=CRPC RF Scan Classifier (YOLO tracks → fingerprint)
+After=network.target crpc-tracker.service
+Wants=crpc-tracker.service
+
+[Service]
+Type=simple
+User=raffaello
+WorkingDirectory=/home/raffaello/crpc
+Environment=FPRINT_DB=/home/raffaello/dataset/rf_fingerprint/fingerprint_db_full.csv
+Environment=RF_MODEL=/home/raffaello/models/rf_model.pkl
+ExecStartPre=/usr/bin/mkdir -p /tmp/crpc_logs
+ExecStart=/usr/bin/python3 /home/raffaello/crpc/rf_scan_classifier.py
+# systemd recente:
+StandardOutput=append:/tmp/crpc_logs/assoc.log
+StandardError=append:/tmp/crpc_logs/assoc.log
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
+

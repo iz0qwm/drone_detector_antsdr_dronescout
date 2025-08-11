@@ -1,0 +1,14 @@
+[Unit]
+Description=CRPC spectral tracker
+After=crpc-yolo.service
+PartOf=crpc.target
+
+[Service]
+Type=simple
+User=raffaello
+ExecStart=/usr/bin/python3 /home/raffaello/crpc/spectral_tracker.py
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=crpc.target

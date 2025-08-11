@@ -1,0 +1,7 @@
+[Unit]
+Description=CRPC cleanup (size + age)
+
+[Service]
+Type=oneshot
+User=raffaello
+ExecStart=/usr/local/bin/crpc_cleanup.sh

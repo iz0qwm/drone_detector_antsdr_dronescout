@@ -1,0 +1,26 @@
+# /etc/systemd/system/crpc-yolo.service
+[Unit]
+Description=CRPC YOLO watcher (yolo-venv)
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/home/raffaello/yolo-venv/bin/python
+
+[Service]
+Type=simple
+User=raffaello
+Group=raffaello
+WorkingDirectory=/home/raffaello/crpc
+Environment=PYTHONUNBUFFERED=1
+# Rende importabile la cartella scripts se hai moduli locali:
+Environment=PYTHONPATH=/home/raffaello/scripts
+# Metti il venv in testa al PATH (non strettamente necessario ma aiuta)
+Environment=PATH=/home/raffaello/yolo-venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+ExecStart=/home/raffaello/yolo-venv/bin/python /home/raffaello/crpc/yolo_watcher.py
+Restart=always
+RestartSec=3
+# (opzionale) aumenta i limiti se serve
+# LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
+
