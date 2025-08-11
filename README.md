@@ -1,116 +1,206 @@
 # 📡 Drone Detector con SDR e Raspberry Pi
 
-Questo progetto permette di utilizzare due SDR **ANTSDR E200** e **HackRF ONE** insieme a una **Raspberry Pi** per rilevare droni DJI con DroneID e droni generici con un approccio **CRPC (Cognitive Radio Protocol Cracking)** mentre, i droni con Remote ID, tramite **Dronescout bridge**, visualizzandoli su una mappa web e inviandoli a una rete Firebase (es. Drone Pilot App).
+Questo progetto utilizza **due ricevitori SDR distinti** su Raspberry Pi per rilevare droni di diverse tipologie:
+
+1. **Sistema 1 – ANTSDR E200 + DroneScout Bridge**  
+   Per il rilevamento **DJI DroneID** e **Remote ID**.
+2. **Sistema 2 – CRPC (Cognitive Radio Protocol Cracking)** con HackRF ONE  
+   Per l’analisi dello spettro RF e rilevamento di droni generici.
+
+Entrambi inviano i dati a un **cruscotto web** integrato e possono trasmettere le tracce a **Firebase** per la visualizzazione su altre piattaforme (es. Drone Pilot App).
 
 ---
 
-## ✅ Caratteristiche principali
-
-* **Rilevamento DJI DroneID** tramite ANTSDR E200
-* **Rilevamento Remote ID** tramite DroneScout Bridge
-* **Rilevamento droni generici** tramite HackRF ONE
-* **Server Web con mappa** integrato su Raspberry Pi
-* **Invio automatico dei dati** alla rete locale o a Firebase
+## ✅ Funzionalità principali
+- **Rilevamento DJI DroneID** via ANTSDR E200
+- **Rilevamento Remote ID** via DroneScout Bridge
+- **Rilevamento generico droni** via CRPC con HackRF
+- **Server web con mappa** e dashboard integrata
+- **Invio dati** in rete locale o verso Firebase
+- **Modalità waterfall** per visualizzare lo spettro in tempo reale (HackRF)
 
 ---
 
-## 📦 Struttura del progetto su Raspberry Pi
+## 📦 Struttura del repository su Raspberry Pi
 
 ```
-/home/pi/
-├── bridge_uploader.py          # Server web + ricezione dati da DJI e Remote ID
-├── start_all.sh                # Script di avvio completo
-├── stop_all.sh                 # Script di arresto completo
-├── static/                     # Cartella con la mappa e frontend web
-│
-├── trackers/                  
-│   ├── dji_receiver.py         # Riceve dati UDP da ANTSDR e li invia a bridge
-│   └── service_controller.sh   # Avvio/stop servizi tracker
-│
-└── remotetrack/
-    └── ... (dronescout mod)    # Codice modificato per invio dati Remote ID a bridge
+/home/pi/             # Sistema ANTSDR/DroneScout
+├── bridge_uploader.py
+├── start_all.sh / stop_all.sh
+├── static/           # Frontend mappa
+├── trackers/
+│   ├── dji_receiver.py
+│   └── service_controller.sh
+└── remotetrack/      # Bridge Remote ID modificato
+
+/home/raffaello/      # Sistema CRPC
+├── rf_scan_classifier.py
+├── waterfall_web.py
+├── start_crpc / stop_crpc
+├── crpc_cleanup.sh
+└── dataset/          # Immagini YOLO per addestramento
 ```
 
 ---
 
-## 🛠️ Installazione firmware ANTSDR DJI
+# 1️⃣ Sistema ANTSDR E200 + DroneScout Bridge
 
-1. Imposta la porta LAN del Raspberry Pi a IP **192.168.1.9**
-2. Inserisci la SD card con i file del firmware DJI forniti dal produttore
-3. L'ANTSDR sarà disponibile su IP **192.168.1.10** e inizierà a trasmettere i pacchetti DJI DroneID sulla porta UDP 41030
+### Installazione
+1. Impostare IP Raspberry Pi: `192.168.1.9`
+2. ANTSDR E200 con firmware DJI: IP `192.168.1.10`
+3. Avviare tutti i servizi:
+   ```bash
+   ./start_all.sh
+   ```
+4. Arresto servizi:
+   ```bash
+   ./stop_all.sh
+   ```
+
+### Accesso mappa web
+```
+http://<IP_RPI>:8080
+```
+
+### Componenti principali
+- **`dji_receiver.py`**: riceve UDP da ANTSDR e invia a `bridge_uploader.py`
+- **`remotetrack/`**: riceve Remote ID e invia a `bridge_uploader.py`
+- **`bridge_uploader.py`**: server web + gestione dati
 
 ---
 
-## ▶️ Avvio del sistema
+# 2️⃣ Sistema CRPC con HackRF ONE
 
-Per avviare tutto il sistema:
+### Login e IP
+- Raspberry Pi CRPC: IP `192.168.1.6`
+- Login: `raffaello / solita`
+
+### Servizi principali
+File di configurazione:
+```
+/etc/default/crpc
+```
+Target e unità principali:
+```
+crpc.target
+crpc-prepare.service
+crpc-sweep.service
+crpc-tiles.service
+crpc-yolo.service
+crpc-tracker.service
+crpc-rfscan.service
+crpc-cleanup.service
+```
+
+### Stato servizi
+```bash
+# Stato generale
+systemctl status crpc.target
+
+# Servizi singoli
+systemctl status crpc-sweep.service
+journalctl -u crpc-yolo.service -f   # log YOLO + detections
+systemctl status crpc-tracker.service
+journalctl -u crpc-rfscan.service -f
+```
+
+### Avvio/Stop manuale
+```bash
+/usr/local/bin/start_crpc
+/usr/local/bin/stop_crpc
+```
+
+### Pulizia file temporanei
+```bash
+/usr/local/bin/crpc_cleanup.sh
+```
+
+---
+
+## 📊 Addestramento YOLO (solo su CRPC)
+> L’addestramento si esegue solo in un **venv** dedicato per non interferire con i pacchetti di sistema.
 
 ```bash
-cd /home/pi
-./start_all.sh
+python3 -m venv --system-site-packages ~/yolo-venv
+source ~/yolo-venv/bin/activate
+pip install --upgrade "numpy==1.26.4" pip
+pip install --no-deps ultralytics
+pip install "opencv-python<4.10" "pillow<11" "matplotlib<3.9"
 ```
 
-Per arrestarlo:
+Dataset RF:  
+[Roboflow Dataset](https://universe.roboflow.com/rui-shi/drone-signal-detect-few-shot/dataset/6/images)
 
+Esempio di training:
+```python
+from ultralytics import YOLO
+m = YOLO('yolov8n.pt')
+m.train(
+    data='/home/raffaello/dataset/yolo_vision/data.yaml',
+    epochs=50, imgsz=640, batch=8, workers=2,
+    project='/home/raffaello/yolo_runs', name='rf_yolo',
+    plots=False
+)
+```
+
+---
+
+## 🎯 Classificatore RF
+Esempi di configurazioni:
 ```bash
-./stop_all.sh
-```
+# Bilanciato
+python3 rf_scan_classifier.py --w-model 0.45 --w-csv 0.35 --w-img 0.20 --min-track-len 1 --fprint-min 0.05
 
-Questi script gestiscono sia il `dji_receiver.py` che i servizi del Remote ID.
-
----
-
-## 🔁 DJI DroneID Tracker: `dji_receiver.py`
-
-Si trova in:
-
-```
-/home/pi/trackers/dji_receiver.py
-```
-
-Riceve pacchetti UDP da ANTSDR e li invia via HTTP al server locale (`bridge_uploader.py`).
-
----
-
-## 🌐 Web Server e Bridge: `bridge_uploader.py`
-
-File principale:
-
-```
-/home/pi/bridge_uploader.py
-```
-
-Funzionalità:
-
-* Riceve dati via HTTP da `dji_receiver.py` e `remotetrack`
-* Visualizza in tempo reale i droni rilevati su una **mappa web** accessibile da browser
-* Espone la mappa su `http://<IP_RPI>:8080`
-
-La parte frontend è contenuta nella cartella:
-
-```
-/home/pi/static/
+# Alta precisione
+python3 rf_scan_classifier.py --fprint-min 0.35
 ```
 
 ---
 
-## 📡 Remote ID Tracker: `remotetrack/`
-
-Questa cartella contiene la versione modificata del software DroneScout Bridge, in grado di:
-
-* Ricevere pacchetti Remote ID via USB
-* Inviarli via HTTP a `bridge_uploader.py`
-
----
-
-## 📌 Note
-
-* L'indirizzo IP **fisso** dell'ANTSDR E200 deve essere `192.168.1.10`
-* Il Raspberry Pi deve avere IP `192.168.1.9`
-* Non è necessario modificare l'indirizzo IP del firmware
+## 🌊 Modalità waterfall HackRF
+```bash
+mkfifo /tmp/hackrf.iq
+hackrf_transfer -f 2440000000 -s 10000000 -a 1 -l 16 -g 32 -r /tmp/hackrf.iq
+python waterfall_web.py
+```
 
 ---
 
-## ⚠️ Legale
+## 🌐 Accesso al cruscotto web CRPC
+```
+http://192.168.1.6:8080
+```
+Mostra:
+- Mappa droni
+- Log in tempo reale
+- Immagini YOLO
+- Modalità waterfall RF
 
-L'utilizzo di questo sistema può essere soggetto a regolamenti locali in materia di radiofrequenze e privacy. Verificare sempre la conformità normativa prima dell'utilizzo in campo.
+---
+
+## 📊 Diagramma architetturale
+
+```mermaid
+flowchart LR
+    subgraph Sistema1[ANTSDR E200 + DroneScout Bridge]
+        A1[ANTSDR E200] -->|UDP| B1[dji_receiver.py]
+        B1 -->|HTTP| C1[bridge_uploader.py]
+        A2[DroneScout Bridge] -->|HTTP| C1
+        C1 -->|Mappa Web| D1[Browser]
+        C1 -->|Firebase| D2[Drone Pilot App]
+    end
+
+    subgraph Sistema2[CRPC con HackRF ONE]
+        A3[HackRF ONE] -->|IQ Stream| B2[crpc-sweep.service]
+        B2 -->|Tiles| B3[crpc-yolo.service]
+        B3 -->|Detection| C2[crpc-tracker.service]
+        C2 -->|Mappa Web| D3[Browser]
+        C2 -->|Firebase| D4[Drone Pilot App]
+    end
+```
+
+---
+
+## ⚠️ Note legali
+L’uso di questo sistema è soggetto alle normative locali su radiofrequenze e privacy.  
+Verificare sempre la conformità prima dell’utilizzo.
