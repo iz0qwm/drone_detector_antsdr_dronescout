@@ -171,17 +171,8 @@
 
   <div class="grid cols-2">
     <div class="card">
-      <h2>📡 Spectrum (mini)</h2>
-      <div class="kpi">
-        <div class="chip">Band:
-          <select id="miniSpecBand">
-            <option value="24">2.4 GHz</option>
-            <option value="58">5.8 GHz</option>
-          </select>
-        </div>
-        <div class="chip">Last update: <span id="miniSpecTs">—</span></div>
-      </div>
-      <canvas id="miniSpecCanvas" class="spark" style="height:160px"></canvas>
+      <h2>🎯 Detections (tail)</h2>
+      <pre id="detTail" class="mono" style="white-space:pre-wrap;max-height:180px;overflow:auto">—</pre>
     </div>
     <div class="card">
       <h2>📜 Assoc log (tail)</h2>
@@ -214,7 +205,7 @@
   </div>
 
   <div class="grid cols-2">
-    <div class="card">
+    <div class="card" style="grid-column:1/-1">
       <h2>🎯 Detections</h2>
       <div class="muted" id="detInfoMain">auto‑refresh ogni 2s</div>
       <div class="det-grid" id="detGridMain"></div>
@@ -228,7 +219,7 @@
 
 <div id="tabDet" class="tab">
   <div class="grid cols-3">
-    <div class="card">
+    <div class="card" style="grid-column:1/-1">
       <h2>🎯 Detections</h2>
       <div class="muted" id="detInfo">auto‑refresh ogni 2s</div>
       <div class="det-grid" id="detGrid"></div>
@@ -300,51 +291,10 @@ const tabSpec    = byId('tabSpec');
 const specBandSel = byId('specBand');
 const specCanvas  = byId('specCanvas');
 
-// --- Mini Spectrum (Main tab) ---
-const miniSpecBandSel = byId('miniSpecBand');
-const miniSpecCanvas  = byId('miniSpecCanvas');
 
-async function refreshMiniSpectrum(){
-  try{
-    const r = await api('/api/spectrum');
-    const band = (miniSpecBandSel && miniSpecBandSel.value) ? miniSpecBandSel.value : '24';
-    const l = r.latest && r.latest[band] ? r.latest[band] : null;
-    const tsEl = document.getElementById('miniSpecTs');
-    if(tsEl) tsEl.textContent = l && l.ts ? new Date(l.ts*1000).toLocaleString() : '—';
-    drawSpectrumGeneric(
-      miniSpecCanvas,
-      l ? (l.freqs_mhz || []) : [],
-      l ? (l.pwr_dbm   || []) : [],
-      l ?  l.yaxis             : null
-    );
-
-  }catch(e){ /* silent */ }
-}
-if (miniSpecBandSel) miniSpecBandSel.onchange = refreshMiniSpectrum;
-refreshMiniSpectrum();
-setInterval(refreshMiniSpectrum, REFRESH_MS);
-
-
-
-
-tabMainBtn.onclick = ()=>{
-  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn].forEach(b=>b.classList.remove('active'));
-  tabMainBtn.classList.add('active');
-  [tabMain,tabDet,tabWater,tabSpec].forEach(x=>x.classList.remove('active'));
-  tabMain.classList.add('active');
-};
-tabDetBtn.onclick = ()=>{
-  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn].forEach(b=>b.classList.remove('active'));
-  tabDetBtn.classList.add('active');
-  [tabMain,tabDet,tabWater,tabSpec].forEach(x=>x.classList.remove('active'));
-  tabDet.classList.add('active');
-};
-tabWaterBtn.onclick = ()=>{
-  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn].forEach(b=>b.classList.remove('active'));
-  tabWaterBtn.classList.add('active');
-  [tabMain,tabDet,tabWater,tabSpec].forEach(x=>x.classList.remove('active'));
-  tabWater.classList.add('active');
-};
+tabMainBtn.onclick = ()=>{ [tabMainBtn,tabDetBtn,tabWaterBtn].forEach(b=>b.classList.remove('active')); tabMainBtn.classList.add('active'); [tabMain,tabDet,tabWater].forEach(x=>x.classList.remove('active')); tabMain.classList.add('active'); };
+tabDetBtn.onclick  = ()=>{ [tabMainBtn,tabDetBtn,tabWaterBtn].forEach(b=>b.classList.remove('active')); tabDetBtn.classList.add('active');  [tabMain,tabDet,tabWater].forEach(x=>x.classList.remove('active')); tabDet.classList.add('active'); };
+tabWaterBtn.onclick= ()=>{ [tabMainBtn,tabDetBtn,tabWaterBtn].forEach(b=>b.classList.remove('active')); tabWaterBtn.classList.add('active');[tabMain,tabDet,tabWater].forEach(x=>x.classList.remove('active')); tabWater.classList.add('active'); };
 tabSpecBtn.onclick = ()=>{
   [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn].forEach(b=>b.classList.remove('active'));
   tabSpecBtn.classList.add('active');
@@ -452,53 +402,19 @@ function renderConfMatrix(evalObj){
 }
 
 
-
-function drawSpectrumGeneric(canvasEl, freqs, pwr, yaxis){
-  if(!canvasEl) return;
-  const c = canvasEl; const ctx = c.getContext('2d');
+function drawSpectrum(freqs, pwr){
+  const c = specCanvas; const ctx = c.getContext('2d');
   const W = c.width = c.clientWidth, H = c.height = c.clientHeight;
   ctx.clearRect(0,0,W,H);
-
-  if(!freqs || !pwr || freqs.length<2 || pwr.length!==freqs.length){
-    ctx.fillStyle = '#8b949e';
-    ctx.fillText('No spectrum data yet', 12, 20);
-    return;
-  }
-
+  if(!freqs || !pwr || freqs.length<2 || pwr.length!==freqs.length) return;
   const fmin = Math.min(...freqs), fmax = Math.max(...freqs);
-
-  // === NUOVO: usa yaxis se presente, altrimenti autoscala ===
-  let amin, amax;
-  if (yaxis && typeof yaxis.min === 'number' && typeof yaxis.max === 'number' && yaxis.max > yaxis.min){
-    amin = yaxis.min;
-    amax = yaxis.max;
-  } else {
-    amin = Math.min(...pwr);
-    amax = Math.max(...pwr);
-    if (amax - amin < 1e-6) amax = amin + 1; // evita div/0
-  }
-
+  const amin = Math.min(...pwr),   amax = Math.max(...pwr);
   const x = f => ( (f - fmin) / ((fmax-fmin)||1) ) * W;
   const y = a => H - ( (a - amin) / ((amax-amin)||1) ) * H;
-
-  // linea del floor se yaxis presente
-  if (yaxis && typeof yaxis.min === 'number'){
-    ctx.beginPath();
-    ctx.moveTo(0, y(yaxis.min));
-    ctx.lineTo(W, y(yaxis.min));
-    ctx.lineWidth = 1;
-    ctx.setLineDash([4,3]);
-    ctx.strokeStyle = "#30363d";
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }
-
-  // traccia lo spettro
   ctx.beginPath();
   freqs.forEach((f,i)=>{ const X=x(f), Y=y(pwr[i]); if(i===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y); });
   ctx.lineWidth = 1.5; ctx.strokeStyle = "#58a6ff"; ctx.stroke();
-
-  // etichette rapide
+  // assi semplici
   ctx.fillStyle = "#8b949e";
   ctx.fillText(`${fmin.toFixed(1)} MHz`, 4, 12);
   const mid = (fmin+fmax)/2; ctx.fillText(`${mid.toFixed(1)} MHz`, W/2-36, 12);
@@ -507,18 +423,13 @@ function drawSpectrumGeneric(canvasEl, freqs, pwr, yaxis){
   ctx.fillText(`${amin.toFixed(1)} dBm`, 4, H-6);
 }
 
-
-function drawSpectrum(freqs, pwr, yaxis){
-  drawSpectrumGeneric(specCanvas, freqs, pwr, yaxis);
-}
-
 async function refreshSpectrum(){
   try{
     const j = await api('/api/spectrum');
     const band = specBandSel.value || '24';
     const l = j.latest?.[band];
     byId('specTs').textContent = l?.ts ? new Date(l.ts*1000).toLocaleString() : '—';
-    drawSpectrum(l?.freqs_mhz||[], l?.pwr_dbm||[], l?.yaxis||null);
+    drawSpectrum(l?.freqs_mhz||[], l?.pwr_dbm||[]);
     // peaks
     const tbody = byId('peakTbl').querySelector('tbody'); tbody.innerHTML='';
     (j.peaks||[]).slice(-20).reverse().forEach(p=>{
@@ -564,13 +475,13 @@ async function tick(){
     renderPreviews(j.previews);
 
     // logs tails
-    (function(el){ if(el) el.textContent = (j.logs?.detections_tail||[]).join('\n') || '—'; })(byId("detTail"));
+    byId('detTail').textContent = (j.logs?.detections_tail||[]).join('\n') || '—';
     byId('assocLog').textContent = (j.logs?.assoc_log_tail||[]).join('\n') || '—';
     byId('warnTail').textContent = (j.logs?.warnings_tail||[]).join('\n') || '—';
 
     // sweeps
-    (function(el){ if(el) el.textContent = (j.sweeps?.["24"]||[]).join('\n') || '—'; })(byId("s24"));
-    (function(el){ if(el) el.textContent = (j.sweeps?.["58"]||[]).join('\n') || '—'; })(byId("s58"));
+    byId('s24').textContent = (j.sweeps?.["24"]||[]).join('\n') || '—';
+    byId('s58').textContent = (j.sweeps?.["58"]||[]).join('\n') || '—';
 
     // tracks table
     const tBody = document.querySelector('#tracksTbl tbody'); tBody.innerHTML = '';
@@ -695,14 +606,6 @@ setInterval(refreshDetections, REFRESH_MS);
   const f = document.getElementById('waterframe');
   if(f) f.src = url;
 })();
-
-if (typeof REFRESH_MS === 'undefined') {
-  window.REFRESH_MS = 2000;
-}
-
-refreshDetectionsInto('detGridMain','detInfoMain');
-setInterval(()=>refreshDetectionsInto('detGridMain','detInfoMain'), REFRESH_MS);
 </script>
-
 </body>
 </html>

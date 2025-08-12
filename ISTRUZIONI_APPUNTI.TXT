@@ -132,7 +132,8 @@ File di configurazione:  /etc/default/crpc
 # /etc/systemd/system/crpc-assoc.service
 /etc/systemd/system/crpc-rfscan.service
 /etc/systemd/system/crpc-cleanup.service
-
+/etc/systemd/system/rfe-dual-scan.service
+/etc/systemd/system/rfe-csv-bridge.service
 ----------------------------------
 # Stato generale
 systemctl status crpc.target

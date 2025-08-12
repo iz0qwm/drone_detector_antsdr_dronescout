@@ -27,6 +27,7 @@ import os, json, time, subprocess, io, threading
 from pathlib import Path
 from flask import Flask, jsonify, send_from_directory, request, Response, send_file
 import psutil
+from datetime import datetime
 
 # --- Optional deps for Waterfall ---
 # We import numpy/matplotlib unconditionally because the user requested integrated waterfall.
@@ -55,11 +56,13 @@ RFSCAN_CURR = LOG_DIR / "rfscan_current.json"
 RFSCAN_JL = LOG_DIR / "rfscan.jsonl"
 ASSOC = LOG_DIR / "associations.jsonl"   # optional legacy
 ASSOC_LOG = LOG_DIR / "assoc.log"
+# --- new: RFExplorer sweep JSONL ---
+RFE_SWEEP_JL = LOG_DIR / "rfe_sweep.jsonl"
 
 DISABLE_EVAL = os.environ.get("CRPC_DISABLE_EVAL", "0") == "1"
 DISABLE_JOURNAL = os.environ.get("CRPC_DISABLE_JOURNAL", "0") == "1"
 
-SERVICES = ["crpc-tiles","crpc-sweep","crpc-tracker","crpc-yolo","crpc-rfscan","crpc-api","crpc-waterfall"]
+SERVICES = ["crpc-tiles","crpc-sweep","crpc-tracker","crpc-yolo","crpc-rfscan","crpc-api","crpc-waterfall","rfe-dual-scan","rfe-csv-bridge"]
 
 app = Flask(__name__, static_folder=str(BASE_DIR))
 
@@ -497,6 +500,120 @@ def api_detections():
         })
     out.sort(key=lambda x: (x["ts_unix"] is None, -(x["ts_unix"] or 0)))
     return jsonify({"detections": out, "ts": now})
+
+def _ts_to_epoch(v):
+    if v is None: return 0.0
+    try:
+        return float(v)  # già epoch?
+    except Exception:
+        pass
+    try:
+        s = str(v).strip().replace("Z","")
+        return datetime.fromisoformat(s).timestamp()
+    except Exception:
+        return 0.0
+
+@app.route("/api/spectrum")
+def api_spectrum():
+    items = tail_json(RFE_SWEEP_JL, max_lines=1000)
+    want_debug = request.args.get("debug") in ("1", "true", "yes")
+
+    # Parametri di scala
+    try:
+        floor_dbm = float(request.args.get("floor") or os.environ.get("CRPC_SPECTRUM_FLOOR_DBM", "-105"))
+    except Exception:
+        floor_dbm = -105.0
+    ceil_arg = request.args.get("ceil") or os.environ.get("CRPC_SPECTRUM_CEIL_DBM")
+    ceil_dbm = float(ceil_arg) if ceil_arg not in (None, "") else None
+
+    peaks = []
+    n_peak, n_spec = 0, 0
+
+    # parse PEAKS
+    for x in items:
+        if (str(x.get("type") or "")).lower() == "peak":
+            try:
+                f = x.get("freq_mhz") or x.get("frequency")
+                a = x.get("power_dbm") or x.get("dbm") or x.get("amp_dbm") or x.get("amp")
+                dbm_val = float(a)
+                dbm_val = max(dbm_val, floor_dbm)  # clamp floor
+                peaks.append({
+                    "band": str(x.get("band") or "UNK"),
+                    "freq_mhz": float(f),
+                    "dbm": dbm_val,
+                    "ts": _ts_to_epoch(x.get("ts") or x.get("timestamp")),
+                })
+                n_peak += 1
+            except Exception:
+                continue
+
+    # parse ultimo SPECTRUM per banda
+    latest = {}
+    for b in ("24", "58"):
+        for x in reversed(items):
+            if (str(x.get("type") or "")).lower() != "spectrum":
+                continue
+            if str(x.get("band")) != b:
+                continue
+            pts = x.get("points")
+            freqs, pwr = [], []
+            if isinstance(pts, list) and pts and isinstance(pts[0], (list, tuple)):
+                for pt in pts:
+                    try:
+                        freqs.append(float(pt[0]))
+                        pwr.append(float(pt[1]))
+                    except Exception:
+                        pass
+            else:
+                ff = x.get("freqs_mhz") or x.get("freqs") or []
+                aa = x.get("pwr_dbm") or x.get("amps") or []
+                try:
+                    freqs = [float(v) for v in ff]
+                    pwr = [float(v) for v in aa]
+                except Exception:
+                    freqs, pwr = [], []
+
+            if freqs and pwr and len(freqs) == len(pwr):
+                # Clamp al floor
+                pwr = [max(float(v), floor_dbm) for v in pwr]
+
+                # Calcolo max
+                import numpy as _np
+                if ceil_dbm is not None:
+                    y_max = float(ceil_dbm)
+                else:
+                    try:
+                        y_max = float(_np.percentile(pwr, 95) + 3.0)
+                    except Exception:
+                        y_max = max(pwr) + 3.0
+                if y_max < floor_dbm + 20.0:
+                    y_max = floor_dbm + 20.0
+
+                latest[b] = {
+                    "ts": _ts_to_epoch(x.get("ts") or x.get("timestamp")),
+                    "freqs_mhz": freqs,
+                    "pwr_dbm": pwr,
+                    "yaxis": {"min": floor_dbm, "max": y_max}
+                }
+                n_spec += 1
+                break
+
+    resp = {"ts": time.time(), "latest": latest, "peaks": peaks}
+    if want_debug:
+        try:
+            mtime = RFE_SWEEP_JL.stat().st_mtime
+        except Exception:
+            mtime = None
+        resp["explain"] = {
+            "file": str(RFE_SWEEP_JL),
+            "exists": RFE_SWEEP_JL.exists(),
+            "size": (RFE_SWEEP_JL.stat().st_size if RFE_SWEEP_JL.exists() else 0),
+            "mtime": mtime,
+            "lines_read": len(items),
+            "n_peaks_parsed": n_peak,
+            "n_spectrum_parsed": n_spec
+        }
+    return jsonify(resp)
 
 
 # --- Waterfall (integrated) ---
