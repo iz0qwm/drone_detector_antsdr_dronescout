@@ -160,6 +160,21 @@ def bytes_h(n):
         n /= 1024.0
     return f"{n:.1f} PB"
 
+def latest_files_info(p: Path, n=3):
+    """Ritorna una lista di dict con name,url,ts_unix per gli ultimi PNG."""
+    out = []
+    try:
+        files = sorted(p.glob("*.png"), key=lambda q: q.stat().st_mtime, reverse=True)[:n]
+        for q in files:
+            out.append({
+                "name": q.name,
+                "url": f"/api/file/{q.name}",
+                "ts_unix": q.stat().st_mtime
+            })
+    except Exception:
+        pass
+    return out
+
 # ---- Evaluation (live) ----
 def family_from_label(lbl: str):
     if not lbl: return None
@@ -342,9 +357,12 @@ def api_status():
 
     # preview images (absolute URLs via /api/file)
     previews = {
-        "queue": tiles["latest_queue"],
-        "done": tiles["latest_done"]
+        "queue": tiles["latest_queue"],          # compatibilità retro
+        "done": tiles["latest_done"],            # compatibilità retro
+        "queue_info": latest_files_info(TILES, 3),
+        "done_info": latest_files_info(TILES_DONE, 3),
     }
+
 
     resp = {
         "ts": time.time(),

@@ -36,7 +36,10 @@
   .tab{display:none}
   .tab.active{display:block}
   .imgrow{display:flex;gap:8px;flex-wrap:wrap}
-  .imgrow img{max-width:32%;height:auto;border:1px solid #30363d;border-radius:8px}
+  /* .imgrow img{max-width:32%;height:auto;border:1px solid #30363d;border-radius:8px} 
+  .imgrow .tile-thumb{position:relative; display:inline-block; cursor:pointer}
+  .imgrow .tile-thumb img{max-width:32%; height:auto; border:1px solid #30363d; border-radius:8px}
+  .imgrow .tile-thumb:hover img{outline:2px solid #58a6ff} */
 
   /* Detections cards */
   .det-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:10px}
@@ -62,6 +65,52 @@
   /* Waterfall tab */
   .water-wrap{padding:12px}
   .water-iframe{width:100%;height:76vh;border:1px solid #30363d;border-radius:12px;background:#0b0f16}
+
+  /* Per le thumbnails */
+  /* Contenitore miniature: una sola riga */
+  /* === Tiles: fix dimensioni e click area === */
+  #tilesPreview{
+    display:flex;
+    flex-wrap:nowrap;                /* tutte e 3 in una riga */
+    gap:10px;
+    align-items:flex-start;
+  }
+
+  #tilesPreview .tile-thumb{
+    flex:0 0 calc((100% - 20px)/3);  /* 3 colonne (2 gap = 20px) */
+    max-width:calc((100% - 20px)/3);
+    padding:0;
+    margin:0;
+    border:none;
+  }
+
+  /* STOPPA la vecchia regola .imgrow img{max-width:32%} */
+  #tilesPreview .tile-thumb img{
+    display:block;
+    width:100% !important;
+    max-width:none !important;
+    height:auto;
+    margin:0;
+    border:1px solid #30363d;
+    border-radius:8px;
+  }
+
+  /* Hover opzionale */
+  #tilesPreview .tile-thumb:hover img{
+    outline:2px solid #58a6ff;
+  }
+
+  /* (opzionale) su schermi piccoli fai wrapping in 2 per riga */
+  @media (max-width: 900px){
+    #tilesPreview{ flex-wrap:wrap; }
+    #tilesPreview .tile-thumb{
+      flex:0 0 calc((100% - 10px)/2);
+      max-width:calc((100% - 10px)/2);
+    }
+  }
+
+
+
 </style>
 </head>
 <body>
@@ -260,12 +309,34 @@ function renderBandBreakdown(obj){
 function renderPreviews(previews){
   const div = byId('tilesPreview');
   div.innerHTML = '';
-  const imgs = [...(previews?.done||[]), ...(previews?.queue||[])].slice(0,3);
-  imgs.forEach(n=>{
-    const img = document.createElement('img');
-    img.src = '/api/file/'+encodeURIComponent(n);
-    img.alt = n;
-    div.appendChild(img);
+
+  // Usa i nuovi campi con info; se mancano, fai fallback ai vecchi array
+  const done = (previews?.done_info && previews.done_info.length)
+      ? previews.done_info
+      : (previews?.done||[]).map(name=>({name, url:'/api/file/'+encodeURIComponent(name), ts_unix:null}));
+
+  const queue = (previews?.queue_info && previews.queue_info.length)
+      ? previews.queue_info
+      : (previews?.queue||[]).map(name=>({name, url:'/api/file/'+encodeURIComponent(name), ts_unix:null}));
+
+  const imgs = [...done, ...queue].slice(0,3);
+
+  imgs.forEach(o=>{
+    const info = (o.ts_unix ? new Date(o.ts_unix*1000).toLocaleString()+' · ' : '')
+                 + (o.name || '');
+    const wrap = document.createElement('div');
+    wrap.className = 'tile-thumb';
+    wrap.dataset.img = o.url;
+    wrap.dataset.info = info;
+    wrap.innerHTML = `<img loading="lazy" src="${o.url}" alt="${o.name||''}">`;
+    wrap.addEventListener('click', ()=>{
+      // riusa il modal delle detections
+      const m = document.getElementById('detModal');
+      document.getElementById('detModalImg').src = o.url;
+      document.getElementById('detModalInfo').textContent = info;
+      m.classList.add('open');
+    });
+    div.appendChild(wrap);
   });
 }
 
