@@ -1,100 +1,107 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ================== CONFIG ==================
-# FIFO (una per banda)
-FIFO_24="/tmp/hackrf_24.iq"
-FIFO_58="/tmp/hackrf_58.iq"
+# ================== DEFAULTS ==================
+BAND=""                 # 24 | 58 (obbligatorio)
+F0_MHZ=""               # centro in MHz (obbligatorio)
+BW_HZ=""                # opzionale (informativo per la pipeline)
+SPS="10000000"          # sample rate (Hz)
+SECONDS="10"            # durata cattura (s)
 
-# HackRF sample rate (Hz). 8e6–12e6 di solito sono stabili.
-SR=10000000
-
-# Overlap tra centri: STEP in MHz (<= SR/1e6). Esempio: SR=10Msps → STEP=8 → 20% overlap
-STEP_MHZ=8
-
-# Bande da coprire (Hz)
-B24_LO=2400000000
-B24_HI=2500000000
-
-B58_LO=5725000000
-B58_HI=5875000000
-
-# Guadagni / alimentazione antenna
-ANT_PWR=1       # 1 se ti serve bias-T, altrimenti 0
+# Guadagni / bias-T (regola a piacere)
+ANT_PWR=1               # 1 = bias-T ON, 0 = OFF
 LNA_GAIN=16
 VGA_GAIN=32
 
-# Durata di campionamento per ogni center (secondi) e pausa
-CHUNK_SEC=2
-SLEEP_BETWEEN=0.2
-
 # Safety
-MIN_FREE_MB=200
-# ============================================
+MIN_FREE_MB=512         # non scrivere se /tmp < 512MB
+# ==============================================
 
-get_free_mb() { df --output=avail -m /tmp | tail -1; }
-
-mkfifo_safe () {
-  local p="$1"
-  if [[ -p "$p" ]]; then return; fi
-  rm -f "$p" || true
-  mkfifo "$p"
+usage() {
+  echo "Uso: $0 --band {24|58} --f0 <MHz> [--bw <Hz>] [--sps <Hz>] [--seconds <s>] [--out <path>]" >&2
+  exit 2
 }
 
-# Crea lista di center frequencies per coprire [LO, HI) con passo STEP_MHZ e un minimo di overlap
-make_centers () {
-  local LO=$1 HI=$2 STEP=$3
-  awk -v lo="$LO" -v hi="$HI" -v stepmhz="$STEP" '
-    BEGIN {
-      step = stepmhz*1e6;
-      # Primo centro: lo + BW/2 (BW ~= SR)
-      bw = '"$SR"';
-      c = lo + bw/2;
-      # Se il primo centro sfora verso hi, riportalo
-      if (c - bw/2 < lo) c = lo + bw/2;
-      while (c + bw/2 <= hi + 1) {
-        printf "%.0f\n", c;
-        c += step;
-      }
-    }'
-}
-
-band_loop () {
-  local BAND_LO="$1" BAND_HI="$2" FIFO="$3" NAME="$4"
-  local centers=()
-  while IFS= read -r cf; do centers+=("$cf"); done < <(make_centers "$BAND_LO" "$BAND_HI" "$STEP_MHZ")
-  if [ "${#centers[@]}" -eq 0 ]; then
-    echo "⚠️ Nessun center calcolato per banda $NAME"; sleep 1; return
-  fi
-  for CF in "${centers[@]}"; do
-    local free; free="$(get_free_mb)"
-    if [ "$free" -lt "$MIN_FREE_MB" ]; then
-      echo "⛔ /tmp libero ${free}MB (<${MIN_FREE_MB}). Attendo…"; sleep 2; continue
-    fi
-    echo "📡 $NAME  CF=$CF  SR=$SR  (${CHUNK_SEC}s)"
-    # salva centro banda corrente
-    if [[ "$NAME" == "2.4GHz" ]]; then
-      echo "$CF" > /tmp/center_24.txt
-    else
-      echo "$CF" > /tmp/center_58.txt
-    fi
-
-    # Nota: -r scrive IQ int8 interleaved (I,Q) sulla FIFO
-    timeout "${CHUNK_SEC}s" \
-      hackrf_transfer -f "$CF" -s "$SR" -a "$ANT_PWR" -l "$LNA_GAIN" -g "$VGA_GAIN" -r "$FIFO" || true
-    sleep "$SLEEP_BETWEEN"
-  done
-}
-
-cleanup () { echo "🧹 stop"; exit 0; }
-trap cleanup INT TERM
-
-echo "📦 preparo FIFO…"
-mkfifo_safe "$FIFO_24"
-mkfifo_safe "$FIFO_58"
-
-echo "✅ IQ sweep alternato — SR=$SR, STEP=${STEP_MHZ}MHz, chunk=${CHUNK_SEC}s"
-while true; do
-  band_loop "$B24_LO" "$B24_HI" "$FIFO_24" "2.4GHz"
-  band_loop "$B58_LO" "$B58_HI" "$FIFO_58" "5.8GHz"
+# Parse argomenti
+OUT_PATH=""  # opzionale; di default /tmp/hackrf_${BAND}.iq (FIFO o file)
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --band)    BAND="$2"; shift 2;;
+    --f0)      F0_MHZ="$2"; shift 2;;
+    --bw)      BW_HZ="$2"; shift 2;;
+    --sps)     SPS="$2"; shift 2;;
+    --seconds) SECONDS="$2"; shift 2;;
+    --out)     OUT_PATH="$2"; shift 2;;
+    -h|--help) usage;;
+    *) echo "Argomento sconosciuto: $1" >&2; usage;;
+  esac
 done
+
+# Validazioni minime
+[[ -z "$BAND"   ]] && { echo "Manca --band"; usage; }
+[[ -z "$F0_MHZ" ]] && { echo "Manca --f0 (MHz)"; usage; }
+if [[ "$BAND" != "24" && "$BAND" != "58" ]]; then
+  echo "Valore --band non valido: $BAND (usa 24 o 58)"; exit 2
+fi
+
+# Output path di default
+if [[ -z "$OUT_PATH" ]]; then
+  OUT_PATH="/tmp/hackrf_${BAND}.iq"
+fi
+
+# Free space guard
+FREE_MB=$(df --output=avail -m /tmp | tail -1 | tr -d ' ')
+if [[ "${FREE_MB:-0}" -lt "$MIN_FREE_MB" ]]; then
+  echo "⚠️  /tmp libero ${FREE_MB}MB (<${MIN_FREE_MB}). Salto cattura."
+  exit 0
+fi
+
+# Converti MHz → Hz senza bc (usa awk)
+F0_HZ=$(awk -v m="$F0_MHZ" 'BEGIN{printf "%.0f", m*1000000}')
+
+# Log informativo
+echo "▶ HackRF capture — band=$BAND  f0=${F0_MHZ}MHz (${F0_HZ} Hz)  sps=${SPS}  dur=${SECONDS}s  out=${OUT_PATH}"
+[[ -n "${BW_HZ}" ]] && echo "   (bw richiesta ≈ ${BW_HZ} Hz)"
+
+# Se OUT_PATH è una FIFO, scriveremo lì; altrimenti creeremo un file IQ.
+IS_FIFO=0
+if [[ -p "$OUT_PATH" ]]; then
+  IS_FIFO=1
+fi
+
+# Per retrocompatibilità: aggiorna i “center files” usati dalla dashboard (se li hai)
+if [[ "$BAND" == "24" ]]; then
+  echo "$F0_HZ" > /tmp/center_24.txt || true
+else
+  echo "$F0_HZ" > /tmp/center_58.txt || true
+fi
+
+# Avvio cattura
+# Nota: hackrf_transfer ritorna non-zero se interrotto da timeout, quindi lo wrappiamo
+set +e
+timeout "${SECONDS}s" \
+  hackrf_transfer \
+    -f "$F0_HZ" \
+    -s "$SPS" \
+    -a "$ANT_PWR" \
+    -l "$LNA_GAIN" \
+    -g "$VGA_GAIN" \
+    -r "$OUT_PATH"
+RC=$?
+set -e
+
+# Un RC=124 è il normale esito del timeout → ok
+if [[ "$RC" -ne 0 && "$RC" -ne 124 ]]; then
+  echo "❌ hackrf_transfer exit code $RC"
+  exit "$RC"
+fi
+
+echo "⏹️  Cattura terminata."
+
+# Hook post-processing (opzionale): se vuoi generare tiles/waterfall al volo
+# Esempi:
+# if [[ "$IS_FIFO" -eq 0 ]]; then
+#   python3 /home/raffaello/crpc/iq_to_tiles.py \
+#     --in "$OUT_PATH" --band "$BAND" --center "$F0_MHZ" --bw "${BW_HZ:-0}" || true
+# fi
+

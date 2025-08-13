@@ -12,7 +12,7 @@ from matplotlib.ticker import FuncFormatter
 # ------------ Config ------------
 FIFO_24 = os.environ.get("WF_FIFO_24", "/tmp/hackrf_24.iq")
 FIFO_58 = os.environ.get("WF_FIFO_58", "/tmp/hackrf_58.iq")
-FIFO_DEFAULT = os.environ.get("WF_FIFO", "/tmp/hackrf.iq")
+FIFO_DEFAULT = os.environ.get("WF_FIFO", "/tmp/hackrf_live.iq")
 
 FS      = int(float(os.environ.get("WF_FS_HZ", "10000000")))  # Hz (solo label)
 CF_24   = float(os.environ.get("WF24_CF_HZ", "2400000000"))
@@ -53,9 +53,9 @@ class SourceState:
         self.last_bw = None
 
 SOURCES = {
-    "24": SourceState(FIFO_24),
-    "58": SourceState(FIFO_58),
-    "x":  SourceState(FIFO_DEFAULT),  # fallback legacy
+    "live": SourceState(FIFO_DEFAULT),  # unica sorgente consigliata
+    "24":   SourceState(FIFO_24),
+    "58":   SourceState(FIFO_58),
 }
 
 def _reader_loop(state: SourceState):
@@ -173,9 +173,9 @@ HTML = f"""
 </style>
 <div class="top">
   <div>
+    <button id="btnLive">SRC live</button>
     <button id="btn24">SRC 2.4</button>
     <button id="btn58">SRC 5.8</button>
-    <button id="btnX">SRC legacy</button>
   </div>
   <div>
     <label>CF (Hz)</label><input id="cf" type="number" step="1" placeholder="es. 2400000000">
@@ -209,7 +209,7 @@ function tick(){{
 }}
 document.getElementById('btn24').onclick = ()=> setSrc('24');
 document.getElementById('btn58').onclick = ()=> setSrc('58');
-document.getElementById('btnX').onclick  = ()=> setSrc('x');
+document.getElementById('btnLive').onclick  = ()=> setSrc('live');
 document.getElementById('apply').onclick = ()=> {{
   setSrc(localStorage.getItem('wf_src') || '24');
   localStorage.setItem('wf_cf', document.getElementById('cf').value||'');

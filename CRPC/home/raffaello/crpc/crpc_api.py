@@ -25,9 +25,12 @@
 
 import os, json, time, subprocess, io, threading
 from pathlib import Path
-from flask import Flask, jsonify, send_from_directory, request, Response, send_file
+from flask import Flask, jsonify, send_from_directory, request, Response, send_file, make_response
 import psutil
 from datetime import datetime
+
+# --- in cima al file crpc_api.py ---
+import csv, statistics as stats
 
 # --- Optional deps for Waterfall ---
 # We import numpy/matplotlib unconditionally because the user requested integrated waterfall.
@@ -48,7 +51,7 @@ SWEEP24 = Path(os.environ.get("CRPC_SWEEP24", "/tmp/hackrf_sweeps_text/sweep_240
 SWEEP58 = Path(os.environ.get("CRPC_SWEEP58", "/tmp/hackrf_sweeps_text/sweep_5725_5875.txt"))
 GT_CSV = Path(os.environ.get("CRPC_GT_CSV", "/home/raffaello/crpc/ground_truth.csv"))
 EVAL_TAIL = int(os.environ.get("CRPC_EVAL_TAIL", "6000"))
-FIFO = Path(os.environ.get("CRPC_FIFO", "/tmp/hackrf_24.iq"))  # for Waterfall
+FIFO = Path(os.environ.get("CRPC_FIFO", "/tmp/hackrf_live.iq"))  # for Waterfall
 
 DET = LOG_DIR / "detections.jsonl"
 TRACKS_CURR = LOG_DIR / "tracks_current.json"
@@ -59,10 +62,13 @@ ASSOC_LOG = LOG_DIR / "assoc.log"
 # --- new: RFExplorer sweep JSONL ---
 RFE_SWEEP_JL = LOG_DIR / "rfe_sweep.jsonl"
 
+CAND_24 = ["/tmp/rfe/scan/latest_24.csv", "/tmp/rfe/scan/last_24.csv"]
+CAND_58 = ["/tmp/rfe/scan/latest_58.csv", "/tmp/rfe/scan/last_58.csv"]
+
 DISABLE_EVAL = os.environ.get("CRPC_DISABLE_EVAL", "0") == "1"
 DISABLE_JOURNAL = os.environ.get("CRPC_DISABLE_JOURNAL", "0") == "1"
 
-SERVICES = ["crpc-tiles","crpc-sweep","crpc-tracker","crpc-yolo","crpc-rfscan","crpc-api","crpc-waterfall","rfe-dual-scan","rfe-csv-bridge"]
+SERVICES = ["crpc-tiles","crpc-tracker","crpc-yolo","crpc-rfscan","crpc-api","crpc-waterfall","rfe-dual-scan","rfe-csv-bridge","rfe-trigger","hackrf-controller"]
 
 app = Flask(__name__, static_folder=str(BASE_DIR))
 
@@ -513,107 +519,82 @@ def _ts_to_epoch(v):
     except Exception:
         return 0.0
 
+def _pick_existing(paths):
+    for p in paths:
+        if os.path.exists(p):
+            return p
+    return None
+
+
+def _read_csv_spectrum_from(path):
+    if not path: return None
+    try:
+        ts = os.path.getmtime(path)
+        freqs, pwr = [], []
+        with open(path, newline="") as f:
+            r = csv.DictReader(f)
+            for row in r:
+                try:
+                    fm = float(row.get("freq_mhz") or row.get("frequency") or row.get("freq"))
+                    db = float(row.get("power_dbm") or row.get("dbm") or row.get("amp_dbm") or row.get("amp"))
+                    freqs.append(fm); pwr.append(db)
+                except: 
+                    continue
+        if len(freqs) < 4: 
+            return None
+        z = sorted(zip(freqs, pwr), key=lambda x: x[0])
+        freqs, pwr = list(map(list, zip(*z)))
+        # y‑axis stabile
+        if len(pwr) >= 100:
+            qs = stats.quantiles(pwr, n=100)
+            lo, hi = qs[4], qs[95]
+        else:
+            lo, hi = min(pwr), max(pwr)
+        if hi - lo < 5: hi = lo + 5
+        yaxis = {"min": float(round(lo - 1, 1)), "max": float(round(hi + 1, 1))}
+        return {"freqs_mhz": freqs, "pwr_dbm": pwr, "ts": ts, "yaxis": yaxis, "path": path}
+    except:
+        return None
+
+def _find_peaks(freqs, pwr, min_db_over_floor=6.0, min_sep_bins=3, top_n=8):
+    if not freqs or not pwr: return []
+    floor = stats.median(pwr)
+    cand = []
+    for i in range(1, len(pwr)-1):
+        if pwr[i] > pwr[i-1] and pwr[i] > pwr[i+1] and (pwr[i]-floor) >= min_db_over_floor:
+            cand.append((i, pwr[i]))
+    cand.sort(key=lambda x: x[1], reverse=True)
+    picked = []
+    for idx, _ in cand:
+        if all(abs(idx-j) >= min_sep_bins for j,_ in picked):
+            picked.append((idx, pwr[idx]))
+        if len(picked) >= top_n: break
+    return [{"freq_mhz": float(freqs[i]), "dbm": float(pwr[i])} for i,_ in picked]
+
 @app.route("/api/spectrum")
 def api_spectrum():
-    items = tail_json(RFE_SWEEP_JL, max_lines=1000)
-    want_debug = request.args.get("debug") in ("1", "true", "yes")
+    res = {"latest": {}, "peaks": []}
+    b24 = _pick_existing(CAND_24)
+    b58 = _pick_existing(CAND_58)
 
-    # Parametri di scala
-    try:
-        floor_dbm = float(request.args.get("floor") or os.environ.get("CRPC_SPECTRUM_FLOOR_DBM", "-105"))
-    except Exception:
-        floor_dbm = -105.0
-    ceil_arg = request.args.get("ceil") or os.environ.get("CRPC_SPECTRUM_CEIL_DBM")
-    ceil_dbm = float(ceil_arg) if ceil_arg not in (None, "") else None
+    d24 = _read_csv_spectrum_from(b24)
+    d58 = _read_csv_spectrum_from(b58)
+    if d24: 
+        res["latest"]["24"] = d24
+        for p in _find_peaks(d24["freqs_mhz"], d24["pwr_dbm"]):
+            p.update(band="24", ts=d24["ts"])
+            res["peaks"].append(p)
+    if d58:
+        res["latest"]["58"] = d58
+        for p in _find_peaks(d58["freqs_mhz"], d58["pwr_dbm"]):
+            p.update(band="58", ts=d58["ts"])
+            res["peaks"].append(p)
 
-    peaks = []
-    n_peak, n_spec = 0, 0
-
-    # parse PEAKS
-    for x in items:
-        if (str(x.get("type") or "")).lower() == "peak":
-            try:
-                f = x.get("freq_mhz") or x.get("frequency")
-                a = x.get("power_dbm") or x.get("dbm") or x.get("amp_dbm") or x.get("amp")
-                dbm_val = float(a)
-                dbm_val = max(dbm_val, floor_dbm)  # clamp floor
-                peaks.append({
-                    "band": str(x.get("band") or "UNK"),
-                    "freq_mhz": float(f),
-                    "dbm": dbm_val,
-                    "ts": _ts_to_epoch(x.get("ts") or x.get("timestamp")),
-                })
-                n_peak += 1
-            except Exception:
-                continue
-
-    # parse ultimo SPECTRUM per banda
-    latest = {}
-    for b in ("24", "58"):
-        for x in reversed(items):
-            if (str(x.get("type") or "")).lower() != "spectrum":
-                continue
-            if str(x.get("band")) != b:
-                continue
-            pts = x.get("points")
-            freqs, pwr = [], []
-            if isinstance(pts, list) and pts and isinstance(pts[0], (list, tuple)):
-                for pt in pts:
-                    try:
-                        freqs.append(float(pt[0]))
-                        pwr.append(float(pt[1]))
-                    except Exception:
-                        pass
-            else:
-                ff = x.get("freqs_mhz") or x.get("freqs") or []
-                aa = x.get("pwr_dbm") or x.get("amps") or []
-                try:
-                    freqs = [float(v) for v in ff]
-                    pwr = [float(v) for v in aa]
-                except Exception:
-                    freqs, pwr = [], []
-
-            if freqs and pwr and len(freqs) == len(pwr):
-                # Clamp al floor
-                pwr = [max(float(v), floor_dbm) for v in pwr]
-
-                # Calcolo max
-                import numpy as _np
-                if ceil_dbm is not None:
-                    y_max = float(ceil_dbm)
-                else:
-                    try:
-                        y_max = float(_np.percentile(pwr, 95) + 3.0)
-                    except Exception:
-                        y_max = max(pwr) + 3.0
-                if y_max < floor_dbm + 20.0:
-                    y_max = floor_dbm + 20.0
-
-                latest[b] = {
-                    "ts": _ts_to_epoch(x.get("ts") or x.get("timestamp")),
-                    "freqs_mhz": freqs,
-                    "pwr_dbm": pwr,
-                    "yaxis": {"min": floor_dbm, "max": y_max}
-                }
-                n_spec += 1
-                break
-
-    resp = {"ts": time.time(), "latest": latest, "peaks": peaks}
-    if want_debug:
-        try:
-            mtime = RFE_SWEEP_JL.stat().st_mtime
-        except Exception:
-            mtime = None
-        resp["explain"] = {
-            "file": str(RFE_SWEEP_JL),
-            "exists": RFE_SWEEP_JL.exists(),
-            "size": (RFE_SWEEP_JL.stat().st_size if RFE_SWEEP_JL.exists() else 0),
-            "mtime": mtime,
-            "lines_read": len(items),
-            "n_peaks_parsed": n_peak,
-            "n_spectrum_parsed": n_spec
-        }
-    return jsonify(resp)
+    res["peaks"].sort(key=lambda p: p.get("ts", 0))
+    # no‑cache per il browser
+    rsp = make_response(jsonify(res))
+    rsp.headers["Cache-Control"] = "no-store"
+    return rsp
 
 
 # --- Waterfall (integrated) ---

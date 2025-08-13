@@ -282,7 +282,7 @@
 
 <script>
 const REFRESH_MS = 2000;
-const api = (p)=>fetch(p).then(r=>r.json());
+const api = (p)=>fetch(p, {cache:'no-store'}).then(r=>r.json());
 const byId = (id)=>document.getElementById(id);
 function bytes(v){ if(!v && v!==0) return "-"; const u=['B','KB','MB','GB']; let i=0; while(v>1024 && i<u.length-1){v/=1024;i++;} return v.toFixed( (i<2)?0:1 )+" "+u[i]; }
 function pct(p){ return (p==null)?"-":(p.toFixed? p.toFixed(0):p)+"%"; }
