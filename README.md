@@ -69,7 +69,7 @@ http://<IP_RPI>:8080
 
 ---
 
-# 2️⃣ Sistema CRPC con HackRF ONE
+# 2️⃣ Sistema CRPC con HackRF ONE + RF Explorer
 
 ### Login e IP
 - Raspberry Pi CRPC: IP `192.168.1.6`
@@ -198,8 +198,7 @@ flowchart LR
         C2 -->|Mappa Web| D3[Browser]
         C2 -->|Firebase| D4[Drone Pilot App]
     end
-
----
+```
 
 ---
 
