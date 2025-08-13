@@ -213,7 +213,7 @@ flowchart LR
         C2 -->|Mappa Web| D3[Browser]
         C2 -->|Firebase| D4[Drone Pilot App]
     end
-
+```
 
 
 ---
