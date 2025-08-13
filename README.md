@@ -199,21 +199,6 @@ flowchart LR
         C2 -->|Firebase| D4[Drone Pilot App]
     end
 
-        A1[ANTSDR E200] -->|UDP| B1[dji_receiver.py]
-        B1 -->|HTTP| C1[bridge_uploader.py]
-        A2[DroneScout Bridge] -->|HTTP| C1
-        C1 -->|Mappa Web| D1[Browser]
-        C1 -->|Firebase| D2[Drone Pilot App]
-    end
-
-    subgraph Sistema2[CRPC con HackRF ONE]
-        A3[HackRF ONE] -->|IQ Stream| B2[crpc-sweep.service]
-        B2 -->|Tiles| B3[crpc-yolo.service]
-        B3 -->|Detection| C2[crpc-tracker.service]
-        C2 -->|Mappa Web| D3[Browser]
-        C2 -->|Firebase| D4[Drone Pilot App]
-    end
-```
 
 
 ---
