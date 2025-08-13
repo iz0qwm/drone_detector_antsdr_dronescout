@@ -4,7 +4,7 @@ Questo progetto utilizza **due ricevitori SDR distinti** su Raspberry Pi per ril
 
 1. **Sistema 1 – ANTSDR E200 + DroneScout Bridge**  
    Per il rilevamento **DJI DroneID** e **Remote ID**.
-2. **Sistema 2 – CRPC (Cognitive Radio Protocol Cracking)** con HackRF ONE  
+2. **Sistema 2 – CRPC (Cognitive Radio Protocol Cracking)** con HackRF ONE + RF Explorer  
    Per l’analisi dello spettro RF e rilevamento di droni generici.
 
 Entrambi inviano i dati a un **cruscotto web** integrato e possono trasmettere le tracce a **Firebase** per la visualizzazione su altre piattaforme (es. Drone Pilot App).
@@ -14,7 +14,7 @@ Entrambi inviano i dati a un **cruscotto web** integrato e possono trasmettere l
 ## ✅ Funzionalità principali
 - **Rilevamento DJI DroneID** via ANTSDR E200
 - **Rilevamento Remote ID** via DroneScout Bridge
-- **Rilevamento generico droni** via CRPC con HackRF
+- **Rilevamento generico droni** via CRPC con HackRF e RF Explorer
 - **Server web con mappa** e dashboard integrata
 - **Invio dati** in rete locale o verso Firebase
 - **Modalità waterfall** per visualizzare lo spettro in tempo reale (HackRF)
@@ -190,6 +190,22 @@ flowchart LR
         C1 -->|Firebase| D2[Drone Pilot App]
     end
 
+    subgraph Sistema2[CRPC con HackRF ONE + RF Explorer]
+        A3[HackRF ONE] -->|IQ Stream| B2[crpc-sweep.service]
+        A4[RF Explorer] -->|Sweep CSV| B2
+        B2 -->|Tiles| B3[crpc-yolo.service]
+        B3 -->|Detection| C2[crpc-tracker.service]
+        C2 -->|Mappa Web| D3[Browser]
+        C2 -->|Firebase| D4[Drone Pilot App]
+    end
+```
+        A1[ANTSDR E200] -->|UDP| B1[dji_receiver.py]
+        B1 -->|HTTP| C1[bridge_uploader.py]
+        A2[DroneScout Bridge] -->|HTTP| C1
+        C1 -->|Mappa Web| D1[Browser]
+        C1 -->|Firebase| D2[Drone Pilot App]
+    end
+
     subgraph Sistema2[CRPC con HackRF ONE]
         A3[HackRF ONE] -->|IQ Stream| B2[crpc-sweep.service]
         B2 -->|Tiles| B3[crpc-yolo.service]
@@ -204,3 +220,10 @@ flowchart LR
 ## ⚠️ Note legali
 L’uso di questo sistema è soggetto alle normative locali su radiofrequenze e privacy.  
 Verificare sempre la conformità prima dell’utilizzo.
+
+---
+
+## 📚 Riferimenti e fonti utili
+Questi materiali sono stati utili nello sviluppo del progetto CRPC:
+- [RFUAV – GitHub repository](https://github.com/kitoweeknd/RFUAV/)
+- [RFUAV – Articolo scientifico su arXiv](https://arxiv.org/html/2503.09033v2#bib)
