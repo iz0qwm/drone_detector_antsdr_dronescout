@@ -198,7 +198,7 @@ flowchart LR
         C2 -->|Mappa Web| D3[Browser]
         C2 -->|Firebase| D4[Drone Pilot App]
     end
-```
+
         A1[ANTSDR E200] -->|UDP| B1[dji_receiver.py]
         B1 -->|HTTP| C1[bridge_uploader.py]
         A2[DroneScout Bridge] -->|HTTP| C1
@@ -213,7 +213,8 @@ flowchart LR
         C2 -->|Mappa Web| D3[Browser]
         C2 -->|Firebase| D4[Drone Pilot App]
     end
-```
+
+
 
 ---
 
