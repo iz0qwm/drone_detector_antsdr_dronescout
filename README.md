@@ -4,8 +4,10 @@ Questo progetto utilizza **due ricevitori SDR distinti** su Raspberry Pi per ril
 
 1. **Sistema 1 – ANTSDR E200 + DroneScout Bridge**  
    Per il rilevamento **DJI DroneID** e **Remote ID**.
+   Tutto gira su **Raspberry Pi3**.
 2. **Sistema 2 – CRPC (Cognitive Radio Protocol Cracking)** con HackRF ONE + RF Explorer  
    Per l’analisi dello spettro RF e rilevamento di droni generici.
+   Tutto gira su **Raspberry Pi5**
 
 Entrambi inviano i dati a un **cruscotto web** integrato e possono trasmettere le tracce a **Firebase** per la visualizzazione su altre piattaforme (es. Drone Pilot App).
 
@@ -15,9 +17,10 @@ Entrambi inviano i dati a un **cruscotto web** integrato e possono trasmettere l
 - **Rilevamento DJI DroneID** via ANTSDR E200
 - **Rilevamento Remote ID** via DroneScout Bridge
 - **Rilevamento generico droni** via CRPC con HackRF e RF Explorer
+- **Cruscotto radio** per osservare il funzionamento del CRPC con **Modalità waterfall** per visualizzare lo spettro in tempo reale (HackRF)
 - **Server web con mappa** e dashboard integrata
 - **Invio dati** in rete locale o verso Firebase
-- **Modalità waterfall** per visualizzare lo spettro in tempo reale (HackRF)
+
 
 ---
 
@@ -33,7 +36,7 @@ Entrambi inviano i dati a un **cruscotto web** integrato e possono trasmettere l
 │   └── service_controller.sh
 └── remotetrack/      # Bridge Remote ID modificato
 
-/home/raffaello/      # Sistema CRPC
+/home/raffaello/crpc  # Sistema CRPC
 ├── rf_scan_classifier.py
 ├── waterfall_web.py
 ├── start_crpc / stop_crpc
@@ -46,7 +49,7 @@ Entrambi inviano i dati a un **cruscotto web** integrato e possono trasmettere l
 # 1️⃣ Sistema ANTSDR E200 + DroneScout Bridge
 
 ### Installazione
-1. Impostare IP Raspberry Pi: `192.168.1.9`
+1. Impostare IP Raspberry Pi: `192.168.1.5`
 2. ANTSDR E200 con firmware DJI: IP `192.168.1.10`
 3. Avviare tutti i servizi:
    ```bash
@@ -171,10 +174,9 @@ python waterfall_web.py
 http://192.168.1.6:8080
 ```
 Mostra:
-- Mappa droni
+- Waterfall e Spectrum RF
 - Log in tempo reale
 - Immagini YOLO
-- Modalità waterfall RF
 
 ---
 
