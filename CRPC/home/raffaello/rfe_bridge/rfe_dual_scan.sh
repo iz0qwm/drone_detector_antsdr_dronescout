@@ -5,11 +5,13 @@ PORT="/dev/ttyUSB0"
 OUTDIR="/tmp/rfe/scan"
 RING=10                 # quanti CSV tenere per banda (0..9)
 SLEEP_BETWEEN=1         # secondi tra gli sweep
-LOGTAG="[RFE-DUAL]"
+LOGTAG="[RFE-TRIPLE]"
 
 # Bande
 B24_START=2400
 B24_END=2485
+B52_START=5170          
+B52_END=5250
 B58_START=5725
 B58_END=5875
 
@@ -33,6 +35,15 @@ while true; do
 
   sleep "$SLEEP_BETWEEN"
 
+  # 5.2 GHz  ⬅️ NUOVO BLOCCO
+  OUT52="$OUTDIR/52_${idx}.csv"
+  echo "$LOGTAG [52] sweep ${B52_START}-${B52_END} → $OUT52"
+  python3 "$PYSCAN" --port "$PORT" --band 52 -s $B52_START -e $B52_END --out "$OUT52" -v \
+    || echo "$LOGTAG WARN: sweep 52 fallito"
+  ln -sfn "$OUT52" "$OUTDIR/latest_52.csv"
+
+  sleep "$SLEEP_BETWEEN"
+  
   # 5.8 GHz
   OUT58="$OUTDIR/58_${idx}.csv"
   echo "$LOGTAG [58] sweep ${B58_START}-${B58_END} → $OUT58"

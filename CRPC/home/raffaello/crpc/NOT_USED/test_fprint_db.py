@@ -46,7 +46,12 @@ with FPRINT_DB.open("r", newline="", encoding="utf-8", errors="ignore") as f:
             label= (row.get(kl) if kl else "unknown") or "unknown"
             if math.isnan(fmhz) or math.isnan(bw):
                 continue
-            band_guess = "24" if 2400 <= fmhz <= 2500 else ("58" if 5725 <= fmhz <= 5875 else None)
+            band_guess = (
+                "24" if 2400 <= fmhz <= 2500 else
+                "58" if 5725 <= fmhz <= 5875 else
+                "52" if 5170 <= fmhz <= 5250 else
+                None
+            )
             rows.append({"band": band_guess, "f": fmhz, "bw": bw, "hop": hop, "label": label})
         except Exception as e:
             print(f"⚠️ Riga {i} saltata: {e}")

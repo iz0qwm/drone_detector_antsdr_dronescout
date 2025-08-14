@@ -30,7 +30,11 @@ FPRINT_DB   = Path(os.environ.get("FPRINT_DB", "/home/raffaello/dataset/rf_finge
 MODEL_PATH  = Path(os.environ.get("RF_MODEL", "/home/raffaello/models/rf_model.pkl"))
 
 # === Bande e normalizzazione (MHz) ===
-BANDS = {"24": (2400.0, 2500.0), "58": (5725.0, 5875.0)}
+BANDS = {
+    "24": (2400.0, 2500.0),
+    "58": (5725.0, 5875.0),
+    "52": (5170.0, 5250.0),
+}
 
 def now_str():
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -96,7 +100,11 @@ class FingerDB:
                         fhsdc = row.get("fhsdc", "")
                         hop   = float(fhsdc) if fhsdc not in ("", "nan", None) else 0.0
                         label = (row.get("type") or "unknown").strip()
-                        band_guess = "24" if 2400 <= fmhz <= 2500 else ("58" if 5725 <= fmhz <= 5875 else None)
+                        band_guess = (
+                            "24" if 2400 <= fmhz <= 2500 else
+                            "58" if 5725 <= fmhz <= 5875 else
+                            ("52" if 5170 <= fmhz <= 5250 else None)
+                        )
                         self.rows.append({
                             "band": band_guess,
                             "f": fmhz,

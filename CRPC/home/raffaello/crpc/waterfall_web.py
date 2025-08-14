@@ -12,11 +12,13 @@ from matplotlib.ticker import FuncFormatter
 # ------------ Config ------------
 FIFO_24 = os.environ.get("WF_FIFO_24", "/tmp/hackrf_24.iq")
 FIFO_58 = os.environ.get("WF_FIFO_58", "/tmp/hackrf_58.iq")
+FIFO_52 = os.environ.get("WF_FIFO_52", "/tmp/hackrf_52.iq")
 FIFO_DEFAULT = os.environ.get("WF_FIFO", "/tmp/hackrf_live.iq")
 
 FS      = int(float(os.environ.get("WF_FS_HZ", "10000000")))  # Hz (solo label)
 CF_24   = float(os.environ.get("WF24_CF_HZ", "2400000000"))
 CF_58   = float(os.environ.get("WF58_CF_HZ", "5800000000"))
+CF_52   = float(os.environ.get("WF52_CF_HZ", "5210000000")) 
 BW_DEF  = float(os.environ.get("WF_BW_HZ",  "20000000"))
 
 # Throttling
@@ -53,9 +55,10 @@ class SourceState:
         self.last_bw = None
 
 SOURCES = {
-    "live": SourceState(FIFO_DEFAULT),  # unica sorgente consigliata
+    "live": SourceState(FIFO_DEFAULT),
     "24":   SourceState(FIFO_24),
     "58":   SourceState(FIFO_58),
+    "52":   SourceState(FIFO_52),
 }
 
 def _reader_loop(state: SourceState):
@@ -113,11 +116,14 @@ def _reader_loop(state: SourceState):
             filled = 0
 
 def _ensure_reader(src_key: str):
-    st = SOURCES.get(src_key) or SOURCES["x"]
+    st = SOURCES.get(src_key)
+    if st is None:
+        st = SOURCES["live"]
     if not st.started:
         threading.Thread(target=_reader_loop, args=(st,), daemon=True).start()
         st.started = True
     return st
+
 
 def _format_hz(v: float):
     try:
@@ -175,6 +181,7 @@ HTML = f"""
   <div>
     <button id="btnLive">SRC live</button>
     <button id="btn24">SRC 2.4</button>
+    <button id="btn52">SRC 5.2</button>
     <button id="btn58">SRC 5.8</button>
   </div>
   <div>
@@ -208,6 +215,7 @@ function tick(){{
   img.src = url.toString();
 }}
 document.getElementById('btn24').onclick = ()=> setSrc('24');
+document.getElementById('btn52').onclick = ()=> setSrc('52');
 document.getElementById('btn58').onclick = ()=> setSrc('58');
 document.getElementById('btnLive').onclick  = ()=> setSrc('live');
 document.getElementById('apply').onclick = ()=> {{
@@ -237,6 +245,8 @@ def wf_png():
     # CF/BW di default per titolo
     if src == "24":
         cf_default = CF_24
+    elif src == "52": 
+        cf_default = CF_52    
     elif src == "58":
         cf_default = CF_58
     else:

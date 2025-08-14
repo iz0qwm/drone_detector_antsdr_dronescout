@@ -39,21 +39,23 @@ CMAP = get_cmap(args.cmap)
 # ---------- FIFO ----------
 FIFO_24 = "/tmp/hackrf_24.iq"
 FIFO_58 = "/tmp/hackrf_58.iq"
+FIFO_52 = "/tmp/hackrf_52.iq"
 
 # ---------- Output ----------
 OUT_DIR = "/tmp/tiles"
 os.makedirs(OUT_DIR, exist_ok=True)
 LIVE_24 = os.path.join(OUT_DIR, "24_live.png")
 LIVE_58 = os.path.join(OUT_DIR, "58_live.png")
+LIVE_52 = os.path.join(OUT_DIR, "52_live.png")
 CUM_24  = os.path.join(OUT_DIR, "24_cum.png")
 CUM_58  = os.path.join(OUT_DIR, "58_cum.png")
-
+CUM_52  = os.path.join(OUT_DIR, "52_cum.png")
 # ---------- Center frequency file ----------
 CENTER_FILE_24 = "/tmp/center_24.txt"
 CENTER_FILE_58 = "/tmp/center_58.txt"
-
+CENTER_FILE_52 = "/tmp/center_52.txt"
 # ---------- Locks per salvataggio atomico ----------
-RENDER_LOCKS = {"24": threading.Lock(), "58": threading.Lock()}
+RENDER_LOCKS = {"24": threading.Lock(), "58": threading.Lock(), "52": threading.Lock()}
 
 # ---------- STFT / Layout ----------
 FS   = 10_000_000
@@ -219,10 +221,11 @@ def band_worker(fifo_path, live_out, cum_out, prefix, center_file):
 def main():
     t1 = threading.Thread(target=band_worker, args=(FIFO_24, LIVE_24, CUM_24, "24", CENTER_FILE_24), daemon=True)
     t2 = threading.Thread(target=band_worker, args=(FIFO_58, LIVE_58, CUM_58, "58", CENTER_FILE_58), daemon=True)
-    t1.start(); t2.start()
+    t3 = threading.Thread(target=band_worker, args=(FIFO_52, LIVE_52, CUM_52, "52", CENTER_FILE_52), daemon=True)
+    t1.start(); t2.start(); t3.start()
     print(f"✅ IQ→tiles attivo. Colormap: {args.cmap}")
-    print(f"   istantanee: {os.path.basename(LIVE_24)}, {os.path.basename(LIVE_58)}")
-    print(f"   cumulative: {os.path.basename(CUM_24)},  {os.path.basename(CUM_58)}  (+ copie timestampate)")
+    print(f"   istantanee: {os.path.basename(LIVE_24)}, {os.path.basename(LIVE_58)}, {os.path.basename(LIVE_52)}")
+    print(f"   cumulative: {os.path.basename(CUM_24)},  {os.path.basename(CUM_58)},  {os.path.basename(CUM_52)}  (+ copie timestampate)")
     try:
         while True:
             time.sleep(1)

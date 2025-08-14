@@ -12,6 +12,7 @@ STATE_FILE = Path("/tmp/rfe_trigger_state.json")
 BANDS = {
     "24": {"path": "/tmp/rfe/scan/latest_24.csv", "min_f": 2400.0, "max_f": 2485.0},
     "58": {"path": "/tmp/rfe/scan/latest_58.csv", "min_f": 5725.0, "max_f": 5875.0},
+    "52": {"path": "/tmp/rfe/scan/latest_52.csv", "min_f": 5170.0, "max_f": 5250.0},
 }
 
 # Env override (float/int)
@@ -35,7 +36,7 @@ HIST_SWEEPS         = envi("RFE_HIST_SWEEPS", 20)
 DEBUG               = envb("RFE_DEBUG", True)
 
 SAME_BLOB_DEBOUNCE_S = float(os.getenv("RFE_SAME_BLOB_DEBOUNCE_S", 12))
-last_blob = {"24": None, "58": None}
+last_blob = {b: None for b in BANDS}
 # Persistenza "fuzzy"
 OVERLAP_FRAC    = envf("RFE_OVERLAP_FRAC", 0.5)  # soglia di sovrapposizione (IoU) 0..1
 CENTER_TOL_MHZ  = envf("RFE_CENTER_TOL_MHZ", 2.0)  # tolleranza alternativa sul centro (MHz)
@@ -273,7 +274,7 @@ def main():
     print("▶ RFExplorer trigger daemon avviato.")
     print(f"Parametri: TH={PEAK_DB_ABOVE_FLOOR}dB  MIN_SWEEPS={MIN_CONSEC_SWEEPS}  COOLDOWN={COOLDOWN_S}s")
     while True:
-        for band in ("58", "24"):  # priorità 5.8 > 2.4
+        for band in ("58", "52", "24"):  # priorità 5.8 > 5.2 > 2.4
             rows = read_latest_csv(band)
             if rows:
                 print(f"RFE[{band}] nuovo sweep: {time.strftime('%H:%M:%S')} bins={len(rows)} file={BANDS[band]['path']}")
@@ -340,7 +341,7 @@ def main():
 
             if candidate:
                 f0, bw = candidate
-                ok = send_trigger(band, f0, bw, hold_s=12 if band == "58" else 10)
+                ok = send_trigger(band, f0, bw, hold_s=12 if band in ("58","52") else 10)
                 if ok:
                     last_trigger_ts[band] = now
                     trigger_count.append(now)

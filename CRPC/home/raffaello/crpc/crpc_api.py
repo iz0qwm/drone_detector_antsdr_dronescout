@@ -49,6 +49,7 @@ TILES = Path(os.environ.get("CRPC_TILES_DIR", "/tmp/tiles"))
 TILES_DONE = Path(os.environ.get("CRPC_TILES_DONE_DIR", "/tmp/tiles_done"))
 SWEEP24 = Path(os.environ.get("CRPC_SWEEP24", "/tmp/hackrf_sweeps_text/sweep_2400_2500.txt"))
 SWEEP58 = Path(os.environ.get("CRPC_SWEEP58", "/tmp/hackrf_sweeps_text/sweep_5725_5875.txt"))
+SWEEP52 = Path(os.environ.get("CRPC_SWEEP52", "/tmp/hackrf_sweeps_text/sweep_5170_5250.txt"))
 GT_CSV = Path(os.environ.get("CRPC_GT_CSV", "/home/raffaello/crpc/ground_truth.csv"))
 EVAL_TAIL = int(os.environ.get("CRPC_EVAL_TAIL", "6000"))
 FIFO = Path(os.environ.get("CRPC_FIFO", "/tmp/hackrf_live.iq"))  # for Waterfall
@@ -64,6 +65,7 @@ RFE_SWEEP_JL = LOG_DIR / "rfe_sweep.jsonl"
 
 CAND_24 = ["/tmp/rfe/scan/latest_24.csv", "/tmp/rfe/scan/last_24.csv"]
 CAND_58 = ["/tmp/rfe/scan/latest_58.csv", "/tmp/rfe/scan/last_58.csv"]
+CAND_52 = ["/tmp/rfe/scan/latest_52.csv", "/tmp/rfe/scan/last_52.csv"]
 
 DISABLE_EVAL = os.environ.get("CRPC_DISABLE_EVAL", "0") == "1"
 DISABLE_JOURNAL = os.environ.get("CRPC_DISABLE_JOURNAL", "0") == "1"
@@ -331,6 +333,7 @@ def api_status():
     # tails & logs
     sweep24_tail = tail_lines(SWEEP24, n=3)
     sweep58_tail = tail_lines(SWEEP58, n=3)
+    sweep52_tail = tail_lines(SWEEP52, n=3)
     det_tail = tail_lines(DET, n=5)
     assoc_tail = tail_lines(ASSOC, n=5)
     assoc_log_tail = tail_lines(ASSOC_LOG, n=10)
@@ -341,7 +344,7 @@ def api_status():
     rfscan_cur = read_json(RFSCAN_CURR, [])
 
     # band breakdown from rfscan_current
-    by_band = {"24": {}, "58": {}, "UNK": {}}
+    by_band = {"24": {}, "58": {}, "52": {}, "UNK": {}}
     for r in rfscan_cur:
         b = r.get("band") or "UNK"
         fam = r.get("family") or "UNK"
@@ -378,7 +381,7 @@ def api_status():
         "services": services,
         "tmp_usage": tmp_usage,
         "tiles": tiles,
-        "sweeps": {"24": sweep24_tail, "58": sweep58_tail},
+        "sweeps": {"24": sweep24_tail, "58": sweep58_tail, "52": sweep52_tail},
         "logs": {
             "detections_tail": det_tail,
             "associations_tail": assoc_tail,
@@ -576,9 +579,11 @@ def api_spectrum():
     res = {"latest": {}, "peaks": []}
     b24 = _pick_existing(CAND_24)
     b58 = _pick_existing(CAND_58)
+    b52 = _pick_existing(CAND_52)
 
     d24 = _read_csv_spectrum_from(b24)
     d58 = _read_csv_spectrum_from(b58)
+    d52 = _read_csv_spectrum_from(b52)
     if d24: 
         res["latest"]["24"] = d24
         for p in _find_peaks(d24["freqs_mhz"], d24["pwr_dbm"]):
@@ -589,6 +594,11 @@ def api_spectrum():
         for p in _find_peaks(d58["freqs_mhz"], d58["pwr_dbm"]):
             p.update(band="58", ts=d58["ts"])
             res["peaks"].append(p)
+    if d52:
+        res["latest"]["52"] = d52
+        for p in _find_peaks(d52["freqs_mhz"], d52["pwr_dbm"]):
+            p.update(band="52", ts=d52["ts"])
+            res["peaks"].append(p)        
 
     res["peaks"].sort(key=lambda p: p.get("ts", 0))
     # no‑cache per il browser

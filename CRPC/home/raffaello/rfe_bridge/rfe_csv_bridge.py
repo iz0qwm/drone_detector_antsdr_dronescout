@@ -14,7 +14,7 @@ HACKRF_IF_GAIN = 40
 HACKRF_LNA_GAIN = 40
 HACKRF_AMP = 1
 
-last_triggered = {"24": [], "58": []}  # lista di freq già triggerate di recente
+last_triggered = {"24": [], "58": [], "52": []} # lista di freq già triggerate di recente
 
 def now_iso():
     return datetime.utcnow().isoformat(timespec="seconds") + "Z"
@@ -126,9 +126,10 @@ def main():
     print("[RFE-BRIDGE] Avvio lettore CSV → JSONL (+trigger HackRF opz.)")
     latest24 = SCANS_DIR / "latest_24.csv"
     latest58 = SCANS_DIR / "latest_58.csv"
+    latest52 = SCANS_DIR / "latest_52.csv"
     seen = set()  # evita di rileggere stessi file
     while True:
-        for band_tag, link in (("24", latest24), ("58", latest58)):
+        for band_tag, link in (("24", latest24), ("58", latest58), ("52", latest52)): 
             try:
                 if link.is_symlink():
                     target = link.resolve()

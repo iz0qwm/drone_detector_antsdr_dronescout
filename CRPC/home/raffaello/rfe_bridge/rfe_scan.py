@@ -171,7 +171,7 @@ def write_csv_from_sweep(sw, rfe, out_path):
 
 def main():
     parser = argparse.ArgumentParser(description="Switch banda RF Explorer + (opzionale) sweep→CSV")
-    parser.add_argument("--band", required=True, choices=["24", "58"], help="Banda target: 24 o 58")
+    parser.add_argument("--band", required=True, choices=["24", "52", "58"], help="Banda target: 24 / 52 / 58")
     parser.add_argument("--port", default=PORT, help="Porta seriale (default: /dev/ttyUSB0)")
     parser.add_argument("--baud", type=int, default=BAUD, help=f"Baudrate (default: {BAUD})")
     # Opzioni SCAN (se presenti fa lo sweep e salva CSV)
@@ -183,11 +183,15 @@ def main():
 
     # Mapping come nel tuo script originale
     if args.band == "58":
-        CM = CM_6G
+        CM = CM_6G              # mainboard 6G
         DEF_START, DEF_STOP = 5700.0, 5900.0
+    elif args.band == "52":
+        CM = CM_6G              # 5.2 GHz è sulla mainboard 6G
+        DEF_START, DEF_STOP = 5170.0, 5250.0
     else:
-        CM = CM_WSUB3
+        CM = CM_WSUB3           # 2.4 GHz su WSUB3G
         DEF_START, DEF_STOP = 2400.0, 2483.0
+
 
     do_scan = (args.start is not None and args.end is not None and args.out is not None)
     START = float(args.start) if args.start is not None else DEF_START
@@ -226,7 +230,7 @@ def main():
 
         # Imposta range
         if args.verbose:
-            print(f"UpdateDeviceConfig: {START}-{STOP} MHz")
+            print(f"BAND={args.band}  UpdateDeviceConfig: {START}-{STOP} MHz")
         rfe.UpdateDeviceConfig(START, STOP)
         rfe.ProcessReceivedString(True)
 

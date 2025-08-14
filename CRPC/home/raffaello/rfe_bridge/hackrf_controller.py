@@ -136,7 +136,7 @@ def main():
                     print("⚠️  Trigger malformato:", e, line, file=sys.stderr)
                     continue
 
-                if band not in ("24", "58"):
+                if band not in ("24", "58", "52"):
                     print("⚠️  Banda non valida nel trigger:", band, file=sys.stderr)
                     continue
 

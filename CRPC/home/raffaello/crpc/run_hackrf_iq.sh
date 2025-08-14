@@ -18,7 +18,7 @@ MIN_FREE_MB=512         # non scrivere se /tmp < 512MB
 # ==============================================
 
 usage() {
-  echo "Uso: $0 --band {24|58} --f0 <MHz> [--bw <Hz>] [--sps <Hz>] [--seconds <s>] [--out <path>]" >&2
+  echo "Uso: $0 --band {24|52|58} --f0 <MHz> [--bw <Hz>] [--sps <Hz>] [--seconds <s>] [--out <path>]" >&2
   exit 2
 }
 
@@ -40,8 +40,8 @@ done
 # Validazioni minime
 [[ -z "$BAND"   ]] && { echo "Manca --band"; usage; }
 [[ -z "$F0_MHZ" ]] && { echo "Manca --f0 (MHz)"; usage; }
-if [[ "$BAND" != "24" && "$BAND" != "58" ]]; then
-  echo "Valore --band non valido: $BAND (usa 24 o 58)"; exit 2
+if [[ "$BAND" != "24" && "$BAND" != "58" && "$BAND" != "52" ]]; then
+  echo "Valore --band non valido: $BAND (usa 24, 52 o 58)"; exit 2
 fi
 
 # Output path di default
@@ -69,12 +69,12 @@ if [[ -p "$OUT_PATH" ]]; then
   IS_FIFO=1
 fi
 
-# Per retrocompatibilità: aggiorna i “center files” usati dalla dashboard (se li hai)
-if [[ "$BAND" == "24" ]]; then
-  echo "$F0_HZ" > /tmp/center_24.txt || true
-else
-  echo "$F0_HZ" > /tmp/center_58.txt || true
-fi
+# Aggiorna i “center files” usati dalla dashboard/tiles
+case "$BAND" in
+  "24") echo "$F0_HZ" > /tmp/center_24.txt || true ;;
+  "58") echo "$F0_HZ" > /tmp/center_58.txt || true ;;
+  "52") echo "$F0_HZ" > /tmp/center_52.txt || true ;;
+esac
 
 # Avvio cattura
 # Nota: hackrf_transfer ritorna non-zero se interrotto da timeout, quindi lo wrappiamo

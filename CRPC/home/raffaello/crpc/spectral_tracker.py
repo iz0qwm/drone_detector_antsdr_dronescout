@@ -17,6 +17,7 @@ TILES_DONE_DIR  = Path("/tmp/tiles_done")
 BANDS = {
     "24": (2400.0, 2500.0),
     "58": (5725.0, 5875.0),
+    "52": (5170.0, 5250.0),
 }
 
 # === PARAMETRI TRACKER ===
@@ -146,6 +147,8 @@ def parse_det(line):
             band_key = "24"
         elif name.startswith("58_"):
             band_key = "58"
+        elif name.startswith("52_"):
+            band_key = "52"    
         else:
             return None
         if band_key not in BANDS:

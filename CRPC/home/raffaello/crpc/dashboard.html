@@ -177,6 +177,7 @@
           <select id="miniSpecBand">
             <option value="24">2.4 GHz</option>
             <option value="58">5.8 GHz</option>
+            <option value="52">5.2 GHz</option>
           </select>
         </div>
         <div class="chip">Last update: <span id="miniSpecTs">—</span></div>
@@ -253,6 +254,7 @@
           <select id="specBand">
             <option value="24">2.4 GHz</option>
             <option value="58">5.8 GHz</option>
+            <option value="52">5.2 GHz</option>
           </select>
         </div>
         <div class="chip">Last update: <span id="specTs">—</span></div>
@@ -570,6 +572,7 @@ async function tick(){
 
     // sweeps
     (function(el){ if(el) el.textContent = (j.sweeps?.["24"]||[]).join('\n') || '—'; })(byId("s24"));
+    (function(el){ if(el) el.textContent = (j.sweeps?.["52"]||[]).join('\n') || '—'; })(byId("s52"));
     (function(el){ if(el) el.textContent = (j.sweeps?.["58"]||[]).join('\n') || '—'; })(byId("s58"));
 
     // tracks table
