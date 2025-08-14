@@ -38,9 +38,8 @@ DEBUG               = envb("RFE_DEBUG", True)
 SAME_BLOB_DEBOUNCE_S = float(os.getenv("RFE_SAME_BLOB_DEBOUNCE_S", 12))
 last_blob = {b: None for b in BANDS}
 # Persistenza "fuzzy"
-OVERLAP_FRAC    = envf("RFE_OVERLAP_FRAC", 0.35)  # soglia di sovrapposizione (IoU) 0..1
-CENTER_TOL_MHZ  = envf("RFE_CENTER_TOL_MHZ", 10.0)  # tolleranza alternativa sul centro (MHz)
-PERSIST_WINDOW = envi("RFE_PERSIST_WINDOW", 5)  # nuove: ultime N sweep
+OVERLAP_FRAC    = envf("RFE_OVERLAP_FRAC", 0.5)  # soglia di sovrapposizione (IoU) 0..1
+CENTER_TOL_MHZ  = envf("RFE_CENTER_TOL_MHZ", 2.0)  # tolleranza alternativa sul centro (MHz)
 
 # Stato in RAM
 history = {b: deque(maxlen=HIST_SWEEPS) for b in BANDS}
@@ -315,7 +314,7 @@ def main():
                 cand_c, cand_w = blob_center_width_mhz(b)
 
                 votes = 0
-                recent = sweeps_intervals[-PERSIST_WINDOW:] if PERSIST_WINDOW > 0 else sweeps_intervals
+                recent = sweeps_intervals[-MIN_CONSEC_SWEEPS:] if MIN_CONSEC_SWEEPS > 0 else sweeps_intervals
                 for ints in recent:
                     hit = False
                     # 1) voto per IoU (sovrapposizione relativa)
@@ -327,8 +326,7 @@ def main():
                     if (not hit) and CENTER_TOL_MHZ > 0:
                         for itv in ints:
                             ic = 0.5*(itv[0] + itv[1]); iw = (itv[1] - itv[0])
-                            dyn_tol = max(CENTER_TOL_MHZ, 0.5*max(cand_w, iw))  # tolleranza che cresce con la larghezza
-                            if abs(cand_c - ic) <= dyn_tol and min(cand_w, iw)/max(cand_w, iw) >= 0.3:
+                            if abs(cand_c - ic) <= CENTER_TOL_MHZ and min(cand_w, iw)/max(cand_w, iw) >= 0.3:
                                 hit = True
                                 break
                     votes += 1 if hit else 0

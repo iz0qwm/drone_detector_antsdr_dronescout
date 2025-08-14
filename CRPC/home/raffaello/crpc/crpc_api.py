@@ -510,6 +510,75 @@ def api_detections():
     out.sort(key=lambda x: (x["ts_unix"] is None, -(x["ts_unix"] or 0)))
     return jsonify({"detections": out, "ts": now})
 
+@app.route("/api/uav_status")
+def api_uav_status():
+    """
+    Ritorna se c'è un UAV 'attivo adesso' usando solo tempi lato server.
+    Regole:
+      - tile *_live.png  → finestra breve (8s)
+      - tile *_cum_*     → finestra più ampia (120s)
+      - fallback: tracks_current.last_seen <= 8s
+    """
+    now = time.time()
+    LIVE_W = 8
+    CUM_W  = 120
+
+    rfscan_cur = read_json(RFSCAN_CURR, [])  # stesso file che usi in /api/detections
+    active_bands = set()
+    recent_found = False
+
+    for r in rfscan_cur:
+        band = r.get("band") or "UNK"
+
+        # prendi tile e timestamp (come fai in /api/detections)
+        tile_name = r.get("tile") or r.get("img")
+        if tile_name:
+            tile_name, tile_mtime = _tile_info_from_name(tile_name)
+        else:
+            tile_name, tile_mtime = _latest_tile_info()
+
+        det_ts = None
+        for k in ("ts", "timestamp"):
+            v = r.get(k)
+            if v is not None:
+                try:
+                    det_ts = float(v); break
+                except Exception:
+                    pass
+        if det_ts is None:
+            det_ts = tile_mtime  # fallback come in /api/detections
+
+        if det_ts is None:
+            continue
+
+        name = str(tile_name or "")
+        is_live = name.endswith("_live.png")
+        is_cum  = "_cum_" in name
+        window  = LIVE_W if is_live else (CUM_W if is_cum else 20)
+
+        if (now - det_ts) <= window:
+            recent_found = True
+            if band: active_bands.add(str(band))
+
+    # fallback robusto: tracks_current.last_seen (stesso clock server)
+    if not recent_found:
+        tracks = read_json(TRACKS_CURR, [])
+        for t in tracks:
+            try:
+                if float(t.get("last_seen", 1e9)) <= LIVE_W:
+                    recent_found = True
+                    b = t.get("band"); 
+                    if b: active_bands.add(str(b))
+            except Exception:
+                pass
+
+    return jsonify({
+        "active": bool(recent_found),
+        "bands": sorted(active_bands),
+        "ts": now,
+        "n_rfscan": len(rfscan_cur)
+    })
+
 def _ts_to_epoch(v):
     if v is None: return 0.0
     try:

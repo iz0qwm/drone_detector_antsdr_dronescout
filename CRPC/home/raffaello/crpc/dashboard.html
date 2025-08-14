@@ -100,6 +100,11 @@
     outline:2px solid #58a6ff;
   }
 
+  #uavStatus{font-weight:700}
+  .uav-ok{background-color:#2ea043;color:#fff}
+  .uav-alert{background-color:#da3633;color:#fff;animation:blink 1s infinite}
+  @keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:.3}}
+
   /* (opzionale) su schermi piccoli fai wrapping in 2 per riga */
   @media (max-width: 900px){
     #tilesPreview{ flex-wrap:wrap; }
@@ -117,6 +122,7 @@
 <header>
   <h1>🚦 CRPC (Cognitive Radio Protocol Cracking) Dashboard</h1>
   <div>
+    <span class="chip" id="uavStatus">—</span>  
     <span class="chip" id="now">--:--:--</span>
     <span class="chip">refresh <span id="refreshMs">2000</span> ms</span>
   </div>
@@ -612,6 +618,31 @@ async function tick(){
   finally{ setTimeout(tick, REFRESH_MS); }
 }
 
+
+async function refreshUavStatus(){
+  try{
+    const s = await api('/api/uav_status');
+    const el = document.getElementById('uavStatus');
+    if (s.active){
+      const bandsTxt = (s.bands && s.bands.length) ? ` (${s.bands.join(', ')})` : '';
+      el.textContent = `🚨 UAV attivo${bandsTxt}`;
+      el.className = 'chip uav-alert';
+    } else {
+      el.textContent = '✅ Nessun UAV';
+      el.className = 'chip uav-ok';
+    }
+  }catch(e){
+    const el = document.getElementById('uavStatus');
+    el.textContent = '—';
+    el.className = 'chip';
+  }
+}
+refreshUavStatus();
+setInterval(refreshUavStatus, REFRESH_MS);
+
+
+
+
 // --- Detections UI ---
 const detGrid = document.getElementById('detGrid');
 const detInfo = document.getElementById('detInfo');
@@ -690,6 +721,7 @@ function fmtLocal(ts){ if(!ts) return '—'; try { return new Date(ts*1000).toLo
 document.getElementById('refreshMs').textContent = REFRESH_MS;
 tick();
 refreshDetections();
+refreshUavStatus();
 setInterval(refreshDetections, REFRESH_MS);
 // inizializza iframe Waterfall puntando all'host corrente su porta 8081
 (function(){
