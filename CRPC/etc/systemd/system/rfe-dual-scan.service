@@ -1,0 +1,22 @@
+[Unit]
+Description=RF Explorer dual sweep (2.4/5.8) → CSV ring
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=raffaello
+Group=raffaello
+WorkingDirectory=/home/raffaello/rfe_bridge
+Environment=PYTHONUNBUFFERED=1
+#ExecStartPre=/usr/bin/mkdir -p /tmp/rfe/scan
+ExecStart=/usr/bin/bash /home/raffaello/rfe_bridge/rfe_dual_scan.sh
+Restart=always
+RestartSec=5
+Nice=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+

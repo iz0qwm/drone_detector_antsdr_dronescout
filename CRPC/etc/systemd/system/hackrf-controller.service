@@ -1,0 +1,14 @@
+[Unit]
+Description=HackRF controller
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/raffaello/rfe_bridge/hackrf_controller.py
+Restart=always
+RestartSec=1
+User=raffaello
+WorkingDirectory=/home/raffaello/rfe_bridge
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,23 @@
+[Unit]
+Description=RF Explorer CSV bridge → JSONL (+ HackRF trigger)
+After=rfe-dual-scan.service
+Wants=rfe-dual-scan.service
+
+[Service]
+Type=simple
+User=raffaello
+Group=raffaello
+WorkingDirectory=/home/raffaello/rfe_bridge
+Environment=PYTHONUNBUFFERED=1
+# crea anche la cartella delle catture HackRF e i log
+#ExecStartPre=/usr/bin/mkdir -p /tmp/rfe/scan /tmp/rfe/captures /tmp/crpc_logs
+ExecStart=/usr/bin/python3 /home/raffaello/rfe_bridge/rfe_csv_bridge.py
+Restart=always
+RestartSec=3
+Nice=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+

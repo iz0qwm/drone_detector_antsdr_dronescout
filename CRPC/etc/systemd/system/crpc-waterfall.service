@@ -1,0 +1,15 @@
+# /etc/systemd/system/crpc-waterfall.service
+[Unit]
+Description=CRPC Waterfall (HackRF STFT)
+After=network.target
+
+[Service]
+User=raffaello
+WorkingDirectory=/home/raffaello/crpc
+ExecStart=/usr/bin/python3 /home/raffaello/crpc/waterfall_web.py
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
+

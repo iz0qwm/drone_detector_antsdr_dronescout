@@ -1,0 +1,14 @@
+[Unit]
+Description=RFE trigger daemon
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/raffaello/rfe_bridge/rfe_trigger.py
+Restart=always
+RestartSec=1
+User=raffaello
+WorkingDirectory=/home/raffaello/rfe_bridge
+
+[Install]
+WantedBy=multi-user.target
+

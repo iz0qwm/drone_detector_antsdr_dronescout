@@ -6,7 +6,7 @@ PartOf=crpc.target
 [Service]
 Type=simple
 User=raffaello
-ExecStart=/usr/bin/python3 /home/raffaello/crpc/sweep_to_tiles.py
+ExecStart=/usr/bin/python3 /home/raffaello/crpc/iq_to_tiles_cmap_arg.py --cmap orange_red
 Restart=always
 RestartSec=2
 

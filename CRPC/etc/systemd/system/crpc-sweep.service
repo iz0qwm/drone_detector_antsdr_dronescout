@@ -6,7 +6,7 @@ PartOf=crpc.target
 [Service]
 Type=simple
 User=raffaello
-ExecStart=/usr/bin/bash -lc '/home/raffaello/crpc/run_hackrf_text.sh'
+ExecStart=/usr/bin/bash -lc '/home/raffaello/crpc/run_hackrf_iq.sh'
 Restart=always
 RestartSec=2
 
