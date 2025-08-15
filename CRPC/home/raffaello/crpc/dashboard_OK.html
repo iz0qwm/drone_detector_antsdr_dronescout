@@ -100,30 +100,7 @@
     outline:2px solid #58a6ff;
   }
 
-  #uavStatus{font-weight:700}
-  .uav-ok{background-color:#2ea043;color:#fff}
-  .uav-alert{background-color:#da3633;color:#fff;animation:blink 1s infinite}
-  @keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:.3}}
-
-  /* (opzionale) su schermi piccoli fai wrapping in 2 per riga */
-  @media (max-width: 900px){
-    #tilesPreview{ flex-wrap:wrap; }
-    #tilesPreview .tile-thumb{
-      flex:0 0 calc((100% - 10px)/2);
-      max-width:calc((100% - 10px)/2);
-    }
-  }
-
-
-  /* griglia già presente; lasciala com'è se esiste */
-  .grid.cols-3 {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 12px;
-    align-items: stretch; /* fa allungare le card alla stessa altezza */
-  }
-
-  /* card con split verticale 50/50 */
+    /* card con split verticale 50/50 */
   .card.split-v {
     display: flex;
     flex-direction: column;
@@ -158,6 +135,21 @@
     overflow: auto;        /* scroll verticale */
     max-height: none;      /* niente limiti rigidi */
   }
+
+  #uavStatus{font-weight:700}
+  .uav-ok{background-color:#2ea043;color:#fff}
+  .uav-alert{background-color:#da3633;color:#fff;animation:blink 1s infinite}
+  @keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:.3}}
+
+  /* (opzionale) su schermi piccoli fai wrapping in 2 per riga */
+  @media (max-width: 900px){
+    #tilesPreview{ flex-wrap:wrap; }
+    #tilesPreview .tile-thumb{
+      flex:0 0 calc((100% - 10px)/2);
+      max-width:calc((100% - 10px)/2);
+    }
+  }
+
 
 
 </style>
@@ -235,7 +227,7 @@
       <canvas id="miniSpecCanvas" class="spark" style="height:160px"></canvas>
     </div>
     <div class="card">
-      <h2>📜 RF scan classifier (assoc.log tail - crpc-rfscan service)</h2>
+      <h2>📜 Assoc log (tail)</h2>
       <pre id="assocLog" class="mono" style="white-space:pre-wrap;max-height:180px;overflow:auto">—</pre>
     </div>
   </div>
@@ -264,36 +256,15 @@
     </div>
   </div>
 
-  <div class="grid cols-3">
-    <!-- Colonna 1: Detections -->
+  <div class="grid cols-2">
     <div class="card">
       <h2>🎯 Detections</h2>
-      <div class="muted" id="detInfoMain">auto-refresh ogni 2s</div>
+      <div class="muted" id="detInfoMain">auto‑refresh ogni 2s</div>
       <div class="det-grid" id="detGridMain"></div>
     </div>
-
-    <!-- Colonna 2: RFE Trigger + Warnings (50/50) -->
-    <div class="card split-v">
-      <div class="pane">
-        <h2>🧨 RFE Trigger (rfe-trigger service)</h2>
-        <pre id="rfeLog" class="mono"></pre>
-      </div>
-      <div class="pane">
-        <h2>⚠️ Warnings (journal)</h2>
-        <pre id="warnTail" class="mono"></pre>
-      </div>
-    </div>
-
-    <!-- Colonna 3: altri due log -->
-    <div class="card split-v">
-      <div class="pane">
-        <h2>👀 YOLO Watcher (crpc-yolo service)</h2>
-        <pre id="yolowLog" class="mono"></pre>
-      </div>
-      <div class="pane">
-        <h2>🔎 Spectral Tracker (crpc-tracker service)</h2>
-        <pre id="spectralLog" class="mono"></pre>
-      </div>
+    <div class="card">
+      <h2>⚠️ Warnings (journal)</h2>
+      <pre id="warnTail" class="mono" style="white-space:pre-wrap;max-height:120px;overflow:auto"></pre>
     </div>
   </div>
 </div>
@@ -396,6 +367,8 @@ async function refreshMiniSpectrum(){
 if (miniSpecBandSel) miniSpecBandSel.onchange = refreshMiniSpectrum;
 refreshMiniSpectrum();
 setInterval(refreshMiniSpectrum, REFRESH_MS);
+
+
 
 
 tabMainBtn.onclick = ()=>{
@@ -638,9 +611,6 @@ async function tick(){
     (function(el){ if(el) el.textContent = (j.logs?.detections_tail||[]).join('\n') || '—'; })(byId("detTail"));
     byId('assocLog').textContent = (j.logs?.assoc_log_tail||[]).join('\n') || '—';
     byId('warnTail').textContent = (j.logs?.warnings_tail||[]).join('\n') || '—';
-    byId('rfeLog').textContent = (j.logs?.rfe_trigger_tail||[]).join('\n') || '—';
-    byId('yolowLog').textContent = (j.logs?.yolo_watcher_tail||[]).join('\n') || '—';
-    byId('spectralLog').textContent = (j.logs?.spectral_tracker_tail||[]).join('\n') || '—';
 
     // sweeps
     (function(el){ if(el) el.textContent = (j.sweeps?.["24"]||[]).join('\n') || '—'; })(byId("s24"));

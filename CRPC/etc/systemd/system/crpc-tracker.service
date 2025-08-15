@@ -6,6 +6,7 @@ PartOf=crpc.target
 [Service]
 Type=simple
 User=raffaello
+#ExecStartPre=/usr/bin/touch -p /tmp/crpc_logs/detections.jsonl
 ExecStart=/usr/bin/python3 /home/raffaello/crpc/spectral_tracker.py
 Restart=always
 RestartSec=2

@@ -3,11 +3,16 @@ import time, os, csv, json, math, statistics as stats
 from collections import deque, defaultdict
 from pathlib import Path
 from datetime import datetime
+import builtins, pwd, grp, threading
+import sys
 
 # === Config ===
 RFE_DIR = Path("/tmp/rfe/scan")
 TRIGGER_FIFO = Path("/tmp/hackrf_trigger.fifo")
 STATE_FILE = Path("/tmp/rfe_trigger_state.json")
+LOG_PATH = Path(os.getenv("RFE_LOG", "/tmp/crpc_logs/rfe_trigger.log"))
+LOG_MAX_KB = float(os.getenv("RFE_LOG_MAXKB", "1024"))   # ruota a ~1MB (default)
+LOG_OWNER  = os.getenv("RFE_LOG_OWNER", "raffaello:raffaello")  # opzionale "user:group"
 
 BANDS = {
     "24": {"path": "/tmp/rfe/scan/latest_24.csv", "min_f": 2400.0, "max_f": 2485.0},
@@ -271,14 +276,92 @@ def send_trigger(band, f0_mhz, bw_hz, hold_s=10):
     finally:
         os.close(fd)
 
+
+# === Logging (tee su file) ===
+_log_lock = threading.Lock()
+_log_fh = None
+
+def _ensure_log_file():
+    global _log_fh
+    try:
+        LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        # apri in append, line-buffering
+        _log_fh = open(LOG_PATH, "a", buffering=1, encoding="utf-8", errors="replace")
+        # prova a settare owner se richiesto
+        if LOG_OWNER and ":" in LOG_OWNER:
+            u, g = LOG_OWNER.split(":", 1)
+            try:
+                uid = pwd.getpwnam(u).pw_uid
+                gid = grp.getgrnam(g).gr_gid
+                os.chown(LOG_PATH, uid, gid)
+            except Exception:
+                pass
+        # permessi rilassati (lettura a tutti)
+        try:
+            os.chmod(LOG_PATH, 0o664)
+        except Exception:
+            pass
+    except Exception as e:
+        # se non riusciamo ad aprire il log, proseguiamo solo a stdout
+        _log_fh = None
+
+def _maybe_rotate():
+    try:
+        st = LOG_PATH.stat()
+        if st.st_size > LOG_MAX_KB * 1024:
+            # ruota in-place: .1 sovrascritta
+            try:
+                os.replace(LOG_PATH, LOG_PATH.with_suffix(LOG_PATH.suffix + ".1"))
+            except FileNotFoundError:
+                pass
+            # riapri file nuovo
+            _ensure_log_file()
+    except FileNotFoundError:
+        _ensure_log_file()
+    except Exception:
+        pass
+
+def _tee_write(line: str):
+    # line già senza newline? aggiungilo
+    if not line.endswith("\n"): line += "\n"
+    # stdout “vero”
+    try:
+        sys.__stdout__.write(line)
+        sys.__stdout__.flush()
+    except Exception:
+        pass
+    # file
+    with _log_lock:
+        if _log_fh is None:
+            _ensure_log_file()
+        if _log_fh:
+            try:
+                _log_fh.write(line)
+                _log_fh.flush()
+                _maybe_rotate()
+            except Exception:
+                pass
+
+# sostituisci print globale con una versione che “teia”
+
+def _print_tee(*args, **kwargs):
+    sep = kwargs.get("sep", " ")
+    end = kwargs.get("end", "\n")
+    msg = sep.join(str(a) for a in args) + ("" if end == "" else end)
+    _tee_write(msg)
+
+builtins.print = _print_tee
+_ensure_log_file()
+
 def main():
+    # Avvio
     print("▶ RFExplorer trigger daemon avviato.")
-    print(f"Parametri: TH={PEAK_DB_ABOVE_FLOOR}dB  MIN_SWEEPS={MIN_CONSEC_SWEEPS}  COOLDOWN={COOLDOWN_S}s")
+    print(f"⚙️  Parametri: TH={PEAK_DB_ABOVE_FLOOR}dB  MIN_SWEEPS={MIN_CONSEC_SWEEPS}  COOLDOWN={COOLDOWN_S}s")
     while True:
         for band in ("58", "52", "24"):  # priorità 5.8 > 5.2 > 2.4
             rows = read_latest_csv(band)
             if rows:
-                print(f"RFE[{band}] nuovo sweep: {time.strftime('%H:%M:%S')} bins={len(rows)} file={BANDS[band]['path']}")
+                print(f"📈 RFE[{band}] nuovo sweep {time.strftime('%H:%M:%S')}: bins={len(rows)} file={BANDS[band]['path']}")
             if not rows:
                 continue
 
@@ -333,8 +416,12 @@ def main():
                                 break
                     votes += 1 if hit else 0
 
-                print(f"[{band}] cand f0={cand_c:.3f}MHz bw≈{cand_w:.2f}MHz votes={votes}/{MIN_CONSEC_SWEEPS} "
-                      f"(IoU≥{OVERLAP_FRAC:.2f} | ±{CENTER_TOL_MHZ:.1f}MHz)")
+                # Candidato con voti (persistenza)
+                print(
+                    f"🧪 [{band}] cand f0={cand_c:.3f}MHz bw≈{cand_w:.2f}MHz  "
+                    f"🗳️ {votes}/{MIN_CONSEC_SWEEPS}  (IoU≥{OVERLAP_FRAC:.2f} | ±{CENTER_TOL_MHZ:.1f}MHz)"
+                )
+
 
                 if votes >= MIN_CONSEC_SWEEPS:
                     f0, bw = blob_to_params(b)  # stima pesata per il trigger
@@ -343,16 +430,44 @@ def main():
 
             if candidate:
                 f0, bw = candidate
+                # 🔧 calcolo intervallo e centro del candidato per il debounce
+                cand_int = blob_interval_mhz(b)
+                cand_c, cand_w = blob_center_width_mhz(b)
+
+                # 🔧 Debounce: se è lo stesso blob di poco fa, non ritriggherare
+                prev = last_blob.get(band)
+                if prev:
+                    prev_int = prev["interval"]
+                    prev_c   = 0.5 * (prev_int[0] + prev_int[1])
+                    prev_w   = (prev_int[1] - prev_int[0])
+                    same_center = abs(cand_c - prev_c) <= max(5.0, 0.25 * max(cand_w, prev_w))
+                    same_iou    = interval_iou(cand_int, prev_int) >= 0.50
+                    if (time.time() - prev["ts"] < SAME_BLOB_DEBOUNCE_S) and (same_center or same_iou):
+                        # Debounce, stesso blob di poco fa
+                        print(f"🔕 [{band}] trigger soppresso (debounce {SAME_BLOB_DEBOUNCE_S:.0f}s): stesso blob")
+
+                        continue
+
                 ok = send_trigger(band, f0, bw, hold_s=12 if band in ("58","52") else 10)
                 if ok:
                     last_trigger_ts[band] = now
                     trigger_count.append(now)
-                    print(f"✅ Trigger {band}: f0={f0:.3f} MHz bw≈{bw/1e6:.2f} MHz")
+                    # 🔧 memorizza il blob per futuri debounce
+                    last_blob[band] = {"interval": cand_int, "ts": now}
+                    print("════════════════════════════════════════")
+                    print(
+                        f"🚀🧨 ✅ TRIGGER [{band}] → f0={f0:.3f} MHz  bw≈{bw/1e6:.2f} MHz  "
+                        f"→ handoff a HackRF / Classifier"
+                    )
+                    print("════════════════════════════════════════")
                     persist_state()
+
             else:
                 tops = [blob_center_width_mhz(b) for b in blobs]
                 msg = ", ".join([f"{c:.3f}MHz/{w:.2f}MHz" for c, w in tops[:3]])
-                print(f"[{band}] blobs visti ma NO trigger (persistence): {msg}")
+                # Blob visti ma niente trigger
+                print(f"🤔 [{band}] blobs visti ma NO trigger (persistence): {msg}")
+
 
         time.sleep(0.4)
 

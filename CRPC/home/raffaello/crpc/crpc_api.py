@@ -60,6 +60,10 @@ RFSCAN_CURR = LOG_DIR / "rfscan_current.json"
 RFSCAN_JL = LOG_DIR / "rfscan.jsonl"
 ASSOC = LOG_DIR / "associations.jsonl"   # optional legacy
 ASSOC_LOG = LOG_DIR / "assoc.log"
+RFE_TRIGGER_LOG = LOG_DIR / "rfe_trigger.log"
+YOLO_WATCHER_LOG = LOG_DIR / "yolo_watcher.log"
+SPECTRAL_TRACKER_LOG = LOG_DIR / "spectral_tracker.log"
+
 # --- new: RFExplorer sweep JSONL ---
 RFE_SWEEP_JL = LOG_DIR / "rfe_sweep.jsonl"
 
@@ -182,6 +186,34 @@ def latest_files_info(p: Path, n=3):
                 "url": f"/api/file/{q.name}",
                 "ts_unix": q.stat().st_mtime
             })
+    except Exception:
+        pass
+    return out
+
+def latest_done_previews_filtered(p: Path, n=3):
+    """
+    Ritorna ultimi n PNG in TILES_DONE, escludendo:
+      *_cum.png, *_live.png, *_live.tmp.png (senza timestamp)
+    Accetta solo file con pattern *_cum_* oppure *_live_* (snapshot con data).
+    """
+    out = []
+    try:
+        files = sorted(p.glob("*.png"), key=lambda q: q.stat().st_mtime, reverse=True)
+        for q in files:
+            name = q.name
+            # Filtri esclusione (senza timestamp o temporanei)
+            if name.endswith("_cum.png") or name.endswith("_live.png") or name.endswith("_live.tmp.png"):
+                continue
+            # Ammessi solo snapshot con data (timestamp nel nome)
+            if ("_cum_" not in name) and ("_live_" not in name):
+                continue
+            out.append({
+                "name": name,
+                "url": f"/api/file/{name}",
+                "ts_unix": q.stat().st_mtime
+            })
+            if len(out) >= n:
+                break
     except Exception:
         pass
     return out
@@ -339,6 +371,11 @@ def api_status():
     assoc_log_tail = tail_lines(ASSOC_LOG, n=10)
     warnings_tail = journal_warn_tail(SERVICES, n=80)
 
+    # coda del processo rfe-trigger, yolo_watcher e spectral_tracker
+    rfe_trigger_tail = tail_lines(RFE_TRIGGER_LOG, n=10)
+    yolo_watcher_tail = tail_lines(YOLO_WATCHER_LOG, n=10)
+    spectral_tracker_tail = tail_lines(SPECTRAL_TRACKER_LOG, n=10)
+
     # current JSONs
     tracks = read_json(TRACKS_CURR, [])
     rfscan_cur = read_json(RFSCAN_CURR, [])
@@ -368,12 +405,14 @@ def api_status():
         eval_obj = {"available": False, "error": "eval_failed"}
 
     # preview images (absolute URLs via /api/file)
+    # Solo TILES_DONE, filtrate (timestampate), niente queue
     previews = {
-        "queue": tiles["latest_queue"],          # compatibilità retro
-        "done": tiles["latest_done"],            # compatibilità retro
-        "queue_info": latest_files_info(TILES, 3),
-        "done_info": latest_files_info(TILES_DONE, 3),
+        "queue": [],  # compat (vuoto)
+        "done": tiles["latest_done"],  # compat (non usato dal frontend)
+        "queue_info": [],              # compat (vuoto)
+        "done_info": latest_done_previews_filtered(TILES_DONE, 3),
     }
+
 
 
     resp = {
@@ -386,7 +425,10 @@ def api_status():
             "detections_tail": det_tail,
             "associations_tail": assoc_tail,
             "assoc_log_tail": assoc_log_tail,
-            "warnings_tail": warnings_tail
+            "warnings_tail": warnings_tail,
+            "rfe_trigger_tail": rfe_trigger_tail,
+            "yolo_watcher_tail": yolo_watcher_tail,
+            "spectral_tracker_tail": spectral_tracker_tail
         },
         "tracks_current": tracks,
         "rfscan_current": rfscan_cur,

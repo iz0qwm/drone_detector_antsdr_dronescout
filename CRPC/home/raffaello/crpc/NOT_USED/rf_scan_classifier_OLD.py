@@ -277,19 +277,14 @@ def derive_video_ids(classmap):
 
 VIDEO_IDS = derive_video_ids(CLASSMAP)
 
-# ---------- Image hint (migliorato: peso per conf + finestra temporale) ----------
-HINT_TIME_S = 3.0  # distanza massima in secondi tra detection YOLO e track ts
-
-def image_hint_for_track(track_img, tail_kb, window_lines, ts_center=None):
+def image_hint_for_track(track_img, tail_kb, window_lines):
     """
-    Aggrega le classi YOLO per la stessa immagine (track['img']),
-    pesando per 'conf' e filtrando per finestra temporale ±HINT_TIME_S se ts_center è passato.
+    Aggrega le classi YOLO per la stessa immagine (track['img']).
     Ritorna (proto, score[0..1], cls_id, votes_dict).
     """
     if not track_img or not DET_PATH.exists():
         return None, 0.0, None, {}
-    votes = Counter()
-    total_w = 0.0
+    counts = Counter()
     try:
         with DET_PATH.open("rb") as f:
             try:
@@ -302,32 +297,23 @@ def image_hint_for_track(track_img, tail_kb, window_lines, ts_center=None):
                 d = json.loads(line)
                 if os.path.basename(d.get("image","")) != track_img:
                     continue
-                if ts_center is not None:
-                    ts = float(d.get("ts", 0.0))
-                    if abs(ts - float(ts_center)) > HINT_TIME_S:
-                        continue
                 cls_id = str(d.get("cls"))
-                conf = float(d.get("conf", 0.0))
-                if conf <= 0.01:
-                    continue
-                votes[cls_id] += conf
-                total_w += conf
+                counts[cls_id] += 1
             except Exception:
                 continue
     except Exception:
         return None, 0.0, None, {}
-
-    if not votes:
+    if not counts:
         return None, 0.0, None, {}
-    cls_id, w = max(votes.items(), key=lambda kv: kv[1])
+    cls_id, n = counts.most_common(1)[0]
     proto = CLASSMAP.get("by_id", {}).get(cls_id)
     if not proto:
-        return None, 0.0, None, dict(votes)
-    score = float(w / max(1e-9, total_w))
-    return proto, score, cls_id, dict(votes)
+        return None, 0.0, None, dict(counts)
+    total = sum(counts.values())
+    return proto, float(n / max(1, total)), cls_id, dict(counts)
 
-def estimate_vts_bw_from_image(track_img, band_key, tail_kb, ts_center=None):
-    """Stima bandwidth video (MHz) dalla bbox più larga tra classi 'video' (con filtro temporale)."""
+def estimate_vts_bw_from_image(track_img, band_key, tail_kb):
+    """Stima bandwidth video (MHz) dalla bbox più larga tra classi 'video'."""
     if not track_img or not DET_PATH.exists() or band_key not in BANDS:
         return None
     f_lo, f_hi = BANDS[band_key]; span = f_hi - f_lo
@@ -344,10 +330,6 @@ def estimate_vts_bw_from_image(track_img, band_key, tail_kb, ts_center=None):
                 d = json.loads(line)
                 if os.path.basename(d.get("image","")) != track_img:
                     continue
-                if ts_center is not None:
-                    ts = float(d.get("ts", 0.0))
-                    if abs(ts - float(ts_center)) > HINT_TIME_S:
-                        continue
                 cls_id = str(d.get("cls"))
                 if cls_id in VIDEO_IDS:
                     w = float(d.get("w", 0.0))
@@ -360,7 +342,6 @@ def estimate_vts_bw_from_image(track_img, band_key, tail_kb, ts_center=None):
     if max_w <= 0:
         return None
     return max_w * span
-
 
 # ---------- Utility ----------
 def load_tracks(min_len):
@@ -451,7 +432,7 @@ def main():
             used_vts_for_knn = False
             vts_bw_est = None
             if fdb.ok:
-                vts_bw_est = estimate_vts_bw_from_image(img, band, args.dets_tail_kb, ts_center=ts)
+                vts_bw_est = estimate_vts_bw_from_image(img, band, args.dets_tail_kb)
                 bw_for_knn = bw
                 if vts_bw_est and vts_bw_est > bw * 1.5:
                     log(f"   ⤷ vts_bw_est ~ {vts_bw_est:.2f} MHz (da immagine), usata per KNN al posto di {bw:.2f}")
@@ -466,7 +447,7 @@ def main():
                 mdl_label, mdl_score = model_predict(model, f, bw, hop, track=tr)
 
             # 3) Image hint
-            img_label, img_score, img_cls_id, img_votes = image_hint_for_track(img, args.dets_tail_kb, args.dets_tail_lines, ts_center=ts)
+            img_label, img_score, img_cls_id, img_votes = image_hint_for_track(img, args.dets_tail_kb, args.dets_tail_lines)
 
             # 4) Fusione
             fam_model = family_from_label(mdl_label)

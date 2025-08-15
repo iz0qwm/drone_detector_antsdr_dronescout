@@ -5,7 +5,8 @@ Before=crpc-sweep.service
 [Service]
 Type=oneshot
 User=raffaello
-ExecStart=/usr/bin/bash -lc 'mkdir -p /tmp/hackrf_sweeps_text /tmp/tiles /tmp/tiles_proc /tmp/tiles_done /tmp/crpc_logs /tmp/yolo_runs'
+#ExecStart=/usr/bin/bash -lc 'mkdir -p /tmp/hackrf_sweeps_text /tmp/tiles /tmp/tiles_proc /tmp/tiles_done /tmp/crpc_logs /tmp/yolo_runs'
+ExecStart=/bin/bash -c 'mkdir -p /tmp/crpc_logs && touch /tmp/crpc_logs/detections.jsonl && chown raffaello:raffaello /tmp/crpc_logs/detections.jsonl'
 
 [Install]
 WantedBy=crpc.target

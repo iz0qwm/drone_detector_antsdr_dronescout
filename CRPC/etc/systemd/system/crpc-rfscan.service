@@ -10,7 +10,8 @@ WorkingDirectory=/home/raffaello/crpc
 Environment=FPRINT_DB=/home/raffaello/dataset/rf_fingerprint/fingerprint_db_full.csv
 Environment=RF_MODEL=/home/raffaello/models/rf_model.pkl
 ExecStartPre=/usr/bin/mkdir -p /tmp/crpc_logs
-ExecStart=/usr/bin/python3 /home/raffaello/crpc/rf_scan_classifier.py --fprint-min 0.15
+#ExecStart=/usr/bin/python3 /home/raffaello/crpc/rf_scan_classifier.py --fprint-min 0.15
+ExecStart=/usr/bin/python3 /home/raffaello/crpc/rf_scan_classifier.py --min-track-len=1 --poll-sec=0.2
 # systemd recente:
 StandardOutput=append:/tmp/crpc_logs/assoc.log
 StandardError=append:/tmp/crpc_logs/assoc.log

@@ -3,11 +3,13 @@ Description=RFE trigger daemon
 After=network-online.target
 
 [Service]
-ExecStart=/usr/bin/python3 /home/raffaello/rfe_bridge/rfe_trigger.py
+ExecStart=/usr/bin/python3 /home/raffaello/rfe_bridge/rfe_trigger.py >> /tmp/crpc_logs/rfe_trigger.log 2>&1
 Restart=always
 RestartSec=1
 User=raffaello
 WorkingDirectory=/home/raffaello/rfe_bridge
+#StandardOutput=append:/tmp/crpc_logs/rfe_trigger.log
+#StandardError=append:/tmp/crpc_logs/rfe_trigger.log
 
 [Install]
 WantedBy=multi-user.target

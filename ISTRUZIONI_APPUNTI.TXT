@@ -209,6 +209,56 @@ hackrf_transfer -f 2440000000 -s 10000000 -a 1 -l 16 -g 32 -r /tmp/hackrf.iq
 Utilizza in un'altra finestra:
 python waterfall_web.py
 
+------------------------------------------------
+TILES
+------------------------------------------------
+Come usarlo (esempi veloci)
+
+Waterfall top‑down stile RFUAV/Phantom4 (span 5 MHz, pannello 0.10 s, colori a picchi vividi):
+
+python3 iq_to_tiles_cmap_arg.py \
+  --freq-mode rel --fs-view 5000000 --duration 0.10 \
+  --mode EWMA --alpha 0.2 \
+  --db-floor -100 --db-ceil -50 --gamma 0.9 \
+  --cmap orange_red
 
 
+Peak‑hold:
+
+python3 iq_to_tiles_cmap_arg.py \
+  --freq-mode rel --fs-view 5000000 --duration 0.10 \
+  --mode MAX --db-floor -100 --db-ceil -50 --gamma 0.9 --cmap turbo
+
+
+Assi in MHz assoluti con overlay CF/BW (se scrivi la CF nei file /tmp/center_*.txt):
+
+python3 iq_to_tiles_cmap_arg.py \
+  --freq-mode abs --fs-view 5000000 --duration 0.10 \
+  --mode EWMA --alpha 0.2 --db-floor -100 --db-ceil -50 --gamma 0.9
+
+
+Nota: NON usare --detrend se vuoi mantenere il gradiente di fondo (arancio→verde) tipico delle immagini che stai guardando. Se invece vuoi un fondo piatto, aggiungi --detrend.
+
+
+---------------------------
+Comando consigliato
+
+(come il tuo, ma con delta-clip più conservativo e baseline fast-settle)
+
+python3 iq_to_tiles_cmap_arg.py \
+  --fs 10e6 --fs-view 5000000 --duration 0.10 \
+  --freq-mode rel \
+  --norm bgsub --bg-alpha 0.02 --fast-settle-cols 120 --fast-settle-alpha 0.25 \
+  --delta-floor -12 --delta-ceil 6 \
+  --mode EWMA --alpha 0.2 \
+  --gamma 1.0 --cmap orange_red \
+  --dc-notch
+
+
+Se resta “troppo chiaro”:
+
+abbassa --fast-settle-alpha (es. 0.15) o riduci --delta-ceil (es. 4).
+Se invece è “troppo buio/piatto”:
+
+alza --delta-ceil (8..12) o aumenta --bg-alpha (0.03..0.05) per un fondo più reattivo.
 

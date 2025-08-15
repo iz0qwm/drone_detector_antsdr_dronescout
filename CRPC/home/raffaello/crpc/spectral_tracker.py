@@ -2,6 +2,8 @@
 import os, time, json
 from pathlib import Path
 from collections import deque
+import builtins, pwd, grp, threading
+import sys
 
 # === INPUT/OUTPUT ===
 DET_PATH   = Path("/tmp/crpc_logs/detections.jsonl")     # input dal watcher YOLO
@@ -12,6 +14,10 @@ OUT_JSONL  = Path("/tmp/crpc_logs/tracks.jsonl")         # storico append
 TILES_DIR       = Path("/tmp/tiles")
 TILES_PROC_DIR  = Path("/tmp/tiles_proc")
 TILES_DONE_DIR  = Path("/tmp/tiles_done")
+
+LOG_PATH = Path(os.getenv("TRACKER_LOG", "/tmp/crpc_logs/spectral_tracker.log"))
+LOG_MAX_KB = float(os.getenv("TRACKER_LOG_MAXKB", "1024"))   # ruota a ~1MB (default)
+LOG_OWNER  = os.getenv("TRACKER_LOG_OWNER", "raffaello:raffaello")  # opzionale "user:group"
 
 # === BANDE (MHz) ricavate dal prefisso del filename: "24_" o "58_" ===
 BANDS = {
@@ -26,7 +32,7 @@ FREQ_GATE_MHZ     = 12.0   # massima distanza (MHz) per assegnare a un track
 TIME_GATE_S       = 3.0    # massimo delta t per compatibilità aggiornamento
 TRACK_TIMEOUT_S   = 5.0    # se un track non si aggiorna per Xs, lo chiudiamo
 HOP_WINDOW        = 5      # punti recenti usati per stime (center/bw/hop)
-MIN_CONF          = 0.06   # ignora detection troppo deboli (era 0.10)
+MIN_CONF = float(os.getenv("TRACKER_MIN_CONF", "0.02"))   # ignora detection troppo deboli (era 0.10)
 HISTORY_MAX       = 20     # quanti campioni tenere per le feature RF
 
 class Track:
@@ -107,6 +113,84 @@ class Track:
             "img": self.img_name,                # nome immagine originale
         }
 
+# === Logging (tee su file) ===
+_log_lock = threading.Lock()
+_log_fh = None
+
+def _ensure_log_file():
+    global _log_fh
+    try:
+        LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        # apri in append, line-buffering
+        _log_fh = open(LOG_PATH, "a", buffering=1, encoding="utf-8", errors="replace")
+        # prova a settare owner se richiesto
+        if LOG_OWNER and ":" in LOG_OWNER:
+            u, g = LOG_OWNER.split(":", 1)
+            try:
+                uid = pwd.getpwnam(u).pw_uid
+                gid = grp.getgrnam(g).gr_gid
+                os.chown(LOG_PATH, uid, gid)
+            except Exception:
+                pass
+        # permessi rilassati (lettura a tutti)
+        try:
+            os.chmod(LOG_PATH, 0o664)
+        except Exception:
+            pass
+    except Exception as e:
+        # se non riusciamo ad aprire il log, proseguiamo solo a stdout
+        _log_fh = None
+
+def _maybe_rotate():
+    try:
+        st = LOG_PATH.stat()
+        if st.st_size > LOG_MAX_KB * 1024:
+            # ruota in-place: .1 sovrascritta
+            try:
+                os.replace(LOG_PATH, LOG_PATH.with_suffix(LOG_PATH.suffix + ".1"))
+            except FileNotFoundError:
+                pass
+            # riapri file nuovo
+            _ensure_log_file()
+    except FileNotFoundError:
+        _ensure_log_file()
+    except Exception:
+        pass
+
+def _tee_write(line: str):
+    # line già senza newline? aggiungilo
+    if not line.endswith("\n"): line += "\n"
+    # stdout “vero”
+    try:
+        sys.__stdout__.write(line)
+        sys.__stdout__.flush()
+    except Exception:
+        pass
+    # file
+    with _log_lock:
+        if _log_fh is None:
+            _ensure_log_file()
+        if _log_fh:
+            try:
+                _log_fh.write(line)
+                _log_fh.flush()
+                _maybe_rotate()
+            except Exception:
+                pass
+
+# sostituisci print globale con una versione che “teia”
+
+def _print_tee(*args, **kwargs):
+    sep = kwargs.get("sep", " ")
+    end = kwargs.get("end", "\n")
+    msg = sep.join(str(a) for a in args) + ("" if end == "" else end)
+    _tee_write(msg)
+
+builtins.print = _print_tee
+_ensure_log_file()
+
+# --------------------------------------
+
 def map_to_freq(band_key, xc_norm, w_norm):
     """Da bbox normalizzata → (center_MHz, bw_MHz) nella banda."""
     f_lo, f_hi = BANDS[band_key]
@@ -156,6 +240,7 @@ def parse_det(line):
 
         conf = float(d.get("conf", 0.0))
         if conf < MIN_CONF:
+            print(f"🟡 YOLO skip (conf={conf:.3f} < {MIN_CONF:.3f}) on {d.get('image')}")
             return None
 
         xc = float(d["xc"]); w = float(d["w"])

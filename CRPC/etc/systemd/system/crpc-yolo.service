@@ -15,7 +15,7 @@ Environment=PYTHONUNBUFFERED=1
 Environment=PYTHONPATH=/home/raffaello/scripts
 # Metti il venv in testa al PATH (non strettamente necessario ma aiuta)
 Environment=PATH=/home/raffaello/yolo-venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
-ExecStart=/home/raffaello/yolo-venv/bin/python /home/raffaello/crpc/yolo_watcher.py
+ExecStart=/home/raffaello/yolo-venv/bin/python /home/raffaello/crpc/yolo_watcher.py --conf 0.05
 Restart=always
 RestartSec=3
 # (opzionale) aumenta i limiti se serve
