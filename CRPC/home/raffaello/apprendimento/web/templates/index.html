@@ -45,6 +45,7 @@
         <div class="card" style="margin:16px 0">
             <h2>📘 Guida rapida</h2>
             <ol style="margin:0 0 10px 18px">
+                <li>Premi <b>⛔ Spegni live</b> per fermare i servizi del ricevitore</b></li>
                 <li>Accendi il drone.</li>
                 <li>Premi <b>▶️ Avvia RFE</b> → <b>🔄 Auto-aggiorna</b> e scegli banda (2.4 / 5.2 / 5.8).</li>
                 <li>Nel grafico: <b>clic</b> per il <i>Centro</i>, secondo clic per la <i>BW</i>. Trascina le maniglie per rifinire.</li>
@@ -53,8 +54,10 @@
                 </li>
                 <li>In <i>🧠 Apprendi</i>: per ogni sessione appena creata imposta <b>Label</b> (es. <code>Air3S</code> o <code>Noise</code>) e fai <b>📤 Estrai feature</b>.</li>
                 <li><b>Accumula</b> 3–10 sessioni (più distanze/orientamenti, e un po’ di <i>Noise</i> per ogni banda).</li>
+                <li>Ora puoi cliccare su <b>⛔ Stop RFE</b></li>
                 <li>Quando pronto: <b>📚 Allena (staging)</b> una volta → <b>✅ Quick test (staging)</b>.</li>
                 <li>Se i risultati sono buoni → <b>🚀 Promuovi in produzione</b> (aggiorna il modello <i>current</i> usato dal live).</li>
+                <li>Infine, esegui i passi finali per →<b>🏭 Mettere in produzione</b> e poi <b>▶️ Riaccendi live</b></li>
             </ol>
 
             <div class="chips">
@@ -65,6 +68,12 @@
             <p class="muted" style="margin-top:8px">
                 Suggerimenti: per OcuSync usa BW ~20–40 MHz. Registra anche sessioni di <i>rumore</i> (➖) per migliorare il classificatore.
             </p>
+        </div>
+
+        <div class="btns">
+            <button onclick="stopLive()">⛔ Spegni live</button>
+            <button onclick="hwCheck()">🧪 HW Check</button>
+            <button onclick="startLive()">▶️ Riaccendi live</button>
         </div>
 
         <div class="card" style="margin:16px 0">
@@ -103,12 +112,6 @@
         <div class="log" id="spec_log" style="margin-top:10px"></div>
         </div>
 
-        <div class="btns">
-        <button onclick="stopLive()">⛔ Spegni live</button>
-        <button onclick="hwCheck()">🧪 HW Check</button>
-        <button onclick="startLive()">▶️ Riaccendi live</button>
-        </div>
-
         <div class="row" style="margin-top:16px">
             <div class="card">
             <h2>📼 Registra</h2>
@@ -119,7 +122,9 @@
                 <option value="58">5.8 GHz</option>
             </select>
             <label>Drone ID (es. Mini3Pro_1234)</label>
-            <input id="drone_id" placeholder="nome_o_seriale"/>
+            <input id="drone_id" placeholder="nome_o_seriale" list="drone_list"/>
+            <datalist id="drone_list"></datalist>
+            <div class="chips" id="drone_chips"></div>
             <label>Center MHz</label>
             <input id="center_mhz" type="number" step="0.1" value="2400"/>
             <label>BW MHz</label>
@@ -133,14 +138,8 @@
             <div class="btns">
                 <button onclick="recordNoise()">➖ Registra rumore (negativo)</button>
             </div>
-
-            <div id="rec_prog" class="muted" style="margin-top:6px">
-
-            </div>
-
-            <div id="rec_out" class="log">
-              
-            </div>
+            <div id="rec_prog" class="muted" style="margin-top:8px"></div>
+            <div id="rec_out" class="log" style="margin-top:8px"></div>
         </div>
 
         <div class="card">
@@ -149,16 +148,30 @@
             <input id="session_dir" placeholder="/home/raffaello/apprendimento/data/recordings/.../session_YYYY-MM-DDTHH-MM-SSZ"/>
             <label>Label (classe da apprendere)</label>
             <input id="label" placeholder="Mini3Pro"/>
+            <div class="muted" id="label_hint" style="margin-top:4px">Suggerimento: verrà riempita con il Drone ID.</div>
             <div class="btns">
                 <button onclick="extract()">📤 Estrai feature</button>
                 <button onclick="train()">📚 Allena (staging)</button>
                 <button onclick="quickTest()">✅ Quick test</button>
                 <button onclick="promote()">🚀 Promuovi in produzione</button>
             </div>
-
-            <div id="learn_out" class="log">
+            <div id="learn_out" style="margin-top:8px" class="log">
 
             </div>
+        </div>
+
+        <div class="card">
+        <h2>🏭 Messa in produzione (estesa)</h2>
+            <div class="btns">
+                <p>Collega ad internet la Raspberry Pi5</p>
+                <button onclick="makeYolo()">1) Costruisci dataset YOLO</button>
+                <button onclick="yoloTrain()">2) Allena YOLO</button>
+                <button onclick="yoloClassmap()">3) Classmap</button>
+                <button onclick="yoloSmoke()">4) Smoke‑test</button>
+                <button onclick="yoloDeploy()">5) Deploy YOLO</button>
+            </div>
+
+            <div id="prod_out" class="log" style="margin-top:8px"></div>
         </div>
 
         <div class="card">
@@ -200,32 +213,45 @@
     }
 
     async function record(){
-        const duration_s = parseInt(document.getElementById('duration_s').value);
-        const j = {
-            band: document.getElementById('band').value,
-            drone_id: document.getElementById('drone_id').value || 'Unknown',
-            center_mhz: parseFloat(document.getElementById('center_mhz').value),
-            bw_mhz: parseFloat(document.getElementById('bw_mhz').value),
-            duration_s
-        };
+    const di = document.getElementById('drone_id');
+    const duration_s = parseInt(document.getElementById('duration_s').value);
 
-        // UI: mostra progresso e blocca i bottoni per evitare doppi click
-        showRecProgressPhased(duration_s, TILES_EXTRA_SEC);
-        disableRecButtons(true);
-        log('rec_out', 'Avvio registrazione…');
+    // Validazione Drone ID
+    const drone_id = (di.value || "").trim();
+    if(!drone_id){
+        di.style.borderColor = "var(--bad)";
+        log('rec_out', "⚠️ Inserisci/seleziona un Drone ID prima di registrare.");
+        di.focus();
+        return;
+    } else {
+        di.style.borderColor = "var(--border)";
+    }
 
-        const out = await post('/api/record', j);
+    const j = {
+        band: document.getElementById('band').value,
+        drone_id,
+        center_mhz: parseFloat(document.getElementById('center_mhz').value),
+        bw_mhz: parseFloat(document.getElementById('bw_mhz').value),
+        duration_s
+    };
 
-        clearInterval(REC_INTERVAL);
-        document.getElementById('rec_prog').textContent =
-            out && out.ok ? '✅ Registrazione terminata' : '❌ Errore registrazione (vedi dettagli sotto)';
+    // UI: progresso...
+    showRecProgressPhased(duration_s, TILES_EXTRA_SEC);
+    disableRecButtons(true);
+    log('rec_out', 'Avvio registrazione…');
 
-        log('rec_out', out);
-        if(out && out.session){
-            document.getElementById('session_dir').value = out.session;
-            loadThumbs(out.session);
-        }
-        disableRecButtons(false);
+    const out = await post('/api/record', j);
+
+    clearInterval(REC_INTERVAL);
+    document.getElementById('rec_prog').textContent =
+        out && out.ok ? '✅ Registrazione terminata' : '❌ Errore registrazione (vedi dettagli sotto)';
+
+    log('rec_out', out);
+    if(out && out.session){
+        document.getElementById('session_dir').value = out.session;
+        loadThumbs(out.session);
+    }
+    disableRecButtons(false);
     }
 
 
@@ -278,6 +304,17 @@
     }
 
     async function autoPipeline(){
+    const di = document.getElementById('drone_id');
+    const drone_id = (di.value || "").trim();
+    if(!drone_id){
+        di.style.borderColor = "var(--bad)";
+        log('rec_out', "⚠️ Inserisci/seleziona un Drone ID prima di avviare la pipeline.");
+        di.focus();
+        return;
+    } else {
+        di.style.borderColor = "var(--border)";
+    }
+
     // 1) registra
     const j = {
         band: document.getElementById('band').value,
@@ -287,7 +324,7 @@
         duration_s: parseInt(document.getElementById('duration_s').value)
     };
 
-    showRecProgressPhased(j.duration_s, TILES_EXTRA_SEC);
+    showRecProgressPhased(duration_s, TILES_EXTRA_SEC);
     disableRecButtons(true);
     log('rec_out','Avvio registrazione…');
 
@@ -660,6 +697,70 @@
         }
     });
     }
+
+    async function makeYolo(){ const r = await post('/api/make_yolo_dataset'); log('prod_out', r); }
+    async function yoloTrain(){ const r = await post('/api/yolo_train'); log('prod_out', r); }
+    async function yoloClassmap(){ const r = await post('/api/yolo_classmap'); log('prod_out', r); }
+    async function yoloSmoke(){
+    const src_glob = "/tmp/tiles/*_cum_*.png"; // cambia se vuoi
+    const r = await post('/api/yolo_smoketest', {src_glob});
+    log('prod_out', r);
+    }
+    async function yoloDeploy(){ const r = await post('/api/yolo_deploy'); log('prod_out', r); }
+ 
+    document.addEventListener('DOMContentLoaded', () => {
+    refreshDroneIds();         // carica rubrica al load
+    wireDroneIdSync();         // collega sincronizzazione label
+    });
+
+    async function refreshDroneIds() {
+    try{
+        const r = await fetch('/api/drone_ids');
+        const j = await r.json();
+        if(!j.ok) return;
+
+        const dl = document.getElementById('drone_list');
+        const chips = document.getElementById('drone_chips');
+        if(!dl || !chips) return;
+
+        // datalist
+        dl.innerHTML = j.ids.map(x => `<option value="${x.name}"></option>`).join('');
+
+        // top 10 recenti come chips
+        chips.innerHTML = j.ids.slice(0,10).map(x =>
+        `<span class="chip" title="bande: ${x.bands.join(', ')} | sessioni: ${x.sessions}" onclick="pickDroneId('${x.name}')">🛰️ ${x.name}</span>`
+        ).join('');
+    }catch(e){ /* silenzio in UI */ }
+    }
+
+    function pickDroneId(name){
+    const di = document.getElementById('drone_id');
+    if(di){ di.value = name; di.dispatchEvent(new Event('input')); }
+    }
+
+    let LAST_AUTO_LABEL = "";  // ricorda se la label l'abbiamo messa noi
+
+    function sanitizeLabel(s){
+    return (s || "").trim().replace(/\s+/g,'_');
+    }
+
+    function wireDroneIdSync(){
+    const di = document.getElementById('drone_id');
+    const lb = document.getElementById('label');
+    if(!di || !lb) return;
+
+    di.addEventListener('input', () => {
+        const v = di.value.trim();
+        const auto = sanitizeLabel(v);
+        if(lb.value.trim() === "" || lb.value.trim() === LAST_AUTO_LABEL){
+        lb.value = auto;
+        LAST_AUTO_LABEL = auto;
+        const hint = document.getElementById('label_hint');
+        if(hint) hint.textContent = "Label sincronizzata al Drone ID.";
+        }
+    });
+    }
+
 
     // ===== EVENTI CANVAS ROBUSTI (pointer events + scaling) =====
     (function initSpectrumPointer(){

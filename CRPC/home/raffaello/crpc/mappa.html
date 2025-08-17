@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CRPC • Mappa e Raggio di Allerta</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <style>
+    :root{
+      --bg:#0e1117; --card:#161b22; --muted:#8b949e; --text:#e6edf3;
+      --ok:#2ea043; --bad:#da3633; --warn:#d29922; --chip:#30363d;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font:14px/1.4 system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #30363d}
+    header h1{margin:0;font-size:16px}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .card{background:var(--card);border:1px solid #30363d;border-radius:12px;padding:10px}
+    .control{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    label{color:var(--muted)}
+    input[type="number"], input[type="text"]{background:#0b0e14;border:1px solid #30363d;border-radius:10px;color:var(--text);padding:8px 10px;min-width:120px}
+    button{background:#22272e;border:1px solid #30363d;color:var(--text);padding:8px 12px;border-radius:10px;cursor:pointer}
+    button:hover{background:#2b3138}
+    #map{height:100vh;width:100vw} /* mappa a piena altezza */
+
+.panel{
+  position:fixed; z-index:5000;
+  background:#0e1117cc; border:1px solid #30363d; border-radius:12px;
+  padding:10px; backdrop-filter: blur(4px);
+  max-width: min(92vw, 980px);
+}
+.panel-top-left{ top:12px; left:12px }
+
+.crpc-icon{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:36px; height:36px; border-radius:999px;
+  background:#1f6feb; border:1px solid #4686ff; color:#fff;
+  box-shadow:0 2px 10px #0008;
+  pointer-events: none;                 /* <--- aggiungi questo */
+}
+
+.crpc-icon svg{ display:block }
+
+.leaflet-popup-content-wrapper.crpc-pop,
+.leaflet-popup-tip.crpc-pop {
+  background:#0e1117;
+  color:#e6edf3;
+  border:1px solid #30363d;
+}
+
+
+    /* Info overlay */
+    .hud{
+      position:fixed;
+      right:12px; top:68px;
+      min-width:260px; max-width:360px;
+      background:#0e1117cc;
+      border:1px solid #30363d; border-radius:12px;
+      padding:10px; backdrop-filter: blur(4px);
+      z-index: 7000;            /* <— sopra a tile/overlay/marker/popup Leaflet */
+      pointer-events: auto;
+    }
+
+    .hud h3{margin:0 0 6px 0;font-size:14px}
+    .kv{display:grid;grid-template-columns:110px 1fr;gap:6px 8px}
+    .kv div{padding:2px 0}
+    .muted{color:var(--muted)}
+
+
+    /* Pulsing hazard ring using a DivIcon with radial-gradient + scale */
+    .pulse-ring{--ring-color: 255, 200, 0;  /* default: yellow */
+      position: absolute; transform: translate(-50%, -50%);
+      width: var(--size, 200px); height: var(--size, 200px);
+      border-radius: 50%; pointer-events: none;
+      background: radial-gradient(circle,
+                 rgba(var(--ring-color),0.35) 0%,
+                 rgba(var(--ring-color),0.22) 55%,
+                 rgba(var(--ring-color),0.0) 70%);
+      animation: pulse 1.4s ease-in-out infinite;
+      box-shadow: 0 0 24px rgba(var(--ring-color),0.35);
+    }
+    @keyframes pulse{
+      0%{ transform: translate(-50%, -50%) scale(0.9); filter: brightness(1.0); }
+      50%{ transform: translate(-50%, -50%) scale(1.05); filter: brightness(1.25); }
+      100%{ transform: translate(-50%, -50%) scale(0.9); filter: brightness(1.0); }
+    }
+
+    @keyframes blinkAnt {
+  0%   { filter: drop-shadow(0 0 4px #fff) brightness(1.2); }
+  50%  { filter: drop-shadow(0 0 14px #ff0) brightness(1.6); }
+  100% { filter: drop-shadow(0 0 4px #fff) brightness(1.2); }
+}
+.crpc-blink {
+  animation: blinkAnt 0.9s ease-in-out 1;
+}
+
+    /* small chips */
+    .chip{display:inline-block;background:var(--chip);border:1px solid #30363d;color:var(--text);padding:2px 8px;border-radius:999px;font-size:12px}
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+<!-- pannello controlli flottante -->
+<div class="panel panel-top-left">
+  <h3 style="margin:0 0 6px 0;font-size:14px">📡 Posizione CRPC & Tabella distanza</h3>
+  <div class="row" style="gap:8px">
+    <div class="control" style="padding:0">
+      <label>Lat</label><input id="lat" type="number" step="0.000001" placeholder="41.9" />
+      <label>Lon</label><input id="lon" type="number" step="0.000001" placeholder="12.5" />
+      <label>Zoom</label><input id="zoom" type="number" step="1" value="15" style="width:70px"/>
+      <button id="setPos">Imposta</button>
+      <button id="useLast">Usa ultima</button>
+      <button id="simAlert">Simula alert</button>
+
+    </div>
+    <div class="control" style="padding:0;margin-top:6px;flex:1 1 100%">
+      <span class="muted">Tabella RSSI→raggio (modifica e salva)</span>
+      <input id="rssiTable" type="text" style="min-width:520px" value='[{"max_dbm":-80,"radius_m":1200,"color":"#f2cb05"},{"max_dbm":-70,"radius_m":700,"color":"#ff8c00"},{"max_dbm":-60,"radius_m":400,"color":"#ff4d4d"},{"max_dbm":-50,"radius_m":220,"color":"#d12a2a"}]' />
+      <button id="saveTable">Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- HUD info ultimo alert -->
+<div class="hud" id="hud" hidden>
+  <h3>📡 Ultimo alert</h3>
+  <div class="kv">
+    <div class="muted">Banda</div><div id="hudBand">–</div>
+    <div class="muted">Frequenza</div><div id="hudFreq">–</div>
+    <div class="muted">Famiglia</div><div id="hudFam">–</div>
+    <div class="muted">Label</div><div id="hudLabel">–</div>
+    <div class="muted">Aggiornato</div><div id="hudTs">–</div>
+    <div class="muted">RSSI</div><div id="hudRssi">–</div>
+    <div class="muted">Distanza</div><div id="hudDist">–</div>
+  </div>
+  <div style="margin-top:8px"><span class="chip" id="chipStatus">in ascolto…</span></div>
+</div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    // —— helpers ————————————————————————————————————————
+   const $ = (idOrHash) => {
+    if (!idOrHash) return null;
+    const id = idOrHash[0] === '#' ? idOrHash.slice(1) : idOrHash;
+    return document.getElementById(id);
+  };
+
+    // persistenza locale della posizione e della tabella
+    const loadState = () => {
+      try{
+        const pos = JSON.parse(localStorage.getItem('crpc.pos')||'null');
+        const tbl = JSON.parse(localStorage.getItem('crpc.rssiTable')||'null');
+        return {pos, tbl};
+      }catch{ return {pos:null,tbl:null}; }
+    };
+    const savePos = (lat,lon,zoom)=>localStorage.setItem('crpc.pos', JSON.stringify({lat,lon,zoom}));
+    const saveTable = (tbl)=>localStorage.setItem('crpc.rssiTable', JSON.stringify(tbl));
+
+    // Mappa
+    const map = L.map('map', {zoomControl:true});
+    const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    let posPopup = null;
+    function closePosPopup(){
+      if (posPopup) { map.closePopup(posPopup); posPopup = null; }
+    }
+
+    // Marker posizione CRPC
+const antennaSVG = `
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <path d="M12 14v6M9 22h6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  <path d="M12 3c2.5 0 4.5 2 4.5 4.5" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
+  <path d="M12 1c3.6 0 6.5 2.9 6.5 6.5" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+  <circle cx="12" cy="8.5" r="1.8" fill="white"/>
+</svg>`;
+const iconHtml = `<div class="crpc-icon" title="CRPC">${antennaSVG}</div>`;
+const antennaIcon = L.divIcon({
+  className:'leaflet-div-icon crpc-antenna',   // <--- invece di ''
+  html: iconHtml,
+  iconSize:[36,36],
+  iconAnchor:[18,18]
+});
+
+
+const posMarker = L.marker([41.902, 12.496], { draggable:true, icon: antennaIcon }).addTo(map);
+
+// Durante il drag: aggiorna solo i campi, niente setLatLng (niente setPosition)
+posMarker.on('drag', () => {
+  const ll = posMarker.getLatLng();
+  document.getElementById('lat').value = ll.lat.toFixed(6);
+  document.getElementById('lon').value = ll.lng.toFixed(6);
+});
+
+// Safety su 'move' per alcuni browser/temi: come sopra, solo input
+posMarker.on('move', () => {
+  const ll = posMarker.getLatLng();
+  document.getElementById('lat').value = ll.lat.toFixed(6);
+  document.getElementById('lon').value = ll.lng.toFixed(6);
+});
+
+// A fine drag: consolidiamo posizione, salviamo e (se vuoi) centriamo
+posMarker.on('dragend', () => {
+  const ll = posMarker.getLatLng();
+  setPosition(ll.lat, ll.lng, null, { pan: true, save: true, updateInputs: true, setMarker: false });
+});
+
+
+
+
+    // Click/tap sulla mappa: imposta posizione CRPC
+    map.on('click', (e) => {
+      const { lat, lng } = e.latlng;
+      setPosition(lat, lng, null, { pan:false, save:true, updateInputs:true, setMarker:true });
+
+      // chiudi eventuale popup precedente
+      closePosPopup();
+
+      // apri e programma autoclose
+      posPopup = L.popup({ closeButton:false, autoClose:true, closeOnClick:true, className:'crpc-pop' })
+        .setLatLng(e.latlng)
+        .setContent('📡 Posizione CRPC aggiornata')
+        .openOn(map);
+
+      setTimeout(() => closePosPopup(), 1200);
+    });
+
+    map.on('movestart', closePosPopup);
+    map.on('zoomstart', closePosPopup);
+
+
+    function blinkAntenna(){
+  const el = document.querySelector('.crpc-icon');
+  if(!el) return;
+  el.classList.add('crpc-blink');
+  setTimeout(()=>el.classList.remove('crpc-blink'), 1000);
+}
+
+// Stato posizione corrente del CRPC
+// Stato posizione corrente del CRPC
+const posState = { lat: 41.902, lon: 12.496, zoom: 15 };
+
+function setPosition(
+  lat, lon, zoom = null,
+  opts = { pan: true, save: true, updateInputs: true, setMarker: true }
+) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+
+  posState.lat = lat;
+  posState.lon = lon;
+  if (Number.isFinite(zoom)) posState.zoom = zoom;
+
+  // ⚠️ evita ricorsione durante il drag
+  if (opts.setMarker) {
+    posMarker.setLatLng([lat, lon]);
+  }
+
+  if (opts.pan) {
+    if (Number.isFinite(zoom)) map.flyTo([lat, lon], zoom, { duration: 0.4 });
+    else map.panTo([lat, lon]);
+  }
+
+  if (opts.updateInputs) {
+    document.getElementById('lat').value  = lat.toFixed(6);
+    document.getElementById('lon').value  = lon.toFixed(6);
+    document.getElementById('zoom').value = (zoom ?? map.getZoom());
+  }
+
+  if (opts.save) {
+    savePos(lat, lon, zoom ?? map.getZoom());
+  }
+}
+
+
+    // Layer per il cerchio pulsante (DivOverlay custom)
+    let ringLayer = null; // L.marker con DivIcon pulsante
+    let rangeCircle = null; // L.circle con bordo spesso
+
+    // Stato ring/alert
+    const ringState = { active:false, radius_m:0, color:'#f2cb05', expires:0 };
+
+    function clearRing(){
+      if (ringLayer){ map.removeLayer(ringLayer); ringLayer = null; }
+      if (rangeCircle){ map.removeLayer(rangeCircle); rangeCircle = null; }
+    }
+
+    function renderRing(){
+      if (!ringState.active) { clearRing(); return; }
+      // centra il ring sulla posizione CRPC (posState), solo quando c'è alert attivo
+      updateRing(posState.lat, posState.lon, ringState.radius_m, ringState.color);
+    }
+
+    // piccolo watchdog che scade l'alert e pulisce l'anello
+    setInterval(()=>{
+      if (ringState.active && Date.now() > ringState.expires){
+        ringState.active = false;
+        clearRing();
+        const hud = document.getElementById('hud'); if(hud) hud.hidden = true;
+        const chip = document.getElementById('chipStatus'); if(chip) chip.textContent = 'in ascolto…';
+      }
+    }, 1000);
+
+    function hexToRgb(hex){
+      const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      if(!m) return [255,200,0];
+      return [parseInt(m[1],16), parseInt(m[2],16), parseInt(m[3],16)];
+    }
+
+    function updateRing(lat, lon, radius_m, color){
+      const [r,g,b] = hexToRgb(color);
+      // rimuovi precedenti
+      if(ringLayer){ map.removeLayer(ringLayer); ringLayer=null; }
+      if(rangeCircle){ map.removeLayer(rangeCircle); rangeCircle=null; }
+      // cerchio "fisico" per dare riferimento geospaziale
+      rangeCircle = L.circle([lat,lon], {
+        radius: radius_m,
+        color: color,
+        weight: 6,
+        fill: false,
+        opacity: 0.85
+      }).addTo(map);
+      // anello visivo pulsante: scala in pixel, quindi dimensione ~ in base allo zoom
+      const metersPerPixel = (40075016.686 * Math.abs(Math.cos(lat * Math.PI/180))) / Math.pow(2, map.getZoom()+8);
+      const px = Math.max(80, Math.min(1200, radius_m / metersPerPixel));
+      const div = document.createElement('div');
+      div.className = 'pulse-ring';
+      div.style.setProperty('--ring-color', `${r},${g},${b}`);
+      div.style.setProperty('--size', px+"px");
+      ringLayer = L.marker([lat,lon], {
+        icon: L.divIcon({className:'', html: div, iconSize:[0,0]}),
+        interactive:false,
+        zIndexOffset: -500
+      }).addTo(map);
+
+      // ... dopo aver creato rangeCircle e ringLayer ...
+      // assicura che il circle vada sotto
+      if (rangeCircle && rangeCircle.bringToBack) rangeCircle.bringToBack();
+      // e che l'antenna resti sopra
+      try { posMarker.setZIndexOffset(1000); } catch(e){/* ok se non supportato */}
+
+    }
+
+    // Tabella RSSI→raggio
+    function getTable(){
+      try{ return JSON.parse($('#rssiTable').value); }catch{return []}
+    }
+    function writeTable(tbl){ $('#rssiTable').value = JSON.stringify(tbl); }
+
+    // stima raggio da RSSI in dBm con interpolazione lineare
+    function estimateRadius(rssi_dbm, table){
+      // Ordina per max_dbm crescente (più negativo → più grande raggio)
+      const t = [...table].sort((a,b)=>a.max_dbm-b.max_dbm);
+      // se è più debole (più negativo) del minimo, usa il primo
+      if(rssi_dbm <= t[0].max_dbm) return {radius_m:t[0].radius_m, color:t[0].color};
+      // se è più forte del massimo, usa l'ultimo
+      if(rssi_dbm >= t[t.length-1].max_dbm) return {radius_m:t[t.length-1].radius_m, color:t[t.length-1].color};
+      // trova segmento bracketing
+      for(let i=1;i<t.length;i++){
+        const a=t[i-1], b=t[i];
+        if(rssi_dbm>=a.max_dbm && rssi_dbm<=b.max_dbm){
+          const f=(rssi_dbm-a.max_dbm)/(b.max_dbm-a.max_dbm);
+          const radius=a.radius_m+(b.radius_m-a.radius_m)*f;
+          // blend colore semplice (non percettivo)
+          const [ar,ag,ab]=hexToRgb(a.color), [br,bg,bb]=hexToRgb(b.color);
+          const cr = Math.round(ar+(br-ar)*f), cg=Math.round(ag+(bg-ag)*f), cb=Math.round(ab+(bb-ab)*f);
+          return {radius_m:radius, color:`rgb(${cr},${cg},${cb})`};
+        }
+      }
+      return {radius_m:600, color:'#ff8c00'}; // fallback
+    }
+
+    // HUD  
+    function setHud(info){
+      const hud = document.getElementById('hud');
+      if(!hud) return;
+      hud.hidden = false;                    // <— forza visibilità
+
+      const byId = (id)=>document.getElementById(id);
+      (byId('hudBand')  || {}).textContent = info.band || '–';
+      (byId('hudFreq')  || {}).textContent = info.freq_mhz != null ? info.freq_mhz.toFixed(3)+' MHz' : '–';
+      (byId('hudFam')   || {}).textContent = info.family || '–';
+      (byId('hudLabel') || {}).textContent = info.label || '–';
+      (byId('hudTs')    || {}).textContent = info.ts_iso || new Date().toISOString();
+      (byId('hudRssi')  || {}).textContent = (info.rssi_dbm!=null? info.rssi_dbm.toFixed(1)+' dBm' : 'n/d');
+      (byId('hudDist')  || {}).textContent = (info.radius_m? Math.round(info.radius_m)+' m' : 'n/d');
+      const chip = byId('chipStatus'); if (chip) chip.textContent = 'live';
+    }
+
+
+    // —— bootstrap posizione iniziale ———
+(function init(){
+  const {pos,tbl} = loadState();
+  if (pos) {
+    map.setView([pos.lat, pos.lon], pos.zoom || 15);
+    setPosition(pos.lat, pos.lon, pos.zoom || 15, {pan:false, save:false, updateInputs:true});
+  } else {
+    map.setView([41.902, 12.496], 15);
+    setPosition(41.902, 12.496, 15, {pan:false, save:false, updateInputs:true});
+  }
+  if (tbl) { writeTable(tbl); }
+})();
+
+
+
+window.addEventListener('DOMContentLoaded', () => {
+  const btnSet   = $('#setPos');
+  const btnLast  = $('#useLast');
+  const btnSaveT = $('#saveTable');
+
+  if (btnSet) {
+    btnSet.addEventListener('click', () => {
+      const lat  = parseFloat(document.getElementById('lat').value);
+      const lon  = parseFloat(document.getElementById('lon').value);
+      const zoom = parseInt(document.getElementById('zoom').value, 10);
+      if (Number.isFinite(lat) && Number.isFinite(lon)) {
+        setPosition(lat, lon, Number.isFinite(zoom) ? zoom : null,
+          { pan: true, save: true, updateInputs: true, setMarker: true });
+      } else {
+        // feedback errori
+        document.getElementById('lat').style.borderColor = 'var(--bad)';
+        document.getElementById('lon').style.borderColor = 'var(--bad)';
+        setTimeout(()=>{
+          document.getElementById('lat').style.borderColor='';
+          document.getElementById('lon').style.borderColor='';
+        }, 1200);
+      }
+    });
+  }
+
+  const sim = document.getElementById('simAlert');
+  if (sim) sim.addEventListener('click', ()=>{
+    // esempio: RSSI medio → colore arancio, raggio 600m
+    ringState.active   = true;
+    ringState.radius_m = 600;
+    ringState.color    = '#ff8c00';
+    ringState.expires  = Date.now() + 15000; // 15s
+    renderRing();
+    setHud({
+      band:'—', freq_mhz: null, family:'SIM', label:'alert di test',
+      ts_iso: new Date().toISOString(), rssi_dbm: -65, radius_m: 600
+    });
+    blinkAntenna();
+  });
+
+
+  if (btnLast) {
+    btnLast.addEventListener('click', () => {
+      const st = loadState();
+      if (st.pos) {
+        setPosition(st.pos.lat, st.pos.lon, st.pos.zoom || 15, {pan:true, save:false, updateInputs:true});
+      }
+    });
+  }
+
+  if (btnSaveT) {
+    btnSaveT.addEventListener('click', () => {
+      try {
+        const tbl = getTable();
+        saveTable(tbl);
+        btnSaveT.textContent='Salvato';
+        setTimeout(()=>btnSaveT.textContent='Salva', 900);
+      } catch {}
+    });
+  }
+});
+
+
+
+    // —— polling API locali per aggiornare alert ———
+    const REFRESH_MS = 2000;
+    async function fetchJSON(url){
+      try{ const r = await fetch(url); if(!r.ok) throw new Error('HTTP '+r.status); return await r.json(); }
+      catch(e){ return null; }
+    }
+
+      let lastTrackId = null;
+      async function tick(){
+        const det = await fetchJSON('/api/detections');
+        if(!det || !Array.isArray(det.detections) || det.detections.length===0){
+          ringState.active = false;
+          clearRing();
+          const hud = document.getElementById('hud'); if(hud) hud.hidden = true;
+          const chip = document.getElementById('chipStatus'); if(chip) chip.textContent = 'in ascolto… (nessuna detection)';
+          setTimeout(tick, REFRESH_MS);
+          return;
+        }
+
+        const last = det.detections[det.detections.length-1];
+        if(lastTrackId === last.track_id){ setTimeout(tick, REFRESH_MS); return; }
+        lastTrackId = last.track_id;
+
+
+      // 2) opzionale: prova a leggere rssi dai PEAKS
+      let rssi_dbm = null;
+      const spec = await fetchJSON('/api/spectrum');
+      if(spec && Array.isArray(spec.peaks) && last.freq_mhz){
+        // cerca il picco più vicino alla freq della detection entro 5 MHz
+        let best = null, dfBest = Infinity;
+        for(const p of spec.peaks){
+          const f = p.freq_mhz || p.frequency; const a = p.power_dbm ?? p.dbm ?? p.amp_dbm ?? p.amp;
+          if(!f || a==null) continue;
+          const df = Math.abs(f - last.freq_mhz);
+          if(df < dfBest && df <= 5){ best = a; dfBest = df; }
+        }
+        if(best!=null) rssi_dbm = best;
+      }
+
+      // 3) calcola raggio da rssi
+      const tbl = getTable();
+      let radius_m = 600, color = '#f2cb05';
+      if(rssi_dbm!=null){ const est = estimateRadius(rssi_dbm, tbl); radius_m = est.radius_m; color = est.color; }
+
+      // usa posState come centro
+      // attiva ring per (es.) 30s
+      ringState.active   = true;
+      ringState.radius_m = radius_m;
+      ringState.color    = color;
+      ringState.expires  = Date.now() + 30000; // TTL 30s
+      renderRing();      // disegna/aggiorna ora
+      blinkAntenna();    // come già facevi
+
+      function toModelString(m){
+        if (!m) return null;
+        if (typeof m === 'string') return m;
+        if (typeof m === 'object' && m.label) return String(m.label);
+        return String(m);
+      }
+
+      const modelStr = toModelString(last.model) || last.label || last.title || '—';
+      const brandStr = (last.brand || last.family || last.vendor || last.src || '—').toString();
+
+      setHud({
+        band: last.band,
+        freq_mhz: last.freq_mhz ?? (last.frequency_mhz ?? (last.frequency_hz ? last.frequency_hz/1e6 : null)),
+        family: brandStr,      // qui mostriamo la "marca"
+        label:  modelStr,      // qui mostriamo il "modello"
+        ts_iso: last.ts_iso || (last.ts_unix ? new Date(last.ts_unix*1000).toISOString() : new Date().toISOString()),
+        rssi_dbm,
+        radius_m
+      });
+
+      setTimeout(tick, REFRESH_MS);
+
+    }
+    tick();
+
+    
+    // aggiorna dimensione del ring quando cambia zoom
+    map.on('zoomend', ()=>{
+      if (ringState.active) renderRing();
+    });
+
+  </script>
+</body>
+</html>

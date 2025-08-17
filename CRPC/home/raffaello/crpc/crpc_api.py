@@ -335,6 +335,14 @@ def serve_dashboard():
         return f.read_text(encoding="utf-8")
     return Response("<h1>Dashboard not found</h1>", mimetype="text/html")
 
+@app.route("/mappa")
+@app.route("/mappa.html")
+def serve_mappa():
+    f = BASE_DIR / "mappa.html"
+    if f.exists():
+        return f.read_text(encoding="utf-8")
+    return Response("<h1>mappa.html not found</h1>", mimetype="text/html"), 404
+
 @app.route("/api/status")
 def api_status():
     t0 = time.time()
@@ -505,7 +513,7 @@ def api_detections():
     rfscan_cur = read_json(RFSCAN_CURR, [])
     out = []
     for r in rfscan_cur:
-        # freq in MHz
+        # --- freq/bw/band (com'era) ---
         cf = r.get("center_freq_mhz") or r.get("freq") or r.get("frequency")
         try:
             cf = float(cf)
@@ -518,13 +526,15 @@ def api_detections():
         except Exception:
             pass
         band = r.get("band") or "UNK"
-        # immagine + ts
-        tile_name = r.get("tile") or r.get("img")
+
+        # --- tile/ts (com'era) ---
+        tile_name = r.get("img") or r.get("tile")
         if tile_name:
             tile_name, tile_mtime = _tile_info_from_name(tile_name)
         else:
             tile_name, tile_mtime = _latest_tile_info()
         tile_url = f"/api/file/{tile_name}" if tile_name else None
+
         det_ts = None
         for k in ("ts", "timestamp"):
             v = r.get(k)
@@ -535,6 +545,20 @@ def api_detections():
                     pass
         if det_ts is None:
             det_ts = tile_mtime
+
+        # --- NEW: modello (stringa sicura) + brand coerente ---
+        raw_model = r.get("model")
+        if isinstance(raw_model, dict):
+            model_label = raw_model.get("label") or r.get("label") or None
+        elif isinstance(raw_model, str):
+            model_label = raw_model
+        else:
+            model_label = r.get("label") or None
+
+        # brand preferenza: brand -> family -> inferenza da model_label
+        brand = r.get("brand") or r.get("family") or (family_from_label(model_label) if model_label else None)
+        family = r.get("family") or brand
+
         out.append({
             "title": "Drone detected",
             "freq_mhz": freq_mhz,
@@ -548,9 +572,19 @@ def api_detections():
             "snr_db": r.get("snr") or r.get("snr_db"),
             "src": r.get("source") or r.get("src") or "rfscan",
             "track_id": r.get("track_id"),
+
+            # manteniamo i vecchi nomi ma puliti
+            "label": model_label or r.get("label"),
+            # aggiunte nuove, pulite
+            "model": model_label,
+            "brand": brand,
+            "family": family,
         })
+
     out.sort(key=lambda x: (x["ts_unix"] is None, -(x["ts_unix"] or 0)))
     return jsonify({"detections": out, "ts": now})
+
+
 
 @app.route("/api/uav_status")
 def api_uav_status():

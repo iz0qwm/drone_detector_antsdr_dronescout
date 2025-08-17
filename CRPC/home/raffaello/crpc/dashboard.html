@@ -182,6 +182,7 @@
   <button id="tabWaterBtn">Waterfall</button>
   <button id="tabSpecBtn">Spectrum</button>
   <button id="tabApprendimentoBtn">Apprendimento</button>
+  <button id="tabMappaBtn">Mappa</button>
 </div>
 
 <div id="tabMain" class="tab active">
@@ -329,6 +330,14 @@
   </div>
 </div>
 
+<div id="tabMappa" class="tab">
+  <div class="apprendimento-wrap">
+    <div class="card" style="padding:0">
+      <iframe class="apprendimento-iframe" id="mappaframe" src="about:blank" title="Mappa"></iframe>
+    </div>
+  </div>
+</div>
+
 <div id="tabSpec" class="tab">
   <div class="grid cols-2">
     <div class="card" style="grid-column:1/-1">
@@ -387,6 +396,9 @@ const tabSpecBtn = byId('tabSpecBtn');
 const tabSpec    = byId('tabSpec');
 const specBandSel = byId('specBand');
 const specCanvas  = byId('specCanvas');
+const tabMappaBtn = byId('tabMappaBtn');
+const tabMappa    = byId('tabMappa');
+const mappaFrame  = byId('mappaframe');
 
 // --- Mini Spectrum (Main tab) ---
 const miniSpecBandSel = byId('miniSpecBand');
@@ -414,34 +426,43 @@ setInterval(refreshMiniSpectrum, REFRESH_MS);
 
 
 tabMainBtn.onclick = ()=>{
-  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn,tabApprendimentoBtn].forEach(b=>b.classList.remove('active'));
+  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn,tabApprendimentoBtn,tabMappaBtn].forEach(b=>b.classList.remove('active'));
   tabMainBtn.classList.add('active');
-  [tabMain,tabDet,tabWater,tabSpec,tabApprendimento].forEach(x=>x.classList.remove('active'));
+  [tabMain,tabDet,tabWater,tabSpec,tabApprendimento,tabMappa].forEach(x=>x.classList.remove('active'));
   tabMain.classList.add('active');
 };
 tabDetBtn.onclick = ()=>{
-  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn,tabApprendimentoBtn].forEach(b=>b.classList.remove('active'));
+  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn,tabApprendimentoBtn,tabMappaBtn].forEach(b=>b.classList.remove('active'));
   tabDetBtn.classList.add('active');
-  [tabMain,tabDet,tabWater,tabSpec,tabApprendimento].forEach(x=>x.classList.remove('active'));
+  [tabMain,tabDet,tabWater,tabSpec,tabApprendimento,tabMappa].forEach(x=>x.classList.remove('active'));
   tabDet.classList.add('active');
 };
 tabWaterBtn.onclick = ()=>{
-  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn,tabApprendimentoBtn].forEach(b=>b.classList.remove('active'));
+  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn,tabApprendimentoBtn,tabMappaBtn].forEach(b=>b.classList.remove('active'));
   tabWaterBtn.classList.add('active');
-  [tabMain,tabDet,tabWater,tabSpec,tabApprendimento].forEach(x=>x.classList.remove('active'));
+  [tabMain,tabDet,tabWater,tabSpec,tabApprendimento,tabMappa].forEach(x=>x.classList.remove('active'));
   tabWater.classList.add('active');
 };
 tabSpecBtn.onclick = ()=>{
-  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn,tabApprendimentoBtn].forEach(b=>b.classList.remove('active'));
+  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn,tabApprendimentoBtn,tabMappaBtn].forEach(b=>b.classList.remove('active'));
   tabSpecBtn.classList.add('active');
-  [tabMain,tabDet,tabWater,tabSpec,tabApprendimento].forEach(x=>x.classList.remove('active'));
+  [tabMain,tabDet,tabWater,tabSpec,tabApprendimento,tabMappa].forEach(x=>x.classList.remove('active'));
   tabSpec.classList.add('active');
 };
 tabApprendimentoBtn.onclick = ()=>{
-  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn,tabApprendimentoBtn].forEach(b=>b.classList.remove('active'));
+  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn,tabApprendimentoBtn,tabMappaBtn].forEach(b=>b.classList.remove('active'));
   tabApprendimentoBtn.classList.add('active');
-  [tabMain,tabDet,tabWater,tabSpec,tabApprendimento].forEach(x=>x.classList.remove('active'));
+  [tabMain,tabDet,tabWater,tabSpec,tabApprendimento,tabMappa].forEach(x=>x.classList.remove('active'));
   tabApprendimento.classList.add('active');
+};
+tabMappaBtn.onclick = ()=>{
+  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn,tabApprendimentoBtn,tabMappaBtn].forEach(b=>b.classList.remove('active'));
+  tabMappaBtn.classList.add('active');
+  [tabMain,tabDet,tabWater,tabSpec,tabApprendimento,tabMappa].forEach(x=>x.classList.remove('active'));
+  tabMappa.classList.add('active');
+  if (mappaFrame && (!mappaFrame.src || mappaFrame.src === 'about:blank')) {
+    mappaFrame.src = '/mappa';
+  }
 };
 
 // Simple sparkline

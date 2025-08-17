@@ -2,6 +2,8 @@
 from flask import Flask, request, jsonify, render_template, send_from_directory, abort
 import subprocess, json, pathlib, os
 from werkzeug.exceptions import HTTPException
+from datetime import datetime
+
 # --- ADD: import per spettro ---
 import csv, statistics as stats
 
@@ -295,6 +297,208 @@ def api_spectrum():
 
     res["peaks"].sort(key=lambda p: p.get("ts", 0))
     return jsonify(res)
+
+# === PROD EXT: costanti comode ===
+YOLO_DATASET = pathlib.Path("/home/raffaello/dataset/yolo_custom")
+YOLO_RUNS    = pathlib.Path("/home/raffaello/yolo_runs")
+YOLO_RUNNAME = "yolo_custom"
+YOLO_ARCH    = "yolov8n.pt"  # cambia qui se serve
+MODELS_DIR   = APP_ROOT / "models"
+LOGS_DIR     = APP_ROOT / "logs"
+
+# --- Run dir helpers (alias/symlink) ---
+def _find_latest_run_dir():
+    """Restituisce la cartella più recente tra yolo_custom, yolo_custom2, yolo_custom3, ..."""
+    pattern = f"{YOLO_RUNNAME}*"
+    dirs = [p for p in YOLO_RUNS.glob(pattern) if p.is_dir()]
+    if not dirs:
+        return YOLO_RUNS / YOLO_RUNNAME
+    return max(dirs, key=lambda p: p.stat().st_mtime)
+
+def _ensure_run_alias(target: pathlib.Path):
+    """
+    Garantisce che YOLO_RUNS/YOLO_RUNNAME sia un symlink che punta a 'target'.
+    Se esiste una dir reale con quel nome, la rinomina in *_old_YYYYmmdd-HHMMSS.
+    """
+    link = YOLO_RUNS / YOLO_RUNNAME
+    try:
+        if link.is_symlink():
+            link.unlink()
+        elif link.exists() and link.is_dir() and link.resolve() != target.resolve():
+            backup = link.with_name(link.name + "_old_" + datetime.now().strftime("%Y%m%d-%H%M%S"))
+            link.replace(backup)
+        if target.exists() and target != link:
+            os.symlink(str(target), str(link))
+        return True, str(link), str(target)
+    except Exception as e:
+        return False, str(link), f"{type(e).__name__}: {e}"
+
+def _effective_run_dir():
+    """
+    Cartella effettiva da usare per pesi/classmap:
+    - se esiste il link YOLO_RUNNAME, lo risolve;
+    - altrimenti prende l'ultima yolo_custom* e prova a creare il link.
+    """
+    link = YOLO_RUNS / YOLO_RUNNAME
+    if link.exists():
+        try:
+            return link.resolve()
+        except Exception:
+            return link  # nel dubbio, usa così com'è
+    latest = _find_latest_run_dir()
+    _ensure_run_alias(latest)
+    return latest
+
+def run_cmd_logged(cmd, log_name):
+    """Esegue un comando, salva out/err in logs/<log_name>-YYYYmmdd-HHMMSS.log e ritorna rc/out/err + log_path."""
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    ts = datetime.now().strftime("%Y%m%d-%H%M%S")
+    log_path = LOGS_DIR / f"{log_name}-{ts}.log"
+    res = run_cmd(cmd)
+    try:
+        with open(log_path, "w", encoding="utf-8") as f:
+            f.write("$ " + " ".join(map(str, cmd)) + "\n\n")
+            f.write("== STDOUT ==\n" + (res["out"] or "") + "\n")
+            f.write("== STDERR ==\n" + (res["err"] or "") + "\n")
+            f.write(f"== RC == {res['rc']}\n")
+    except Exception as e:
+        res["err"] += f"\n[log_write_error] {e}"
+    res["log_path"] = str(log_path)
+    return res
+
+@app.post("/api/make_yolo_dataset")
+def api_make_yolo_dataset():
+    base = str(DATA / "recordings")
+    out  = str(YOLO_DATASET)
+    cmd = [PY, str(APP_ROOT/"bin"/"appre_to_prod"/"01_make_yolo_from_recordings.py"), "--base", base, "--out", out]
+    res = run_cmd_logged(cmd, "01_make_yolo")
+    ok = (res["rc"] == 0)
+    return jsonify(ok=ok, **res), (200 if ok else 500)
+
+@app.post("/api/yolo_train")
+def api_yolo_train():
+    data_yaml = str(YOLO_DATASET / "data.yaml")
+    cmd = [str(APP_ROOT/"bin"/"appre_to_prod"/"02_train_yolo.sh"), data_yaml, str(YOLO_RUNS), YOLO_RUNNAME, YOLO_ARCH]
+    res = run_cmd_logged(cmd, "02_train_yolo")
+
+    # NEW: aggiorna/crea alias yolo_custom -> ultimo run reale (es. yolo_custom2)
+    try:
+        latest = _find_latest_run_dir()
+        ok_link, link_path, target_path = _ensure_run_alias(latest)
+        res["alias_ok"] = ok_link
+        res["alias_link"] = link_path
+        res["alias_target"] = target_path
+    except Exception as e:
+        res["alias_ok"] = False
+        res["alias_err"] = f"{type(e).__name__}: {e}"
+
+    ok = (res["rc"] == 0)
+    return jsonify(ok=ok, **res), (200 if ok else 500)
+
+
+@app.post("/api/yolo_classmap")
+def api_yolo_classmap():
+    data_yaml = str(YOLO_DATASET / "data.yaml")
+    run_dir = _effective_run_dir()  # NEW
+    out_json  = str(run_dir / "classmap.json")
+    cmd = [PY, str(APP_ROOT/"bin"/"appre_to_prod"/"02b_make_classmap.py"), data_yaml, out_json]
+    res = run_cmd_logged(cmd, "02b_classmap")
+    ok = (res["rc"] == 0)
+    return jsonify(ok=ok, run_dir=str(run_dir), **res), (200 if ok else 500)
+
+@app.post("/api/yolo_smoketest")
+def api_yolo_smoketest():
+    run_dir = _effective_run_dir()  # NEW
+    weights = str(run_dir / "weights" / "best.pt")
+    data_yaml = str(YOLO_DATASET / "data.yaml")
+    src_glob = request.json.get("src_glob") if request.is_json else None
+    src_glob = src_glob or "/tmp/tiles/*_cum_*.png"
+    cmd = [str(APP_ROOT/"bin"/"appre_to_prod"/"03_predict_smoke_test.sh"), weights, data_yaml, src_glob]
+    res = run_cmd_logged(cmd, "03_smoketest")
+    ok = (res["rc"] == 0)
+    return jsonify(ok=ok, run_dir=str(run_dir), weights=weights, **res), (200 if ok else 500)
+
+@app.post("/api/yolo_deploy")
+def api_yolo_deploy():
+    models = MODELS_DIR; models.mkdir(parents=True, exist_ok=True)
+    run_dir = _effective_run_dir()  # NEW
+    new_w = run_dir / "weights" / "best.pt"
+    if not new_w.exists():
+        return jsonify(ok=False, error="weights non trovati", path=str(new_w), run_dir=str(run_dir)), 400
+    
+    # backup vecchio
+    cur = models / "yolo_current.pt"
+    prev = models / "yolo_prev.pt"
+    try:
+        if cur.exists():
+            if prev.exists(): prev.unlink()
+            cur.replace(prev)
+        # copia/symlink atomico (uso copy per compatibilità)
+        import shutil, time
+        shutil.copy2(str(new_w), str(cur))
+        # VERSION
+        (MODELS_DIR/"VERSION").write_text(json.dumps({
+            "ts": datetime.utcnow().isoformat()+"Z",
+            "source": str(YOLO_RUNS/YOLO_RUNNAME/"weights"/"best.pt"),
+            "arch": YOLO_ARCH
+        }, indent=2))
+        # TODO (opzionale): restart servizio e health-check qui
+        ok = True
+        return jsonify(ok=True, deployed=str(cur), backup=str(prev), run_dir=str(run_dir))
+    except Exception as e:
+        return jsonify(ok=False, error=str(e)), 500
+
+
+
+@app.get("/api/drone_ids")
+def api_drone_ids():
+    """
+    Raccoglie i nomi dei drone_id già presenti in data/recordings/<band>/<drone_id>/session_*
+    Parametri opzionali:
+      - band=24|52|58 per filtrare
+      - q=substring (case-insensitive) per filtrare per testo
+    """
+    want_band = (request.args.get("band") or "").strip()
+    q = (request.args.get("q") or "").strip().lower()
+
+    base = (DATA / "recordings")
+    if not base.exists():
+        return jsonify(ok=True, ids=[])
+
+    info = {}  # name -> {name,bands,set(sessions),last_ts}
+    for band_dir in base.iterdir():
+        if not band_dir.is_dir():
+            continue
+        band = band_dir.name
+        if want_band and want_band != band:
+            continue
+        for drone_dir in band_dir.iterdir():
+            if not drone_dir.is_dir():
+                continue
+            name = drone_dir.name
+            if q and q not in name.lower():
+                continue
+            sessions = [p for p in drone_dir.glob("session_*") if p.is_dir()]
+            if not sessions:
+                continue
+            last_ts = max(p.stat().st_mtime for p in sessions)
+            item = info.setdefault(name, {"name": name, "bands": set(), "sessions": 0, "last_ts": 0.0})
+            item["bands"].add(band)
+            item["sessions"] += len(sessions)
+            item["last_ts"] = max(item["last_ts"], last_ts)
+
+    # normalizza e ordina (recente->vecchio)
+    ids = []
+    for v in info.values():
+        ids.append({
+            "name": v["name"],
+            "bands": sorted(v["bands"]),
+            "sessions": v["sessions"],
+            "last_ts": v["last_ts"],
+            "last_iso": datetime.utcfromtimestamp(v["last_ts"]).isoformat() + "Z"
+        })
+    ids.sort(key=lambda x: x["last_ts"], reverse=True)
+    return jsonify(ok=True, ids=ids)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8082, debug=False)
