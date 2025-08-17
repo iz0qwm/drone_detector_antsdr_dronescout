@@ -28,11 +28,11 @@ BANDS = {
 
 # === PARAMETRI TRACKER ===
 READ_FROM_START   = True   # True: rigioca anche lo storico già presente
-FREQ_GATE_MHZ     = 12.0   # massima distanza (MHz) per assegnare a un track
-TIME_GATE_S       = 3.0    # massimo delta t per compatibilità aggiornamento
-TRACK_TIMEOUT_S   = 5.0    # se un track non si aggiorna per Xs, lo chiudiamo
+FREQ_GATE_MHZ     = 20.0   # massima distanza (MHz) per assegnare a un track
+TIME_GATE_S       = 8.0    # massimo delta t per compatibilità aggiornamento
+TRACK_TIMEOUT_S   = 12.0    # se un track non si aggiorna per Xs, lo chiudiamo
 HOP_WINDOW        = 5      # punti recenti usati per stime (center/bw/hop)
-MIN_CONF = float(os.getenv("TRACKER_MIN_CONF", "0.02"))   # ignora detection troppo deboli (era 0.10)
+MIN_CONF = float(os.getenv("TRACKER_MIN_CONF", "0.005"))   # ignora detection troppo deboli (era 0.10)
 HISTORY_MAX       = 20     # quanti campioni tenere per le feature RF
 
 class Track:

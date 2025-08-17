@@ -1,0 +1,12 @@
+[Unit]
+Description=Apprendimento - Learn API (Flask) on :8082
+After=network.target
+
+[Service]
+User=raffaello
+WorkingDirectory=/home/raffaello/apprendimento/web
+ExecStart=/usr/bin/python3 app.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

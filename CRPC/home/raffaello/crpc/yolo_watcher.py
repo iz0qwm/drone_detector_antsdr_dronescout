@@ -10,7 +10,8 @@ PROC_DIR  = Path("/tmp/tiles_proc")
 DONE_DIR  = Path("/tmp/tiles_done")
 LOG_DIR   = Path("/tmp/crpc_logs")
 DET_OUT   = LOG_DIR / "detections.jsonl"
-CLASSMAP_PATH = Path("/home/raffaello/dataset/rf_fingerprint/yolo_classmap.json")
+#CLASSMAP_PATH = Path("/home/raffaello/dataset/rf_fingerprint/yolo_classmap.json")
+CLASSMAP_PATH = Path("/home/raffaello/apprendimento/class_map.json")
 
 PRE_DIR = Path("/tmp/tiles_pre")
 PRE_DIR.mkdir(exist_ok=True, parents=True)
@@ -136,10 +137,19 @@ CLASSMAP = load_classmap()
 BY_ID = {str(k): v for k, v in CLASSMAP.get("by_id", {}).items()}
 
 # ---- YOLO runner ----
+#YOLO_CMD = (
+#  f"{shlex.quote(sys.executable)} /home/raffaello/scripts/predict_yolo.py "
+#  "--model /home/raffaello/yolo_runs/rf_yolo3/weights/best.pt "
+#  "--data /home/raffaello/dataset/yolo_vision/data.yaml "
+#  "--source {img} "
+#  "--conf 0.05 --imgsz 640 "
+#  "--project /tmp/yolo_runs --name crpc_watch --no-save-img"
+#)
+
 YOLO_CMD = (
   f"{shlex.quote(sys.executable)} /home/raffaello/scripts/predict_yolo.py "
-  "--model /home/raffaello/yolo_runs/rf_yolo3/weights/best.pt "
-  "--data /home/raffaello/dataset/yolo_vision/data.yaml "
+  "--model /home/raffaello/yolo_runs/yolo_custom/weights/best.pt "
+  "--data /home/raffaello/dataset/yolo_custom/data.yaml "
   "--source {img} "
   "--conf 0.05 --imgsz 640 "
   "--project /tmp/yolo_runs --name crpc_watch --no-save-img"
@@ -153,12 +163,20 @@ def run_predict(img: Path):
     def _call(conf, imgsz):
         cmd = (
           f"{shlex.quote(sys.executable)} /home/raffaello/scripts/predict_yolo.py "
-          "--model /home/raffaello/yolo_runs/rf_yolo3/weights/best.pt "
-          "--data /home/raffaello/dataset/yolo_vision/data.yaml "
+          "--model /home/raffaello/yolo_runs/yolo_custom/weights/best.pt "
+          "--data /home/raffaello/dataset/yolo_custom/data.yaml "
           f"--source {img} "
           f"--conf {conf} --imgsz {imgsz} "
           "--project /tmp/yolo_runs --name crpc_watch --no-save-img"
         )
+        #cmd = (
+        #  f"{shlex.quote(sys.executable)} /home/raffaello/scripts/predict_yolo.py "
+        #  "--model /home/raffaello/yolo_runs/rf_yolo3/weights/best.pt "
+        #  "--data /home/raffaello/dataset/yolo_vision/data.yaml "
+        #  f"--source {img} "
+        #  f"--conf {conf} --imgsz {imgsz} "
+        #  "--project /tmp/yolo_runs --name crpc_watch --no-save-img"
+        #)
         try:
             subprocess.check_call(shlex.split(cmd),
                                   stdout=subprocess.DEVNULL,
@@ -196,6 +214,8 @@ def run_predict(img: Path):
             if len(p) < 6:
                 continue
             cls_id = str(int(p[0]))
+            name = BY_ID.get(cls_id)
+            if name: name = norm_name(name) 
             dets.append({
                 "cls": int(p[0]),
                 "cls_name": BY_ID.get(cls_id),

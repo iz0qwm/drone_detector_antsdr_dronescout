@@ -66,6 +66,10 @@
   .water-wrap{padding:12px}
   .water-iframe{width:100%;height:76vh;border:1px solid #30363d;border-radius:12px;background:#0b0f16}
 
+  /* Apprendimento tab */
+  .apprendimento-wrap{padding:12px}
+  .apprendimento-iframe{width:100%;height:76vh;border:1px solid #30363d;border-radius:12px;background:#0b0f16}
+
   /* Per le thumbnails */
   /* Contenitore miniature: una sola riga */
   /* === Tiles: fix dimensioni e click area === */
@@ -177,6 +181,7 @@
   <button id="tabDetBtn">Detections</button>
   <button id="tabWaterBtn">Waterfall</button>
   <button id="tabSpecBtn">Spectrum</button>
+  <button id="tabApprendimentoBtn">Apprendimento</button>
 </div>
 
 <div id="tabMain" class="tab active">
@@ -316,6 +321,14 @@
   </div>
 </div>
 
+<div id="tabApprendimento" class="tab">
+  <div class="apprendimento-wrap">
+    <div class="card" style="padding:0">
+      <iframe class="apprendimento-iframe" id="apprendimentoframe" src="about:blank" title="Apprendimento"></iframe>
+    </div>
+  </div>
+</div>
+
 <div id="tabSpec" class="tab">
   <div class="grid cols-2">
     <div class="card" style="grid-column:1/-1">
@@ -365,9 +378,11 @@ function tsfmt(){ const d=new Date(); return d.toLocaleTimeString(); }
 const tabMainBtn = byId('tabMainBtn');
 const tabDetBtn  = byId('tabDetBtn');
 const tabWaterBtn= byId('tabWaterBtn');
+const tabApprendimentoBtn= byId('tabApprendimentoBtn');
 const tabMain = byId('tabMain');
 const tabDet  = byId('tabDet');
 const tabWater= byId('tabWater');
+const tabApprendimento= byId('tabApprendimento');
 const tabSpecBtn = byId('tabSpecBtn');
 const tabSpec    = byId('tabSpec');
 const specBandSel = byId('specBand');
@@ -399,28 +414,34 @@ setInterval(refreshMiniSpectrum, REFRESH_MS);
 
 
 tabMainBtn.onclick = ()=>{
-  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn].forEach(b=>b.classList.remove('active'));
+  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn,tabApprendimentoBtn].forEach(b=>b.classList.remove('active'));
   tabMainBtn.classList.add('active');
-  [tabMain,tabDet,tabWater,tabSpec].forEach(x=>x.classList.remove('active'));
+  [tabMain,tabDet,tabWater,tabSpec,tabApprendimento].forEach(x=>x.classList.remove('active'));
   tabMain.classList.add('active');
 };
 tabDetBtn.onclick = ()=>{
-  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn].forEach(b=>b.classList.remove('active'));
+  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn,tabApprendimentoBtn].forEach(b=>b.classList.remove('active'));
   tabDetBtn.classList.add('active');
-  [tabMain,tabDet,tabWater,tabSpec].forEach(x=>x.classList.remove('active'));
+  [tabMain,tabDet,tabWater,tabSpec,tabApprendimento].forEach(x=>x.classList.remove('active'));
   tabDet.classList.add('active');
 };
 tabWaterBtn.onclick = ()=>{
-  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn].forEach(b=>b.classList.remove('active'));
+  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn,tabApprendimentoBtn].forEach(b=>b.classList.remove('active'));
   tabWaterBtn.classList.add('active');
-  [tabMain,tabDet,tabWater,tabSpec].forEach(x=>x.classList.remove('active'));
+  [tabMain,tabDet,tabWater,tabSpec,tabApprendimento].forEach(x=>x.classList.remove('active'));
   tabWater.classList.add('active');
 };
 tabSpecBtn.onclick = ()=>{
-  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn].forEach(b=>b.classList.remove('active'));
+  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn,tabApprendimentoBtn].forEach(b=>b.classList.remove('active'));
   tabSpecBtn.classList.add('active');
-  [tabMain,tabDet,tabWater,tabSpec].forEach(x=>x.classList.remove('active'));
+  [tabMain,tabDet,tabWater,tabSpec,tabApprendimento].forEach(x=>x.classList.remove('active'));
   tabSpec.classList.add('active');
+};
+tabApprendimentoBtn.onclick = ()=>{
+  [tabMainBtn,tabDetBtn,tabWaterBtn,tabSpecBtn,tabApprendimentoBtn].forEach(b=>b.classList.remove('active'));
+  tabApprendimentoBtn.classList.add('active');
+  [tabMain,tabDet,tabWater,tabSpec,tabApprendimento].forEach(x=>x.classList.remove('active'));
+  tabApprendimento.classList.add('active');
 };
 
 // Simple sparkline
@@ -794,6 +815,14 @@ setInterval(refreshDetections, REFRESH_MS);
   const host = location.hostname; // es. 192.168.1.5
   const url = location.protocol + '//' + host + ':8081/';
   const f = document.getElementById('waterframe');
+  if(f) f.src = url;
+})();
+
+// inizializza iframe Apprendimento puntando all'host corrente su porta 8082
+(function(){
+  const host = location.hostname; // es. 192.168.1.5
+  const url = location.protocol + '//' + host + ':8082/';
+  const f = document.getElementById('apprendimentoframe');
   if(f) f.src = url;
 })();
 

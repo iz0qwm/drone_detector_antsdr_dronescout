@@ -15,16 +15,6 @@ import os, time, json, math, csv, datetime, sys, argparse
 from pathlib import Path
 from collections import Counter
 
-# --- alias nomi modello ---
-ALIASES = {
-  "AIR3S": "DJI AIR3S",
-  "Air3S": "DJI AIR3S",
-  "DJI_AIR3S": "DJI AIR3S",
-}
-def norm_name(s):
-    return ALIASES.get(str(s).upper().replace("_"," ").strip(), s)
-
-
 # === IO ===
 TRACKS_CURR = Path("/tmp/crpc_logs/tracks_current.json")
 OUT_JSONL   = Path("/tmp/crpc_logs/rfscan.jsonl")
@@ -33,13 +23,11 @@ LOG_PATH    = Path("/tmp/crpc_logs/assoc.log")
 
 # === Detections YOLO (per image-hint) ===
 DET_PATH        = Path("/tmp/crpc_logs/detections.jsonl")
-#CLASSMAP_PATH   = Path("/home/raffaello/dataset/rf_fingerprint/yolo_classmap.json")
-CLASSMAP_PATH   = Path("/home/raffaello/dataset/yolo_custom/classmap.json")
+CLASSMAP_PATH   = Path("/home/raffaello/dataset/rf_fingerprint/yolo_classmap.json")
 
 # === Fingerprint DB / Modello ===
 FPRINT_DB   = Path(os.environ.get("FPRINT_DB", "/home/raffaello/dataset/rf_fingerprint/fingerprint_db_full.csv"))
-#MODEL_PATH  = Path(os.environ.get("RF_MODEL", "/home/raffaello/models/rf_model.pkl"))
-MODEL_PATH  = Path(os.environ.get("RF_MODEL", "/home/raffaello/apprendimento/models/served/rfscan.pkl"))
+MODEL_PATH  = Path(os.environ.get("RF_MODEL", "/home/raffaello/models/rf_model.pkl"))
 
 # === Bande e normalizzazione (MHz) ===
 BANDS = {
@@ -47,9 +35,6 @@ BANDS = {
     "58": (5725.0, 5875.0),
     "52": (5170.0, 5250.0),
 }
-
-# --- globals per il modello ---
-model_features = None
 
 def now_str():
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -71,7 +56,6 @@ def log(msg):
 
 def family_from_label(lbl: str):
     if not lbl: return None
-    s = norm_name(lbl) 
     s = str(lbl).lower()
     if "dji" in s or "mavic" in s or "mini " in s or "air " in s: return "DJI"
     if "frsky" in s or "fr sky" in s or "taranis" in s or "accst" in s or "access" in s: return "FrSky"
@@ -180,96 +164,21 @@ class FingerDB:
         }
 
 # ---------- Modello sklearn ----------
-def _safe_num(x, default=0.0):
-    try:
-        if x is None: return float(default)
-        xx = float(x)
-        if xx != xx:  # NaN
-            return float(default)
-        return xx
-    except Exception:
-        return float(default)
-
-def build_runtime_features(track, img_hint=None, defaults=None):
-    """
-    Restituisce un dict con le 7 feature che il modello si aspetta,
-    senza NaN. Usa 'img_hint' per stimare la video BW se disponibile.
-    """
-    defaults = defaults or {"snr": 15.0, "fhsdt": 0.0, "fhspp": 0.0, "file_size": 0.0}
-    # center_freq in GHz "compatti"
-    center_freq = _safe_num(track.get("center_freq_mhz"), 0.0) / 1000.0
-
-    # bandwidth: se YOLO vede la portante video larga, usala
-    bw_track = _safe_num(track.get("bandwidth_mhz"), 0.0)
-    vts_bw = None
-    if img_hint and isinstance(img_hint, dict):
-        # es: img_hint.get("video_bw_mhz") oppure "bbox_bw_mhz"
-        for k in ("video_bw_mhz", "bbox_bw_mhz", "vts_bw"):
-            if k in img_hint:
-                vts_bw = _safe_num(img_hint.get(k), None)
-                break
-    fhs_bw = vts_bw if (vts_bw and vts_bw > 1.5 * max(bw_track, 1e-6)) else bw_track
-
-    # hop rate (MHz/s)
-    fhsdc = _safe_num(track.get("hop_rate_mhz_s"), 0.0)
-    # dwell time / peaks per period: se non li hai, 0
-    fhsdt = _safe_num(track.get("hop_dwell_ms"), defaults["fhsdt"])
-    fhspp = _safe_num(track.get("hop_peaks_per_s"), defaults["fhspp"])
-
-    # SNR: prova dal track, poi calcola p95-floor, altrimenti default
-    snr = track.get("snr_db")
-    if snr is None:
-        p95 = track.get("p95_dbm"); floor = track.get("floor_dbm")
-        if p95 is not None and floor is not None:
-            snr = (float(p95) - float(floor))
-    snr = _safe_num(snr, defaults["snr"])
-
-    # file_size: se non lo calcoli, 0
-    file_size = _safe_num(track.get("tile_file_kb"), defaults["file_size"])
-
-    feats = {
-        "fhs_bw": _safe_num(fhs_bw, 0.0),
-        "fhsdt":  _safe_num(fhsdt, 0.0),
-        "fhsdc":  _safe_num(fhsdc, 0.0),
-        "fhspp":  _safe_num(fhspp, 0.0),
-        "file_size": _safe_num(file_size, 0.0),
-        "snr": _safe_num(snr, defaults["snr"]),
-        "center_freq": _safe_num(center_freq, 0.0),
-    }
-    return feats
-
 def try_load_model(path: Path):
-    def _unwrap(obj):
-        # ritorna (model, features or None)
-        if isinstance(obj, dict):
-            m = obj.get("model") or obj.get("clf") or obj.get("estimator") or obj.get("pipeline")
-            feats = obj.get("features")
-            if hasattr(m, "predict"): 
-                return m, feats
-            # fallback: cerca qualunque value "predicibile"
-            for v in obj.values():
-                if hasattr(v, "predict"):
-                    return v, feats
-            return None, feats
-        if hasattr(obj, "predict"):
-            return obj, None
-        return None, None
     try:
         import joblib
         if path.exists():
-            return _unwrap(joblib.load(str(path)))
+            return joblib.load(str(path))
     except Exception:
         pass
     try:
         import pickle
         if path.exists():
             with open(path, "rb") as f:
-                return _unwrap(pickle.load(f))
+                return pickle.load(f)
     except Exception:
         pass
-    return None, None
-
-
+    return None
 
 def hop_stats_from_history(hist):
     if not hist or len(hist) < 2:
@@ -288,63 +197,42 @@ def hop_stats_from_history(hist):
     fhspp = (max(freqs) - min(freqs)) if freqs else 0.0
     return fhsdt, fhsdc, fhspp
 
-def vectorize_for_model(features, track):
-    import numpy as np
-    def _num(x, d=0.0):
-        try:
-            if x is None: return float(d)
-            return float(x)
-        except Exception:
-            return float(d)
-
-    PSD_FEATS = ["mean_dbm","p95_dbm","floor_dbm","crest_db","center_mhz","bw_mhz"]
-
-    if features and set(features) == set(PSD_FEATS):
-        p95    = _num(track.get("p95_dbm"), 0.0)
-        floor  = _num(track.get("floor_dbm"), 0.0)
-        mean   = track.get("mean_dbm")
-        if mean is None:
-            mean = (p95 + floor) / 2.0
-        mean   = _num(mean, 0.0)
-        crest  = _num(p95 - floor, 0.0)
-        center = _num(track.get("center_freq_mhz"), 0.0)
-        bw     = _num(track.get("bandwidth_mhz"), 0.0)
-
-        row = {
-            "mean_dbm":   mean,
-            "p95_dbm":    p95,
-            "floor_dbm":  floor,
-            "crest_db":   crest,
-            "center_mhz": center,
-            "bw_mhz":     bw,
-        }
-        X = np.array([[row[name] for name in features]], dtype=float)
-        X = np.nan_to_num(X, nan=0.0, posinf=0.0, neginf=0.0)
-        return X
-
-    # fallback: modello runtime-7
-    feats = build_runtime_features(track, img_hint=None, defaults={"snr": 15.0})
-    cols = ['fhs_bw','fhsdt','fhsdc','fhspp','file_size','snr','center_freq']
-    X = np.array([[feats.get(c, 0.0) for c in cols]], dtype=float)
-    X = np.nan_to_num(X, nan=0.0, posinf=0.0, neginf=0.0)
-    return X
-
-def model_predict(model, f=None, bw=None, hop=None, track=None):
-    """
-    Compatibile con la call vecchia (f,bw,hop) e con quella a 'track'.
-    Recupera le feature dal modello (model._features) o dalla globale.
-    """
+def model_predict(model, f, bw, hop, track=None):
+    import pandas as pd
     try:
-        feats = getattr(model, "_features", None)
-        if feats is None:
-            feats = globals().get("model_features", None)
-
-        tr = dict(track or {})
-        if not tr:
-            tr = {"center_freq_mhz": f, "bandwidth_mhz": bw, "hop_rate_mhz_s": hop}
-
-        X = vectorize_for_model(feats, tr)
-
+        names = ['fhs_bw', 'fhsdt', 'fhsdc', 'fhspp', 'file_size', 'snr', 'center_freq']
+        row = {col: float('nan') for col in names}
+        row['center_freq'] = float(f)
+        row['fhs_bw']      = float(bw)
+        fhsdt = fhsdc = fhspp = None
+        file_size = None
+        snr = None
+        if isinstance(track, dict):
+            hist = track.get("history")
+            fhsdt, fhsdc, fhspp = hop_stats_from_history(hist)
+            if (fhsdc is None or fhsdc == 0.0) and hop is not None:
+                try:
+                    fhsdc = float(hop)
+                    if fhsdc > 0:
+                        fhsdt = 1.0 / max(1e-6, fhsdc)
+                except Exception:
+                    pass
+            p = track.get("tile_path")
+            if p and os.path.exists(p):
+                try: file_size = os.path.getsize(p)
+                except Exception: pass
+            if track.get("yolo_conf") is not None:
+                try: snr = float(track['yolo_conf']) * 30.0
+                except Exception: pass
+        def _f(x):
+            try:    return float(x)
+            except: return float('nan')
+        row['fhsdt']     = _f(fhsdt)
+        row['fhsdc']     = _f(fhsdc)
+        row['fhspp']     = _f(fhspp if fhspp is not None else 0.0)
+        row['file_size'] = _f(file_size if file_size is not None else 0.0)
+        row['snr']       = _f(snr if snr is not None else 10.0)
+        X = pd.DataFrame([row], columns=names)
         if hasattr(model, "predict_proba"):
             proba = model.predict_proba(X)[0]
             cls   = model.classes_[int(proba.argmax())]
@@ -356,11 +244,9 @@ def model_predict(model, f=None, bw=None, hop=None, track=None):
         try:
             with open("/tmp/crpc_logs/assoc.log","a") as lf:
                 lf.write(f"[{now_str()}] [model_predict] errore: {e}\n")
-                lf.write(f"   feats={feats} X={X.tolist() if 'X' in locals() else 'n/a'} tr_keys={list((track or {}).keys())}\n")
         except Exception:
             pass
         return None, 0.0
-
 
 # ---------- Image hint ----------
 def load_classmap():
@@ -392,10 +278,7 @@ def derive_video_ids(classmap):
 VIDEO_IDS = derive_video_ids(CLASSMAP)
 
 # ---------- Image hint (migliorato: peso per conf + finestra temporale) ----------
-HINT_TIME_S = float(os.environ.get("HINT_TIME_S", "30"))  # era 3.0
- 
-
-# distanza massima in secondi tra detection YOLO e track ts
+HINT_TIME_S = 3.0  # distanza massima in secondi tra detection YOLO e track ts
 
 def image_hint_for_track(track_img, tail_kb, window_lines, ts_center=None):
     """
@@ -519,19 +402,11 @@ def main():
         log("⚠️ Fingerprint DB non trovato/vuoto: proseguo solo con il modello (se presente).")
 
     # Model
-    # Caricamento modello
-    global model_features
-    model, model_features = try_load_model(MODEL_PATH)
+    model = try_load_model(MODEL_PATH)
     if model:
-        try:
-            # attacca le features direttamente all'oggetto modello
-            setattr(model, "_features", model_features)
-        except Exception:
-            pass
-        log(f"🧠 Modello RF caricato: {MODEL_PATH.name}  (features={model_features or 'runtime-7'})")
+        log(f"🧠 Modello RF caricato: {MODEL_PATH.name}")
     else:
         log("ℹ️ Nessun modello RF (.pkl) trovato: userò solo il CSV/immagine.")
-
 
     log("🔎 RF scan classifier attivo (senza bridge)…")
     while True:
@@ -588,26 +463,10 @@ def main():
             # 2) Model
             mdl_label, mdl_score = None, 0.0
             if model:
-                mdl_label, mdl_score = model_predict(model, tr)
+                mdl_label, mdl_score = model_predict(model, f, bw, hop, track=tr)
 
             # 3) Image hint
             img_label, img_score, img_cls_id, img_votes = image_hint_for_track(img, args.dets_tail_kb, args.dets_tail_lines, ts_center=ts)
-
-            img_w = None
-            try:
-                img_w = float(img_votes.get("w_mhz_best", 0.0) if isinstance(img_votes, dict) else 0.0)
-            except Exception:
-                img_w = None
-
-            # Se siamo in banda 24 e la bbox è “realistica”, usa quella come bw del track
-            if tr.get("band") in (24, "24"):
-                if img_w and 2.0 <= img_w <= 12.0:
-                    tr["bandwidth_mhz"] = img_w
-                    
-            # --- NORMALIZZA I NOMI QUI ---
-            if mdl_label: mdl_label = norm_name(mdl_label)
-            if fp_label:  fp_label  = norm_name(fp_label)
-            if img_label: img_label = norm_name(img_label)
 
             # 4) Fusione
             fam_model = family_from_label(mdl_label)
@@ -617,10 +476,6 @@ def main():
             w_model = args.w_model
             w_csv   = args.w_csv
             w_img   = args.w_img
-            b = tr.get("band")
-            if str(b) == "24":
-                # in 2.4 il CSV è più discriminante sui modelli DJI; YOLO lo usiamo come “famiglia”
-                w_csv, w_model, w_img = 0.55, 0.30, 0.15
             if tr.get("len", 0) < 3:
                w_model = 0.35
                w_csv   = 0.35
@@ -643,7 +498,6 @@ def main():
             else:
                label, score, src = None, 0.0, None
 
- 
             pred = {
                 "ts": ts,
                 "track_id": tid,

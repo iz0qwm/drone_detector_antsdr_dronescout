@@ -1,0 +1,777 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Apprendimento</title>
+<style>
+  :root{
+    --bg:#0e1117; --card:#161b22; --muted:#8b949e; --text:#e6edf3;
+    --ok:#2ea043; --bad:#da3633; --warn:#d29922; --chip:#30363d; --border:#30363d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.4 system-ui,Segoe UI,Roboto,Helvetica,Arial}
+  .container{padding:16px}
+  h1{margin:0 0 12px 0;font-size:18px}
+  .row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+  label{display:block;font-size:12px;color:var(--muted);margin:8px 0 4px}
+  input,select,button{
+    padding:8px;border-radius:8px;border:1px solid var(--border);width:100%;
+    background:var(--bg);color:var(--text);
+  }
+  input::placeholder{color:#7d8590}
+  button{cursor:pointer;background:var(--chip)}
+  button:hover{filter:brightness(1.1)}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .log{
+    white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;
+    background:var(--chip);border:1px solid var(--border);
+    border-radius:8px;padding:8px;max-height:240px;overflow:auto
+  }
+  img.thumb{max-width:100%;border-radius:8px;border:1px solid var(--border)}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .chip{display:inline-block;background:var(--chip);border:1px solid var(--border);
+    padding:4px 8px;border-radius:999px;color:var(--text);font-size:12px}
+    .muted{color:var(--muted)}
+
+</style>
+
+</head>
+<body>
+    <div class="container">  
+        <h1>🎓 Apprendimento segnali (offline)</h1>
+
+        <div class="card" style="margin:16px 0">
+            <h2>📘 Guida rapida</h2>
+            <ol style="margin:0 0 10px 18px">
+                <li>Accendi il drone.</li>
+                <li>Premi <b>▶️ Avvia RFE</b> → <b>🔄 Auto-aggiorna</b> e scegli banda (2.4 / 5.2 / 5.8).</li>
+                <li>Nel grafico: <b>clic</b> per il <i>Centro</i>, secondo clic per la <i>BW</i>. Trascina le maniglie per rifinire.</li>
+                <li>Premi <b>📥 Copia su Registra</b>, compila <i>📼 Registra</i> (BW ≤ 10–12 MHz con HackRF) e <b>🔴 Registra</b>.
+                    <div class="muted">Dopo la registrazione l’app elabora l’IQ e genera i tiles (~2 min).</div>
+                </li>
+                <li>In <i>🧠 Apprendi</i>: per ogni sessione appena creata imposta <b>Label</b> (es. <code>Air3S</code> o <code>Noise</code>) e fai <b>📤 Estrai feature</b>.</li>
+                <li><b>Accumula</b> 3–10 sessioni (più distanze/orientamenti, e un po’ di <i>Noise</i> per ogni banda).</li>
+                <li>Quando pronto: <b>📚 Allena (staging)</b> una volta → <b>✅ Quick test (staging)</b>.</li>
+                <li>Se i risultati sono buoni → <b>🚀 Promuovi in produzione</b> (aggiorna il modello <i>current</i> usato dal live).</li>
+            </ol>
+
+            <div class="chips">
+                <span class="chip">Banda: <b id="guideBand">—</b></span>
+                <span class="chip">Centro: <b id="guideCenter">—</b> MHz</span>
+                <span class="chip">BW: <b id="guideBw">—</b> MHz</span>
+            </div>
+            <p class="muted" style="margin-top:8px">
+                Suggerimenti: per OcuSync usa BW ~20–40 MHz. Registra anche sessioni di <i>rumore</i> (➖) per migliorare il classificatore.
+            </p>
+        </div>
+
+        <div class="card" style="margin:16px 0">
+        <h2>📡 Imposta frequenza</h2>
+
+        <div class="btns">
+            <select id="spec_band" style="max-width:140px">
+            <option value="">Tutte</option>
+            <option value="24">2.4 GHz</option>
+            <option value="52">5.2 GHz</option>
+            <option value="58">5.8 GHz</option>
+            </select>
+            <button onclick="rfeStart()">▶️ Avvia RFE</button>
+            <button onclick="rfeStop()">⛔ Stop RFE</button>
+            <button onclick="toggleSpec()">🔄 Auto-aggiorna</button>
+        </div>
+
+        <canvas id="spectrum" width="900" height="240"
+                style="width:100%;max-width:100%;background:#000;border-radius:8px;border:1px solid var(--border);margin-top:8px"></canvas>
+
+        <div class="row" style="margin-top:10px;grid-template-columns:repeat(3,1fr)">
+            <div>
+            <label>Centro banda (MHz): <b id="centerVal">—</b></label>
+            <input id="centerSlider" type="range" min="2300" max="6000" step="0.5" value="2400" oninput="updateCenter(this.value)">
+            </div>
+            <div>
+            <label>Larghezza (MHz): <b id="bwVal">—</b></label>
+            <input id="bwSlider" type="range" min="5" max="60" step="1" value="20" oninput="updateBw(this.value)">
+            </div>
+            <div class="btns">
+            <button onclick="useStrongestPeak()">✨ Usa picco più forte</button>
+            <button onclick="copyToRecord()">📥 Copia su Registra</button>
+            </div>
+        </div>
+
+        <div class="log" id="spec_log" style="margin-top:10px"></div>
+        </div>
+
+        <div class="btns">
+        <button onclick="stopLive()">⛔ Spegni live</button>
+        <button onclick="hwCheck()">🧪 HW Check</button>
+        <button onclick="startLive()">▶️ Riaccendi live</button>
+        </div>
+
+        <div class="row" style="margin-top:16px">
+            <div class="card">
+            <h2>📼 Registra</h2>
+            <label>Banda</label>
+            <select id="band">
+                <option value="24">2.4 GHz</option>
+                <option value="52">5.2 GHz</option>
+                <option value="58">5.8 GHz</option>
+            </select>
+            <label>Drone ID (es. Mini3Pro_1234)</label>
+            <input id="drone_id" placeholder="nome_o_seriale"/>
+            <label>Center MHz</label>
+            <input id="center_mhz" type="number" step="0.1" value="2400"/>
+            <label>BW MHz</label>
+            <input id="bw_mhz" type="number" step="0.1" value="20"/>
+            <label>Durata (s)</label>
+            <input id="duration_s" type="number" value="15"/>
+            <div class="btns">
+                <button onclick="record()">🔴 Registra</button>
+                <button onclick="autoPipeline()">🚀 Registra→Estrai→Allena→Test</button>
+            </div>
+            <div class="btns">
+                <button onclick="recordNoise()">➖ Registra rumore (negativo)</button>
+            </div>
+
+            <div id="rec_prog" class="muted" style="margin-top:6px">
+
+            </div>
+
+            <div id="rec_out" class="log">
+              
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🧠 Apprendi</h2>
+            <label>Session dir (output registrazione)</label>
+            <input id="session_dir" placeholder="/home/raffaello/apprendimento/data/recordings/.../session_YYYY-MM-DDTHH-MM-SSZ"/>
+            <label>Label (classe da apprendere)</label>
+            <input id="label" placeholder="Mini3Pro"/>
+            <div class="btns">
+                <button onclick="extract()">📤 Estrai feature</button>
+                <button onclick="train()">📚 Allena (staging)</button>
+                <button onclick="quickTest()">✅ Quick test</button>
+                <button onclick="promote()">🚀 Promuovi in produzione</button>
+            </div>
+
+            <div id="learn_out" class="log">
+
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🖼️ Anteprime tiles</h2>
+            <p>Carica le 3 snapshot della sessione (live/cum/best) se presenti.</p>
+            <div id="thumbs"></div>
+            </div>
+        </div>
+
+        <label>Modello</label>
+            <select id="mdl_use">
+                <option value="current" selected>current</option>
+                <option value="staging">staging</option>
+            </select>
+            <div class="btns" style="margin-top:6px">
+                <button onclick="fillLastSession()">⏮️ Ultima sessione</button>
+            </div>
+    </div>
+<script>
+    
+    async function post(url, body) {
+    const r = await fetch(url, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: body ? JSON.stringify(body) : null
+    });
+    // Prova JSON, altrimenti testo grezzo
+    try {
+        return await r.json();
+    } catch (e) {
+        const txt = await r.text();
+        return { ok:false, raw: txt, status: r.status };
+    }
+    }
+
+    function log(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = (typeof msg==='string') ? msg : JSON.stringify(msg,null,2);
+    }
+
+    async function record(){
+        const duration_s = parseInt(document.getElementById('duration_s').value);
+        const j = {
+            band: document.getElementById('band').value,
+            drone_id: document.getElementById('drone_id').value || 'Unknown',
+            center_mhz: parseFloat(document.getElementById('center_mhz').value),
+            bw_mhz: parseFloat(document.getElementById('bw_mhz').value),
+            duration_s
+        };
+
+        // UI: mostra progresso e blocca i bottoni per evitare doppi click
+        showRecProgressPhased(duration_s, TILES_EXTRA_SEC);
+        disableRecButtons(true);
+        log('rec_out', 'Avvio registrazione…');
+
+        const out = await post('/api/record', j);
+
+        clearInterval(REC_INTERVAL);
+        document.getElementById('rec_prog').textContent =
+            out && out.ok ? '✅ Registrazione terminata' : '❌ Errore registrazione (vedi dettagli sotto)';
+
+        log('rec_out', out);
+        if(out && out.session){
+            document.getElementById('session_dir').value = out.session;
+            loadThumbs(out.session);
+        }
+        disableRecButtons(false);
+    }
+
+
+    async function extract(){
+    const sess = document.getElementById('session_dir').value;
+    const label = document.getElementById('label').value || 'Unknown';
+    const out = await post('/api/extract', {session_dir:sess, label});
+    log('learn_out', out);
+    }
+
+    async function train(){
+    const out = await post('/api/train');
+    log('learn_out', out);
+    }
+
+    async function promote(){
+    const out = await post('/api/promote');
+    log('learn_out', out);
+    }
+
+    async function quickTest(){
+    const sess = document.getElementById('session_dir').value;
+    const use  = document.getElementById('mdl_use').value; // current | staging
+    const out = await post('/api/quick_test', {session_dir:sess, use});
+    log('learn_out', out);
+    }
+
+    function loadThumbs(sess){
+    // sess = /home/raffaello/apprendimento/data/recordings/.../session_YYYY...
+    const rel = sess.replace('/home/raffaello/apprendimento/',''); // relativo a APP_ROOT
+    const names = ['live','cum','best'];
+    const el = document.getElementById('thumbs');
+    el.innerHTML = names.map(n => {
+        const url = `/api/file/${rel}/tiles/${n}.png`;
+        return `<div><label>${n}.png</label><img class="thumb" src="${url}" onerror="this.style.display='none'"/></div>`;
+    }).join('');
+    }
+
+    async function fillLastSession(){
+    const r = await fetch('/api/last_session');
+    let j;
+    try { j = await r.json(); } catch(e){ j = {ok:false, raw: await r.text()}; }
+    if(j.ok){
+        document.getElementById('session_dir').value = j.session;
+        loadThumbs(j.session);
+        log('learn_out', {info:'Caricata ultima sessione', session:j.session});
+    } else {
+        log('learn_out', j);
+    }
+    }
+
+    async function autoPipeline(){
+    // 1) registra
+    const j = {
+        band: document.getElementById('band').value,
+        drone_id: document.getElementById('drone_id').value || 'Unknown',
+        center_mhz: parseFloat(document.getElementById('center_mhz').value),
+        bw_mhz: parseFloat(document.getElementById('bw_mhz').value),
+        duration_s: parseInt(document.getElementById('duration_s').value)
+    };
+
+    showRecProgressPhased(j.duration_s, TILES_EXTRA_SEC);
+    disableRecButtons(true);
+    log('rec_out','Avvio registrazione…');
+
+    const rec = await post('/api/record', j);
+
+    clearInterval(REC_INTERVAL);
+    document.getElementById('rec_prog').textContent =
+    rec && rec.ok ? '✅ Registrazione+processing completati' : '❌ Errore registrazione (vedi dettagli sotto)';
+    disableRecButtons(false);
+
+    log('rec_out', rec);
+    if(!rec.ok){ log('learn_out', {error:'record fallito', rec}); return; }
+
+    const sess = rec.session;
+    document.getElementById('session_dir').value = sess;
+    loadThumbs(sess);
+
+    // 2) estrai
+    const label = document.getElementById('label').value || 'Unknown';
+    const ext = await post('/api/extract', {session_dir:sess, label});
+    log('learn_out', {extract: ext});
+    if(ext.ok === false){ return; }
+
+    // 3) allena
+    const tr = await post('/api/train');
+    log('learn_out', {extract: ext, train: tr});
+    if(tr.ok === false){ return; }
+
+    // 4) test rapido sul modello selezionato
+    const use = document.getElementById('mdl_use').value;
+    const qt = await post('/api/quick_test', {session_dir:sess, use});
+    log('learn_out', {extract: ext, train: tr, quick_test: qt});
+    }
+
+    async function recordNoise(){
+        const band = document.getElementById('band').value;
+        const center_mhz = parseFloat(document.getElementById('center_mhz').value);
+        const bw_mhz = parseFloat(document.getElementById('bw_mhz').value);
+        const duration_s = parseInt(document.getElementById('duration_s').value);
+
+        showRecProgressPhased(j.duration_s, TILES_EXTRA_SEC);
+        disableRecButtons(true);
+        log('rec_out','Avvio registrazione rumore…');
+
+        const rec = await post('/api/record', {
+            band, drone_id: 'Noise', center_mhz, bw_mhz, duration_s
+        });
+
+        clearInterval(REC_INTERVAL);
+        document.getElementById('rec_prog').textContent =
+        rec && rec.ok ? '✅ Rumore: registrazione+processing completati' : '❌ Errore registrazione (vedi dettagli sotto)';
+        disableRecButtons(false);
+
+        log('rec_out', rec);
+        if(!rec.ok){ return; }
+        clearInterval(REC_INTERVAL);
+        document.getElementById('rec_prog').textContent =
+        rec && rec.ok ? '✅ Registrazione+processing completati' : '❌ Errore registrazione (vedi dettagli sotto)';
+        disableRecButtons(false);
+
+        const sess = rec.session;
+        document.getElementById('session_dir').value = sess;
+        loadThumbs(sess);
+
+        const ext = await post('/api/extract', {session_dir:sess, label:'Noise'});
+        log('learn_out', {noise_extract: ext});
+    }
+
+    async function stopLive(){ const out = await post('/api/stop_live'); log('learn_out', out); }
+    async function hwCheck(){ const out = await post('/api/hw_check'); log('learn_out', out); }
+    async function startLive(){ const out = await post('/api/start_live'); log('learn_out', out); }
+
+    async function scanSpectrum(){
+    const r = await fetch('/api/scan', {method:'POST'});
+    const j = await r.json();
+    if(j.ok && j.data){
+        drawSpectrum(j.data);
+    }
+    }
+
+    // ===== Spettro interattivo (click + maniglie) =====
+    let SPEC_TIMER = null;
+    let SPEC_STATE = {
+        band: "",
+        bands: {},
+        currentBand: null,
+        center: null, left: null, right: null,
+        dragging: null, dragDxMHz: 0,
+        peaks: []              // <-- AGGIUNTO
+    };
+
+
+    function logSpec(msg){
+    document.getElementById('spec_log').textContent =
+        (typeof msg==='string') ? msg : JSON.stringify(msg,null,2);
+    }
+
+    async function rfeStart(){ const r=await fetch('/api/rfe/start',{method:'POST'}); logSpec(await r.json()); }
+    async function rfeStop(){ const r=await fetch('/api/rfe/stop',{method:'POST'}); logSpec(await r.json()); }
+
+    function toggleSpec(){
+        if(SPEC_TIMER){ clearInterval(SPEC_TIMER); SPEC_TIMER=null; logSpec("Auto-aggiorna: OFF"); return; }
+        SPEC_TIMER = setInterval(fetchSpectrum, 1000);
+        fetchSpectrum();
+        logSpec("Auto-aggiorna: ON (1s)");
+    }
+
+    async function fetchSpectrum(){
+        SPEC_STATE.band = document.getElementById('spec_band').value; // ""|24|52|58
+        const url = SPEC_STATE.band ? `/api/spectrum?band=${SPEC_STATE.band}` : '/api/spectrum';
+        const r = await fetch(url);
+        const j = await r.json();
+        updateSpectrumState(j);
+        drawSpectrumInteractive();
+    }
+
+    function updateSpectrumState(j){
+        SPEC_STATE.bands = {};
+        SPEC_STATE.peaks = Array.isArray(j.peaks) ? j.peaks : [];  // <-- salva i picchi
+        const latest = j.latest || {};
+        for(const b of Object.keys(latest)){
+            const d = latest[b];
+            const f = d.freqs_mhz || [];
+            const p = d.pwr_dbm || [];
+            if(f.length<2) continue;
+            const fmin = f[0], fmax = f[f.length-1];
+            const yMin = (d.yaxis && d.yaxis.min!=null) ? d.yaxis.min : Math.min(...p);
+            const yMax = (d.yaxis && d.yaxis.max!=null) ? d.yaxis.max : Math.max(...p);
+            SPEC_STATE.bands[b] = { f, p, fmin, fmax, yMin, yMax };
+        }
+        // scegli sempre una currentBand valida
+        const sel = SPEC_STATE.band;
+        const keys = Object.keys(SPEC_STATE.bands);
+        if(sel && SPEC_STATE.bands[sel]) {
+            SPEC_STATE.currentBand = sel;
+        } else if(keys.length) {
+            SPEC_STATE.currentBand =
+            (SPEC_STATE.bands["58"] && "58") ||
+            (SPEC_STATE.bands["52"] && "52") ||
+            (SPEC_STATE.bands["24"] && "24") ||
+            keys[0];
+        } else {
+            SPEC_STATE.currentBand = null;
+        }
+        // log utile per debug
+        logSpec({activeBand: SPEC_STATE.currentBand, bands: keys});
+    }
+
+
+    function drawSpectrumInteractive(){
+        const cv = document.getElementById('spectrum');
+        const ctx = cv.getContext('2d');
+        ctx.clearRect(0,0,cv.width,cv.height);
+
+        // sfondo
+        ctx.fillStyle = "#000"; ctx.fillRect(0,0,cv.width,cv.height);
+        ctx.strokeStyle = "#1d1d1d"; ctx.lineWidth = 1;
+        for(let y=0; y<=cv.height; y+=40){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(cv.width,y); ctx.stroke(); }
+
+        const bands = Object.keys(SPEC_STATE.bands);
+        if(!bands.length){
+            ctx.fillStyle="#bbb"; ctx.fillText("Nessun CSV disponibile", 10, 20);
+            return;
+    }
+
+    // Disegna curve (sovrapposte)
+    for(const b of bands){
+        const d = SPEC_STATE.bands[b];
+        const xOf = (mhz) => {
+            const pad=10; return ((mhz - d.fmin) / (d.fmax - d.fmin)) * (cv.width-2*pad) + pad;
+        };
+        const yOf = (dbm) => {
+            const pad=10; return cv.height - ((dbm - d.yMin) / (d.yMax - d.yMin)) * (cv.height-2*pad) - pad;
+        };
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = (b==="24") ? "#29d" : (b==="58" ? "#0f0" : "#f90");
+        ctx.beginPath();
+        for(let i=0;i<d.f.length;i++){
+            const x=xOf(d.f[i]), y=yOf(d.p[i]);
+            if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+        }
+        ctx.stroke();
+
+        const peaks = (SPEC_STATE.peaks||[]).filter(pk => pk.band === b);
+        if (peaks.length){
+            ctx.fillStyle = "#fff";
+            ctx.strokeStyle = "#fff";
+            peaks.forEach(pk=>{
+                const x = xOf(pk.freq_mhz);
+                const y = yOf(pk.dbm);
+                // piccolo marker a croce
+                ctx.beginPath(); ctx.moveTo(x-4, y); ctx.lineTo(x+4, y); ctx.moveTo(x, y-4); ctx.lineTo(x, y+4); ctx.stroke();
+                // etichetta in alto
+                ctx.fillText(`${b}@${pk.freq_mhz.toFixed(3)} MHz`, x+6, 14);
+            });
+        }
+    }
+
+    // Selezione (se presente): area BW + linee + center
+    const b = SPEC_STATE.currentBand;
+    if(!b) return;
+    const d = SPEC_STATE.bands[b];
+    const xOf = (mhz) => {
+        const pad=10; return ((mhz - d.fmin) / (d.fmax - d.fmin)) * (cv.width-2*pad) + pad;
+    };
+
+    // Disegna area selezionata
+    if(SPEC_STATE.left!=null && SPEC_STATE.right!=null){
+        const L = Math.max(d.fmin, Math.min(d.fmax, Math.min(SPEC_STATE.left, SPEC_STATE.right)));
+        const R = Math.max(d.fmin, Math.min(d.fmax, Math.max(SPEC_STATE.left, SPEC_STATE.right)));
+        ctx.fillStyle = "rgba(0, 180, 255, 0.12)";
+        ctx.fillRect(xOf(L), 0, xOf(R)-xOf(L), cv.height);
+        // Maniglie
+        drawHandle(ctx, xOf(L)); drawHandle(ctx, xOf(R));
+    }
+
+    // Linea centro
+    if(SPEC_STATE.center!=null){
+        const xc = xOf(SPEC_STATE.center);
+        ctx.strokeStyle="#fff"; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(xc,0); ctx.lineTo(xc,cv.height); ctx.stroke(); ctx.setLineDash([]);
+    }
+    }
+
+    function drawHandle(ctx, x){
+    ctx.fillStyle="#00b4ff";
+    ctx.fillRect(x-2, 0, 4, ctx.canvas.height);
+    }
+
+    // Mapping helpers x<->MHz per banda corrente
+    function ctxW(){ return document.getElementById('spectrum').width; }
+    function mapMHzToX(mhz){
+        const b = SPEC_STATE.currentBand; if(!b) return null;
+        const d = SPEC_STATE.bands[b]; const pad=10;
+        return ((mhz - d.fmin) / (d.fmax - d.fmin)) * (ctxW()-2*pad) + pad;
+    }
+    function mapXtoMHz(x){
+        const b = SPEC_STATE.currentBand; if(!b) return null;
+        const d = SPEC_STATE.bands[b]; const pad=10;
+        return d.fmin + ((x - pad) / (ctxW()-2*pad)) * (d.fmax - d.fmin);
+    }
+    function clampMHz(v){
+        const b = SPEC_STATE.currentBand; if(!b) return v;
+        const d = SPEC_STATE.bands[b];
+        return Math.max(d.fmin, Math.min(d.fmax, v));
+    }
+
+    function applySelectionToInputs(roundIt=true){
+        if(SPEC_STATE.center!=null){
+            const c = roundIt ? SPEC_STATE.center.toFixed(3) : SPEC_STATE.center;
+            document.getElementById('centerSlider').value = c;
+            updateCenter(c);
+        }
+        if(SPEC_STATE.left!=null && SPEC_STATE.right!=null){
+            const bw = Math.abs(SPEC_STATE.right - SPEC_STATE.left);
+            const bwr = roundIt ? bw.toFixed(1) : bw;
+            document.getElementById('bwSlider').value = bwr;
+            updateBw(bwr);
+        }
+    }
+
+    // ===== UI helpers già esistenti, ma agganciamo slider -> maniglie =====
+    function updateCenter(v){
+        document.getElementById('centerVal').textContent = v;
+        const bandSel = document.getElementById('band');
+        const c = document.getElementById('center_mhz');
+        c.value = v;
+
+        const gb = document.getElementById('guideBand');
+        if(gb){ gb.textContent = document.getElementById('band').value || '—'; }
+        const gc = document.getElementById('guideCenter');
+        if(gc){ gc.textContent = v; }
+
+        const mv = parseFloat(v);
+        if(mv>=2300 && mv<2600) bandSel.value="24";
+        else if(mv>=5150 && mv<5300) bandSel.value="52";
+        else if(mv>=5700 && mv<5900) bandSel.value="58";
+
+        // se esiste una selezione, ricalibra intorno al nuovo centro mantenendo BW
+        if(SPEC_STATE.left!=null && SPEC_STATE.right!=null){
+            const bw = Math.abs(SPEC_STATE.right - SPEC_STATE.left);
+            const mid = parseFloat(v);
+            SPEC_STATE.left = mid - bw/2;
+            SPEC_STATE.right = mid + bw/2;
+            SPEC_STATE.center = mid;
+        } else {
+            SPEC_STATE.center = parseFloat(v);
+        }
+        drawSpectrumInteractive();
+    }
+
+    function updateBw(v){
+        document.getElementById('bwVal').textContent = v;
+        document.getElementById('bw_mhz').value = v;
+        if(SPEC_STATE.center!=null){
+            const bw = parseFloat(v);
+            SPEC_STATE.left = SPEC_STATE.center - bw/2;
+            SPEC_STATE.right = SPEC_STATE.center + bw/2;
+            drawSpectrumInteractive();
+        }
+
+        const gw = document.getElementById('guideBw');
+        if(gw){ gw.textContent = v; }
+    }
+
+    function copyToRecord(){
+        const c = document.getElementById('centerSlider').value;
+        const b = document.getElementById('bwSlider').value;
+        updateCenter(c); updateBw(b);
+        logSpec(`Copiati su Registra: center=${c} MHz, bw=${b} MHz`);
+    }
+
+    // Usa picco più forte nella banda selezionata (opzionale ma utile)
+    async function useStrongestPeak(){
+        const band = document.getElementById('spec_band').value;
+        const url = band ? `/api/spectrum?band=${band}` : '/api/spectrum';
+        const r = await fetch(url); const j = await r.json();
+        const list = (j.peaks||[]).filter(pk=>!band || pk.band===band);
+        if(list.length===0){ logSpec("Nessun picco disponibile."); return; }
+        list.sort((a,b)=>b.dbm-a.dbm);
+        const pk = list[0];
+        document.getElementById('centerSlider').value = pk.freq_mhz.toFixed(3);
+        updateCenter(pk.freq_mhz.toFixed(3));
+        if(document.getElementById('bwSlider').value < 15) {
+            document.getElementById('bwSlider').value = 20; updateBw(20);
+        }
+        logSpec({info:"Usato picco più forte", pick: pk});
+    }
+
+    let REC_INTERVAL = null;
+    const TILES_EXTRA_SEC = 120; // ~2 minuti per elaborare IQ e generare tiles
+
+    function pickSR(bw_mhz){
+    // stessa logica di clamp usata dallo script: ~1.5xBW, clamp 2-10 MS/s, step 200k
+    let sr = Math.max(2e6, Math.min(10e6, bw_mhz * 1.5e6));
+    sr = Math.round(sr / 200000) * 200000;
+    return sr;
+    }
+
+    function showRecProgressPhased(recSeconds, tilesSeconds = TILES_EXTRA_SEC){
+        const el = document.getElementById('rec_prog');
+        clearInterval(REC_INTERVAL);
+        const t0 = Date.now();
+
+        function tick(){
+            const elapsed = Math.floor((Date.now() - t0) / 1000);
+            if(elapsed < recSeconds){
+            const left = recSeconds - elapsed;
+            const bw = parseFloat(document.getElementById('bw_mhz').value || "10");
+            const sr = pickSR(bw);
+            el.textContent = `⏺️ Registrazione in corso… ${left}s rimanenti • SR stimata: ${(sr/1e6).toFixed(1)} MS/s`;
+            } else if (elapsed < recSeconds + tilesSeconds){
+            const left = recSeconds + tilesSeconds - elapsed;
+            el.textContent = `🧪 Elaborazione IQ e creazione tiles… ~${left}s rimanenti`;
+            } else {
+            // abbiamo superato la stima: restiamo in attesa della risposta del backend
+            el.textContent = `⌛ Quasi fatto… in attesa di completare l’elaborazione`;
+            }
+        }
+        tick();
+        REC_INTERVAL = setInterval(tick, 500);
+    }
+
+
+    function disableRecButtons(dis){
+    // disabilita solo i bottoni di registrazione
+    const sel = ['🔴 Registra','🚀 Registra→Estrai→Allena→Test','➖ Registra rumore (negativo)'];
+    document.querySelectorAll('.card button').forEach(b=>{
+        if(sel.includes(b.textContent.trim())){
+        b.disabled = dis; b.style.opacity = dis ? 0.6 : 1;
+        }
+    });
+    }
+
+    // ===== EVENTI CANVAS ROBUSTI (pointer events + scaling) =====
+    (function initSpectrumPointer(){
+        const cv = document.getElementById('spectrum');
+        if(!cv){ console.warn('Canvas #spectrum non trovato'); return; }
+
+        // aiuta a ricevere tutti gli eventi sul canvas
+        cv.style.touchAction = 'none';
+        cv.style.cursor = 'crosshair';
+        cv.style.pointerEvents = 'auto';
+        cv.style.position = 'relative';
+        cv.style.zIndex = 1;
+
+        function toCanvasX(e){
+            const rect = cv.getBoundingClientRect();
+            const scaleX = cv.width / rect.width;
+            return (e.clientX - rect.left) * scaleX;
+        }
+
+        function hitTest(x){
+            const b = SPEC_STATE.currentBand; if(!b) return null;
+            const H = 8; // tolleranza in px (aumentata)
+            if(SPEC_STATE.left!=null && SPEC_STATE.right!=null){
+                const Lx = mapMHzToX(SPEC_STATE.left);
+                const Rx = mapMHzToX(SPEC_STATE.right);
+                if(Math.abs(x - Lx) <= H) return "left";
+                if(Math.abs(x - Rx) <= H) return "right";
+                const lo = Math.min(Lx,Rx), hi = Math.max(Lx,Rx);
+                if(x>lo && x<hi) return "center";
+            }
+            return null;
+        }
+
+        function onPointerDown(e){
+            e.preventDefault();
+            const x = toCanvasX(e);
+            const target = hitTest(x);
+            cv.setPointerCapture(e.pointerId);
+
+            if(target){
+                SPEC_STATE.dragging = target;
+                if(target==="center"){
+                    const mid = (SPEC_STATE.left + SPEC_STATE.right)/2;
+                    SPEC_STATE.dragDxMHz = mid - mapXtoMHz(x);
+                }
+                return;
+            }
+
+            // Click “nuova selezione”: primo click imposta left+center, secondo chiude con right
+            const mhz = mapXtoMHz(x);
+            if(SPEC_STATE.left==null || (SPEC_STATE.left!=null && SPEC_STATE.right!=null)){
+                SPEC_STATE.left = mhz; SPEC_STATE.right = null;
+                SPEC_STATE.center = mhz;
+            } else {
+                SPEC_STATE.right = mhz;
+                SPEC_STATE.center = (SPEC_STATE.left + SPEC_STATE.right)/2;
+                applySelectionToInputs();
+            }
+            drawSpectrumInteractive();
+            updateCenter(SPEC_STATE.center.toFixed(3));
+        }
+
+        function onPointerMove(e){
+            if(!SPEC_STATE.dragging) return;
+            e.preventDefault();
+            const x = toCanvasX(e);
+
+            if(SPEC_STATE.dragging==="left"){
+                SPEC_STATE.left = clampMHz(mapXtoMHz(x));
+                if(SPEC_STATE.right!=null) SPEC_STATE.center = (SPEC_STATE.left + SPEC_STATE.right)/2;
+            } else if(SPEC_STATE.dragging==="right"){
+                SPEC_STATE.right = clampMHz(mapXtoMHz(x));
+                if(SPEC_STATE.left!=null) SPEC_STATE.center = (SPEC_STATE.left + SPEC_STATE.right)/2;
+            } else if(SPEC_STATE.dragging==="center" && SPEC_STATE.left!=null && SPEC_STATE.right!=null){
+                const width = SPEC_STATE.right - SPEC_STATE.left;
+                const b = SPEC_STATE.currentBand, d = SPEC_STATE.bands[b];
+                let mid = clampMHz(mapXtoMHz(x) + SPEC_STATE.dragDxMHz);
+                let L = mid - width/2, R = mid + width/2;
+                if(L < d.fmin){ R += (d.fmin - L); L = d.fmin; }
+                if(R > d.fmax){ L -= (R - d.fmax); R = d.fmax; }
+                SPEC_STATE.left = L; SPEC_STATE.right = R; SPEC_STATE.center = mid;
+            }
+            applySelectionToInputs(false);
+            drawSpectrumInteractive();
+        }
+
+        function onPointerUp(e){
+            if(SPEC_STATE.dragging){
+                e.preventDefault();
+                SPEC_STATE.dragging = null;
+                applySelectionToInputs();
+            }
+            try { cv.releasePointerCapture(e.pointerId); } catch(_) {}
+        }
+
+        function onDblClick(e){
+            e.preventDefault();
+            SPEC_STATE.left = SPEC_STATE.right = SPEC_STATE.center = null;
+            drawSpectrumInteractive();
+            document.getElementById('centerVal').textContent = "—";
+            document.getElementById('bwVal').textContent = "—";
+        }
+
+        cv.addEventListener('pointerdown', onPointerDown);
+        cv.addEventListener('pointermove', onPointerMove);
+        cv.addEventListener('pointerup', onPointerUp);
+        cv.addEventListener('pointercancel', onPointerUp);
+        cv.addEventListener('pointerleave', onPointerUp);
+        cv.addEventListener('dblclick', onDblClick);
+    })();
+
+
+</script>
+</body>
+</html>
