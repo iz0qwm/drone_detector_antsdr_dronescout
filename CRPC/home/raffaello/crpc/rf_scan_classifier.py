@@ -583,6 +583,9 @@ def main():
                 # hop molto basso/stabile aiuta a distinguerlo da salti più “vivaci”
                 return (b == "24") and (45.0 <= bw <= 95.0) and (abs(hop) <= 2.0)
 
+            if is_wifi80_band24(tr.get("band"), tr.get("bandwidth_mhz"), tr.get("hop_rate_mhz_s")):
+                # o lo scarti del tutto:
+                continue
             # ... dentro il loop for tr in tracks: subito dopo aver letto band/f/bw/hop ...
             wifi80 = is_wifi80_band24(band, bw, hop)
             if wifi80:

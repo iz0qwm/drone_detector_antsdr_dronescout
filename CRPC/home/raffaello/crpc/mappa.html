@@ -383,8 +383,9 @@ function setPosition(
       (byId('hudFam')   || {}).textContent = info.family || '–';
       (byId('hudLabel') || {}).textContent = info.label || '–';
       (byId('hudTs')    || {}).textContent = info.ts_iso || new Date().toISOString();
-      (byId('hudRssi')  || {}).textContent = (info.rssi_dbm!=null? info.rssi_dbm.toFixed(1)+' dBm' : 'n/d');
-      (byId('hudDist')  || {}).textContent = (info.radius_m? Math.round(info.radius_m)+' m' : 'n/d');
+      (byId('hudRssi') || {}).textContent =
+        (info.rssi_dbm != null ? info.rssi_dbm.toFixed(1) + ' dBm' + (info.rssi_note || '') : 'n/d');
+      (byId('hudDist')  || {}).textContent = (info.radius_m? 'entro ~0–' + Math.round(info.radius_m)+' m' : 'n/d');
       const chip = byId('chipStatus'); if (chip) chip.textContent = 'live';
     }
 
@@ -466,7 +467,70 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// ---- helper: cerca RSSI dai peaks con tolleranza adattiva + retry ----
+      let EMA_RSSI = null; // stato globale per smoothing
+      const EMA_ALPHA = 0.6;
 
+      function dfToleranceMHz(last) {
+        // tolleranza adattiva in base alla banda stimata del track:
+        // stretti (OcuSync ~6–10 MHz) → tolleranza piccola; larghi → più grande.
+        const bw = Number(last.bw_mhz || last.bandwidth_mhz || 0);
+        // 20% della BW stimata, clampata tra 0.2 e 3.0 MHz
+        const tol = Math.max(0.2, Math.min(3.0, 0.20 * (bw || 6)));
+        return tol;
+      }
+
+      function bestPeakRssi(spec, last) {
+        if (!spec || !Array.isArray(spec.peaks) || !last || !last.freq_mhz) return null;
+        const wantBand = (last.band != null) ? String(last.band) : null;
+        const f0 = Number(last.freq_mhz);
+        const tol = dfToleranceMHz(last);
+
+        let best = null, bestDf = Infinity;
+
+        for (const p of spec.peaks) {
+          const f = Number(p.freq_mhz ?? p.frequency);
+          const a = (p.power_dbm ?? p.dbm ?? p.amp_dbm ?? p.amp);
+          if (!Number.isFinite(f) || a == null) continue;
+
+          // se il peak riporta la banda, prova a matcharla (senza essere rigido se mancante)
+          if (wantBand && p.band != null && String(p.band) !== wantBand) continue;
+
+          const df = Math.abs(f - f0);
+          if (df <= tol) {
+            // scegli il più vicino; a parità di df, scegli quello più alto
+            if (df < bestDf || (Math.abs(df - bestDf) < 1e-6 && a > (best?.a ?? -1e9))) {
+              best = { a, f, df };
+              bestDf = df;
+            }
+          }
+        }
+        return best ? best.a : null;
+      }
+
+      async function fetchSpectrum() {
+        try {
+          const r = await fetch('/api/spectrum');
+          if (!r.ok) throw new Error();
+          return await r.json();
+        } catch { return null; }
+      }
+
+      async function getRssiWithRetry(last, retries = 2, delayMs = 300) {
+        // Primo tentativo
+        let spec = await fetchSpectrum();
+        let rssi = bestPeakRssi(spec, last);
+        if (rssi != null) return rssi;
+
+        // Retry rapidi per assorbire il ritardo tra detections e spectrum
+        for (let i = 0; i < retries; i++) {
+          await new Promise(res => setTimeout(res, delayMs));
+          spec = await fetchSpectrum();
+          rssi = bestPeakRssi(spec, last);
+          if (rssi != null) return rssi;
+        }
+        return null;
+      }
 
     // —— polling API locali per aggiornare alert ———
     const REFRESH_MS = 2000;
@@ -492,32 +556,34 @@ window.addEventListener('DOMContentLoaded', () => {
         lastTrackId = last.track_id;
 
 
-      // 2) opzionale: prova a leggere rssi dai PEAKS
-      let rssi_dbm = null;
-      const spec = await fetchJSON('/api/spectrum');
-      if(spec && Array.isArray(spec.peaks) && last.freq_mhz){
-        // cerca il picco più vicino alla freq della detection entro 5 MHz
-        let best = null, dfBest = Infinity;
-        for(const p of spec.peaks){
-          const f = p.freq_mhz || p.frequency; const a = p.power_dbm ?? p.dbm ?? p.amp_dbm ?? p.amp;
-          if(!f || a==null) continue;
-          const df = Math.abs(f - last.freq_mhz);
-          if(df < dfBest && df <= 5){ best = a; dfBest = df; }
-        }
-        if(best!=null) rssi_dbm = best;
+      // >>> sostituisci da qui il vecchio blocco RSSI+radius nel tick() <<<
+
+      // 2) calcola rssi con ricerca adattiva + retry
+      let rssi_dbm = await getRssiWithRetry(last);
+
+      // 2bis) smoothing: EMA per rendere stabile l’hud e il raggio
+      if (rssi_dbm != null) {
+        EMA_RSSI = (EMA_RSSI == null) ? rssi_dbm : (EMA_ALPHA * rssi_dbm + (1 - EMA_ALPHA) * EMA_RSSI);
       }
 
-      // 3) calcola raggio da rssi
+      // 3) calcola raggio da rssi (usa EMA se disponibile)
       const tbl = getTable();
       let radius_m = 600, color = '#f2cb05';
-      if(rssi_dbm!=null){ const est = estimateRadius(rssi_dbm, tbl); radius_m = est.radius_m; color = est.color; }
+      const useRssi = (EMA_RSSI != null) ? EMA_RSSI : rssi_dbm;
+
+      if (useRssi != null) {
+        const est = estimateRadius(useRssi, tbl);
+        radius_m = est.radius_m;
+        color    = est.color;
+      }
+
 
       // usa posState come centro
       // attiva ring per (es.) 30s
       ringState.active   = true;
       ringState.radius_m = radius_m;
       ringState.color    = color;
-      ringState.expires  = Date.now() + 30000; // TTL 30s
+      ringState.expires  = Date.now() + 180000; // TTL 3 min
       renderRing();      // disegna/aggiorna ora
       blinkAntenna();    // come già facevi
 
@@ -531,15 +597,20 @@ window.addEventListener('DOMContentLoaded', () => {
       const modelStr = toModelString(last.model) || last.label || last.title || '—';
       const brandStr = (last.brand || last.family || last.vendor || last.src || '—').toString();
 
+      const usedEma = (EMA_RSSI != null);
+
       setHud({
         band: last.band,
         freq_mhz: last.freq_mhz ?? (last.frequency_mhz ?? (last.frequency_hz ? last.frequency_hz/1e6 : null)),
-        family: brandStr,      // qui mostriamo la "marca"
-        label:  modelStr,      // qui mostriamo il "modello"
+        family: brandStr,
+        label:  modelStr,
         ts_iso: last.ts_iso || (last.ts_unix ? new Date(last.ts_unix*1000).toISOString() : new Date().toISOString()),
-        rssi_dbm,
+        rssi_dbm: usedEma ? EMA_RSSI : rssi_dbm,   // stesso valore usato per il ring
+        rssi_note: usedEma ? ' (EMA)' : '',        // <— etichetta
         radius_m
       });
+
+
 
       setTimeout(tick, REFRESH_MS);
 
