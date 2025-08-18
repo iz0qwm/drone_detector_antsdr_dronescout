@@ -215,6 +215,8 @@ Questi materiali sono stati utili nello sviluppo del progetto CRPC:
 - [RFUAV – GitHub repository](https://github.com/kitoweeknd/RFUAV/)
 - [RFUAV – Articolo scientifico su arXiv](https://arxiv.org/html/2503.09033v2#bib)
 
+---
+
 ## 📸 Screenshots
 
 ### 1️⃣ Sistema ANTSDR E200 + DroneScout Bridge
