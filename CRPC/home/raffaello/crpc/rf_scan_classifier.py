@@ -571,6 +571,24 @@ def main():
             bw   = float(tr.get("bandwidth_mhz", 0.0))
             hop  = float(tr.get("hop_rate_mhz_s", 0.0))
 
+            # --- Euristica: Wi-Fi 80 MHz in 2.4 GHz ---
+            def is_wifi80_band24(band, bw_mhz, hop_rate):
+                try:
+                    b = str(band)
+                    bw = float(bw_mhz or 0.0)
+                    hop = float(hop_rate or 0.0)
+                except Exception:
+                    return False
+                # 2.4 GHz: Wi-Fi 80 MHz risulta 75–95 MHz nel nostro stimatore
+                # hop molto basso/stabile aiuta a distinguerlo da salti più “vivaci”
+                return (b == "24") and (45.0 <= bw <= 95.0) and (abs(hop) <= 2.0)
+
+            # ... dentro il loop for tr in tracks: subito dopo aver letto band/f/bw/hop ...
+            wifi80 = is_wifi80_band24(band, bw, hop)
+            if wifi80:
+                # marchia il track come Wi-Fi e riduci l’impatto in fusione
+                tr["_heuristic_wifi80"] = True
+
             # 1) CSV KNN (con eventuale BW video da immagine)
             fp_label, fp_score, top = None, 0.0, []
             used_vts_for_knn = False
@@ -643,7 +661,12 @@ def main():
             else:
                label, score, src = None, 0.0, None
 
- 
+            # --- Forzatura: non segnalare come drone i Wi-Fi 80 MHz 2.4 ---
+            if tr.get("_heuristic_wifi80"):
+                label = "Wi-Fi (80 MHz)"
+                score = 0.99
+                src   = "heuristic"
+
             pred = {
                 "ts": ts,
                 "track_id": tid,
@@ -660,18 +683,20 @@ def main():
                 "csv":   {"label": fp_label,  "score": round(fp_score,3), "top": top, "used_vts_for_knn": used_vts_for_knn},
                 "image_hint": {"label": img_label, "score": round(img_score or 0.0,3), "cls_id": img_cls_id, "votes": img_votes},
                 "vts_bw_est_mhz": round(vts_bw_est, 2) if (vts_bw_est is not None) else None,
-                "bandwidth_used_for_csv_mhz": round((vts_bw_est if used_vts_for_knn else bw), 2)
+                "bandwidth_used_for_csv_mhz": round((vts_bw_est if used_vts_for_knn else bw), 2),
+                "badges": (["wifi80","non-drone"] if tr.get("_heuristic_wifi80") else [])
             }
 
             log(f"   ⤷ votes  model={mdl_label}:{mdl_score:.2f}  csv={fp_label}:{fp_score:.2f}  img={img_label}:{(img_score or 0):.2f}")
             with OUT_JSONL.open("a") as g:
                 g.write(json.dumps(pred, ensure_ascii=False) + "\n")
 
-            if label and score >= args.fprint_min:
+            if label and (score >= args.fprint_min) and (label != "Wi-Fi (80 MHz)"):
                 log(f"✅ RFscan T{tid} [{band}] {f:.3f}MHz bw={bw:.3f} → {label} ({src} {score:.2f})")
             else:
                 log(f"ℹ️  RFscan T{tid} [{band}] {f:.3f}MHz bw={bw:.3f} → (debole) "
-                    f"model={mdl_label}:{mdl_score:.2f} csv={fp_label}:{fp_score:.2f} img={img_label}:{img_score or 0:.2f}")
+                    f"model={mdl_label}:{mdl_score:.2f} csv={fp_label}:{fp_score:.2f} img={img_label}:{img_score or 0:.2f})")
+
 
             predictions.append(pred)
             last_seen[tid] = ts

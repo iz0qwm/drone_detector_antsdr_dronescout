@@ -9,7 +9,7 @@ SPS="10000000"          # sample rate (Hz)
 SECONDS="10"            # durata cattura (s)
 
 # Guadagni / bias-T (regola a piacere)
-ANT_PWR=1               # 1 = bias-T ON, 0 = OFF
+ANT_PWR=0               # 1 = bias-T ON, 0 = OFF
 LNA_GAIN=16
 VGA_GAIN=32
 
@@ -18,7 +18,7 @@ MIN_FREE_MB=512         # non scrivere se /tmp < 512MB
 # ==============================================
 
 usage() {
-  echo "Uso: $0 --band {24|52|58} --f0 <MHz> [--bw <Hz>] [--sps <Hz>] [--seconds <s>] [--out <path>]" >&2
+  echo "Uso: $0 --band {24|52|58} --f0 <MHz> [--bw <Hz>] [--sps <Hz>] [--seconds <s>] [--out <path>] [--lna <value gain>] [--vga <value gain>] [--ant <0/1 bias-T]" >&2
   exit 2
 }
 
@@ -32,6 +32,9 @@ while [[ $# -gt 0 ]]; do
     --sps)     SPS="$2"; shift 2;;
     --seconds) SECONDS="$2"; shift 2;;
     --out)     OUT_PATH="$2"; shift 2;;
+    --lna)     LNA_GAIN="$2"; shift 2;;
+    --vga)     VGA_GAIN="$2"; shift 2;;
+    --ant)     ANT_PWR="$2"; shift 2;;
     -h|--help) usage;;
     *) echo "Argomento sconosciuto: $1" >&2; usage;;
   esac
@@ -47,6 +50,36 @@ fi
 # Output path di default
 if [[ -z "$OUT_PATH" ]]; then
   OUT_PATH="/tmp/hackrf_${BAND}.iq"
+fi
+
+# Preset per banda (se non sono stati forzati via CLI o ENV)
+: "${FORCED_LNA:=${LNA_GAIN}}"
+: "${FORCED_VGA:=${VGA_GAIN}}"
+: "${FORCED_ANT:=${ANT_PWR}}"
+
+if [[ -z "${OVERRIDE_DONE:-}" ]]; then
+  case "$BAND" in
+    "24")
+      # ambiente affollato → preset più conservativi
+      [[ "${FORCED_LNA}" == "${LNA_GAIN}" ]] && LNA_GAIN=20
+      [[ "${FORCED_VGA}" == "${VGA_GAIN}" ]] && VGA_GAIN=34
+      [[ "${FORCED_ANT}" == "${ANT_PWR}"   ]] && ANT_PWR="${ANT_PWR:-0}"
+      ;;
+    "52"|"58")
+      # più “pulito” → spingiamo di più
+      [[ "${FORCED_LNA}" == "${LNA_GAIN}" ]] && LNA_GAIN=28
+      [[ "${FORCED_VGA}" == "${VGA_GAIN}" ]] && VGA_GAIN=40
+      [[ "${FORCED_ANT}" == "${ANT_PWR}"   ]] && ANT_PWR="${ANT_PWR:-0}"
+      ;;
+  esac
+fi
+
+# Permetti override via variabili d’ambiente (se settate)
+# es: EXT_LNA=1 per alimentare un LNA esterno
+if [[ "${EXT_LNA:-0}" == "1" ]]; then
+  ANT_PWR=1
+  # con LNA esterno, tieni LNA interno un filo più basso
+  if [[ "$BAND" == "52" || "$BAND" == "58" ]]; then LNA_GAIN=${LNA_GAIN:-24}; fi
 fi
 
 # Free space guard
