@@ -214,3 +214,32 @@ Verificare sempre la conformità prima dell’utilizzo.
 Questi materiali sono stati utili nello sviluppo del progetto CRPC:
 - [RFUAV – GitHub repository](https://github.com/kitoweeknd/RFUAV/)
 - [RFUAV – Articolo scientifico su arXiv](https://arxiv.org/html/2503.09033v2#bib)
+
+## 📸 Screenshot
+
+<p align="center">
+  <a href="http://www.kwos.org/appoggio/droni/dronedetector/crpc_01.png">
+    <img src="http://www.kwos.org/appoggio/droni/dronedetector/crpc_01.png" width="300"/>
+  </a>
+  <a href="http://www.kwos.org/appoggio/droni/dronedetector/crpc_02.png">
+    <img src="http://www.kwos.org/appoggio/droni/dronedetector/crpc_02.png" width="300"/>
+  </a>
+</p>
+
+<p align="center">
+  <a href="http://www.kwos.org/appoggio/droni/dronedetector/crpc_03.png">
+    <img src="http://www.kwos.org/appoggio/droni/dronedetector/crpc_03.png" width="300"/>
+  </a>
+  <a href="http://www.kwos.org/appoggio/droni/dronedetector/crpc_04.png">
+    <img src="http://www.kwos.org/appoggio/droni/dronedetector/crpc_04.png" width="300"/>
+  </a>
+</p>
+
+<p align="center">
+  <a href="http://www.kwos.org/appoggio/droni/dronedetector/crpc_05.png">
+    <img src="http://www.kwos.org/appoggio/droni/dronedetector/crpc_05.png" width="300"/>
+  </a>
+  <a href="http://www.kwos.org/appoggio/droni/dronedetector/crpc_06.png">
+    <img src="http://www.kwos.org/appoggio/droni/dronedetector/crpc_06.png" width="300"/>
+  </a>
+</p>
