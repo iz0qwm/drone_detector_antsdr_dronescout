@@ -8,8 +8,6 @@ import sys
 
 # === Config ===
 RFE_DIR = Path("/tmp/rfe/scan")
-CRCP_LOG_DIR = Path("/tmp/crpc_logs")
-TRIG_JSON = CRCP_LOG_DIR / "last_trigger.json"
 TRIGGER_FIFO = Path("/tmp/hackrf_trigger.fifo")
 STATE_FILE = Path("/tmp/rfe_trigger_state.json")
 LOG_PATH = Path(os.getenv("RFE_LOG", "/tmp/crpc_logs/rfe_trigger.log"))
@@ -254,24 +252,6 @@ def rate_limit_ok():
         trigger_count.popleft()
     return (len(trigger_count) < MAX_TRIGGERS_PER_MIN)
 
-
-def write_last_trigger_json(band, f0_mhz, bw_hz):
-    try:
-        payload = {
-            "band": str(band),
-            "f0_mhz": round(float(f0_mhz), 3),
-            "bw_hz": int(bw_hz),
-            "ts_iso": datetime.utcnow().isoformat()+"Z",
-            "ts_epoch": time.time()
-        }
-        CRCP_LOG_DIR.mkdir(parents=True, exist_ok=True)
-        with open(TRIG_JSON, "w") as jf:
-            json.dump(payload, jf)
-        try: os.chmod(TRIG_JSON, 0o664)
-        except Exception: pass
-        print(f"📝 last_trigger.json scritto: {payload}")
-    except Exception as e:
-        print(f"⚠️  write_last_trigger_json errore: {e}")
 def send_trigger(band, f0_mhz, bw_hz, hold_s=10):
     if not TRIGGER_FIFO.exists():
         try:
@@ -470,7 +450,6 @@ def main():
 
                 ok = send_trigger(band, f0, bw, hold_s=12 if band in ("58","52") else 10)
                 if ok:
-                    write_last_trigger_json(band, f0, bw)
                     last_trigger_ts[band] = now
                     trigger_count.append(now)
                     # 🔧 memorizza il blob per futuri debounce

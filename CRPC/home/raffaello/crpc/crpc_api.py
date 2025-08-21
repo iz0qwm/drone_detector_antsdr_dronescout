@@ -324,6 +324,35 @@ def evaluate_live(preds, gt, domain="family"):
         "support": support,
     }
 
+def _is_uav_detection(r: dict) -> bool:
+    """
+    True se la detection è un UAV (non Wi‑Fi).
+    Criteri:
+      - family/brand contiene 'WIFI' -> non UAV
+      - badges/tags contengono 'wifi80' o 'non-drone' -> non UAV
+      - label/model stringa con 'Wi-Fi'/'Wi‑Fi' -> non UAV
+    """
+    def _to_upper(x):
+        if isinstance(x, dict):
+            x = x.get("label") or x.get("name") or ""
+        return str(x or "").upper()
+
+    fam = _to_upper(r.get("family") or r.get("brand"))
+    if "WIFI" in fam:
+        return False
+
+    badges = r.get("badges") or r.get("tags") or []
+    if isinstance(badges, list):
+        lo = {str(b).strip().lower() for b in badges}
+        if {"wifi80","non-drone"} & lo:
+            return False
+
+    lab = _to_upper(r.get("label") or r.get("model"))
+    if "WI-FI" in lab or "WI‑FI" in lab:
+        return False
+
+    return True
+
 # ---- Routes ----
 @app.route("/")
 @app.route("/dashboard")
@@ -559,6 +588,8 @@ def api_detections():
         brand = r.get("brand") or r.get("family") or (family_from_label(model_label) if model_label else None)
         family = r.get("family") or brand
 
+        is_uav = _is_uav_detection(r)
+
         out.append({
             "title": "Drone detected",
             "freq_mhz": freq_mhz,
@@ -579,6 +610,7 @@ def api_detections():
             "model": model_label,
             "brand": brand,
             "family": family,
+            "is_uav": bool(is_uav),
         })
 
     out.sort(key=lambda x: (x["ts_unix"] is None, -(x["ts_unix"] or 0)))
@@ -604,6 +636,9 @@ def api_uav_status():
     recent_found = False
 
     for r in rfscan_cur:
+        # ▼ ignora non-UAV (Wi‑Fi ecc.)
+        if not _is_uav_detection(r):
+            continue
         band = r.get("band") or "UNK"
 
         # prendi tile e timestamp (come fai in /api/detections)

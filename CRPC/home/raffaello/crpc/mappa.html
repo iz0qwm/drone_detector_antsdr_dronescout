@@ -542,16 +542,29 @@ window.addEventListener('DOMContentLoaded', () => {
       let lastTrackId = null;
       async function tick(){
         const det = await fetchJSON('/api/detections');
-        if(!det || !Array.isArray(det.detections) || det.detections.length===0){
+        const isUav = (d)=>{
+          const fam = (d.family||d.brand||'').toString().toUpperCase();
+          if (fam.includes('WIFI')) return false;
+          const badges = Array.isArray(d.badges) ? d.badges.map(x=>String(x).toLowerCase()) : [];
+          if (badges.includes('wifi80') || badges.includes('non-drone')) return false;
+          const lab = (typeof d.model==='object' && d.model?.label) ? String(d.model.label) : String(d.model||d.label||'');
+          if (lab.includes('Wi‑Fi') || lab.includes('Wi-Fi')) return false;
+          return true;
+        };
+
+        const all = (det && Array.isArray(det.detections)) ? det.detections : [];
+        const onlyUav = all.filter(isUav);
+
+        if(onlyUav.length===0){
           ringState.active = false;
           clearRing();
           const hud = document.getElementById('hud'); if(hud) hud.hidden = true;
-          const chip = document.getElementById('chipStatus'); if(chip) chip.textContent = 'in ascolto… (nessuna detection)';
+          const chip = document.getElementById('chipStatus'); if(chip) chip.textContent = 'in ascolto… (nessuna detection UAV)';
           setTimeout(tick, REFRESH_MS);
           return;
         }
 
-        const last = det.detections[det.detections.length-1];
+        const last = onlyUav[onlyUav.length-1];
         if(lastTrackId === last.track_id){ setTimeout(tick, REFRESH_MS); return; }
         lastTrackId = last.track_id;
 
