@@ -45,6 +45,11 @@
 #       quindi non finiscono nella dashboard/alert.
 #       Su 2.4 GHz, i panettoni larghi (≥ 45 MHz) non‑gated post‑trigger vengono zittiti in modo esplicito
 #
+#   --gate-max-expansion 1.8
+#       Se vuoi essere ancora più severo, abbassa --gate-max-expansion (es. 1.5)
+#
+#   (non mettere --gate-allow-wifi80 così da rifiutare i GATE “finti”)
+#
 # NB: Alcuni altri parametri esistono con default (es. --log-trim-mb, --dets-tail-kb),
 #     ma qui sono lasciati ai valori di default.
 #
@@ -219,9 +224,11 @@ def parse_args():
     # Gating dal trigger RFE
     p.add_argument("--gate-sec", type=float, default=3.0, help="Durata del gating post-trigger (s)")
     p.add_argument("--gate-center-mhz", type=float, default=12.0, help="Tolleranza sul centro rispetto a f0 del trigger (MHz)")
-    # Squelch: silenzia detections non‑gated per una finestra post‑trigger.
-    # Se non impostato, usa gate-sec.
-    p.add_argument("--squelch-after-trigger-s", type=float, default=None, help="Finestra (s) di silenziamento delle detections NON-GATE dopo un trigger")
+    # Squelch: silenzia detections non-gated per una finestra post-trigger (default = gate-sec).
+    p.add_argument("--squelch-after-trigger-s", type=float, default=None, help="Finestra (s) di silenziamento delle detections NON-GATE dopo un trigger (default = gate-sec)")
+    # Anti-falsi: vincola il gating quando il panettone è troppo ampio o è Wi-Fi 80 su 2.4
+    p.add_argument("--gate-max-expansion", type=float, default=1.8, help="Massimo rapporto bw_raw/clip_limit per accettare il gating (es. 1.8 = +80%)")
+    p.add_argument("--gate-allow-wifi80", action="store_true", default=False, help="Se presente, consente il gating anche se il segnale appare come Wi-Fi 80 su 2.4")
     return p.parse_args()
 
 args = parse_args()
@@ -281,16 +288,21 @@ def main():
             bw   = float(tr.get("bandwidth_mhz", 0.0))
             hop  = float(tr.get("hop_rate_mhz_s", 0.0))
 
+            # assegna bw_raw PRIMA di usarlo in qualunque euristica
+            bw_raw = bw
+
             if band in ("24","52","58"):
                 band_mem.mark(band)
             vts_bw_est = estimate_vts_bw_from_image(img, band, args.dets_tail_kb, ts_center=ts, max_lines=args.dets_tail_lines)
-            bw_raw = bw
             hint_used = False
             if vts_bw_est and vts_bw_est > bw_raw * 1.5:
                 bw_used = vts_bw_est
                 hint_used = True
             else:
                 bw_used = bw_raw
+
+            # ora possiamo valutare il candidato Wi-Fi 80 usando bw_raw
+            wifi80_candidate = is_wifi80_band24(band, bw_raw, hop)
 
             # --- GATING dal last_trigger.json (UNICO BLOCCO, migliorato con IoU) ---
             gate = {"active": False}
@@ -312,7 +324,16 @@ def main():
                     center_tol = max(args.gate_center_mhz, bw0 * GATE_CENTER_MULT)
                     delta_f = abs(f - f0)
                     iou = iou_1d(trk_lo, trk_hi, trig_lo, trig_hi)
-                    if delta_f <= center_tol and iou >= GATE_IOU_MIN:
+ 
+                    # Regole anti-falso per il gating
+                    reject_reason = None
+                    exp_ratio = (bw_raw / clip_limit) if clip_limit > 0 else 999.0
+                    if (wifi80_candidate and not args.gate_allow_wifi80 and band == "24"):
+                        reject_reason = "wifi80"
+                    elif exp_ratio > args.gate_max_expansion:
+                        reject_reason = f"expansion {exp_ratio:.2f}x>{args.gate_max_expansion:.2f}"
+
+                    if (reject_reason is None) and (delta_f <= center_tol) and (iou >= GATE_IOU_MIN):
                         if not hint_used:
                             bw_used = min(bw_used, clip_limit)
                         gate.update({
@@ -325,9 +346,10 @@ def main():
                         log(f"⛳ GATE T{tid} [{band}] dt={dt:.2f}s Δf={delta_f:.2f}MHz IoU={iou:.2f} "
                             f"f0={f0:.3f} bw0={bw0:.2f} clip<={clip_limit:.2f} bw_raw={bw_raw:.2f} → used={bw_used:.2f}")
                     else:
+                        why = f"reason={reject_reason}" if reject_reason else "thresholds"
                         log(f"🟡 Gate miss T{tid} [{band}] dt={dt:.2f}s (≤{args.gate_sec}?) "
                             f"Δf={delta_f:.2f} (≤{center_tol:.2f}?) IoU={iou:.2f} (≥{GATE_IOU_MIN}?) "
-                            f"bw0={bw0:.2f} bw={bw_used:.2f} (bw_for_iou={bw_for_iou:.2f} clip_limit={clip_limit:.2f})")
+                            f"bw0={bw0:.2f} bw={bw_used:.2f} (bw_for_iou={bw_for_iou:.2f} clip_limit={clip_limit:.2f} exp={exp_ratio:.2f}x) {why}")
   
             # Euristica Wi‑Fi 80 MHz su 2.4 (usa bw_raw pre-gate per non mascherare)
             soft_gate = False
@@ -339,11 +361,16 @@ def main():
                     soft_gate = (ga is not None and ga <= args.gate_sec and abs(f - f0) <= 1.5*center_tol)
                 except Exception:
                     pass
-
+            # Se è Wi-Fi80 candidato, non usare soft_gate per bloccare l'euristica Wi-Fi
+            if wifi80_candidate and not args.gate_allow_wifi80 and band == "24" and soft_gate:
+                log("↪︎ soft_gate disattivato per Wi-Fi80 candidate")
+                soft_gate = False
             # --- SQUELCH POST‑TRIGGER (silenzia non‑gated entro finestra) ---
             try:
                 squelch_win = args.squelch_after_trigger_s if args.squelch_after_trigger_s is not None else args.gate_sec
-                if gi and gi.get("band")==band and ga is not None and ga <= squelch_win and not (gate.get("active", False) or soft_gate):
+                # Rileggi il last_trigger con finestra = squelch_win (non con gate_sec)
+                gi2, ga2 = read_last_trigger(squelch_win)
+                if gi2 and gi2.get("band")==band and ga2 is not None and ga2 <= squelch_win and not (gate.get("active", False) or soft_gate):
                     # Caso specifico 2.4: panettoni larghi (Wi‑Fi‑like) → silenzia
                     if band == "24" and bw_raw >= 45.0:
                         log(f"🔇 Squelch post-trigger: T{tid} [{band}] f={f:.3f}MHz bw_raw={bw_raw:.2f} IoU miss → skip")
@@ -358,7 +385,7 @@ def main():
             except Exception:
                 pass
 
-            if is_wifi80_band24(band, bw_raw, hop) and not (gate.get("active", False) or soft_gate):
+            if wifi80_candidate and not (gate.get("active", False) or soft_gate):
 
                 pred = {
                     "ts": ts,
