@@ -51,6 +51,7 @@ Entrambi inviano i dati a un **cruscotto web** integrato e possono trasmettere l
 ├── waterfall_web.py      # Waterfall web
 /home/raffaello/dataset/  # Immagini YOLO per addestramento create dal sistema di apprendimento
 /home/raffaello/apprendimento/ # Sezione dedicata all'apprendimento del dataset. Immagazzinamento immagini waterfall
+/home/raffaello/rfe_bridge/ # Sezione dedicata al RF Explorer
 
 ```
 
@@ -184,9 +185,10 @@ python waterfall_web.py
 http://192.168.1.6:8080
 ```
 Mostra:
-- Waterfall e Spectrum RF
+- Waterfall (porta 8081) e Spectrum RF
 - Log in tempo reale
 - Immagini YOLO
+- Apprendimento (porta 8082)
 
 ---
 
