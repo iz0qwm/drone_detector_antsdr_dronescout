@@ -26,22 +26,32 @@ Entrambi inviano i dati a un **cruscotto web** integrato e possono trasmettere l
 
 ## 📦 Struttura del repository su Raspberry Pi
 
+### 1️⃣ Sistema ANTSDR E200 + DroneScout Bridge
 ```
-/home/pi/             # Sistema ANTSDR/DroneScout
-├── bridge_uploader.py
+/home/pi/                 # Sistema ANTSDR/DroneScout
+├── bridge_uploader.py    # Riceve dati dal tracker e dal remotetracke e li invia su firebase
 ├── start_all.sh / stop_all.sh
-├── static/           # Frontend mappa
-├── trackers/
-│   ├── dji_receiver.py
-│   └── service_controller.sh
-└── remotetrack/      # Bridge Remote ID modificato
+├── static/               # Frontend mappa
+├── trackers/             # Tracker per Drone ID, collegato ad AntSDR
+│   ├── dji_receiver.py   # Riceve dati da AntSDR
+│   └── service_controller.sh # Fa partire i servizi su AntSDR
+└── remotetrack/          # Bridge Remote ID modificato per inviare i dati al bridge_uploader
+```
 
+### 2️⃣ Sistema CRPC con HackRF ONE + RF Explorer
+```
 /home/raffaello/crpc  # Sistema CRPC
-├── rf_scan_classifier.py
-├── waterfall_web.py
-├── start_crpc / stop_crpc
-├── crpc_cleanup.sh
-└── dataset/          # Immagini YOLO per addestramento
+├── run_hackrf_iq.sh      # Per far partire la ricezione su HackRF ONE triggerato da RF Explorer
+├── rf_scan_classifier.py # Classificatore dei segnali, riceve sia da RF Explorer che controlla le immagini di HackRF ONE
+├── iq_to_tiles_cmap_arg.py # trasforma in immagini i dati IQ di HackRF ONE
+├── capability_classifier.py # Di supporto al classificatore per analizzare i segnali delle modulazioni dei droni
+├── spectral_tracker.py   # Valuta lo spettrogramma delle immagini (tiles) di HackRF ONE
+├── yolo_watcher.py       # Confronta le imamgini degli spettrogrammi (tiles) con quelle del dataset con YOLOv7  
+├── crpc_api.py           # Interfaccia web e api JSON del sistema CRPC 
+├── waterfall_web.py      # Waterfall web
+/home/raffaello/dataset/  # Immagini YOLO per addestramento create dal sistema di apprendimento
+/home/raffaello/apprendimento/ # Sezione dedicata all'apprendimento del dataset. Immagazzinamento immagini waterfall
+
 ```
 
 ---
