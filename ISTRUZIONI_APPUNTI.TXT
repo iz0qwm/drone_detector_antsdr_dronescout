@@ -302,6 +302,69 @@ Opzioni utili:
 
 --min-width-frac 0.01 impone una larghezza minima della banda (in frazione larghezza immagine).
 
---------------------------------
-ALLENARE CON NUOVI DATI
+---------------------------------------------
+COLLEGAMENTO ANTENNE PER PSEUDO-DOPPLER
+---------------------------------------------
 
+PIN MAPPING
+
+| Funzione               | Switch               | Segnale | GPIO (BCM) | Pin fisico | Note                                           |
+| ---------------------- | -------------------- | ------- | ---------- | ---------- | ---------------------------------------------- |
+| Antenna select bit 0   | **SP4T**             | S0      | **17**     | 11         | con pull-down                                  |
+| Antenna select bit 1   | **SP4T**             | S1      | **27**     | 13         | con pull-down                                  |
+| (opz) Enable           | **SP4T**             | EN      | **22**     | 15         | alto=abilitato; se il modulo non lo ha, ignora |
+| RFE ↔ HackRF           | **SPDT #1 (HMC849)** | H       | **23**     | 16         | 0=RFE, 1=HackRF                                |
+| Ingresso RFE 2.4 ↔ 5.x | **SPDT #2 (HMC849)** | B       | **24**     | 18         | 0=2.4, 1=5.x                                   |
+| (opz) LED stato        | —                    | LED     | **25**     | 22         | comodo per debug                               |
+
+
+Alimentazioni e masse:
+------------------------
+3V3 (pin 1/17) per la logica dei segnali.
+
+5V (pin 2/4) se i moduli degli switch richiedono alimentazione 5 V (molti la accettano).
+
+GND ben comune (pin 6/9/14/20/25/30/34/39).
+
+Metti resistenze in serie 100–330 Ω sui fili di controllo e attiva i pull-down interni: eviti commutazioni spurie al boot.
+
+Se uno dei moduli pretende logica 5 V in ingresso: usa un level shifter (anche un semplice NPN + pull-up a 5 V per linea va bene). Con HMC849 solitamente il “CTRL” accetta 3.3–5 V, quindi i GPIO a 3.3 V vanno bene.
+
+Tabella verità
+----------------
+SP4T (2 bit) — 4 patch N/E/S/O
+
+Se il tuo modulo ha ingressi S0/S1 “binary select” (tipico):
+
+| S1 | S0 | Antenna      |
+| -- | -- | ------------ |
+| 0  | 0  | **N** (0°)   |
+| 0  | 1  | **E** (90°)  |
+| 1  | 0  | **S** (180°) |
+| 1  | 1  | **O** (270°) |
+
+
+Se invece il tuo SP4T ha 4 ingressi separati CH1..CH4 “one-hot”, usa quattro GPIO (es. 17,27,22,23) e porta alto solo la linea del canale scelto (le altre basse).
+
+SPDT #1 — instradamento uscita verso RFE o HackRF
+
+H=0 → RFE
+
+H=1 → HackRF
+
+SPDT #2 — scelta dell’ingresso RFE
+
+B=0 → 2.4 GHz
+
+B=1 → 5.x GHz (5.2/5.8 secondo cablaggio)
+
+Schema a blocchi (posizioni PAD/BPF/LNA)
+4× Patch (N/E/S/O) → SP4T → [PAD 6–10 dB] → [LNA 10–20 dB]
+                                   │
+                                 SPDT#1 (H): 0=RFE, 1=HackRF
+                           ┌───────┴───────────┐
+                           │                   └─→ [PAD 3–10 dB] → HackRF
+                        SPDT#2 (B)
+                   0=2.4         1=5.x
+                   │                │
+             [BPF 2.4] → RFE IN2.4  [BPF 5.8] → RFE IN5.x
