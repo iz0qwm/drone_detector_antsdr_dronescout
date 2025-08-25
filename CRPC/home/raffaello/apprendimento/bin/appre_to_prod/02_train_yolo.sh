@@ -28,7 +28,9 @@ if [ -x "$YOLO_BIN" ]; then
     data="$DATA_YAML" model="$ARCH" \
     epochs="$EPOCHS" imgsz="$IMGSZ" batch="$BATCH" \
     project="$RUNS_DIR" name="$RUN_NAME" \
-    cache=True workers="$WORKERS" seed="$SEED"
+    cache=True workers="$WORKERS" seed="$SEED" \
+    degrees=0.0 shear=0.0 perspective=0.0 flipud=0.0 fliplr=0.0 \
+    hsv_h=0.0 hsv_s=0.0 hsv_v=0.0
 else
   # Fallback: API Python (funziona anche senza CLI)
   "$VENVPY" - "$DATA_YAML" "$RUNS_DIR" "$RUN_NAME" "$ARCH" "$EPOCHS" "$IMGSZ" "$BATCH" "$WORKERS" "$SEED" <<'PY'
@@ -44,3 +46,8 @@ print(f"== Done. Weights at: {runs_dir}/{run_name}/weights/best.pt")
 PY
 fi
 
+# --- AUTOPROMOTE: punta yolo_custom -> ultimo run che inizia per yolo_custom
+# Nota: Ultralytics può rinominare in yolo_custom2,3,4... se la cartella esiste già
+latest=$(ls -1dt "$RUNS_DIR"/yolo_custom* | head -n1)
+ln -sfn "$latest" "$RUNS_DIR/yolo_custom"
+echo "→ Promoted symlink: $RUNS_DIR/yolo_custom -> $latest"

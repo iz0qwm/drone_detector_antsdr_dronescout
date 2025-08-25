@@ -90,13 +90,13 @@ MIN_IOU_BW_MHZ   = 1.2     # banda minima per IoU quando narrow
 ADAPT_AFTER_S    = 6.0     # dopo quanto tempo dal trigger inizio ad adattare
 ADAPT_TAU_S      = 10.0    # costante di tempo per lo shrink
 
+VIDEO_IDS = derive_video_ids(CLASSMAP)
 HINT_TIME_S = float(os.environ.get("HINT_TIME_S", "45")) # se usi l'HINT temporale allarga la finestra
 # --- Config HINT/classi ---
 # Se RF_HINT_DISABLE_CLASS_FILTER=1, non filtrare per classe nei calcoli HINT
 HINT_DISABLE_CLASS_FILTER = os.environ.get("RF_HINT_DISABLE_CLASS_FILTER", "0") == "1"
 # Classi/nome ammessi per HINT (oltre a VIDEO_IDS); confrontati in lower(), separati da virgola
 HINT_NAME_ALLOW = os.environ.get("RF_HINT_NAME_ALLOW", "fpv analogico,fpv_analogico,analog").lower().split(",")
-
 
 BANDS = {
     "24": (2400.0, 2500.0),
@@ -151,7 +151,6 @@ def derive_video_ids(classmap):
     return vids or {"3","12"}
 
 
-VIDEO_IDS = derive_video_ids(CLASSMAP)
 
 
 

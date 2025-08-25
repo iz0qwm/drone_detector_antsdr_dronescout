@@ -40,6 +40,15 @@ ap.add_argument("--iq-format", type=str, default="auto", choices=["auto","u8","i
                 help="HackRF: u8 (offset). auto prova u8 e fallback a i8 se serve.")
 args = ap.parse_args()
 
+# scrivi span file per ciascuna banda che gestisci qui
+try:
+    # se lo script ha già la mappa delle FIFO/bande, per ogni banda scrivi lo stesso fs-view
+    for band in ("24","52","58"):
+        with open(f"/tmp/span_{band}.txt","w") as f:
+            f.write(str(int(args.fs_view)))
+except Exception:
+    pass
+    
 def build_orange_red():
     colors = [(1.00,0.95,0.75),(1.00,0.90,0.60),(1.00,0.75,0.30),(1.00,0.55,0.15),(0.90,0.20,0.05),(0.75,0.00,0.00)]
     return LinearSegmentedColormap.from_list("orange_to_red", colors, N=256)

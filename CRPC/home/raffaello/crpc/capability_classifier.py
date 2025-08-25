@@ -44,7 +44,7 @@ FAMS = {
     # Hubsan‑like (5.2 presente ma BW ≤ ~10 tipico)
     "HUBSAN": dict(s24=True, s52=False, s58=True, mu=9.0, sig=3.0,  peak=11.0, prior=0.10),
     # FPV Analogico ( Solo 5.8 BW di 3-4 MHz tipico )
-    "ANALOG":   dict(s24=False, s52=False, s58=True, mu=4.0, sig=4.0,  peak=6.0, prior=0.25),
+    "ANALOG":   dict(s24=False, s52=False, s58=True, mu=6.0, sig=6.0,  peak=14.0, prior=0.25),
     # Video WiFi 5GHz - Droni cinesi ( Solo 5.8 BW di 10 MHz tipico )
     "5GVIDEO":   dict(s24=False, s52=False, s58=True, mu=10.0, sig=3.0,  peak=12.0, prior=0.15),
     # Fallback Wi‑Fi (non drone)
