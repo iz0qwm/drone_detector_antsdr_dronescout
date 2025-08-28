@@ -35,6 +35,7 @@
     padding:4px 8px;border-radius:999px;color:var(--text);font-size:12px}
     .muted{color:var(--muted)}
 
+#drone_chips { max-height: 160px; overflow: auto; }
 </style>
 
 </head>
@@ -709,13 +710,23 @@
     async function yoloDeploy(){ const r = await post('/api/yolo_deploy'); log('prod_out', r); }
  
     document.addEventListener('DOMContentLoaded', () => {
-    refreshDroneIds();         // carica rubrica al load
-    wireDroneIdSync();         // collega sincronizzazione label
+        refreshDroneIds();         // carica rubrica al load
+        wireDroneIdSync();         // collega sincronizzazione label
+
+        document.getElementById('band')?.addEventListener('change', refreshDroneIds);
+        document.getElementById('spec_band')?.addEventListener('change', refreshDroneIds);
+
     });
 
     async function refreshDroneIds() {
     try{
-        const r = await fetch('/api/drone_ids');
+        // usa la banda selezionata, se presente (priorità a "band" della sezione Registra)
+        const bandSel = document.getElementById('band')?.value || "";
+        const specSel = document.getElementById('spec_band')?.value || "";
+        const band = bandSel || specSel; // una delle due, se impostata
+
+        const url = band ? `/api/drone_ids?band=${encodeURIComponent(band)}` : '/api/drone_ids';
+        const r = await fetch(url);
         const j = await r.json();
         if(!j.ok) return;
 
@@ -723,11 +734,11 @@
         const chips = document.getElementById('drone_chips');
         if(!dl || !chips) return;
 
-        // datalist
+        // datalist: tutti i nomi
         dl.innerHTML = j.ids.map(x => `<option value="${x.name}"></option>`).join('');
 
-        // top 10 recenti come chips
-        chips.innerHTML = j.ids.slice(0,10).map(x =>
+        // chips: TUTTI, ordinati già per last_ts (server side). Nessun slice().
+        chips.innerHTML = j.ids.map(x =>
         `<span class="chip" title="bande: ${x.bands.join(', ')} | sessioni: ${x.sessions}" onclick="pickDroneId('${x.name}')">🛰️ ${x.name}</span>`
         ).join('');
     }catch(e){ /* silenzio in UI */ }

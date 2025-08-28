@@ -76,7 +76,7 @@ LOG_PATH    = Path("/tmp/crpc_logs/assoc.log")
 
 DET_PATH        = Path("/tmp/crpc_logs/detections.jsonl")
 DET_HINT_PATH   = Path("/tmp/crpc_logs/detections_hint.jsonl")
-CLASSMAP_PATH   = Path("/home/raffaello/dataset/yolo_custom/classmap.json")
+CLASSMAP_PATH = Path("/home/raffaello/apprendimento/class_map.json")
 
 LAST_TRIGGER_JSON = Path("/tmp/crpc_logs/last_trigger.json")
 # nuovi parametri di gating
@@ -95,7 +95,11 @@ HINT_TIME_S = float(os.environ.get("HINT_TIME_S", "45")) # se usi l'HINT tempora
 # Se RF_HINT_DISABLE_CLASS_FILTER=1, non filtrare per classe nei calcoli HINT
 HINT_DISABLE_CLASS_FILTER = os.environ.get("RF_HINT_DISABLE_CLASS_FILTER", "0") == "1"
 # Classi/nome ammessi per HINT (oltre a VIDEO_IDS); confrontati in lower(), separati da virgola
-HINT_NAME_ALLOW = os.environ.get("RF_HINT_NAME_ALLOW", "fpv analogico,fpv_analogico,analog").lower().split(",")
+HINT_NAME_ALLOW = os.environ.get(
+    "RF_HINT_NAME_ALLOW",
+    "fpv analogico,fpv_analogico,analog,vts_digital"
+).lower().split(",")
+
 
 
 BANDS = {
@@ -103,6 +107,40 @@ BANDS = {
     "58": (5725.0, 5875.0),
     "52": (5170.0, 5250.0),
 }
+
+WIFI2G_CH_CENTERS = [2412 + 5*i for i in range(0, 13)]  # CH1..13  Canali Wifi
+CENTER_TOLERANCE = {"24": 6.0, "52": 10.0, "58": 10.0}  # MHz
+IOU_THRESHOLD    = {"24": 0.50, "52": 0.35, "58": 0.35}
+VOTES_REQUIRED   = {"24": (3,3), "52": (2,2), "58": (2,2)}  # (k/2) → 3/2 richiede 3 conferme a 2.4
+
+def is_wifi20_24(center_mhz: float, bw_mhz: float, tol_bw=3.0, tol_cf=2.0) -> bool:
+    if bw_mhz < 16.0 or bw_mhz > 24.0:
+        return False
+    # vicino a un centro canale Wi-Fi?
+    near_ch = any(abs(center_mhz - ch) <= tol_cf for ch in WIFI2G_CH_CENTERS)
+    return near_ch
+
+SUPPRESS_FILE = Path("/tmp/rfe/suppress_24.json")
+SUPPRESS_HOLD_S = 30.0
+SUPPRESS_CF_TOL = 12.0  # ±MHz attorno al centro “spento”
+
+def add_suppress_24(center_mhz: float, now=None):
+    now = now or time.time()
+    data = {"until_ts": now + SUPPRESS_HOLD_S, "center": center_mhz}
+    SUPPRESS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    SUPPRESS_FILE.write_text(json.dumps(data))
+
+def is_suppressed_24(center_mhz: float, now=None) -> bool:
+    now = now or time.time()
+    if not SUPPRESS_FILE.exists(): return False
+    try:
+        d = json.loads(SUPPRESS_FILE.read_text())
+        if now > float(d.get("until_ts", 0)): return False
+        return abs(center_mhz - float(d.get("center", 0.0))) <= SUPPRESS_CF_TOL
+    except Exception:
+        return False
+
+
 
 def now_str():
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -239,7 +277,13 @@ def estimate_vts_bw_from_image(track_img, band_key, tail_kb, ts_center=None, max
                     if (not is_video) and name_l:
                         is_video = any(tok.strip() and tok.strip() in name_l for tok in HINT_NAME_ALLOW)
                     if not is_video:
-                        continue
+                        # fallback prudente su 2.4/5.2: se abbiamo una larghezza esplicita, accetta
+                        if str(band_key) in ("24","52"):
+                            w_mhz_try = float(d.get("w_mhz") or 0.0)
+                            if w_mhz_try > 0:
+                                is_video = True
+                        if not is_video:
+                            continue
 
                 # --- preferisci w_mhz, altrimenti ricava da w*span ---
                 w_mhz = float(d.get("w_mhz") or 0.0)
@@ -364,6 +408,7 @@ def _label_from_family(fam):
     if fam == "HUBSAN": return "Hubsan LEAS"
     if fam == "AUTEL": return "Autel Skylink"
     if fam == "ANALOG": return "ANALOG video"
+    if fam == "CADDX": return "Caddx digital video"
     if fam == "5GVIDEO": return "5GHz Video"
     if fam == "WIFI":   return "Wi‑Fi"
     return fam or "unknown"
@@ -379,6 +424,7 @@ def main():
     last_seen = {}
     seen_img_ts = {}
     bw_hist = defaultdict(lambda: deque(maxlen=12))
+    wifi_hits_by_tid = defaultdict(int)
 
     print("🔎 RF scan classifier (capability-first) avviato…", flush=True)
     while True:
@@ -510,7 +556,15 @@ def main():
             wifi80_candidate = is_wifi80_band24(band, bw_raw, hop)
 
             # ====== CAPABILITY PRIMA DEL GATE ======
-            bw_hist[tid].append(float(bw_used))
+            # Per la capability usiamo una BW "robusta": max(used, bw0 del trigger recente)
+            bw_cap = bw_used
+            try:
+                # riusa i valori già calcolati in testa (focus trigger)
+                if band == (band_focus or "") and (ga_focus is not None) and ga_focus <= args.gate_sec and (bw0_focus or 0.0) > 0:
+                    bw_cap = max(bw_used, float(bw0_focus))
+            except Exception:
+                pass
+            bw_hist[tid].append(float(bw_cap))
             seen = band_mem.get_seen()
             cap_out = cap.classify(list(bw_hist[tid]), seen)
             cap_family = cap_out["family"]
@@ -673,6 +727,12 @@ def main():
                 score = min(0.99, score + 0.10)
             src = "capability+peaks" if mp else "capability"
 
+            if band == "24" and label == "Wi-Fi":
+                wifi_hits_by_tid[tid] += 1
+                if wifi_hits_by_tid[tid] >= 2:
+                    add_suppress_24(f)
+                    log(f"🔕 [24] suppress 30s @ {f:.2f} MHz per Wi-Fi confermato")
+
             pred = {
                 "ts": ts, "track_id": tid, "band": band, "img": img,
                 "center_freq_mhz": round(f,3), "bandwidth_mhz": round(bw,3),
@@ -704,7 +764,7 @@ def main():
             peaks_msg = f" peaks={mp.get('n_peaks')} pk={mp.get('peakiness'):.1f}" if mp else ""
             log(f"✅ RFscan T{tid} [{band}] {f:.3f}MHz bw_raw={bw:.3f} used={bw_used:.3f}"
                 + (" +hint" if hint_used else "")
-                + f" → {label} ({src} {pred['score']:.2f}) — seen={sorted(list(seen))} bw_p95={bw_p95:.1f} bw_max={bw_max:.1f}{peaks_msg}"
+                + f" → {label} ({src} {pred['score']:.2f}) — seen={sorted(list(seen))} cap_bw_p95={bw_p95:.1f} bw_max={bw_max:.1f}{peaks_msg}"
                 + (f" Δf={delta_f:.2f}MHz" if delta_f is not None else "")
                 + (" [GATE]" if gate.get('active') else ""))
 

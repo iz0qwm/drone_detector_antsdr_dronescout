@@ -370,7 +370,7 @@ def run_cmd_logged(cmd, log_name):
 def api_make_yolo_dataset():
     base = str(DATA / "recordings")
     out  = str(YOLO_DATASET)
-    cmd = [PY, str(APP_ROOT/"bin"/"appre_to_prod"/"01_make_yolo_from_recordings.py"), "--base", base, "--out", out]
+    cmd = [PY, str(APP_ROOT/"bin"/"appre_to_prod"/"01_make_yolo_from_recordings.py"), "--base", base, "--out", out, "--stratified"]
     res = run_cmd_logged(cmd, "01_make_yolo")
     ok = (res["rc"] == 0)
     return jsonify(ok=ok, **res), (200 if ok else 500)
@@ -398,10 +398,10 @@ def api_yolo_train():
 
 @app.post("/api/yolo_classmap")
 def api_yolo_classmap():
-    data_yaml = str(YOLO_DATASET / "data.yaml")
+    #data_yaml = str(YOLO_DATASET / "data.yaml")
     run_dir = _effective_run_dir()  # NEW
-    out_json  = str(run_dir / "classmap.json")
-    cmd = [PY, str(APP_ROOT/"bin"/"appre_to_prod"/"02b_make_classmap.py"), data_yaml, out_json]
+    #out_json  = str(run_dir / "classmap.json")
+    cmd = [PY, str(APP_ROOT/"bin"/"appre_to_prod"/"02b_make_classmap.py")]
     res = run_cmd_logged(cmd, "02b_classmap")
     ok = (res["rc"] == 0)
     return jsonify(ok=ok, run_dir=str(run_dir), **res), (200 if ok else 500)

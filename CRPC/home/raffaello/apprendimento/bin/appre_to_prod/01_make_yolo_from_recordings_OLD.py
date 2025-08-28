@@ -87,42 +87,10 @@ def collect_sessions(base: Path, prefer_order, class_map):
     return items
 
 def train_val_split(items, split=0.85, seed=1337):
-    """Legacy non-stratified split (kept for compatibility)."""
     random.Random(seed).shuffle(items)
     n = len(items)
     n_tr = int(round(n * split))
     return items[:n_tr], items[n_tr:]
-
-def train_val_split_stratified(items, split=0.85, seed=1337, min_val_per_class=1):
-    """Stratified train/val split by class (items are tuples (img_path, class_name, session_dir)).
-    Guarantees >= min_val_per_class in val for classes with at least (min_val_per_class+1) items.
-    If a class has only 1 item, it stays in train (warn) to avoid losing the class from training.
-    """
-    by_cls = {}
-    for it in items:
-        cls = it[1]
-        by_cls.setdefault(cls, []).append(it)
-    rng = random.Random(seed)
-    train, val = [], []
-    warnings = []
-    # First, per-class allocation
-    for cls, lst in by_cls.items():
-        rng.shuffle(lst)
-        n = len(lst)
-        n_val_target = max(min_val_per_class if n > min_val_per_class else 0, int(round(n * (1.0 - split))))
-        # clip so we don't move all items to val (keep at least 1 in train when n>=2)
-        if n >= 2:
-            n_val = min(max(n_val_target, min_val_per_class), n-1)
-        else:
-            n_val = 0
-            warnings.append(f"Class '{cls}' has only {n} sample → val gets 0; consider adding examples.")
-        val.extend(lst[:n_val])
-        train.extend(lst[n_val:])
-    # Shuffle final splits for randomness
-    rng.shuffle(train); rng.shuffle(val)
-    # Attach warnings to function attribute for printing
-    train_val_split_stratified._warnings = warnings
-    return train, val
 
 def save_yolo_example(dst_img, dst_lbl, img_src, bbox, cls_idx):
     dst_img.parent.mkdir(parents=True, exist_ok=True)
@@ -142,8 +110,6 @@ def main():
     ap.add_argument("--kstd", type=float, default=2.0, help="(kept for compatibility)")
     ap.add_argument("--min-width-frac", type=float, default=0.02, help="Min band width fraction if meta missing")
     ap.add_argument("--fs-view-mhz", type=float, default=-1.0, help="Override fs_view (MHz). If <=0, use min(meta.bw_mhz,1.2).")
-    ap.add_argument("--stratified", action="store_true", help="Use stratified split per class with min val per class")
-    ap.add_argument("--min-val-per-class", type=int, default=1, help="Minimum samples per class in val if possible")
     args = ap.parse_args()
 
     base = Path(args.base).expanduser()
@@ -162,12 +128,7 @@ def main():
     classes = sorted({c for _, c, _ in items})
     class_to_idx = {c:i for i,c in enumerate(classes)}
 
-    train_items, val_items = (train_val_split_stratified(items, split=args.split, seed=1337, min_val_per_class=args.min_val_per_class) if args.stratified else train_val_split(items, split=args.split))
-
-    # print warnings if any
-    if args.stratified:
-        for w in getattr(train_val_split_stratified, '_warnings', []):
-            print('[STRATIFY]', w)
+    train_items, val_items = train_val_split(items, split=args.split)
 
     (out / "images" / "train").mkdir(parents=True, exist_ok=True)
     (out / "images" / "val").mkdir(parents=True, exist_ok=True)

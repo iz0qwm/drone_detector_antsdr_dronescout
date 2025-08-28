@@ -10,7 +10,6 @@ PROC_DIR  = Path("/tmp/tiles_proc")
 DONE_DIR  = Path("/tmp/tiles_done")
 LOG_DIR   = Path("/tmp/crpc_logs")
 DET_OUT   = LOG_DIR / "detections.jsonl"
-#CLASSMAP_PATH = Path("/home/raffaello/dataset/rf_fingerprint/yolo_classmap.json")
 CLASSMAP_PATH = Path("/home/raffaello/apprendimento/class_map.json")
 
 PRE_DIR = Path("/tmp/tiles_pre")
@@ -25,8 +24,12 @@ LOG_OWNER  = os.getenv("YOLOW_LOG_OWNER", "raffaello:raffaello")  # opzionale "u
 # --- HINT output (soglia più bassa per stimatori) ---
 HINT_OUT    = LOG_DIR / "detections_hint.jsonl"
 HINT_CONF   = float(os.getenv("YOLOW_HINT_CONF", "0.05"))
-# Nomi classe separati da virgola. Usa quelli del tuo class_map.json (prima della normalizzazione)
-HINT_CLASSES = os.getenv("YOLOW_HINT_CLASSES", "FPV_analogico,FPV_analogicos")
+# Nomi classe separati da virgola (dopo norm_name)
+HINT_CLASSES = os.getenv(
+    "YOLOW_HINT_CLASSES",
+    "FPV_analogico,FPV_analogicos,VTS_digital"
+)
+
 
 
 # ---- util ----
@@ -147,7 +150,7 @@ BY_ID = {str(k): v for k, v in CLASSMAP.get("by_id", {}).items()}
 #YOLO_CMD = (
 #  f"{shlex.quote(sys.executable)} /home/raffaello/scripts/predict_yolo.py "
 #  "--model /home/raffaello/yolo_runs/rf_yolo3/weights/best.pt "
-#  "--data /home/raffaello/dataset/yolo_vision/data.yaml "
+#  "--data /home/raffaello/dataset/yolo_custom/data.yaml "
 #  "--source {img} "
 #  "--conf 0.05 --imgsz 640 "
 #  "--project /tmp/yolo_runs --name crpc_watch --no-save-img"
@@ -355,6 +358,11 @@ def main():
                         d["name"] = norm_name(d.get("cls_name") or "")
                     except Exception:
                         d["name"] = ""
+
+                    # ⛳️ Plausibilità per banda: “FPV analogico” non esiste su 2.4/5.2
+                    name_l = d["name"].lower()
+                    if band in ("24","52") and ("fpv analogico" in name_l or "FPV_analogico" in name_l or "analog" == name_l):
+                        d["name"] = "VTS_digital"  # etichetta neutra per gli hint
 
                     # calcolo w_mhz e freq_mhz se abbiamo abbastanza info
                     try:

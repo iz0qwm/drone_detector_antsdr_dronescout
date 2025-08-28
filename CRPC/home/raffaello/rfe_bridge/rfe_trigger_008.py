@@ -8,6 +8,8 @@ import sys
 
 # === Config ===
 RFE_DIR = Path("/tmp/rfe/scan")
+CRCP_LOG_DIR = Path("/tmp/crpc_logs")
+TRIG_JSON = CRCP_LOG_DIR / "last_trigger.json"
 TRIGGER_FIFO = Path("/tmp/hackrf_trigger.fifo")
 STATE_FILE = Path("/tmp/rfe_trigger_state.json")
 LOG_PATH = Path(os.getenv("RFE_LOG", "/tmp/crpc_logs/rfe_trigger.log"))
@@ -31,10 +33,28 @@ def envb(k, d=False):
     v = (os.getenv(k) or "").lower()
     return d if v=="" else v in ("1","true","yes","on")
 
-PEAK_DB_ABOVE_FLOOR = envf("RFE_PEAK_DB", 4.0)     # dB sopra rumore
+# Soglie SNR per banda (dB sopra floor)
+PEAK_DB_ABOVE_FLOOR = envf("RFE_PEAK_DB", 4.0)     # dB sopra rumore 
+PEAK_DB_ABOVE_FLOOR_24 = envf("RFE_PEAK_DB_24", 5)   # più severo a 2.4 (meno Wi-Fi)
+PEAK_DB_ABOVE_FLOOR_58 = envf("RFE_PEAK_DB_58", 3.5)   # un filo più permissivo a 5.8
 MIN_CONSEC_SWEEPS   = envi("RFE_MIN_SWEEPS", 2)    # persistenza
-MERGE_BIN_HZ   = envf("RFE_MERGE_HZ", 2.0e6)   # > 0.766 MHz per fondere i bin adiacenti = 2MHz
-MIN_BLOB_BW_HZ = envf("RFE_MIN_BW_HZ", 8.0e6)  # solo segnali larghi (video) 8MHz
+
+# Consenti di fondere picchi separati ~3 MHz (tipico O3 10 MHz con 3-4 spike)
+#MERGE_BIN_HZ   = envf("RFE_MERGE_HZ", 2.0e6)   # > 0.766 MHz per fondere i bin adiacenti = 2MHz
+MERGE_BIN_HZ   = envf("RFE_MERGE_HZ", 3.0e6)
+
+
+# Considera valido un blob “video” già da 6 MHz (un 10 MHz “imperfetto” lo supera comunque)
+#MIN_BLOB_BW_HZ = envf("RFE_MIN_BW_HZ", 8.0e6)  # solo segnali larghi (video) 8MHz
+MIN_BLOB_BW_HZ = envf("RFE_MIN_BW_HZ", 6.0e6)
+
+# Limita le larghezze candidate (anti-falsi "Wi-Fi aggregate")
+MAX_BLOB_BW_HZ = 32.0e6     # hard cap globale
+# Cap larghezza per banda (anti Wi-Fi aggregate)
+MAX_BLOB_BW_24_HZ = envf("RFE_MAX_BW_24_HZ", 22.0e6)  # ↓ da 22 MHz
+#MAX_BLOB_BW_24_HZ = envf("RFE_MAX_BW_24_HZ", 2.0e7)  # ↓ da 20 MHz
+MAX_BLOB_BW_58_HZ = envf("RFE_MAX_BW_58_HZ", 30.0e6)  # invariato
+
 MAX_TRIGGERS_PER_MIN= envi("RFE_MAX_TPM", 4)
 COOLDOWN_S          = envf("RFE_COOLDOWN_S", 15)
 HIST_SWEEPS         = envi("RFE_HIST_SWEEPS", 20)
@@ -43,9 +63,35 @@ DEBUG               = envb("RFE_DEBUG", True)
 SAME_BLOB_DEBOUNCE_S = float(os.getenv("RFE_SAME_BLOB_DEBOUNCE_S", 12))
 last_blob = {b: None for b in BANDS}
 # Persistenza "fuzzy"
-OVERLAP_FRAC    = envf("RFE_OVERLAP_FRAC", 0.35)  # soglia di sovrapposizione (IoU) 0..1
-CENTER_TOL_MHZ  = envf("RFE_CENTER_TOL_MHZ", 10.0)  # tolleranza alternativa sul centro (MHz)
-PERSIST_WINDOW = envi("RFE_PERSIST_WINDOW", 5)  # nuove: ultime N sweep
+#OVERLAP_FRAC    = envf("RFE_OVERLAP_FRAC", 0.35)  # soglia di sovrapposizione (IoU) 0..1
+#CENTER_TOL_MHZ  = envf("RFE_CENTER_TOL_MHZ", 10.0)  # tolleranza alternativa sul centro (MHz)
+#PERSIST_WINDOW = envi("RFE_PERSIST_WINDOW", 5)  # nuove: ultime N sweep
+
+# Persistenza fuzzy un filo più permissiva
+OVERLAP_FRAC    = envf("RFE_OVERLAP_FRAC", 0.30)
+CENTER_TOL_MHZ  = envf("RFE_CENTER_TOL_MHZ", 10.0)
+PERSIST_WINDOW  = envi("RFE_PERSIST_WINDOW", 6)
+
+# Tolleranze di centro/IoU per banda (fallback di persistenza)
+CENTER_TOL_24 = envf("RFE_CENTER_TOL_24", 8.0)
+CENTER_TOL_58 = envf("RFE_CENTER_TOL_58", 12.0)
+OVERLAP_FRAC_24 = envf("RFE_IOU_24", 0.40)            # ↑ da 0.30 → 0.35
+OVERLAP_FRAC_58 = envf("RFE_IOU_58", 0.30)
+
+# Ponte tra isole di picchi (single-link):
+BRIDGE_MAX_HZ_DEFAULT   = 5.5e6   # default per 2.4
+BRIDGE_MAX_HZ_24        = 5.5e6   # O3 a 10/20 MHz spesso ha spike 3–5 MHz
+BRIDGE_MAX_HZ_58        = 4.0e6   # a 5.8 facciamo più severo (meno falsi)
+
+# Picchi minimi nel blob:
+MIN_PEAKS_PER_BLOB_DEF  = 3
+# Picchi minimi per blob (per banda)
+MIN_PEAKS_PER_BLOB_24 = envi("RFE_MIN_PEAKS_24", 5)   # ↑ da 3 → 4 a 2.4
+MIN_PEAKS_PER_BLOB_58 = envi("RFE_MIN_PEAKS_58", 3)   # ↓ da 4 → 3 a 5.8
+
+# Finestra "golden" 5.8: forziamo bootstrap
+GOLDEN_58_LO = envf("RFE_58_WIN_LO", 5771.0)
+GOLDEN_58_HI = envf("RFE_58_WIN_HI", 5791.0)
 
 # Stato in RAM
 history = {b: deque(maxlen=HIST_SWEEPS) for b in BANDS}
@@ -57,6 +103,52 @@ trigger_count = deque(maxlen=120)  # timestamps
 
 CSV_FREQ_KEYS = ("freq_mhz","frequency","freq","mhz","freqmhz","center_mhz","center")
 CSV_DBM_KEYS  = ("power_dbm","dbm","amp_dbm","amp","amplitude","power","db")
+
+# --- AGGIUNGI IN CIMA vicino alle altre costanti ---
+FOCUS_FILE = Path("/tmp/rfe/focus.json")
+FOCUS_HOLD_S = float(os.getenv("RFE_FOCUS_HOLD_S", "8"))
+FOCUS_HOLD_GOLDEN_S = float(os.getenv("RFE_FOCUS_HOLD_GOLDEN_S", "12"))
+
+SUPPRESS_FILE = Path("/tmp/rfe/suppress_24.json")
+SUPPRESS_HOLD_S = 30.0
+SUPPRESS_CF_TOL = 12.0  # ±MHz attorno al centro “spento”
+# --- Wi-Fi 2.4 helpers + suppress window ---
+WIFI2G_CH_CENTERS = [2412 + 5*i for i in range(0, 13)]  # CH1..13
+
+def is_wifi20_24(center_mhz: float, bw_mhz: float, tol_bw=3.0, tol_cf=2.0) -> bool:
+    if bw_mhz < 16.0 or bw_mhz > 24.0:
+        return False
+    near_ch = any(abs(center_mhz - ch) <= tol_cf for ch in WIFI2G_CH_CENTERS)
+    return near_ch
+
+def add_suppress_24(center_mhz: float, now=None):
+    now = now or time.time()
+    data = {"until_ts": now + SUPPRESS_HOLD_S, "center": center_mhz}
+    SUPPRESS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    SUPPRESS_FILE.write_text(json.dumps(data))
+
+def is_suppressed_24(center_mhz: float, now=None) -> bool:
+    now = now or time.time()
+    if not SUPPRESS_FILE.exists(): return False
+    try:
+        d = json.loads(SUPPRESS_FILE.read_text())
+        if now > float(d.get("until_ts", 0)): return False
+        return abs(center_mhz - float(d.get("center", 0.0))) <= SUPPRESS_CF_TOL
+    except Exception:
+        return False
+
+
+
+def _write_focus(band, hold_s):
+    try:
+        FOCUS_FILE.parent.mkdir(parents=True, exist_ok=True)
+        payload = {"band": str(band), "until_ts": time.time() + float(hold_s)}
+        FOCUS_FILE.write_text(json.dumps(payload))
+        try: os.chmod(FOCUS_FILE, 0o666)
+        except Exception: pass
+        if DEBUG: print(f"🎯 focus set → {payload}")
+    except Exception as e:
+        if DEBUG: print(f"focus write error: {e}")
 
 def blob_interval_mhz(blob):
     # usa i capi del blob (più robusto del centro stimato)
@@ -144,22 +236,21 @@ def read_latest_csv(band):
     return None
 
 
-def estimate_floor_dB(bins):
+def estimate_floor_dB(bins, band=None):
     """
-    Floor per-bin. Se la storia è sufficiente, usa mediana+0.5*MAD sui bin storici.
-    Altrimenti usa una baseline locale sullo sweep corrente (mediana mobile + quantile).
+    Floor per-bin. Se la storia è sufficiente, usa mediana+0.5*MAD sui bin storici
+    **della stessa banda**. Altrimenti usa baseline locale sul singolo sweep.
     """
     n = len(bins)
-    # 1) Se abbiamo abbastanza storia e i bin sono stabili, usa lo schema storico
-    have_hist = sum(len(sw) for sw in history.values()) >= 5
+    # 1) Se abbiamo abbastanza storia per **questa banda**, usa lo schema storico
+    have_hist = band in history and len(history[band]) >= 5
     if have_hist:
         per_bin = defaultdict(list)
-        for sweeps in history.values():
-            for sweep in sweeps:
-                if len(sweep) != n:
-                    continue  # salta sweep non allineati
-                for i, (_, db) in enumerate(sweep):
-                    per_bin[i].append(db)
+        for sweep in history[band]:
+            if len(sweep) != n:
+                continue  # salta sweep non allineati
+            for i, (_, db) in enumerate(sweep):
+                per_bin[i].append(db)
         floor = []
         for i, (_, cur_db) in enumerate(bins):
             v = per_bin.get(i)
@@ -172,8 +263,7 @@ def estimate_floor_dB(bins):
         return floor
 
     # 2) Nessuna/povera storia: baseline locale sul singolo sweep
-    #    a) mediana mobile (finestra dispari W) per abbassare i picchi
-    W = 9  # ampiezza finestra (≈ smoothing leggero)
+    W = 9
     half = W // 2
     series = [db for _, db in bins]
     mm = []
@@ -181,44 +271,69 @@ def estimate_floor_dB(bins):
         a = max(0, i - half)
         b = min(n, i + half + 1)
         mm.append(stats.median(series[a:b]))
-
-    #    b) quantile globale “basso”: se lo sweep è piatto, usarlo come tetto del floor
     qs = sorted(series)
     q25 = qs[max(0, int(0.25 * (n - 1)))] if n else -100.0
-
-    #    c) floor finale: prendi il min tra mediana mobile e q25+1dB (così i picchi restano sopra)
-    floor = [min(m, q25 + 1.0) for m in mm]
+    floor = [min(m, q25 + 0.5) for m in mm]
     return floor
+
 
 
 def blobs_from_peaks(bins, floor, band=None):
     # individua bin sopra soglia
     over = []
+    # soglia per banda (5.x più severa)
+    if band == "24":
+        thr = max(PEAK_DB_ABOVE_FLOOR, PEAK_DB_ABOVE_FLOOR_24)
+    elif band == "58":
+        thr = max(PEAK_DB_ABOVE_FLOOR, PEAK_DB_ABOVE_FLOOR_58)
+    elif band == "52":
+        thr = max(PEAK_DB_ABOVE_FLOOR, 4.0)
+    else:
+        thr = PEAK_DB_ABOVE_FLOOR
     for (f, db), fl in zip(bins, floor):
-        if db >= fl + PEAK_DB_ABOVE_FLOOR:
+        if db >= fl + thr:
             over.append((f, db))
     if not over:
         return []
 
-    # Merge: usa il max tra MERGE_BIN_HZ impostato e 1.3×spacing misurato
     spacing = bin_spacing_hz(bins)
-    merge_hz_eff = max(MERGE_BIN_HZ, 1.3 * spacing)
+    merge_hz_eff = max(MERGE_BIN_HZ, 1.6 * spacing)
+
+    # Parametri per banda
+    bridge_max_hz = BRIDGE_MAX_HZ_DEFAULT
+    min_peaks_req = MIN_PEAKS_PER_BLOB_DEF
+    if band == "24":
+        bridge_max_hz = BRIDGE_MAX_HZ_24
+        min_peaks_req = MIN_PEAKS_PER_BLOB_24
+    elif band in ("52","58"):
+        bridge_max_hz = BRIDGE_MAX_HZ_58
+        min_peaks_req = MIN_PEAKS_PER_BLOB_58
+
 
     blobs, cur = [], [over[0]]
+    last_f = over[0][0]
     for f, db in over[1:]:
-        if (f - cur[-1][0]) * 1e6 <= merge_hz_eff:
+        gap_hz = (f - last_f) * 1e6
+        if gap_hz <= merge_hz_eff or gap_hz <= bridge_max_hz:
             cur.append((f, db))
         else:
             blobs.append(cur); cur = [(f, db)]
+        last_f = f
     blobs.append(cur)
 
-    # larghezza minima
+
+
     filtered = []
     for b in blobs:
         fspan_hz = (b[-1][0] - b[0][0]) * 1e6
-        if fspan_hz >= MIN_BLOB_BW_HZ:
+        min_bw = MIN_BLOB_BW_HZ
+        if band in ("52","58"):
+            min_bw = max(min_bw, 8.0e6)
+        if fspan_hz >= min_bw and len(b) >= min_peaks_req:
             filtered.append(b)
     return filtered
+
+
 
 
 def blob_to_params(blob):
@@ -251,6 +366,26 @@ def rate_limit_ok():
     while trigger_count and now - trigger_count[0] > 60:
         trigger_count.popleft()
     return (len(trigger_count) < MAX_TRIGGERS_PER_MIN)
+
+
+def write_last_trigger_json(band, f0_mhz, bw_hz):
+    try:
+        payload = {
+            "band": str(band),
+            "f0_mhz": round(float(f0_mhz), 3),
+            "bw_hz": int(bw_hz),
+            "ts_iso": datetime.utcnow().isoformat()+"Z",
+            "ts_epoch": time.time()
+        }
+        CRCP_LOG_DIR.mkdir(parents=True, exist_ok=True)
+        with open(TRIG_JSON, "w") as jf:
+            json.dump(payload, jf)
+        try: os.chmod(TRIG_JSON, 0o664)
+        except Exception: pass
+        print(f"📝 last_trigger.json scritto: {payload}")
+    except Exception as e:
+        print(f"⚠️  write_last_trigger_json errore: {e}")
+
 
 def send_trigger(band, f0_mhz, bw_hz, hold_s=10):
     if not TRIGGER_FIFO.exists():
@@ -369,7 +504,7 @@ def main():
             history[band].append(rows)
 
             # floor + blob sullo sweep corrente
-            floor = estimate_floor_dB(rows)
+            floor = estimate_floor_dB(rows, band)
             blobs = blobs_from_peaks(rows, floor)
 
             now = time.time()
@@ -382,12 +517,14 @@ def main():
                 continue
 
             # === Persistenza fuzzy: confronta per sovrapposizione tra sweep ===
-            # Per ogni sweep in memoria, calcola floor “vero” di quello sweep e i suoi blob
+            # usa SOLO gli sweep PRECEDENTI (niente auto-voto del corrente)
+            hist_list = list(history[band])[:-1]
             sweeps_intervals = []
-            for sweep in history[band]:
-                fl_sweep = estimate_floor_dB(sweep)                # <<< FIX QUI
-                bl_sweep = blobs_from_peaks(sweep, fl_sweep)       # <<< FIX QUI
+            for sweep in hist_list:
+                fl_sweep = estimate_floor_dB(sweep, band)
+                bl_sweep = blobs_from_peaks(sweep, fl_sweep, band=band)
                 sweeps_intervals.append([blob_interval_mhz(b) for b in bl_sweep])
+
 
             # preferisci i video larghi
             blobs.sort(key=lambda b: (b[-1][0] - b[0][0]), reverse=True)
@@ -397,36 +534,96 @@ def main():
                 cand_int = blob_interval_mhz(b)
                 cand_c, cand_w = blob_center_width_mhz(b)
 
+                # Reject per larghezza eccessiva (tipico Wi-Fi aggregato)
+                max_bw = MAX_BLOB_BW_HZ
+                if band == "24":
+                    max_bw = min(max_bw, MAX_BLOB_BW_24_HZ)
+                elif band in ("52","58"):
+                    max_bw = min(max_bw, MAX_BLOB_BW_58_HZ)
+
+                if cand_w * 1e6 > max_bw:
+                    if DEBUG:
+                        print(f"[{band}] skip cand: bw troppo ampia {cand_w:.2f} MHz > {max_bw/1e6:.1f} MHz")
+                    continue
+
+                if band == "24" and is_suppressed_24(cand_c):
+                    if DEBUG: print(f"🔇 [24] suppress window attiva su ~{cand_c:.2f} MHz → skip")
+                    continue
+
+                if band == "24" and is_wifi20_24(cand_c, cand_w):
+                    if DEBUG:
+                        print(f"🛑 [24] skip cand Wi-Fi20-like: f0={cand_c:.3f} bw≈{cand_w:.2f} (vicino canale Wi-Fi)")
+                    continue
+
+                # ✅ ACCETTAZIONE IMMEDIATA IN GOLDEN WINDOW 5.8
+                if band == "58" and (GOLDEN_58_LO <= cand_c <= GOLDEN_58_HI):
+                    # opzionale: sanity su larghezza
+                    if 8.0 <= cand_w <= 30.0:
+                        f0, bw = blob_to_params(b)
+                        candidate = (f0, bw)
+                        print(f"🎯 [58] GOLDEN window hit: f0≈{cand_c:.3f}MHz bw≈{cand_w:.2f}MHz → trigger immediato")
+                        break
+
                 votes = 0
                 recent = sweeps_intervals[-PERSIST_WINDOW:] if PERSIST_WINDOW > 0 else sweeps_intervals
+
+                # conta quanti sweep recenti hanno almeno un blob
+                nonempty = sum(1 for ints in recent if ints)
+
+                # per-band IoU/center tol
+                base_center_tol = CENTER_TOL_58 if band in ("58","52") else CENTER_TOL_24
+                iou_needed = OVERLAP_FRAC_58 if band in ("58","52") else OVERLAP_FRAC_24
+
                 for ints in recent:
                     hit = False
-                    # 1) voto per IoU (sovrapposizione relativa)
+                    # 1) voto per IoU
                     for itv in ints:
-                        if interval_iou(cand_int, itv) >= OVERLAP_FRAC:
+                        if interval_iou(cand_int, itv) >= iou_needed:
                             hit = True
                             break
-                    # 2) fallback: tolleranza sul centro (ampiezza non troppo diversa)
-                    if (not hit) and CENTER_TOL_MHZ > 0:
+                    # 2) fallback: tolleranza sul centro (dipende da banda e ampiezza)
+                    if (not hit) and base_center_tol > 0:
                         for itv in ints:
                             ic = 0.5*(itv[0] + itv[1]); iw = (itv[1] - itv[0])
-                            dyn_tol = max(CENTER_TOL_MHZ, 0.5*max(cand_w, iw))  # tolleranza che cresce con la larghezza
+                            dyn_tol = max(base_center_tol, 0.5*max(cand_w, iw))
                             if abs(cand_c - ic) <= dyn_tol and min(cand_w, iw)/max(cand_w, iw) >= 0.3:
                                 hit = True
                                 break
                     votes += 1 if hit else 0
 
-                # Candidato con voti (persistenza)
-                print(
-                    f"🧪 [{band}] cand f0={cand_c:.3f}MHz bw≈{cand_w:.2f}MHz  "
-                    f"🗳️ {votes}/{MIN_CONSEC_SWEEPS}  (IoU≥{OVERLAP_FRAC:.2f} | ±{CENTER_TOL_MHZ:.1f}MHz)"
-                )
+                    print(
+                        f"🧪 [{band}] cand f0={cand_c:.3f}MHz bw≈{cand_w:.2f}MHz  "
+                        f"🗳️ {votes}/{MIN_CONSEC_SWEEPS}  (IoU≥{iou_needed:.2f} | ±{base_center_tol:.1f}MHz)"
+                    )
 
+                    # --- nuova logica "required" ---
+                    required = MIN_CONSEC_SWEEPS
 
-                if votes >= MIN_CONSEC_SWEEPS:
-                    f0, bw = blob_to_params(b)  # stima pesata per il trigger
-                    candidate = (f0, bw)
-                    break
+                    # bootstrap: se non abbiamo storico utile, 1 voto basta
+                    if nonempty == 0:
+                        required = 1
+
+                    # finestra "golden" a 5.8 (5771–5791): 1 voto basta
+                    if band == "58" and (GOLDEN_58_LO <= cand_c <= GOLDEN_58_HI):
+                        required = 1
+
+                    # a 2.4 riduciamo i falsi richiedendo più persistenza
+                    if band == "24":
+                        required = max(required, 3)
+
+                    # Fallback: se eravamo in modalità "required==1" (bootstrap o golden)
+                    # ma non abbiamo raccolto voti (history vuota/non matching), accetta lo stesso.
+                    if required <= 1 and votes == 0:
+                        f0, bw = blob_to_params(b)
+                        candidate = (f0, bw)
+                        print(f"🆗 [{band}] bootstrap/golden senza storico: promozione single-sweep (f0≈{cand_c:.3f}MHz bw≈{cand_w:.2f}MHz)")
+                        break
+
+                    if votes >= required:
+                        f0, bw = blob_to_params(b)
+                        candidate = (f0, bw)
+                        break
+
 
             if candidate:
                 f0, bw = candidate
@@ -450,6 +647,11 @@ def main():
 
                 ok = send_trigger(band, f0, bw, hold_s=12 if band in ("58","52") else 10)
                 if ok:
+                    write_last_trigger_json(band, f0, bw)
+                    # ... dopo write_last_trigger_json(...) ...
+                    hold = FOCUS_HOLD_GOLDEN_S if band == "58" else FOCUS_HOLD_S
+                    _write_focus(band, hold)
+                    # Ora il trigger
                     last_trigger_ts[band] = now
                     trigger_count.append(now)
                     # 🔧 memorizza il blob per futuri debounce
@@ -463,9 +665,10 @@ def main():
                     persist_state()
 
             else:
+                # Blob visti ma niente trigger: chiedi focus breve
+                _write_focus(band, FOCUS_HOLD_S)
                 tops = [blob_center_width_mhz(b) for b in blobs]
                 msg = ", ".join([f"{c:.3f}MHz/{w:.2f}MHz" for c, w in tops[:3]])
-                # Blob visti ma niente trigger
                 print(f"🤔 [{band}] blobs visti ma NO trigger (persistence): {msg}")
 
 
