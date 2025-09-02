@@ -76,7 +76,8 @@ DISABLE_JOURNAL = os.environ.get("CRPC_DISABLE_JOURNAL", "0") == "1"
 
 SERVICES = ["crpc-tiles","crpc-tracker","crpc-yolo","crpc-rfscan","crpc-api","crpc-waterfall","rfe-dual-scan","rfe-csv-bridge","rfe-trigger","hackrf-controller"]
 
-app = Flask(__name__, static_folder=str(BASE_DIR))
+#app = Flask(__name__, static_folder=str(BASE_DIR))
+app = Flask(__name__, static_folder='static', static_url_path='')
 
 # piccola cache in-process (TTL 3s)
 _CACHE = {}
@@ -359,7 +360,8 @@ def _is_uav_detection(r: dict) -> bool:
 @app.route("/dashboard.html")
 def serve_dashboard():
     # serve the bundled dashboard.html from the same folder
-    f = BASE_DIR / "dashboard.html"
+    #f = BASE_DIR / "dashboard.html"
+    return app.send_static_file("dashboard.html")
     if f.exists():
         return f.read_text(encoding="utf-8")
     return Response("<h1>Dashboard not found</h1>", mimetype="text/html")
@@ -367,7 +369,8 @@ def serve_dashboard():
 @app.route("/mappa")
 @app.route("/mappa.html")
 def serve_mappa():
-    f = BASE_DIR / "mappa.html"
+    #f = BASE_DIR / "mappa.html"
+    return app.send_static_file("mappa.html")
     if f.exists():
         return f.read_text(encoding="utf-8")
     return Response("<h1>mappa.html not found</h1>", mimetype="text/html"), 404

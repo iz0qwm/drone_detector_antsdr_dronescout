@@ -727,11 +727,48 @@ async function tick(){
 }
 
 
-async function refreshUavStatus(){
+const TRACKER_BASE = "http://192.168.1.5:8080";
+
+async function fetchJSONExt(url, timeoutMs = 1500){
+  const ctrl = new AbortController();
+  const t = setTimeout(()=>ctrl.abort(), timeoutMs);
   try{
+    const r = await fetch(url, {signal: ctrl.signal, cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return await r.json();
+  }catch(_){ return null; }
+  finally{ clearTimeout(t); }
+}
+
+function isRecentIso(tsIso, maxAgeSec = 20){
+  if(!tsIso) return false;
+  const t = Date.parse(tsIso);
+  if(!Number.isFinite(t)) return false;
+  return ((Date.now() - t) <= maxAgeSec*1000);
+}
+
+
+async function refreshUavStatus(){
+  const el = document.getElementById('uavStatus');
+  try{
+    // 1) stato locale RF (com’era)
     const s = await api('/api/uav_status');
-    const el = document.getElementById('uavStatus');
-    if (s.active){
+
+    // 2) stato tracker remoto (bridge_uploader_rest)
+    let trackingActive = false;
+    const drones = await fetchJSONExt(`${TRACKER_BASE}/drones`, 1500);
+    if (Array.isArray(drones) && drones.length){
+      // true se almeno un drone ha coordinate valide e timestamp recente
+      trackingActive = drones.some(d =>
+        d && d.lat!=null && d.lon!=null && isRecentIso(d.timestamp, 20)
+      );
+    }
+
+    if (trackingActive){
+      // PRIORITÀ al tracking remoto
+      el.textContent = '🔴 Tracking UAV';
+      el.className = 'chip uav-alert';
+    } else if (s.active){
       const bandsTxt = (s.bands && s.bands.length) ? ` (${s.bands.join(', ')})` : '';
       el.textContent = `🚨 UAV attivo${bandsTxt}`;
       el.className = 'chip uav-alert';
@@ -740,11 +777,11 @@ async function refreshUavStatus(){
       el.className = 'chip uav-ok';
     }
   }catch(e){
-    const el = document.getElementById('uavStatus');
     el.textContent = '—';
     el.className = 'chip';
   }
 }
+
 refreshUavStatus();
 setInterval(refreshUavStatus, REFRESH_MS);
 

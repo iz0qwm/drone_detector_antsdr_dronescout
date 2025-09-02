@@ -48,6 +48,13 @@
   border:1px solid #30363d;
 }
 
+/* Rimuove il bordo/quadrato di default dal DivIcon dell’antenna */
+.leaflet-div-icon.crpc-antenna{
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
 
     /* Info overlay */
     .hud{
@@ -100,6 +107,16 @@
 </head>
 <body>
   <div id="map"></div>
+<div id="trackerStatus" style="position:fixed;top:12px;right:12px;z-index:9000;
+  background:#0e1117cc;color:#e6edf3;border:1px solid #30363d;border-radius:10px;
+  padding:6px 10px;backdrop-filter:blur(4px);font:13px/1.2 system-ui;">
+  <span id="led" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#666;margin-right:6px;"></span>
+  Tracker <span id="ledText">offline</span>
+  <div id="ledCoords" style="font-size:12px;color:#8b949e;margin-top:2px"></div> <!-- NEW -->
+</div>
+
+
+
 
 <!-- pannello controlli flottante -->
 <div class="panel panel-top-left">
@@ -139,6 +156,7 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script>
+
     // —— helpers ————————————————————————————————————————
    const $ = (idOrHash) => {
     if (!idOrHash) return null;
@@ -635,6 +653,126 @@ window.addEventListener('DOMContentLoaded', () => {
     map.on('zoomend', ()=>{
       if (ringState.active) renderRing();
     });
+
+
+
+// === Tracker 192.168.1.5 integration ===
+const TRACKER_BASE = "http://192.168.1.5:8080";
+const FETCH_MS = 2000;
+const trackerLayer = L.layerGroup().addTo(map);
+
+const markers = new Map();   // "source:id" -> L.Marker
+const tracks  = new Map();   // tid -> {poly, last}
+let receiverAcc = null;
+
+//const iconDrone = L.divIcon({ className:"", html:"🛩️", iconSize:[20,20], iconAnchor:[10,10] });
+const iconReceiver = L.divIcon({ className:"", html:"📡", iconSize:[22,22], iconAnchor:[11,11] });
+
+// costruisci sempre URL assoluto alla cartella static del crpc_api
+const STATIC_BASE = window.location.origin + "/";
+function iconForDrone(d){
+  const url = (d && d.source === "DJI") ? (STATIC_BASE + "drone.png")
+                                        : (STATIC_BASE + "plane.png");
+  return L.icon({
+    iconUrl: url + "?v=" + Date.now(), // cache-busting semplice
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -10]
+  });
+}
+
+
+function setLED(ok){
+  const led = document.getElementById("led");
+  const txt = document.getElementById("ledText");
+  if (ok) { led.style.background="#2ea043"; txt.textContent="online"; }
+  else { led.style.background="#da3633"; txt.textContent="offline"; }
+}
+
+async function fetchJSON(url, timeoutMs=1500){
+  const ctrl = new AbortController();
+  const t = setTimeout(()=>ctrl.abort(), timeoutMs);
+  try{
+    const r = await fetch(url, {signal: ctrl.signal, cache:"no-store"});
+    clearTimeout(t);
+    if(!r.ok) throw new Error(String(r.status));
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+
+function upsertDrone(d){
+  if (d.lat == null || d.lon == null) return;
+  const key = `${d.source || "x"}:${d.id || "?"}`;
+  const ll  = L.latLng(d.lat, d.lon);
+  const iconDrone = iconForDrone(d);   // <— usa l’helper qui
+
+  let m = markers.get(key);
+  const html = `<b>${d.model || d.id || "Drone"}</b><br><small>src: ${d.source || "-"} · alt: ${d.altitude ?? "?"} m · spd: ${d.speed ?? "?"}</small>`;
+  if (!m){
+    m = L.marker(ll, {icon: iconDrone}).addTo(trackerLayer).bindPopup(html);
+    markers.set(key, m);
+  } else {
+    m.setLatLng(ll).setPopupContent(html).setIcon(iconDrone);
+  }
+
+  const tid = String(d.id || key);
+  let tr = tracks.get(tid);
+  if (!tr){
+    tr = { poly: L.polyline([ll], {weight:2, opacity:0.85}).addTo(trackerLayer), last: ll };
+    tracks.set(tid, tr);
+  } else {
+    if (tr.last.distanceTo(ll) >= 5) { tr.poly.addLatLng(ll); tr.last = ll; }
+  }
+}
+
+function upsertReceiver(rx){
+  if (rx.lat == null || rx.lon == null) return;
+  const ll  = L.latLng(rx.lat, rx.lon);
+  const txt = `<b>Receiver</b><br><small>fix: ${rx.fix_ok} (${rx.source})<br>${rx.ts_iso || ""}</small>`;
+
+  // Aggiorna le coordinate sotto al LED
+  const ledCoords = document.getElementById('ledCoords');
+  if (ledCoords) {
+    const latStr = Number(rx.lat).toFixed(5);
+    const lonStr = Number(rx.lon).toFixed(5);
+    ledCoords.textContent = `${latStr}, ${lonStr}` + (rx.fix_ok ? '' : '  ~');
+  }
+
+  // Sposta l’antenna principale (posMarker) sul receiver e aggiorna il popup
+  const prev  = posMarker.getLatLng();
+  const moved = prev ? prev.distanceTo(ll) : Infinity;
+  setPosition(ll.lat, ll.lng, null, { pan:false, save:false, updateInputs:true, setMarker:true });
+  posMarker.bindPopup(txt);
+
+  // Cerchio di accuratezza (lo teniamo)
+  if (!receiverAcc){
+    receiverAcc = L.circle(ll, {radius: rx.fix_ok ? 5 : 300, weight:1, opacity:0.4}).addTo(trackerLayer);
+  } else {
+    receiverAcc.setLatLng(ll); receiverAcc.setRadius(rx.fix_ok ? 5 : 300);
+  }
+
+  // lampeggia l’antenna solo se si è mossa
+  if (moved > 5) blinkAntenna();
+}
+
+
+
+async function pollTracker(){
+  // LED
+  try{ await fetchJSON(`${TRACKER_BASE}/health`); setLED(true); } catch{ setLED(false); }
+  // Droni
+  try{
+    const drones = await fetchJSON(`${TRACKER_BASE}/drones`);
+    (drones||[]).forEach(upsertDrone);
+  }catch{}
+  // Receiver
+  try{
+    const rx = await fetchJSON(`${TRACKER_BASE}/receiver`);
+    upsertReceiver(rx);
+  }catch{}
+}
+setInterval(pollTracker, FETCH_MS);
+pollTracker();
 
   </script>
 </body>
