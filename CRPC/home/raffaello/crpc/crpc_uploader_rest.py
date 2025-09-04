@@ -4,6 +4,7 @@ from logging.handlers import RotatingFileHandler
 from datetime import datetime
 from math import isfinite
 from pathlib import Path
+import re
 
 # === LOGGING ===
 LOG_DIR  = Path("/tmp/crpc_logs")
@@ -32,7 +33,7 @@ def _append_jsonl(path: Path, obj: dict):
 
 # === CONFIG ===
 PROJECT_ID = "tutto-sui-droni-community"
-API_KEY    = "AIzaSyAs13Jwj4ZOd9SS9W7C7UxeJy62wS6qphQ"  # come sulla .5
+API_KEY    = ""  # come sulla .5
 FIRESTORE  = f"https://firestore.googleapis.com/v1/projects/{PROJECT_ID}/databases/(default)/documents"
 LOCAL_API  = "http://127.0.0.1:8080"   # crpc_api.py sulla .6
 RECEIVER_ID = os.environ.get("CRPC_RECEIVER_ID", socket.gethostname())  # es: 'crpc-19216816'
@@ -67,6 +68,23 @@ def _fields(**k):
         else:
             out["fields"][a] = {"stringValue": str(v)}
     return out
+
+def _slug(s: str) -> str:
+    s = (s or "").strip()
+    out = "".join(ch if ch.isalnum() else "-" for ch in s)
+    return re.sub("-{2,}", "-", out).strip("-")[:64]
+
+def _safe_id(s: str) -> str:
+    # solo [a-z0-9-] per evitare regole restrittive; niente punti
+    s = s.lower()
+    return re.sub(r"[^a-z0-9-]", "-", s)[:128]
+
+def _freq_bucket_mhz(freq: float, bw_mhz=None) -> int:
+    # bin a 1 MHz (robusto contro micro-shift). Se vuoi più “larghi”, usa 2 o 5.
+    try:
+        return int(round(float(freq)))
+    except Exception:
+        return 0
 
 def upsert(coll, doc_id, fields_dict):
     data = _fields(**fields_dict)
@@ -258,13 +276,29 @@ def push_alert_if_any():
     if rssi is not None:
         fields["rssi_dbm"] = float(rssi)
 
-    ok_up, created, err = upsert("crpc_alerts", f"{RECEIVER_ID}-{int(time.time())}", fields)
+    # --- DocId stabile per firma (receiver+band+freq_0.1MHz+label) ---
+    # ... hai già fields popolato qui sopra ...
+    # BIN frequenza e docId stabile (niente punti)
+    freq_key = _freq_bucket_mhz(freq, bw_mhz)     # es. 2473
+    doc_id_raw = f"{RECEIVER_ID}-{band}-{freq_key}-{_slug(label)}"
+    doc_id = _safe_id(doc_id_raw)
+
+    ts_iso = _now_iso()
+    fields.update({
+        "ts_iso": ts_iso,          # ultimo avvistamento (HUD ordinata per ts_iso)
+        "last_seen_iso": ts_iso,   # comodo per TTL e analitiche
+        "freq_bucket_mhz": freq_key
+    })
+
+    ok_up, created, err = upsert("crpc_alerts", doc_id, fields)
     _append_jsonl(ALERTS_JSONL, {
         "ts": now_ts, "receiverId": RECEIVER_ID, "event": "alert_upsert",
-        "ok": ok_up, "created": created, **fields, **({"error": err} if not ok_up else {})
+        "ok": ok_up, "created": created, "doc_id": doc_id, **fields, **({"error": err} if not ok_up else {})
     })
     if ok_up:
-        logger.info(f"[ALERT] {band}@{freq:.3f} MHz {label} rssi={rssi} → radius≈{radius_m:.0f}m")
+        logger.info(f"[ALERT] {band}@{freq:.3f} MHz {label} rssi={rssi} → radius≈{fields['radius_m']:.0f}m (doc={doc_id})")
+
+
 
 
 def main():
