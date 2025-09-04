@@ -32,11 +32,15 @@ try:
 except Exception:
     HAS_GPSD = False
 
+# subito sotto receiver_status
 receiver_status = {
     "lat": None, "lon": None, "alt": None,
     "fix_ok": False, "source": "unknown",
-    "ts_iso": None, "last_ok_iso": None
+    "ts_iso": None, "last_ok_iso": None,
+    # NEW: fallback persistito all’ultima posizione valida
+    "last_lat": None, "last_lon": None, "last_alt": None
 }
+
 stats = {
     "start_iso": datetime.utcnow().isoformat() + "Z",
     "drones_seen": 0,
@@ -104,8 +108,13 @@ def gps_thread():
         receiver_status["fix_ok"] = ok
         receiver_status["source"] = source
         receiver_status["ts_iso"] = datetime.utcnow().isoformat() + "Z"
-        if ok:
+        if ok and lat is not None and lon is not None:
             receiver_status["last_ok_iso"] = receiver_status["ts_iso"]
+            # NEW: memorizza ultima posizione valida
+            receiver_status["last_lat"] = lat
+            receiver_status["last_lon"] = lon
+            receiver_status["last_alt"] = alt
+
 
     while True:
         try:

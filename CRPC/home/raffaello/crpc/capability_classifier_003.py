@@ -88,6 +88,14 @@ def _score_family(bw_p95, bw_max, bands_seen, fam):
     if fam is FAMS["WIFI"] and solo24 and 21.0 <= bw_p95 <= 24.0:
         base_score -= 0.4   # abbassa costo Wi-Fi → più probabile
 
+    # --- Heuristics su 5.8: narrow ⇒ favorisci ANALOG, sfavorisci WIFI
+    solo58 = (set(bands_seen) == {"58"})
+    if solo58 and bw_p95 <= 2.5:
+        if fam is FAMS["ANALOG"]:
+            base_score -= 0.6   # più probabile ANALOG con banda minuscola
+        if fam is FAMS["WIFI"]:
+            base_score += 0.8   # meno probabile WIFI con banda minuscola
+
     return base_score
 
 

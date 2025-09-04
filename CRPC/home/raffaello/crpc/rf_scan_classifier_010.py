@@ -108,7 +108,7 @@ BANDS = {
     "52": (5170.0, 5250.0),
 }
 
-WIFI2G_CH_CENTERS = [2412 + 5*i for i in range(0, 13)]  # CH1..13
+WIFI2G_CH_CENTERS = [2412 + 5*i for i in range(0, 13)]  # CH1..13  Canali Wifi
 CENTER_TOLERANCE = {"24": 6.0, "52": 10.0, "58": 10.0}  # MHz
 IOU_THRESHOLD    = {"24": 0.50, "52": 0.35, "58": 0.35}
 VOTES_REQUIRED   = {"24": (3,3), "52": (2,2), "58": (2,2)}  # (k/2) → 3/2 richiede 3 conferme a 2.4
@@ -555,15 +555,20 @@ def main():
             # Euristica Wi‑Fi80: usa bw_raw
             wifi80_candidate = is_wifi80_band24(band, bw_raw, hop)
 
+            # --- euristica "analog-like" stretta su 5.8 ---
+            analog_like_now = (band == "58") and (bw_used <= 2.2) and (abs(hop) <= 3.0)
+
             # ====== CAPABILITY PRIMA DEL GATE ======
             # Per la capability usiamo una BW "robusta": max(used, bw0 del trigger recente)
+            # NON gonfiare con bw0_focus: tieni quella stretta (evita bias verso Wi-Fi).
             bw_cap = bw_used
             try:
-                # riusa i valori già calcolati in testa (focus trigger)
-                if band == (band_focus or "") and (ga_focus is not None) and ga_focus <= args.gate_sec and (bw0_focus or 0.0) > 0:
-                    bw_cap = max(bw_used, float(bw0_focus))
+                if not analog_like_now:
+                    if band == (band_focus or "") and (ga_focus is not None) and ga_focus <= args.gate_sec and (bw0_focus or 0.0) > 0:
+                        bw_cap = max(bw_used, float(bw0_focus))
             except Exception:
                 pass
+
             bw_hist[tid].append(float(bw_cap))
             seen = band_mem.get_seen()
             cap_out = cap.classify(list(bw_hist[tid]), seen)
@@ -572,6 +577,13 @@ def main():
             bw_p95 = cap_out["bw_p95"]
             bw_max = cap_out["bw_max"]
             last_label = _label_from_family(cap_family)
+
+            # --- Override prudente: se è chiaramente narrow su 5.8, forza ANALOG ---
+            analog_override = False
+            if analog_like_now and cap_family == "WIFI":
+                cap_family = "ANALOG"
+                last_label = _label_from_family(cap_family)
+                analog_override = True
 
             # (opzionale) multi‑peaks
             mp = None
@@ -733,6 +745,10 @@ def main():
                     add_suppress_24(f)
                     log(f"🔕 [24] suppress 30s @ {f:.2f} MHz per Wi-Fi confermato")
 
+            badges = []
+            if analog_override:
+                badges.append("analog_override")
+
             pred = {
                 "ts": ts, "track_id": tid, "band": band, "img": img,
                 "center_freq_mhz": round(f,3), "bandwidth_mhz": round(bw,3),
@@ -746,6 +762,7 @@ def main():
                 "multi_peaks": (mp or {}),
                 "vts_bw_est_mhz": round(vts_bw_est,2) if vts_bw_est else None,
                 "gate": gate, "hint_used": bool(hint_used),
+                **({"badges": badges} if badges else {})
             }
 
             with OUT_JSONL.open("a") as g:

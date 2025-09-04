@@ -257,7 +257,6 @@ posMarker.on('dragend', () => {
 }
 
 // Stato posizione corrente del CRPC
-// Stato posizione corrente del CRPC
 const posState = { lat: 41.902, lon: 12.496, zoom: 15 };
 
 function setPosition(
@@ -726,15 +725,20 @@ function upsertDrone(d){
 }
 
 function upsertReceiver(rx){
-  if (rx.lat == null || rx.lon == null) return;
+  // Fallback: se non c'è fix, ma abbiamo last_lat/lon, usiamo quelli (mostrando "~")
+  const hasFix = !!rx.fix_ok && rx.lat != null && rx.lon != null;
+  const lat = hasFix ? rx.lat : (rx.last_lat ?? null);
+  const lon = hasFix ? rx.lon : (rx.last_lon ?? null);
+  if (lat == null || lon == null) return;   // nulla da fare se non abbiamo neanche un last known
+
   const ll  = L.latLng(rx.lat, rx.lon);
   const txt = `<b>Receiver</b><br><small>fix: ${rx.fix_ok} (${rx.source})<br>${rx.ts_iso || ""}</small>`;
 
-  // Aggiorna le coordinate sotto al LED
+  // Aggiorna le coordinate sotto al LED (con "~" se fix non ok)
   const ledCoords = document.getElementById('ledCoords');
   if (ledCoords) {
-    const latStr = Number(rx.lat).toFixed(5);
-    const lonStr = Number(rx.lon).toFixed(5);
+    const latStr = Number(lat).toFixed(5);
+    const lonStr = Number(lon).toFixed(5);
     ledCoords.textContent = `${latStr}, ${lonStr}` + (rx.fix_ok ? '' : '  ~');
   }
 
