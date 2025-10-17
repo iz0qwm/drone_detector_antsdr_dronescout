@@ -74,10 +74,27 @@ CAND_52 = ["/tmp/rfe/scan/latest_52.csv", "/tmp/rfe/scan/last_52.csv"]
 DISABLE_EVAL = os.environ.get("CRPC_DISABLE_EVAL", "0") == "1"
 DISABLE_JOURNAL = os.environ.get("CRPC_DISABLE_JOURNAL", "0") == "1"
 
-SERVICES = ["crpc-tiles","crpc-tracker","crpc-yolo","crpc-rfscan","crpc-api","crpc-waterfall","rfe-dual-scan","rfe-csv-bridge","rfe-trigger","hackrf-controller"]
+SERVICES = ["crpc-tiles","crpc-tracker","crpc-yolo","crpc-rfscan","crpc-api","crpc-waterfall","crpc-uploader","rfe-dual-scan","rfe-csv-bridge","rfe-df-sector","rfe-trigger","hackrf-controller"]
 
 #app = Flask(__name__, static_folder=str(BASE_DIR))
 app = Flask(__name__, static_folder='static', static_url_path='')
+
+
+# Sezione direzione
+# --- in cima vicino alle altre costanti ---
+DF_STATE = LOG_DIR / "df_state.json"   # scritto da df_sector.py
+
+def read_df_state():
+    try:
+        return json.loads(DF_STATE.read_text())
+    except Exception:
+        return {"bearing_deg": None, "confidence": None, "levels": None, "f0_mhz": None, "band": None, "ts": None}
+
+@app.route("/api/df")
+def api_df():
+    df = read_df_state()
+    return jsonify({"ts": time.time(), "df": df})
+
 
 # piccola cache in-process (TTL 3s)
 _CACHE = {}
@@ -477,6 +494,9 @@ def api_status():
         "previews": previews
     }
 
+    df = read_df_state()
+    resp["df"] = df
+
     app.logger.info(
         "status in %.1f ms (eval:%s journal:%s)",
         (time.time() - t0) * 1000,
@@ -593,6 +613,8 @@ def api_detections():
 
         is_uav = _is_uav_detection(r)
 
+        df = read_df_state()
+        
         out.append({
             "title": "Drone detected",
             "freq_mhz": freq_mhz,
@@ -614,6 +636,8 @@ def api_detections():
             "brand": brand,
             "family": family,
             "is_uav": bool(is_uav),
+            "bearing_deg": df.get("bearing_deg"),
+            "df_confidence": df.get("confidence"),
         })
 
     out.sort(key=lambda x: (x["ts_unix"] is None, -(x["ts_unix"] or 0)))

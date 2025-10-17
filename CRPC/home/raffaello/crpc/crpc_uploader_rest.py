@@ -86,13 +86,24 @@ def _freq_bucket_mhz(freq: float, bw_mhz=None) -> int:
     except Exception:
         return 0
 
+
+def _patch_url_mask(coll, doc_id, field_names):
+    base = _patch_url(coll, doc_id)  # .../documents/{coll}/{doc}?key=API_KEY
+    # una entry updateMask.fieldPaths per ogni chiave che stai aggiornando
+    mask = "".join(f"&updateMask.fieldPaths={name}" for name in field_names)
+    return base + mask + "&currentDocument.exists=true"
+
+
 def upsert(coll, doc_id, fields_dict):
     data = _fields(**fields_dict)
     try:
         r = requests.post(_doc_url(coll, doc_id), json=data, timeout=5)
         created = (r.status_code == 200)
-        if r.status_code == 409:  # exists → PATCH
-            r = requests.patch(_patch_url(coll, doc_id), json=data, timeout=5)
+        if r.status_code == 409:  # exists → PATCH (merge)
+            r = requests.patch(
+                _patch_url_mask(coll, doc_id, list(fields_dict.keys())),
+                json=data, timeout=5
+            )
             created = False
         ok = (r.status_code // 100 == 2)
         if not ok:
@@ -103,6 +114,7 @@ def upsert(coll, doc_id, fields_dict):
     except Exception as e:
         logger.exception(f"[FS] EXC upsert {coll}/{doc_id}: {e}")
         return False, False, str(e)
+
 
 def add_point(coll, doc_id, subcoll, fields_dict):
     try:
@@ -129,6 +141,44 @@ def get_json(url, timeout=3):
 def api_detections(): return get_json(f"{LOCAL_API}/api/detections") or {}
 def api_uav_status(): return get_json(f"{LOCAL_API}/api/uav_status") or {}
 def api_spectrum():   return get_json(f"{LOCAL_API}/api/spectrum") or {}
+
+
+# subito dopo i getter API
+def api_df(): return get_json(f"{LOCAL_API}/api/df") or {}
+
+def push_df_live():
+    """Aggiorna df_bearing/df_confidence/df_sector del receiver, se disponibili, ogni giro."""
+    try:
+        dfwrap = api_df() or {}
+        d = dfwrap.get("df") or {}
+        bearing = d.get("bearing_deg")
+        conf = d.get("confidence")
+        if bearing is None:
+            return
+        sector = _bearing_to_sector(bearing)
+        upsert("crpc_receivers", RECEIVER_ID, dict(
+            df_bearing_deg=float(bearing),
+            df_confidence=(None if conf is None else float(conf)),
+            df_sector=(sector or None),
+            ts_iso=_now_iso(),
+            online=True
+        ))
+    except Exception:
+        pass
+
+
+# geo: punto destinazione da lat/lon (gradi), bearing (gradi), distanza (m)
+from math import radians, degrees, sin, cos, asin, atan2
+EARTH_R = 6371000.0
+def dest_point(lat, lon, bearing_deg, dist_m):
+    if lat is None or lon is None or bearing_deg is None: 
+        return (None, None)
+    lat1 = radians(float(lat)); lon1 = radians(float(lon))
+    brg = radians(float(bearing_deg)); d = float(dist_m)/EARTH_R
+    lat2 = asin(sin(lat1)*cos(d) + cos(lat1)*sin(d)*cos(brg))
+    lon2 = lon1 + atan2(sin(brg)*sin(d)*cos(lat1), cos(d)-sin(lat1)*sin(lat2))
+    return (degrees(lat2), (degrees(lon2)+540)%360-180)
+
 
 # ---- RSSI & distanza
 def df_tolerance_mhz(bw_mhz):
@@ -172,6 +222,26 @@ def radius_from_rssi(rssi_dbm):
             return rad, b["color"]
     return 600.0, "#ff8c00"
 
+# --- nuova configurazione “on-change” dei decimali
+POS_DECIMALS = int(os.environ.get("CRPC_POS_DECIMALS", 5))  # 5 ~ 1.1 m
+_last_pos_key = None
+_last_pos_point_ts = 0
+
+def _pos_key(lat, lon, decimals=POS_DECIMALS):
+    if lat is None or lon is None:
+        return None
+    return (round(float(lat), decimals), round(float(lon), decimals))
+
+def _bearing_to_sector(brg_deg: float) -> str:
+    # 8 settori da 45° centrati su N/NE/E/...
+    if brg_deg is None:
+        return None
+    brg = float(brg_deg) % 360.0
+    sectors = ["N","NE","E","SE","S","SW","W","NW"]
+    idx = int((brg + 22.5) // 45) % 8
+    return sectors[idx]
+
+
 # ---- Posizione del ricevitore
 _last_pos_sent = 0
 def read_pos():
@@ -190,11 +260,16 @@ def read_pos():
     except Exception:
         return (None, None, None, False, "receiver-error")
 
+# opzionale: abilita/disable da env (default OFF)
+RECEIVER_POSITIONS_ENABLED = bool(int(os.environ.get("RECEIVER_POSITIONS_ENABLED", "0")))
+
 def push_receiver_position():
-    global _last_pos_sent
+    global _last_pos_key, _last_pos_point_ts
+
     lat, lon, alt, ok, src = read_pos()
     ts = int(time.time()*1000)
 
+    # 1) snapshot live sempre aggiornato (solo documento padre)
     ok_up, created, err = upsert("crpc_receivers", RECEIVER_ID, dict(
         lat=lat if lat is not None else 0.0,
         lon=lon if lon is not None else 0.0,
@@ -207,15 +282,22 @@ def push_receiver_position():
         **({"error": err} if not ok_up else {})
     })
 
-    if (time.time() - _last_pos_sent) > 10 and lat and lon:
-        ok_pt, err_pt = add_point("crpc_receivers", RECEIVER_ID, "positions", dict(
-            lat=lat, lon=lon, timestamp=ts
-        ))
-        _append_jsonl(POSITIONS_JSONL, {
-            "ts": ts, "receiverId": RECEIVER_ID, "event": "positions_add",
-            "ok": ok_pt, "lat": lat, "lon": lon, **({"error": err_pt} if not ok_pt else {})
-        })
-        _last_pos_sent = time.time()
+    # 2) (DISABLED di default) trail nella subcollection positions solo se abilitato
+    if RECEIVER_POSITIONS_ENABLED:
+        key = _pos_key(lat, lon)
+        if key is None:
+            return
+        if key != _last_pos_key:
+            ok_pt, err_pt = add_point("crpc_receivers", RECEIVER_ID, "positions", dict(
+                lat=key[0], lon=key[1], timestamp=ts
+            ))
+            _append_jsonl(POSITIONS_JSONL, {
+                "ts": ts, "receiverId": RECEIVER_ID, "event": "positions_add_onchange",
+                "ok": ok_pt, "lat": key[0], "lon": key[1], **({"error": err_pt} if not ok_pt else {})
+            })
+            _last_pos_key = key
+            _last_pos_point_ts = time.time()
+
 
 # ---- Alerts (ring + distanza) dal CRPC
 _last_alert_sent = {}  # chiave (band,freq,label) → ts
@@ -263,6 +345,21 @@ def push_alert_if_any():
 
     _last_alert_sent[key] = time.time()
 
+    # ... dopo aver calcolato radius_m,color,rssi ...
+    df = api_df()
+    df_obj = (df or {}).get("df") or {}
+    bearing = df_obj.get("bearing_deg")
+    conf    = df_obj.get("confidence")
+    # clamp conf (0..1)
+    try:
+        conf = max(0.0, min(1.0, float(conf))) if conf is not None else None
+    except Exception:
+        conf = None
+
+    # calcola punto finale della freccia (dal ricevitore verso il bearing)
+    lat0, lon0, alt0, okfix, src = read_pos()
+    lat1, lon1 = dest_point(lat0, lon0, bearing, radius_m if bearing is not None else 0)
+
     fields = dict(
         receiverId=RECEIVER_ID,
         band=band,
@@ -270,11 +367,17 @@ def push_alert_if_any():
         family=family,
         label=label,
         ts_iso=_now_iso(),
-        radius_m=float(radius_m),   # <-- ora SEMPRE presente
-        color=color                 # <-- ora SEMPRE presente
+        radius_m=float(radius_m),
+        color=color,
+        # --- NEW: DF ---
+        bearing_deg=(None if bearing is None else float(bearing)),
+        df_confidence=(None if conf is None else float(conf)),
+        rx_lat=lat0, rx_lon=lon0,
+        end_lat=lat1, end_lon=lon1,
     )
     if rssi is not None:
         fields["rssi_dbm"] = float(rssi)
+
 
     # --- DocId stabile per firma (receiver+band+freq_0.1MHz+label) ---
     # ... hai già fields popolato qui sopra ...
@@ -307,6 +410,7 @@ def main():
     while True:
         try:
             push_receiver_position()
+            push_df_live()
             push_alert_if_any()
         except Exception as e:
             logger.exception(f"[ERR] loop: {e}")

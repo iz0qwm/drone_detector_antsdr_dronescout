@@ -5,6 +5,8 @@ from pathlib import Path
 from datetime import datetime
 import builtins, pwd, grp, threading
 import sys
+import subprocess, os
+
 
 # === Config ===
 RFE_DIR = Path("/tmp/rfe/scan")
@@ -21,6 +23,49 @@ BANDS = {
     "58": {"path": "/tmp/rfe/scan/latest_58.csv", "min_f": 5725.0, "max_f": 5875.0},
     "52": {"path": "/tmp/rfe/scan/latest_52.csv", "min_f": 5170.0, "max_f": 5250.0},
 }
+
+
+# SEZIONE GESTIONE GPIO PER SCANSIONE ANTENNE
+#
+def _gpio(cmd: list[str]):
+    try:
+        subprocess.run(cmd, check=True, timeout=1.0)
+    except Exception as e:
+        print(f"GPIO WARN: {e}")
+
+def spdt1_to_rfe():    _gpio(["sudo","pinctrl","set","23","dh"])
+def spdt1_to_hackrf(): _gpio(["sudo","pinctrl","set","23","dl"])
+def spdt2_5g():        _gpio(["sudo","pinctrl","set","24","dh"])
+def spdt2_24():        _gpio(["sudo","pinctrl","set","24","dl"])
+
+HANDOFF_FILE = Path("/tmp/rfe/handoff.json")
+def set_handoff(band: str, hold_s: float):
+    until = time.time() + float(hold_s)
+    # SPDT2 sulla banda corretta
+    if band in ("58","52"): spdt2_5g()
+    else: spdt2_24()
+    # instrada HackRF
+    spdt1_to_hackrf()
+    HANDOFF_FILE.write_text(json.dumps({"band": band, "until_ts": until}))
+    try: os.chmod(HANDOFF_FILE, 0o666)
+    except: pass
+    print(f"🔀 Handoff: SPDT1→HackRF, band={band} (hold {hold_s:.1f}s)")
+
+def maybe_release_handoff():
+    if not HANDOFF_FILE.exists():
+        return
+    try:
+        d = json.loads(HANDOFF_FILE.read_text())
+        if time.time() > float(d.get("until_ts", 0)):
+            # ritorna a RFE
+            spdt1_to_rfe()
+            HANDOFF_FILE.unlink(missing_ok=True)
+            print("↩️  Handoff scaduto → SPDT1→RFE")
+    except Exception as e:
+        print(f"Handoff check error: {e}")
+
+
+
 
 # Env override (float/int)
 def envf(k, d): 
@@ -493,6 +538,7 @@ def main():
     print("▶ RFExplorer trigger daemon avviato.")
     print(f"⚙️  Parametri: TH={PEAK_DB_ABOVE_FLOOR}dB  MIN_SWEEPS={MIN_CONSEC_SWEEPS}  COOLDOWN={COOLDOWN_S}s")
     while True:
+        maybe_release_handoff()
         for band in ("58", "52", "24"):  # priorità 5.8 > 5.2 > 2.4
             rows = read_latest_csv(band)
             if rows:
@@ -648,6 +694,9 @@ def main():
                 ok = send_trigger(band, f0, bw, hold_s=12 if band in ("58","52") else 10)
                 if ok:
                     write_last_trigger_json(band, f0, bw)
+                    # Handoff GPIO → HackRF per la banda
+                    hold = 12 if band in ("58","52") else 10
+                    set_handoff(band, hold)
                     # ... dopo write_last_trigger_json(...) ...
                     hold = FOCUS_HOLD_GOLDEN_S if band == "58" else FOCUS_HOLD_S
                     _write_focus(band, hold)

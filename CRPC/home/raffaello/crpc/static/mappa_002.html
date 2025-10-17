@@ -706,8 +706,8 @@ function renderDF(bearingDeg, conf, sector){
   if (bearingDeg == null || !Number.isFinite(bearingDeg)) return;
 
   // Se non c'è ring e la conf è bassa, non disegnare nulla
-  if (!ringActive && (conf == null || conf < MIN_CONF_ALONE)) return;
-  //if (!ringActive) return;
+  //if (!ringActive && (conf == null || conf < MIN_CONF_ALONE)) return;
+  if (!ringActive) return;
 
   // Lunghezza raggio: usa ring se attivo, altrimenti default (p.es. 400 m)
   const dist = (ringActive && ringState.radius_m) ? ringState.radius_m : 400;

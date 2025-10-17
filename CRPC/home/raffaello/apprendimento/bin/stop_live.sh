@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-SVC=(crpc-rfscan crpc-tiles crpc-tracker crpc-yolo hackrf-controller rfe-csv-bridge rfe-dual-scan rfe-trigger)
+SVC=(crpc-rfscan crpc-tiles crpc-tracker crpc-yolo crpc-uploader hackrf-controller rfe-csv-bridge rfe-dual-scan rfe-df-sector rfe-trigger)
 for s in "${SVC[@]}"; do
   if systemctl is-active --quiet "$s"; then
     sudo systemctl stop "$s"

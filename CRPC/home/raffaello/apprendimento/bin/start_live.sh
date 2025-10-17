@@ -4,7 +4,7 @@ set -euo pipefail
 if [ -f /run/apprendimento.lock ]; then
   echo "Lock presente: non riavvio i live."; exit 0
 fi
-SVC=(crpc-rfscan crpc-tiles crpc-tracker crpc-yolo hackrf-controller rfe-csv-bridge rfe-dual-scan rfe-trigger)
+SVC=(crpc-rfscan crpc-tiles crpc-tracker crpc-yolo crpc-uploader hackrf-controller rfe-csv-bridge rfe-dual-scan rfe-df-sector rfe-trigger)
 for s in "${SVC[@]}"; do
   sudo systemctl start "$s" || true
 done

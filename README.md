@@ -258,25 +258,33 @@ Stimare l’**angolo di arrivo (AoA)** del segnale del drone (2.4 e 5.x GHz) usa
 
 ## Cablaggio GPIO (Raspberry Pi, numerazione **BCM**)
 
-| Switch | Segnale | GPIO | Pin fisico | Significato |
-|---|---|---:|---:|---|
-| **SP4T** | S0 | **17** | 11 | bit 0 antenna |
-| **SP4T** | S1 | **27** | 13 | bit 1 antenna |
-| **SP4T** | EN (opz.) | **22** | 15 | alto = abilitato |
-| **SPDT#1** | H | **23** | 16 | 0 = RFE, 1 = HackRF |
-| **SPDT#2** | B | **24** | 18 | 0 = 2.4, 1 = 5.x |
+Instradare verso HackRF (SPDT1_H=1):
 
-> Mettere **pull-down**, serie 100–330 Ω sui fili, **level-shifter** se qualche modulo vuole logica 5 V (HMC849 di solito accetta 3.3 V).  
-> Se lo SP4T è “one-hot” (CH1..CH4) invece di binario S0/S1, usare 4 GPIO e tenerne **alto uno solo** alla volta.
+sudo pinctrl set 23 dh    # 1 → RFE
+sudo pinctrl set 23 dl    # 0 - HackRF
 
-**Truth table (SP4T binario)**
+Instradare verso RFE 2.4 (SPDT1_H=0, SPDT2_B=0):
 
-| S1 | S0 | Antenna |
-|---:|---:|---|
-| 0 | 0 | N (0°) |
-| 0 | 1 | E (90°) |
-| 1 | 0 | S (180°) |
-| 1 | 1 | O (270°) |
+sudo pinctrl set 24 dh    # 1 → 5.x GHz  
+sudo pinctrl set 24 dl    # 0 → 2.4 GHz
+
+**SWITCH a 4 PORTE**
+
+**Porta 1 -- EST**
+sudo pinctrl set 17 dl; sudo pinctrl set 27 dl
+**Porta 2  -- NORD**
+sudo pinctrl set 17 dh; sudo pinctrl set 27 dl
+**Porta 3 -- OVEST**
+sudo pinctrl set 17 dl; sudo pinctrl set 27 dh
+**Porta 4 -- SUD**
+sudo pinctrl set 17 dh; sudo pinctrl set 27 dh
+
+
+**Mappa settori:**
+Porta 2 = NORD → GPIO17=H, GPIO27=L
+Porta 1 = EST → GPIO17=L, GPIO27=L
+Porta 4 = SUD → GPIO17=H, GPIO27=H
+Porta 3 = OVEST → GPIO17=L, GPIO27=H
 
 ---
 
