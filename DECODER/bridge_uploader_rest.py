@@ -12,8 +12,10 @@ import json
 
 # === CONFIG ===
 PROJECT_ID = "tutto-sui-droni-community"
-API_KEY = "<INSERIRE>"
+API_KEY = "AIzaSyAs13Jwj4ZOd9SS9W7C7UxeJy62wS6qphQ"
 FIRESTORE_BASE = f"https://firestore.googleapis.com/v1/projects/{PROJECT_ID}/databases/(default)/documents"
+DSC_INGEST_URL = "https://ingesttrafficobject-32dg4v266a-oc.a.run.app"
+DSC_SOURCE = "airsense"
 
 # === FIRESTORE URLS ===
 def doc_url(collection, doc_id):
@@ -170,6 +172,38 @@ def should_send(drone_id, lat, lon):
         return True
     return False
 
+def send_to_dsc(drone_info):
+    try:
+        if not drone_info.get("id"):
+            return
+
+        lat = drone_info.get("lat")
+        lon = drone_info.get("lon")
+        if lat is None or lon is None:
+            return
+
+        payload = {
+            "source": DSC_SOURCE,
+            "objectId": str(drone_info["id"]),
+            "type": "drone",
+            "lat": lat,
+            "lon": lon,
+            "altitude": drone_info.get("altitude"),
+            "speed": drone_info.get("speed"),
+            "heading": drone_info.get("heading"),
+            "model": drone_info.get("model"),
+        }
+
+        r = requests.post(DSC_INGEST_URL, json=payload, timeout=5)
+
+        if r.status_code == 200:
+            print(f"🛰️ DSC ingest OK: {drone_info['id']}")
+        else:
+            print(f"❌ DSC ingest error {r.status_code}: {r.text}")
+
+    except Exception as e:
+        print(f"🔥 DSC send error: {e}")
+
 def send_to_firestore(drone_info):
     try:
         drone_id = str(drone_info.get("id") or "unknown")
@@ -245,7 +279,8 @@ def update_drones(drone_info):
         stats["drones_seen"] += 1
         stats["last_drone_iso"] = datetime.utcnow().isoformat() + "Z"
 
-    send_to_firestore(drone_info)
+    send_to_firestore(drone_info)   # Drone Pilot App
+    send_to_dsc(drone_info)         # Drone Sky Check
 
 def listen_zmq_dji():
     context = zmq.Context()
