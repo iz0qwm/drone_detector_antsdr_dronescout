@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Droni ricevuti</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #map {
+      flex-grow: 1;
+    }
+
+    #logwindow {
+      height: 150px;
+      overflow-y: auto;
+      background: #111;
+      color: #0f0;
+      font-family: monospace;
+      font-size: 12px;
+      padding: 8px;
+      box-sizing: border-box;
+      border-top: 2px solid #333;
+    }
+
+#sourcesPanel {
+  position: absolute;
+  top: 80px;
+  left: 10px;
+  z-index: 1000;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  font-family: monospace;
+  font-size: 12px;
+  padding: 8px;
+  border-radius: 6px;
+  line-height: 1.4em;
+}
+
+.source-on {
+  color: #0f0;
+}
+
+.source-off {
+  color: #f55;
+}
+
+.leaflet-popup-content {
+  font-family: monospace;
+  font-size: 15px;
+}
+
+/* Popup più leggibili su mobile */
+@media (max-width: 768px) {
+
+  .leaflet-popup-content {
+    font-family: monospace;
+    font-size: 15px !important;
+    line-height: 1.4em;
+  }
+
+  .leaflet-popup-content b {
+    font-size: 17px;
+  }
+
+  .leaflet-popup-content-wrapper {
+    padding: 8px;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <div id="sourcesPanel">
+  <b>Sorgenti</b><br>
+  <div id="sourcesStatus">Caricamento…</div>
+</div>
+
+  <div id="map"></div>
+
+  <div id="logwindow">
+    Caricamento log...
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-rotatedmarker/leaflet.rotatedMarker.js"></script>
+
+  <script>
+const map = L.map('map').setView([41.9, 12.5], 11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19
+}).addTo(map);
+
+
+// Varibili inziali
+let markers = {};
+let receiverMarker = null;
+let trails = {};
+const MAX_TRAIL_POINTS = 40;
+//const isMobile = window.innerWidth < 768;
+//const ICON_SIZE = isMobile ? 42 : 30;
+const dpr = window.devicePixelRatio || 1;
+const ICON_SIZE = Math.round((window.innerWidth < 768 ? 42 : 30) * dpr * 0.6);
+
+function getAdsbIcon(category) {
+  switch (category) {
+    case "A1": return "plane_light.png";
+    case "A2": return "plane_light_1.png";
+    case "A3": return "plane_medium.png";
+    case "A5": return "plane_heavy.png";
+    case "A7": return "helicopter.png";
+    default:   return "plane_unknown.png";
+  }
+}
+
+
+
+async function fetchDrones() {
+  try {
+    const res = await fetch("http://" + location.hostname + ":8080/drones");
+    const drones = await res.json();
+    const currentIds = new Set();
+
+    drones.forEach(drone => {
+      if (!drone.lat || !drone.lon) return;
+
+      const id = `${drone.source}_${drone.id}`;
+      currentIds.add(id);
+
+      const coords = [drone.lat, drone.lon];
+      const typeLabel = drone.source === "ADSB" ? "Aereo ADS-B"
+                  : drone.source === "FLARM" ? "Traffico FLARM"
+                  : "Drone";
+
+      const popup = `
+        <b>${typeLabel}</b><br>
+        ID: ${drone.id}<br>
+        Model: ${drone.model || "?"}<br>
+        Category: ${drone.category || "?"}<br>
+        Alt: ${drone.altitude || "?"} m<br>
+        Speed: ${drone.speed || "?"} kt
+
+      `;
+
+      let iconFile = "drone.png";
+
+      // Se ha category ADSB → è aereo
+      if (drone.category) {
+        iconFile = getAdsbIcon(drone.category);
+
+      // Se viene da FLARM
+      } else if (drone.source === "FLARM") {
+        iconFile = "glider.png";
+
+      // Se è APRS ma ha ID ICAO (6 hex)
+      } else if (/^[0-9a-f]{6}$/i.test(drone.id)) {
+        iconFile = "plane_unknown.png";
+
+      // Altrimenti è drone
+      } else {
+        iconFile = "drone.png";
+      }
+
+
+      const icon = L.icon({
+        iconUrl: iconFile,
+        iconSize: [ICON_SIZE, ICON_SIZE],
+        iconAnchor: [ICON_SIZE / 2, ICON_SIZE / 2],
+        rotationOrigin: "center center",
+        popupAnchor: [0, -10]
+      });
+
+
+      if (markers[id]) {
+        markers[id]
+          .setLatLng(coords)
+          .setPopupContent(popup)
+          .setRotationAngle(drone.heading || 0)
+          .setIcon(icon);
+          // Aggiorna scia
+          // Aggiorna scia con fading
+          if (!trails[id]) {
+            trails[id] = {
+              points: [],
+              segments: []
+            };
+          }
+
+          const trail = trails[id];
+          trail.points.push(coords);
+
+          if (trail.points.length > MAX_TRAIL_POINTS) {
+            trail.points.shift();
+          }
+
+          // Rimuove vecchi segmenti dalla mappa
+          trail.segments.forEach(seg => map.removeLayer(seg));
+          trail.segments = [];
+
+          // Ridisegna segmenti con opacità degradante
+          for (let i = 1; i < trail.points.length; i++) {
+            const opacity = i / trail.points.length; // 0 → 1
+
+            const segment = L.polyline(
+              [trail.points[i - 1], trail.points[i]],
+              {
+                color: drone.source === "ADSB" ? "#00aaff" :
+                      drone.source === "FLARM" ? "#ffaa00" :
+                      "#00ff00",
+                weight: 3,
+                opacity: opacity * 0.8
+              }
+            ).addTo(map);
+
+            trail.segments.push(segment);
+          }
+
+      } else {
+        markers[id] = L.marker(coords, {
+          icon: icon,
+          rotationAngle: drone.heading || 0
+        })
+        .addTo(map)
+        .bindPopup(popup);
+      }
+
+
+    });
+
+    // Rimuovi marker non più presenti
+    Object.keys(markers).forEach(id => {
+      if (!currentIds.has(id)) {
+
+        // Rimuovi marker
+        map.removeLayer(markers[id]);
+        delete markers[id];
+
+        // Rimuovi scia SOLO se il target è sparito
+        if (trails[id]) {
+          trails[id].segments.forEach(seg => map.removeLayer(seg));
+          delete trails[id];
+        }
+      }
+    });
+
+
+  } catch (e) {
+    console.error("Errore nel fetch dei droni:", e);
+  }
+}
+
+async function updateLogs() {
+  try {
+    const res = await fetch("http://" + location.hostname + ":8080/logs");
+    const logs = await res.json();
+    const maxLines = 5;
+    const logElem = document.getElementById("logwindow");
+    const recentLogs = logs.slice(-maxLines).map(d => JSON.stringify(d)).join('\n');
+    logElem.textContent = recentLogs;
+    logElem.scrollTop = logElem.scrollHeight;
+  } catch (e) {
+    console.error("Errore nel fetch log:", e);
+  }
+}
+
+
+
+async function updateSources() {
+  try {
+    const res = await fetch("http://" + location.hostname + ":8080/sources");
+    const data = await res.json();
+
+    const container = document.getElementById("sourcesStatus");
+    container.innerHTML = "";
+
+    Object.entries(data).forEach(([name, info]) => {
+      const span = document.createElement("div");
+      span.textContent = `${info.running ? "●" : "○"} ${name}`;
+      span.className = info.running ? "source-on" : "source-off";
+      container.appendChild(span);
+    });
+
+  } catch (e) {
+    console.error("Errore fetch sorgenti", e);
+  }
+}
+
+
+
+async function updateReceiver() {
+  try {
+    const res = await fetch("http://" + location.hostname + ":8080/receiver");
+    const r = await res.json();
+
+    if (r.lat == null || r.lon == null) return;
+
+    const coords = [r.lat, r.lon];
+    const popup = `
+      <b>Ricevitore</b><br>
+      Fonte: ${r.source}<br>
+      Fix: ${r.fix_ok ? "OK" : "NO"}
+    `;
+
+    const icon = L.icon({
+      iconUrl: r.fix_ok ? "receiver.png" : "receiver_warn.png",
+      iconSize: [ICON_SIZE, ICON_SIZE],
+      iconAnchor: [ICON_SIZE / 2, ICON_SIZE / 2]
+
+    });
+
+    if (!receiverMarker) {
+      receiverMarker = L.marker(coords, {
+          icon,
+          zIndexOffset: 1000
+        })
+
+        .addTo(map)
+        .bindPopup(popup);
+    } else {
+      receiverMarker.setLatLng(coords).setPopupContent(popup);
+    }
+    //console.log("RECEIVER", r.lat, r.lon, r.fix_ok, r.source);
+
+  } catch (e) {
+    console.error("Errore fetch receiver", e);
+  }
+}
+
+
+// Partenza servizi!
+setInterval(fetchDrones, 2000);
+setInterval(updateLogs, 2000);
+setInterval(updateSources, 2000);
+setInterval(updateReceiver, 20000);
+
+  </script>
+</body>
+</html>
+

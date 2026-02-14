@@ -49,7 +49,7 @@ while True:
 
     if msg.get_type() == 'HEARTBEAT':
         if config.print_messages == True:
-            print("%s MAVLink heartbeat received" % current_time)
+            # print("%s MAVLink heartbeat received" % current_time)
 
     if msg.get_type() == 'ADSB_VEHICLE':
         if config.print_messages == True:
