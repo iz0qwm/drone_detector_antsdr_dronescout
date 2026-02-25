@@ -79,6 +79,7 @@ def cleanup_loop():
 
 def handle_drone(drone):
     drone = normalize_id(drone)
+    drone = classify_object(drone)
     update_state(drone)
 
     # NON forwardare ciò che viene da OGN
@@ -106,6 +107,33 @@ def handle_drone(drone):
         send_firestore(drone)
     if route.get("dsc"):
         send_dsc(drone)
+
+
+
+def classify_object(drone):
+    src = drone.get("source")
+    emitter = (drone.get("emitter_type") or "").upper()
+
+    # DJI e RemoteID sono SEMPRE droni
+    if src in ["DJI", "RemoteID"]:
+        drone["object_type"] = "UAV"
+        return drone
+
+    # ADSB: controlla emitter
+    if src == "ADSB":
+        if emitter == "UAV" or drone.get("category") in ("UAV", "DRONE"):
+            drone["object_type"] = "UAV"
+        else:
+            drone["object_type"] = "AIRCRAFT"
+        return drone
+
+    # FLARM lo consideriamo traffico generico
+    if src == "FLARM":
+        drone["object_type"] = "GLIDER"
+        return drone
+
+    drone["object_type"] = "UNKNOWN"
+    return drone
 
 
 

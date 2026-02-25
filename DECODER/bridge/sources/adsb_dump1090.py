@@ -27,6 +27,10 @@ def listen_adsb(on_drone):
                 if not hex_id or lat is None or lon is None:
                     continue
 
+                # 🔥 Filtro posizione fresca (evita frame congelati)
+                if seen_pos is None or seen_pos > 5:
+                    continue
+
                 raw_feet = ac.get("alt_baro")
 
                 try:
