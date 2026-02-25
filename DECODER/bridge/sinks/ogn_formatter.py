@@ -43,20 +43,25 @@ def meters_to_feet(m):
 
 def determine_aircraft_type(drone):
     src = drone.get("source")
+    emitter = (drone.get("emitter_type") or "").upper()
+
+    # UAV anche se arriva via ADSB
+    if emitter == "UAV":
+        return 0xD
 
     if src == "ADSB":
         cat = drone.get("category")
-
         if cat == "A7":
-            return 0x3  # helicopter
+            return 0x3
         if cat in ["A3", "A5"]:
-            return 0x9  # jet/turboprop
-        return 0x8      # piston default
+            return 0x9
+        return 0x8
 
     if src in ["DJI", "RemoteID"]:
-        return 0xD  # UAV
+        return 0xD
 
     return 0x8
+
 
 
 # ===============================
@@ -82,6 +87,12 @@ def determine_address_type(drone):
 # ===============================
 
 def determine_symbol(drone):
+    emitter = (drone.get("emitter_type") or "").upper()
+
+    # UAV via qualsiasi sorgente
+    if emitter == "UAV":
+        return "/D"
+
     src = drone.get("source")
 
     if src == "ADSB":
@@ -90,9 +101,10 @@ def determine_symbol(drone):
         return "/^"
 
     if src in ["DJI", "RemoteID"]:
-        return "/D"
+        return "/'"
 
     return "/^"
+
 
 
 # ===============================
@@ -127,7 +139,7 @@ def should_forward(drone):
 
     # ADSB solo traffico basso
     if drone.get("source") == "ADSB":
-        if alt and alt > 2000:
+        if alt and alt > 10000:
             return False
 
     return True
@@ -136,6 +148,19 @@ def should_forward(drone):
 # ===============================
 # Frame builder principale
 # ===============================
+def build_precision_extension(drone):
+    nic = drone.get("nic")
+    nac_p = drone.get("nac_p")
+
+    if nic is None or nac_p is None:
+        return ""
+
+    # compressione semplice in due cifre
+    w1 = min(max(nic, 0), 9)
+    w2 = min(max(nac_p, 0), 9)
+
+    return f"!W{w1}{w2}!"
+
 
 def build_frame(drone, station_callsign):
 
@@ -171,15 +196,35 @@ def build_frame(drone, station_callsign):
     lon = dec_to_aprs_lon(drone["lon"])
 
     alt = meters_to_feet(drone.get("altitude"))
+    
     heading = int(drone.get("heading") or 0)
     speed = int(drone.get("speed") or 0)
 
+    precision = build_precision_extension(drone)
     aircraft_type = determine_aircraft_type(drone)
     address_type = determine_address_type(drone)
     symbol = determine_symbol(drone)
 
     ogn_id = build_ogn_id(clean_id, aircraft_type, address_type)
 
+    extra = ""
+
+    vs = drone.get("vertical_speed")
+    if vs is not None:
+        extra += f" {int(vs)}fpm"
+
+    flight = drone.get("flight")
+    if flight:
+        extra += f" {flight}"
+
+    sq = drone.get("squawk")
+    if sq:
+        extra += f" Sq{sq}"
+
+    alt_ft = meters_to_feet(drone.get("altitude"))
+    fl = alt_ft / 100
+    extra += f" FL{fl:.2f}"
+    
     timestamp = time.strftime("%H%M%S", time.gmtime())
 
     # symbol[0] = table
@@ -188,12 +233,13 @@ def build_frame(drone, station_callsign):
     symbol_code = symbol[1]
 
     frame = (
-        f"{address}>APRS,qAS,{station_callsign}:"
+        f"{address}>OGADSB,qAS,{station_callsign}:"
         f"/{timestamp}h"
         f"{lat}{symbol_table}{lon}"
         f"{symbol_code}{heading:03d}/{speed:03d}"
-        f"/A={alt:06d} "
+        f"/A={alt:06d} {precision} "
         f"{ogn_id}"
+        f"{extra}"
     )
 
     return frame

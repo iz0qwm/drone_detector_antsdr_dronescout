@@ -37,6 +37,7 @@ def listen_flarm_ogn(on_drone):
 
                 for line in f:
                     line = line.strip()
+                    #print("[FLARM RAW]", line)
                     if not line or line.startswith("#"):
                         continue
 
@@ -64,18 +65,28 @@ def parse_aprs(line):
         sender = header.split(">")[0]
 
         aircraft_type = None
+        object_type = None
 
         if " id" in payload:
             try:
                 id_part = payload.split(" id")[1].split()[0]  # es: id21XXXXXX
-                type_byte = int(id_part[2:4], 16)
+                type_byte = int(id_part[0:2], 16)
                 aircraft_type = (type_byte >> 2) & 0x0F
+
+                #print("DEBUG OGN ID:", id_part, "type_byte:", hex(type_byte), "aircraft_type:", aircraft_type)
+
+                if aircraft_type is not None:
+                    object_type = "UAV" if aircraft_type == 0xD else "AIRCRAFT"
+
+
             except Exception:
                 pass
 
         category = None
 
-        if aircraft_type == 3:
+        if aircraft_type == 0xD:
+            category = "UAV"
+        elif aircraft_type == 3:
             category = "A7"  # helicopter
         elif aircraft_type == 8:
             category = "A3"
@@ -114,8 +125,10 @@ def parse_aprs(line):
             "speed": speed,
             "heading": course,
             "category": category,
+            "object_type": object_type,   # <-- AGGIUNGI QUESTO
             "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         }
+
 
     except Exception:
         return None

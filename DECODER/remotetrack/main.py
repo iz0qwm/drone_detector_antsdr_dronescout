@@ -48,10 +48,14 @@ while True:
     current_time = time.strftime("%H:%M:%S", t)
 
     if msg.get_type() == 'HEARTBEAT':
-        if config.print_messages == True:
-            # print("%s MAVLink heartbeat received" % current_time)
+        pass
+
+    #if msg.get_type() == 'HEARTBEAT':
+    #    if config.print_messages:
+    #        print("%s MAVLink heartbeat received" % current_time)
 
     if msg.get_type() == 'ADSB_VEHICLE':
+        is_uav = (msg.emitter_type == mavutil.mavlink.ADSB_EMITTER_TYPE_UAV)
         if config.print_messages == True:
             print("\n%s MAVLink ADS-B vehicle message received" % current_time)
         adsb.print_payload(msg)
@@ -59,13 +63,16 @@ while True:
         # Invia al bridge tramite ZMQ
         try:
             data = {
-                "icao": msg.ICAO_address,
+                "source": "RemoteID" if is_uav else "ADSB",
+                "icao": f"{msg.ICAO_address:06x}",
                 "lat": msg.lat / 1e7,
                 "lon": msg.lon / 1e7,
                 "alt": msg.altitude / 1000.0,
                 "heading": msg.heading / 100.0,
-                "hor_velocity": msg.hor_velocity / 100.0
+                "hor_velocity": msg.hor_velocity / 100.0,
+                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
             }
+
             push_socket.send_json(data)
         except Exception as e:
             print(f"[ZMQ PUSH] Errore invio: {e}")

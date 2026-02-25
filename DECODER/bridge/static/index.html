@@ -147,24 +147,29 @@ async function fetchDrones() {
 
       `;
 
-      let iconFile = "drone.png";
+      let iconFile;
 
-      // Se ha category ADSB → è aereo
-      if (drone.category) {
-        iconFile = getAdsbIcon(drone.category);
+      // 1️⃣ Se è UAV → sempre drone
+      if (drone.object_type === "UAV") {
 
-      // Se viene da FLARM
+        iconFile = "drone.png";
+
+      // 2️⃣ FLARM
       } else if (drone.source === "FLARM") {
+
         iconFile = "glider.png";
 
-      // Se è APRS ma ha ID ICAO (6 hex)
-      } else if (/^[0-9a-f]{6}$/i.test(drone.id)) {
-        iconFile = "plane_unknown.png";
+      // 3️⃣ ADSB
+      } else if (drone.source === "ADSB") {
 
-      // Altrimenti è drone
+        iconFile = getAdsbIcon(drone.category);
+
+      // 4️⃣ fallback
       } else {
-        iconFile = "drone.png";
+
+        iconFile = "plane_unknown.png";
       }
+
 
 
       const icon = L.icon({

@@ -4,7 +4,10 @@ import time
 import argparse
 from datetime import datetime
 import atexit
-
+import os
+import psutil
+import json
+from state import services, stats
 
 HOST = "127.0.0.1"
 PORT = 14580
@@ -143,6 +146,40 @@ def format_aprs_lon(lon):
     return f"{deg:03d}{minutes:05.2f}{lon_dir}"
 
 
+def build_status_beacon():
+    ts = datetime.utcnow().strftime("%H%M%S") + "h"
+
+    uptime = int(time.time() - psutil.boot_time())
+    load = os.getloadavg()[0]
+    ram = psutil.virtual_memory()
+    ram_used = ram.used // (1024*1024)
+    ram_total = ram.total // (1024*1024)
+
+    svc_mask = (
+        int(services["ADSB"]) +
+        int(services["FLARM"]) * 2 +
+        int(services["DJI"]) * 4 +
+        int(services["RemoteID"]) * 8
+    )
+
+    runtime = read_runtime_stats()
+    active = runtime.get("active_drones", 0)
+    total = runtime.get("drones_seen", 0)
+
+
+    return (
+        f"{OGN_CALLSIGN}>OGNDVS:"
+        f">{ts} DSCv0.3 "
+        f"L:{load:.2f} "
+        f"R:{ram_used}/{ram_total} "
+        f"U:{uptime}s "
+        f"S:{svc_mask} "
+        f"A:{active} "
+        f"T:{total}"
+
+    )
+
+
 def ogn_beacon_loop():
     global ogn_socket
 
@@ -162,19 +199,16 @@ def ogn_beacon_loop():
 
         # Position beacon
         pos_beacon = (
-            f"{OGN_CALLSIGN}>APRS,TCPIP*,qAC,{OGN_CALLSIGN}:"
-            f"/{ts}{lat_str}/{lon_str}&/A={alt_ft:06d}"
+            f"{OGN_CALLSIGN}>OGNSDR:"
+            f"/{ts}{lat_str}/{lon_str}&/A={alt_ft:06d} "
+            f"DSCv0.3 ADSB+FLARM+DJI+RID"
         )
+
 
         forward_to_ogn(pos_beacon)
 
-        # Status beacon
-        status_beacon = (
-            f"{OGN_CALLSIGN}>APRS,TCPIP*,qAC,{OGN_CALLSIGN}:"
-            f">{ts} DSC-Bridge 0.1 HybridNode RomaNord ADSB+FLARM+DJI+RID"
-        )
+        forward_to_ogn(build_status_beacon())
 
-        forward_to_ogn(status_beacon)
 
 def connect_ogn():
     global ogn_socket
@@ -185,7 +219,10 @@ def connect_ogn():
             s.settimeout(5)
             s.connect((OGN_HOST, OGN_PORT))
 
-            login = f"user {OGN_CALLSIGN} pass {OGN_PASSCODE} vers DSC-Bridge 0.1 filter r/41.9/12.6/100\r\n"
+            login = (
+                f"user {OGN_CALLSIGN} pass {OGN_PASSCODE} vers DSC-Bridge 0.1 "
+                f"filter r/{NODE_LAT:.4f}/{NODE_LON:.4f}/10\r\n"
+            )
             print(f"[OGN] >> {login.strip()}")
             s.sendall(login.encode())
 
@@ -311,6 +348,12 @@ def forward_to_ogn(msg: str):
             ogn_socket = None
             connect_ogn()
 
+def read_runtime_stats():
+    try:
+        with open("/home/pi/bridge/runtime/stats.json") as f:
+            return json.load(f)
+    except:
+        return {}
 
 
 def handle_client(conn, addr):
@@ -380,9 +423,11 @@ def handle_client(conn, addr):
                 log_rx(callsign or "UNKNOWN", line)
                 broadcast(line + "\r\n", conn)
                 # evita di reinoltrare frame provenienti già da OGN
-                if ",qAS," in line and f",{OGN_CALLSIGN}" in line:
+                #if ",qAS," in line and f",{OGN_CALLSIGN}" in line:
+                #    continue
+                # evita reinoltro di pacchetti provenienti da OGN
+                if ",qAO," in line or ",qAR," in line:
                     continue
-
                 forward_to_ogn(line)
 
 
@@ -436,6 +481,11 @@ if __name__ == "__main__":
 
     threading.Thread(
         target=ogn_beacon_loop,
+        daemon=True
+    ).start()
+
+    threading.Thread(
+        target=ogn_keepalive_loop, 
         daemon=True
     ).start()
 

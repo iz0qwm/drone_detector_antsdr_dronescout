@@ -15,7 +15,7 @@ print_messages = True
 # save the detected Remote ID signals to a CSV file in the log_path folder
 # uncomment to enable logging
 # only basic information like SN, drone location/altitude and pilot location/alitude
-log_path = './logs'
+log_path = '/home/pi/bridge/logs/'
 
 #Export data to Virtual Radar Server or FlightAirMap that support sources with SBS BaseStation output
 #sbs_server_ip_address = "0.0.0.0"  # Standard loopback interface address (localhost)

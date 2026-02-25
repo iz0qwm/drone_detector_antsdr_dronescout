@@ -17,12 +17,6 @@ def listen_adsb(on_drone):
                 hex_id = ac.get("hex")
                 lat = ac.get("lat")
                 lon = ac.get("lon")
-                vertical_speed = ac.get("baro_rate")
-                squawk = ac.get("squawk")
-                flight = ac.get("flight")
-                nic = ac.get("nic")
-                nac_p = ac.get("nac_p")
-                seen_pos = ac.get("seen_pos")
 
                 if not hex_id or lat is None or lon is None:
                     continue
@@ -41,21 +35,16 @@ def listen_adsb(on_drone):
                     "id": hex_id,
                     "model": ac.get("type") or "",
                     "category": ac.get("category") or "",
+                    "flight": (ac.get("flight") or "").strip(),
+                    "squawk": ac.get("squawk"),
+                    "vertical_speed": ac.get("baro_rate") or ac.get("vert_rate"),
                     "lat": lat,
                     "lon": lon,
                     "altitude": alt_m,
                     "speed": ac.get("gs"),
                     "heading": ac.get("track"),
-                    "vertical_speed": vertical_speed,
-                    "squawk": squawk,
-                    "flight": flight.strip() if flight else "",
-                    "nic": nic,
-                    "nac_p": nac_p,
-                    "seen_pos": seen_pos,
-                    "rssi": ac.get("rssi"),
-                    "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+                    "timestamp": ac.get("timestamp") or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
                 }
-
 
                 on_drone(drone)
 
