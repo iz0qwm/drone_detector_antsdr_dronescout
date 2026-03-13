@@ -49,13 +49,9 @@ def determine_aircraft_type(drone):
     if emitter == "UAV":
         return 0xD
 
+    # ADSB → default Large (A3)
     if src == "ADSB":
-        cat = drone.get("category")
-        if cat == "A7":
-            return 0x3
-        if cat in ["A3", "A5"]:
-            return 0x9
-        return 0x8
+        return 0x9
 
     if src in ["DJI", "RemoteID"]:
         return 0xD

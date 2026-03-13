@@ -4,74 +4,29 @@
   <meta charset="utf-8" />
   <title>Droni ricevuti</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
- <style>
-html, body {
-  height: 100%;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-}
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+    }
 
-#top {
-  display: flex;
-  height: 70%;
-}
+    #map {
+      flex-grow: 1;
+    }
 
-#map {
-  width: 75%;
-}
-
-#servicesPanel {
-  width: 25%;
-  background: #111;
-  color: #0f0;
-  font-family: monospace;
-  font-size: 13px;
-  padding: 10px;
-  box-sizing: border-box;
-  overflow-y: auto;
-}
-
-.service-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-}
-
-.service-led {
-  font-size: 16px;
-}
-
-.service-on { color:#0f0; }
-.service-off { color:#f33; }
-
-button {
-  font-size:11px;
-}
-
-#logpanel {
-  height: 30%;
-  background:#000;
-  display:flex;
-  flex-direction:column;
-}
-
-#logcontrols {
-  background:#222;
-  padding:4px;
-}
-
-#logwindow {
-  flex-grow:1;
-  overflow-y:auto;
-  color:#0f0;
-  font-family:monospace;
-  font-size:13px;
-  line-height:1.3em;
-  padding:8px;
-  white-space: pre-wrap;
-}
+    #logwindow {
+      height: 150px;
+      overflow-y: auto;
+      background: #111;
+      color: #0f0;
+      font-family: monospace;
+      font-size: 12px;
+      padding: 8px;
+      box-sizing: border-box;
+      border-top: 2px solid #333;
+    }
 
 #sourcesPanel {
   position: absolute;
@@ -121,83 +76,31 @@ button {
   </style>
 </head>
 <body>
-
-<div id="top">
+  <div id="sourcesPanel">
+  <b>Sorgenti</b><br>
+  <div id="sourcesStatus">Caricamento…</div>
+</div>
 
   <div id="map"></div>
 
-    <div id="sourcesPanel"></div>
-    <div id="servicesPanel">
-
-      <b>SERVIZI</b>
-      <div id="servicesList">loading...</div>
-
-      <hr style="margin:10px 0;border:0;border-top:1px solid #333">
-
-      <b>COVERAGE</b>
-
-      <div>
-        <label><input type="checkbox" id="cov_dji"> DJI</label><br>
-        <label><input type="checkbox" id="cov_remoteid"> RemoteID</label><br>
-        <label><input type="checkbox" id="cov_adsb"> ADS-B</label><br>
-        <label><input type="checkbox" id="cov_flarm"> FLARM</label>
-      </div>
-
-    </div>
-
-</div>
-
-<div id="logpanel">
-
-  <div id="logcontrols">
-    Log file:
-    <select id="logSelector"></select>
-    <button onclick="loadSelectedLog()">Refresh</button>
+  <div id="logwindow">
+    Caricamento log...
   </div>
-
-  <div id="logwindow">Caricamento log...</div>
-
-</div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-rotatedmarker/leaflet.rotatedMarker.js"></script>
 
   <script>
-      const map = L.map('map').setView([41.9, 12.5], 11);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19
-      }).addTo(map);
-
-      document.getElementById("cov_dji").onchange = e=>{
-        coverageEnabled.DJI = e.target.checked;
-      };
-
-      document.getElementById("cov_remoteid").onchange = e=>{
-        coverageEnabled.RemoteID = e.target.checked;
-      };
-
-      document.getElementById("cov_adsb").onchange = e=>{
-        coverageEnabled.ADSB_AIRCRAFT = e.target.checked;
-      };
-
-      document.getElementById("cov_flarm").onchange = e=>{
-        coverageEnabled.FLARM = e.target.checked;
-      };
+const map = L.map('map').setView([41.9, 12.5], 11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19
+}).addTo(map);
 
 
 // Varibili inziali
 let markers = {};
 let receiverMarker = null;
 let trails = {};
-let coverageLayers = {};
-let coverageEnabled = {
-  DJI:false,
-  RemoteID:false,
-  ADSB_AIRCRAFT:false,
-  ADSB_UAV:false,
-  FLARM:false
-};
-
 const MAX_TRAIL_POINTS = 40;
 //const isMobile = window.innerWidth < 768;
 //const ICON_SIZE = isMobile ? 42 : 30;
@@ -213,87 +116,6 @@ function getAdsbIcon(category) {
     case "A7": return "helicopter.png";
     default:   return "plane_unknown.png";
   }
-}
-
-
-async function updateServices() {
-  try {
-    const res = await fetch("http://" + location.hostname + ":8080/services");
-    const data = await res.json();
-
-    const panel = document.getElementById("servicesList");
-    panel.innerHTML = "";
-
-    Object.entries(data).forEach(([name,status]) => {
-
-      const row = document.createElement("div");
-      row.className = "service-row";
-
-      const led = document.createElement("span");
-      led.className = "service-led " + (status==="active" ? "service-on":"service-off");
-      led.textContent = status==="active" ? "●" : "○";
-
-      const label = document.createElement("span");
-      label.textContent = name;
-
-      const btn = document.createElement("button");
-      btn.textContent = "restart";
-      btn.onclick = ()=>restartService(name);
-
-      row.appendChild(led);
-      row.appendChild(label);
-      row.appendChild(btn);
-
-      panel.appendChild(row);
-    });
-
-  } catch(e) {
-    console.error("services error",e);
-  }
-}
-
-async function loadLogFiles(){
-
-  const res = await fetch("http://" + location.hostname + ":8080/logfiles");
-  const files = await res.json();
-
-  const sel = document.getElementById("logSelector");
-  sel.innerHTML="";
-
-  files.forEach(f=>{
-    const opt = document.createElement("option");
-    opt.value=f;
-    opt.textContent=f;
-    sel.appendChild(opt);
-  });
-
-  if(files.length){
-    sel.value = files[0];
-    loadSelectedLog();
-  }
-}
-
-async function loadSelectedLog(){
-
-  const file = document.getElementById("logSelector").value;
-
-  if(!file) return;
-
-  const res = await fetch(
-    "http://" + location.hostname + ":8080/logfile/" + file
-  );
-
-  const data = await res.json();
-
-  document.getElementById("logwindow").textContent =
-      data.lines.join("\n")
-}
-
-
-
-
-async function restartService(name){
-  await fetch("http://" + location.hostname + ":8080/service/restart/" + name);
 }
 
 
@@ -458,7 +280,7 @@ async function updateSources() {
     const res = await fetch("http://" + location.hostname + ":8080/sources");
     const data = await res.json();
 
-    const container = document.getElementById("sourcesPanel");
+    const container = document.getElementById("sourcesStatus");
     container.innerHTML = "";
 
     Object.entries(data).forEach(([name, info]) => {
@@ -506,7 +328,6 @@ async function updateReceiver() {
         .bindPopup(popup);
     } else {
       receiverMarker.setLatLng(coords).setPopupContent(popup);
-      fetchCoverage();
     }
     //console.log("RECEIVER", r.lat, r.lon, r.fix_ok, r.source);
 
@@ -516,111 +337,11 @@ async function updateReceiver() {
 }
 
 
-function destinationPoint(lat, lon, bearing, distance) {
-
-  const R = 6371000;
-
-  const φ1 = lat * Math.PI/180;
-  const λ1 = lon * Math.PI/180;
-
-  const θ = bearing * Math.PI/180;
-  const δ = distance / R;
-
-  const φ2 = Math.asin(
-    Math.sin(φ1)*Math.cos(δ) +
-    Math.cos(φ1)*Math.sin(δ)*Math.cos(θ)
-  );
-
-  const λ2 = λ1 + Math.atan2(
-    Math.sin(θ)*Math.sin(δ)*Math.cos(φ1),
-    Math.cos(δ)-Math.sin(φ1)*Math.sin(φ2)
-  );
-
-  return [
-    φ2 * 180/Math.PI,
-    λ2 * 180/Math.PI
-  ];
-}
-
-async function fetchCoverage() {
-
-  try {
-
-    const res = await fetch("http://" + location.hostname + ":8080/coverage");
-    const data = await res.json();
-
-    if (!receiverMarker) return;
-
-    const r = receiverMarker.getLatLng();
-
-      Object.entries(data).forEach(([proto,sectors]) => {
-
-        let enabled =
-          coverageEnabled[proto] ||
-          (proto.startsWith("ADSB") && coverageEnabled.ADSB_AIRCRAFT);
-
-        if (!enabled) {
-          if(coverageLayers[proto]) {
-            map.removeLayer(coverageLayers[proto]);
-            delete coverageLayers[proto];
-          }
-          return;
-        }
-
-
-      let points = [];
-
-      Object.entries(sectors).forEach(([az,dist]) => {
-
-        const p = destinationPoint(
-          r.lat,
-          r.lng,
-          parseFloat(az),
-          parseFloat(dist)
-        );
-
-        points.push(p);
-
-      });
-
-      if (points.length < 3) return;
-
-      if (coverageLayers[proto]) {
-        map.removeLayer(coverageLayers[proto]);
-      }
-
-      const color =
-        proto.includes("DJI") ? "#00ff00" :
-        proto.includes("RemoteID") ? "#00ffff" :
-        proto.includes("FLARM") ? "#ffaa00" :
-        proto.includes("ADSB") ? "#00aaff" :
-        "#ffffff";
-
-      coverageLayers[proto] = L.polygon(points,{
-        color: color,
-        weight: 2,
-        fillOpacity: 0.1
-      }).addTo(map);
-
-    });
-
-  } catch(e) {
-    console.error("coverage error",e);
-  }
-
-}
-
-
 // Partenza servizi!
 setInterval(fetchDrones, 2000);
+setInterval(updateLogs, 2000);
 setInterval(updateSources, 2000);
 setInterval(updateReceiver, 20000);
-setInterval(updateServices, 5000);
-setInterval(fetchCoverage, 10000);
-
-loadLogFiles();
-updateReceiver();
-//loadSelectedLog();
 
   </script>
 </body>

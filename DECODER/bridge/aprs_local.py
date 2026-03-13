@@ -11,8 +11,15 @@ from state import services, stats
 
 HOST = "127.0.0.1"
 PORT = 14580
-OGN_HOST = "glidern5.glidernet.org"
+OGN_SERVERS = [
+    "glidern5.glidernet.org",
+    "glidern1.glidernet.org",
+    "glidern2.glidernet.org",
+    "glidern3.glidernet.org"
+]
+
 OGN_PORT = 14580
+current_ogn_index = 0
 OGN_CALLSIGN = "IZ0QWM"
 OGN_PASSCODE = "23972"  # APRS-IS passcode
 
@@ -211,22 +218,26 @@ def ogn_beacon_loop():
 
 
 def connect_ogn():
-    global ogn_socket
+    global ogn_socket, current_ogn_index
+
     while True:
+        host = OGN_SERVERS[current_ogn_index]
+
         try:
-            print(f"[OGN] connecting to {OGN_HOST}:{OGN_PORT}")
+            print(f"[OGN] connecting to {host}:{OGN_PORT}")
+
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.settimeout(5)
-            s.connect((OGN_HOST, OGN_PORT))
+            s.connect((host, OGN_PORT))
 
             login = (
                 f"user {OGN_CALLSIGN} pass {OGN_PASSCODE} vers DSC-Bridge 0.1 "
                 f"filter r/{NODE_LAT:.4f}/{NODE_LON:.4f}/10\r\n"
             )
+
             print(f"[OGN] >> {login.strip()}")
             s.sendall(login.encode())
 
-            # leggiamo risposta iniziale (fino a 2 secondi)
             s.settimeout(2)
             login_buffer = ""
 
@@ -248,16 +259,22 @@ def connect_ogn():
             else:
                 print("[OGN] no login response received")
 
-
             s.settimeout(None)
 
             ogn_socket = s
-            print("[OGN] connected and ready")
+            print(f"[OGN] connected to {host} and ready")
+
             return
 
         except Exception as e:
-            print(f"[OGN] connection failed: {e}")
-            time.sleep(10)
+            print(f"[OGN] connection failed on {host}: {e}")
+
+            # passa al prossimo server
+            current_ogn_index = (current_ogn_index + 1) % len(OGN_SERVERS)
+
+            print(f"[OGN] switching to next server: {OGN_SERVERS[current_ogn_index]}")
+
+            time.sleep(5)
 
 def ogn_reader_loop():
     global ogn_socket

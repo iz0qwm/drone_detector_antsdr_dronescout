@@ -2,6 +2,8 @@ from datetime import datetime
 import time
 import socket, json
 from state import receiver_status
+from coverage import set_receiver_position
+
 
 ROMA_FALLBACK = (41.9776, 12.6154, 20)
 
@@ -17,6 +19,9 @@ def set_status(lat, lon, alt, ok, source):
         "position_mode": "gps" if ok else "fallback"  # 👈 NUOVO
     })
 
+    # aggiorna anche la posizione per il coverage
+    set_receiver_position(lat, lon)
+
     if ok:
         receiver_status["last_ok_iso"] = receiver_status["ts_iso"]
         receiver_status["last_lat"] = lat
@@ -29,6 +34,8 @@ def gps_thread():
     # appena parte il thread
     set_status(*ROMA_FALLBACK, False, "fallback-roma")
 
+    set_receiver_position(ROMA_FALLBACK[0], ROMA_FALLBACK[1])
+    
     while True:
         try:
             s = socket.create_connection(("127.0.0.1", 2947), timeout=3)

@@ -29,12 +29,12 @@ rm /home/pi/bridge/logs/ogn_decode.log
 rm /home/pi/bridge/logs/bridge.log
 
 # Avvia AntSDR
-echo "🛰️ Avvio servizi AntSDR via SSH..."
-bash "$ANTSDR_CONTROL" start
-sleep 2
+#echo "🛰️ Avvio servizi AntSDR via SSH..."
+#bash "$ANTSDR_CONTROL" start
+#sleep 2
 
 # Avvia ricezione DJI
-start_background "python3 $DJI_SCRIPT --debug --mode legacy" "dji"
+start_background "python3 $DJI_SCRIPT --debug --mode new" "dji"
 
 # Avvia ricezione Remote ID
 cd /home/pi/remotetrack
@@ -44,7 +44,13 @@ cd /home/pi
 
 # Avvia APRS server locale (per OGN → bridge)
 echo "📡 Avvio APRS locale..."
-start_background "python3 $APRS_LOCAL -log -logfile /home/pi/bridge/logs/aprs_raw.log" "aprs"
+start_background "/usr/bin/python3 $APRS_LOCAL -log -logfile /home/pi/bridge/logs/aprs_raw.log" "aprs"
+sleep 1
+
+# Avvia Server che crea aircraft.json
+echo " Avvio server per json che si collega a modesmixer"
+#start_background "/usr/bin/python3 /home/pi/bridge/mm2_aircraft_server.py" "json_server"
+start_background "/usr/bin/socat TCP:127.0.0.1:10005 TCP:127.0.0.1:30015" "socat"
 sleep 1
 
 # Avvia ricezione OGN / FLARM
@@ -64,11 +70,11 @@ screen -dmS ogn-decode bash -c "cd /home/pi/ogn/rtlsdr-ogn && ./ogn-decode DSCNO
 # Avvia bridge CORE
 echo "🔁 Avvio bridge CORE..."
 #nohup python3 "$BRIDGECORE_SCRIPT" > /home/pi/bridge_rest.log 2>&1 &
-nohup python3 "$BRIDGECORE_SCRIPT" > /home/pi/bridge/logs/bridge.log 2>&1 &
+nohup /usr/bin/python3 "$BRIDGECORE_SCRIPT" > /home/pi/bridge/logs/bridge.log 2>&1 &
 
 # Avvia bridge WEB 
 echo "🔁 Avvio bridge WEB..."
-nohup python3 "$BRIDGEWEB_SCRIPT" > /dev/null 2>&1 &
+nohup /usr/bin/python3 "$BRIDGEWEB_SCRIPT" > /dev/null 2>&1 &
 
 
 echo "✅ Tutti i servizi sono stati avviati."
@@ -82,6 +88,7 @@ ps -ef|grep aprs_local
 echo " "
 ps -ef|grep main.py
 echo " "
+curl http://127.0.0.1:9090/data/aircraft.json
 echo " "
 echo "Controlliamo se vi sono problemi sulla USB"
 vcgencmd get_throttled

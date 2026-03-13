@@ -23,6 +23,12 @@ from sinks.ogn_formatter import build_frame
 
 from sinks.dsc_aircraft import send_aircraft_live
 
+import coverage
+
+update_coverage = coverage.update_coverage
+start_coverage = coverage.start
+
+
 
 RUNTIME_DIR = "/home/pi/bridge/runtime"
 RUNTIME_STATS = os.path.join(RUNTIME_DIR, "stats.json")
@@ -57,6 +63,9 @@ def api_sources():
     from state import services
     return jsonify({k: {"running": v} for k, v in services.items()})
 
+@app.route("/api/coverage")
+def api_coverage():
+    return jsonify(coverage.coverage)
 
 
 DRONE_TTL_SECONDS = 30   # puoi tararlo
@@ -81,6 +90,7 @@ def handle_drone(drone):
     drone = normalize_id(drone)
     drone = classify_object(drone)
     update_state(drone)
+    update_coverage(drone)
 
     # NON forwardare ciò che viene da OGN
     if drone.get("source") != "FLARM":
@@ -235,6 +245,8 @@ def main():
         target=cleanup_loop,
         daemon=True
     ).start()
+
+    start_coverage()
 
     while True:
         time.sleep(1)
