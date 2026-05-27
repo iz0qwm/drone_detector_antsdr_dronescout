@@ -1,0 +1,52 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+    background: #111;
+}
+
+.topbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: rgba(20, 20, 20, 0.95);
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    z-index: 2000;
+    box-sizing: border-box;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.status-bar {
+    margin-left: auto;
+    display: flex;
+    gap: 15px;
+    font-size: 14px;
+}
+
+#drawerToggle {
+    margin-left: 20px;
+    font-size: 24px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+#map {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}

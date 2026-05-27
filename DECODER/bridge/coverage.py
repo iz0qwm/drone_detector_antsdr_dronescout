@@ -104,8 +104,8 @@ def update_coverage(drone):
     lat = drone.get("lat")
     lon = drone.get("lon")
 
-    print("RX POS:", rx_lat, rx_lon)
-    print("DRONE:", drone.get("source"), drone.get("lat"), drone.get("lon"))
+    #print("RX POS:", rx_lat, rx_lon)
+    #print("DRONE:", drone.get("source"), drone.get("lat"), drone.get("lon"))
 
     if lat is None or lon is None:
         return
@@ -148,7 +148,7 @@ def update_coverage(drone):
 
     sector = int(az // SECTOR_SIZE) * SECTOR_SIZE
 
-    print("SECTOR UPDATE:", source, sector, dist)
+    #print("SECTOR UPDATE:", source, sector, dist)
     
     with lock:
 

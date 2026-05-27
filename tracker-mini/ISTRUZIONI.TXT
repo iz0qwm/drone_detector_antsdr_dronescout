@@ -1,0 +1,127 @@
+------------
+ATTIVAZIONE
+------------
+cd /home/pi/tracker-mini
+
+#python3 -m venv venv
+source venv/bin/activate
+python backend/app.py
+
+----------------------------------------
+CREAZIONE sudo
+----------------------------------------
+pi@dsc-node02:~ $ sudo chmod 440 /etc/sudoers.d/tracker-mini
+pi@dsc-node02:~ $ sudo visudo -c
+/etc/sudoers: parsed OK
+/etc/sudoers.d/010_at-export: parsed OK
+/etc/sudoers.d/010_dpkg-threads: parsed OK
+/etc/sudoers.d/010_global-tty: parsed OK
+/etc/sudoers.d/010_proxy: parsed OK
+/etc/sudoers.d/README: parsed OK
+/etc/sudoers.d/tracker-mini: parsed OK
+pi@dsc-node02:~ $ sudo /usr/bin/nmcli device disconnect wlan0
+Device 'wlan0' successfully disconnected.
+pi@dsc-node02:~ $
+
+------------------------------------------------
+Gateway solo per rete Wifi no LAN
+-------------------------------------
+pi@dsc-node02:~ $ ip route
+default via 192.168.1.1 dev eth0 proto static metric 100
+default via 192.168.1.254 dev wlan0 proto dhcp src 192.168.1.179 metric 600
+192.168.1.0/24 dev eth0 proto kernel scope link src 192.168.1.115 metric 100
+192.168.1.0/24 dev wlan0 proto kernel scope link src 192.168.1.179 metric 600
+pi@dsc-node02:~ $ sudo nmcli connection modify netplan-eth0 ipv4.gateway ""
+sudo nmcli connection modify netplan-eth0 ipv4.dns ""
+sudo nmcli connection up netplan-eth0
+Connection successfully activated (D-Bus active path: /org/freedesktop/NetworkManager/ActiveConnection/4)
+pi@dsc-node02:~ $
+pi@dsc-node02:~ $
+pi@dsc-node02:~ $ ip route
+default via 192.168.1.254 dev wlan0 proto dhcp src 192.168.1.179 metric 600
+192.168.1.0/24 dev eth0 proto kernel scope link src 192.168.1.115 metric 100
+192.168.1.0/24 dev wlan0 proto kernel scope link src 192.168.1.179 metric 600
+pi@dsc-node02:~ $
+
+------------------------------------------------
+Priorità alta su rete WiFi con internet e bassa su LAN
+----------------------------------------------------
+pi@dsc-node02:~ $ nmcli connection show
+NAME                                UUID                                  TYPE      DEVICE
+FASTWEB-D8AE29                      c9d84a70-060b-44ee-be22-cea2d7aaccfa  wifi      wlan0
+netplan-eth0                        75a1216a-9d1a-30cd-8aca-ace5526ec021  ethernet  eth0
+lo                                  21450761-76a8-4d4e-8070-0497533f6597  loopback  lo
+netplan-wlan0-Mi-Note-10-Raffaello  9258c0e7-6c95-3302-9d5a-2a7c2276758d  wifi      --
+pi@dsc-node02:~ $ sudo nmcli connection modify netplan-eth0 ipv4.route-metric 100
+[sudo] password for pi:
+pi@dsc-node02:~ $ sudo nmcli connection modify "FASTWEB-D8AE29" ipv4.route-metric 600
+pi@dsc-node02:~ $ sudo nmcli connection up netplan-eth0
+sudo nmcli connection up "FASTWEB-D8AE29"
+Connection successfully activated (D-Bus active path: /org/freedesktop/NetworkManager/ActiveConnection/5)
+Connection successfully activated (D-Bus active path: /org/freedesktop/NetworkManager/ActiveConnection/6)
+pi@dsc-node02:~ $ ip route
+default via 192.168.1.254 dev wlan0 proto dhcp src 192.168.1.179 metric 600
+192.168.1.0/24 dev eth0 proto kernel scope link src 192.168.1.115 metric 100
+192.168.1.0/24 dev wlan0 proto kernel scope link src 192.168.1.179 metric 600
+pi@dsc-node02:~ $
+
+-------------------------------------------------
+Struttura
+
+tracker-mini/
+├── backend/
+│   ├── app.py
+│   ├── config.py
+│   ├── routes/
+│   │   ├── status.py
+│   │   ├── network.py
+|       ├── network_manager.py
+│   │   ├── maps.py
+│   │   └── settings.py
+│   │
+│   └── services/
+│       ├── system.py
+│       ├── network.py
+|       ├── network_manager.py
+│       ├── maps.py
+│       ├── ds110.py
+│       └── adsb.py
+│
+├── frontend/
+    ├── index.html
+    ├── css/
+    │    main.css
+    │    drawer.css
+    │    map.css
+    │
+    ├── js/
+    │     dashboard.js
+    │     drawer.js
+    │     api.js
+    │     map.js
+│
+├── config/
+│   settings.json
+│
+├── maps/
+├── logs/
+└── systemd/
+
++---------------------------------------------------+
+| Portable Air Awareness Node                       |
+| dsc-node02   CPU 12%  RAM 31%  Disk 18%           |
++---------------------------------------------------+
+
++----------------------+----------------------------+
+| NETWORK              | MAP                        |
+| Ethernet: Connected  |                            |
+| WiFi: Not configured |        LEAFLET             |
+| AP Mode: Disabled    |                            |
+| [Configure]          |                            |
++----------------------+                            |
+| SERVICES             |                            |
+| Remote ID: OFF       |                            |
+| ADS-B: OFF           |                            |
+| GPS: OFF             |                            |
+| [Manage]             |                            |
++----------------------+----------------------------+

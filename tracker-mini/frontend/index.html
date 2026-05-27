@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portable Air Awareness Node</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/drawer.css">
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="title">
+            Portable Air Awareness Node
+        </div>
+
+        <div class="status-bar">
+            <span id="hostname">---</span>
+            <span id="cpu">CPU --%</span>
+            <span id="ram">RAM --%</span>
+            <span id="disk">DISK --%</span>
+        </div>
+
+        <button id="drawerToggle">☰</button>
+    </header>
+
+    <div id="map"></div>
+
+    <aside id="drawer" class="drawer">
+        <h2>System</h2>
+
+        <div class="drawer-section">
+            <h3>Operating Mode</h3>
+
+            <div id="modeStatus">
+                Loading mode...
+            </div>
+
+            <button id="clientModeBtn">
+                Infrastructure Mode
+            </button>
+
+            <button id="fieldModeBtn">
+                Field Mode
+            </button>
+        </div>
+
+
+        <div class="drawer-section">
+            <h3>Network</h3>
+
+            <div id="networkStatus">
+                Loading...
+            </div>
+
+            <button id="scanWifiBtn">
+                Scan WiFi Networks
+            </button>
+
+            <button id="disconnectWifiBtn">
+                Disconnect WiFi
+            </button>
+
+            <div id="wifiNetworks" class="wifi-networks"></div>
+        </div>
+
+        <div class="drawer-section">
+            <h3>Access Point</h3>
+
+            <div id="apStatus">
+                Loading AP status...
+            </div>
+
+            <button id="startApBtn">
+                Start Hotspot
+            </button>
+
+            <button id="stopApBtn">
+                Stop Hotspot
+            </button>
+        </div>
+
+        <div class="drawer-section">
+            <h3>Services</h3>
+            <div>
+                Remote ID: OFF<br>
+                ADS-B: OFF<br>
+                GPS: OFF
+            </div>
+        </div>
+
+        <div class="drawer-section">
+            <h3>Settings</h3>
+            <button>System Settings</button>
+        </div>
+    </aside>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="js/drawer.js"></script>
+    <script src="js/dashboard.js"></script>
+
+</body>
+</html>

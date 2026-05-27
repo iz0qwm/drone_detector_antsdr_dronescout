@@ -172,6 +172,29 @@ def write_runtime_stats():
     except Exception as e:
         print("[STATS] write error:", e)
 
+def heartbeat_loop():
+    import requests
+    from sinks.dsc import build_observer, DSC_INGEST_URL, DSC_SOURCE
+
+    while True:
+        try:
+            payload = {
+                "source": DSC_SOURCE,
+                "objects": [],
+                "observer": build_observer()
+            }
+
+            r = requests.post(DSC_INGEST_URL, json=payload, timeout=5)
+
+            if r.status_code == 200:
+                print("[HEARTBEAT] OK")
+            else:
+                print("[HEARTBEAT] error", r.status_code)
+
+        except Exception as e:
+            print("[HEARTBEAT] send error:", e)
+
+        time.sleep(60)
 
 
 def update_state(drone):
@@ -243,6 +266,11 @@ def main():
 
     threading.Thread(
         target=cleanup_loop,
+        daemon=True
+    ).start()
+
+    threading.Thread(
+        target=heartbeat_loop,
         daemon=True
     ).start()
 

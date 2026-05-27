@@ -1,8 +1,27 @@
 # sinks/dsc.py
 import requests
+from state import receiver_status
+
 
 DSC_INGEST_URL = "https://ingesttrafficobject-32dg4v266a-oc.a.run.app"
 DSC_SOURCE = "airsense"
+
+
+def build_observer():
+    return {
+        "id": "dsc-node-roma-nomentana",
+        "name": "DSC Node Roma",
+        "type": "multiprotocol",
+        "lat": receiver_status.get("lat"),
+        "lon": receiver_status.get("lon"),
+        "capabilities": [
+            "remoteid",
+            "adsb",
+            "flarm",
+            "ocusync"
+        ]
+    }
+
 
 def send_dsc(drone):
     try:
@@ -37,6 +56,7 @@ def send_dsc(drone):
             "speed": drone.get("speed"),
             "heading": drone.get("heading"),
             "model": drone.get("model"),
+            "observer": build_observer(),
         }
 
         r = requests.post(DSC_INGEST_URL, json=payload, timeout=5)
