@@ -30,6 +30,32 @@ def list_connections():
 
 
 def scan_wifi():
+
+    saved_connections = set()
+    try:
+        saved = subprocess.check_output(
+            [
+                "/usr/bin/nmcli",
+                "-t",
+                "-f",
+                "NAME,TYPE",
+                "connection",
+                "show"
+            ]
+        ).decode().splitlines()
+
+        for line in saved:
+            parts = line.rsplit(":", 1)
+
+            if len(parts) == 2:
+                name, conn_type = parts
+
+                if conn_type == "802-11-wireless":
+                    saved_connections.add(name)
+
+    except:
+        pass
+
     try:
         result = subprocess.check_output(
             ["/usr/bin/nmcli", "-t", "-f", "SSID,SIGNAL,SECURITY", "device", "wifi", "list"]
@@ -55,7 +81,8 @@ def scan_wifi():
                 networks.append({
                     "ssid": ssid,
                     "signal": int(parts[1]) if parts[1].isdigit() else 0,
-                    "security": parts[2]
+                    "security": parts[2],
+                    "saved": ssid in saved_connections
                 })
 
         return networks
@@ -187,6 +214,14 @@ def clean_nmcli_output(lines):
 
 
 def start_hotspot():
+    status = hotspot_status()
+
+    if status["active"]:
+        return {
+            "success": True,
+            "message": "Hotspot already active"
+        }
+
     try:
         result = subprocess.check_output(
             [

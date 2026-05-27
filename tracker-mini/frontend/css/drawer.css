@@ -60,3 +60,12 @@ button {
 .error-text {
     color: #ff7777;
 }
+
+.saved-network {
+    background: #2d7d32;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 11px;
+    margin-left: 6px;
+}

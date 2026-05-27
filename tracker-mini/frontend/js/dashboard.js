@@ -13,7 +13,21 @@ async function loadStatus() {
     }
 }
 
-const map = L.map('map').setView([41.9028, 12.4964], 10);
+let map = null;
+
+if (typeof L !== "undefined") {
+    map = L.map('map').setView([41.9028, 12.4964], 10);
+
+    L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {
+            attribution: '&copy; OpenStreetMap'
+        }
+    ).addTo(map);
+}
+else {
+    console.error("Leaflet not loaded");
+}
 
 
 async function loadNetworkStatus() {
@@ -43,12 +57,6 @@ async function loadNetworkStatus() {
     }
 }
 
-L.tileLayer(
-    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    {
-        attribution: '&copy; OpenStreetMap'
-    }
-).addTo(map);
 
 loadStatus();
 loadNetworkStatus();

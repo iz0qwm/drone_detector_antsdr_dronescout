@@ -17,31 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
         disconnectBtn.addEventListener("click", disconnectWifi);
     }
 
-    const startApBtn = document.getElementById("startApBtn");
-    const stopApBtn = document.getElementById("stopApBtn");
-
-    if (startApBtn) {
-        startApBtn.addEventListener("click", startHotspot);
-    }
-
-    if (stopApBtn) {
-        stopApBtn.addEventListener("click", stopHotspot);
-    }
-
-
-    const clientModeBtn = document.getElementById("clientModeBtn");
-    const fieldModeBtn = document.getElementById("fieldModeBtn");
-
-    if (clientModeBtn) {
-        clientModeBtn.addEventListener("click", setClientMode);
-    }
-
-    if (fieldModeBtn) {
-        fieldModeBtn.addEventListener("click", setFieldMode);
-    }
-
-    loadApStatus();
-    loadModeStatus();
 });
 
 async function scanWifiNetworks() {
@@ -71,16 +46,20 @@ async function scanWifiNetworks() {
 
             const secure = net.security && net.security.trim() !== "";
 
+            const savedLabel = net.saved
+            ? `<span class="saved-network">Saved</span>`
+            : "";
+
             row.innerHTML = `
                 <div class="wifi-info">
-                    <b>${escapeHtml(net.ssid)}</b><br>
+                    <b>${escapeHtml(net.ssid)}</b> ${savedLabel}<br>
                     Segnale: ${net.signal}% — ${secure ? net.security : "Open"}
                 </div>
                 <button class="wifi-connect-btn">Connetti</button>
             `;
 
             row.querySelector("button").addEventListener("click", () => {
-                connectWifi(net.ssid, secure);
+                connectWifi(net.ssid, secure, net.saved);
             });
 
             box.appendChild(row);
@@ -92,13 +71,13 @@ async function scanWifiNetworks() {
     }
 }
 
-async function connectWifi(ssid, secure) {
+async function connectWifi(ssid, secure, saved) {
     const buttons = document.querySelectorAll(".wifi-connect-btn");
     buttons.forEach(btn => btn.disabled = true);
 
     let password = "";
 
-    if (secure) {
+    if (secure && !saved) {
         password = prompt(`Password per "${ssid}"`);
         if (password === null) return;
     }
@@ -177,173 +156,6 @@ function escapeHtml(value) {
         .replaceAll("'", "&#039;");
 }
 
-async function loadApStatus() {
-    const box = document.getElementById("apStatus");
-
-    try {
-        const res = await fetch("/api/ap/status");
-        const data = await res.json();
-
-        if (data.active) {
-            box.innerHTML = `
-                <b>Status:</b> ACTIVE<br>
-                <b>SSID:</b> Portable-Air-Node<br>
-                <b>Password:</b> tracker123
-            `;
-        } else {
-            box.innerHTML = `
-                <b>Status:</b> OFF
-            `;
-        }
-
-    } catch (err) {
-        console.error(err);
-        box.innerHTML = "AP status unavailable";
-    }
-}
-
-async function startHotspot() {
-    try {
-        const res = await fetch("/api/ap/start", {
-            method: "POST"
-        });
-
-        const data = await res.json();
-
-        alert(data.message);
-
-        setTimeout(() => {
-            loadApStatus();
-
-            if (typeof loadNetworkStatus === "function") {
-                loadNetworkStatus();
-            }
-        }, 3000);
-
-    } catch (err) {
-        console.error(err);
-        alert("Hotspot start failed");
-    }
-}
-
-async function stopHotspot() {
-    try {
-        const res = await fetch("/api/ap/stop", {
-            method: "POST"
-        });
-
-        const data = await res.json();
-
-        alert(data.message);
-
-        setTimeout(() => {
-            loadApStatus();
-
-            if (typeof loadNetworkStatus === "function") {
-                loadNetworkStatus();
-            }
-        }, 3000);
-
-    } catch (err) {
-        console.error(err);
-        alert("Hotspot stop failed");
-    }
-}
 
 
-
-async function loadModeStatus() {
-    const box = document.getElementById("modeStatus");
-
-    try {
-        const res = await fetch("/api/mode/status");
-        const data = await res.json();
-
-        if (data.mode === "FIELD") {
-            box.innerHTML = `
-                <b>Mode:</b> FIELD<br>
-                Tactical standalone mode
-            `;
-        }
-        else if (data.mode === "CLIENT") {
-            box.innerHTML = `
-                <b>Mode:</b> INFRASTRUCTURE<br>
-                WiFi / Ethernet uplink mode
-            `;
-        }
-        else if (data.mode === "TRANSITION") {
-            box.innerHTML = `
-                <b>Mode:</b> TRANSITION<br>
-                Waiting for infrastructure network...
-            `;
-        }
-        else {
-            box.innerHTML = `
-                <b>Mode:</b> UNKNOWN
-            `;
-        }
-
-    } catch (err) {
-        console.error(err);
-        box.innerHTML = "Mode unavailable";
-    }
-}
-
-async function setFieldMode() {
-    if (!confirm("Switch to FIELD mode? WiFi uplink will be disconnected.")) {
-        return;
-    }
-
-    try {
-        const res = await fetch("/api/mode/field", {
-            method: "POST"
-        });
-
-        const data = await res.json();
-
-        alert(data.message);
-
-        setTimeout(() => {
-            loadModeStatus();
-            loadApStatus();
-
-            if (typeof loadNetworkStatus === "function") {
-                loadNetworkStatus();
-            }
-        }, 3000);
-
-    } catch (err) {
-        console.error(err);
-        alert("Failed to switch mode");
-    }
-}
-
-async function setClientMode() {
-    if (!confirm("Switch to INFRASTRUCTURE mode? Hotspot will remain active until another network becomes available.")) {
-        return;
-    }
-
-    try {
-        const res = await fetch("/api/mode/client", {
-            method: "POST"
-        });
-
-        const data = await res.json();
-
-        alert(data.message);
-
-        setTimeout(() => {
-            loadModeStatus();
-            loadApStatus();
-
-            if (typeof loadNetworkStatus === "function") {
-                loadNetworkStatus();
-            }
-        }, 3000);
-
-    } catch (err) {
-        console.error(err);
-        alert("Failed to switch mode");
-    }
-}
 
