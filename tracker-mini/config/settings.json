@@ -1,0 +1,14 @@
+{
+  "admin_lan_ip": "192.168.1.115",
+  "ap_ssid": "Portable-Air-Node",
+  "map": {
+    "default_lat": 41.9028,
+    "default_lon": 12.4964,
+    "default_zoom": 10,
+    "base_map": "Italy.mbtiles",
+    "active_maps": [
+      "Italia_centrale.mbtiles",
+      "Italy.mbtiles"
+    ]
+  }
+}

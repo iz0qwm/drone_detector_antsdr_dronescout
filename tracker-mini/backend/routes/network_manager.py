@@ -11,7 +11,9 @@ from services.network_manager import (
     disconnect_wifi,
     start_hotspot,
     stop_hotspot,
-    hotspot_status
+    hotspot_status,
+    get_lan_config,
+    set_secondary_lan
 )
 
 @network_manager_bp.route("/api/connections")
@@ -56,3 +58,21 @@ def ap_stop():
 @network_manager_bp.route("/api/ap/status")
 def ap_status():
     return jsonify(hotspot_status())
+
+@network_manager_bp.route("/api/lan/config")
+def lan_config():
+    return jsonify(get_lan_config())
+
+
+@network_manager_bp.route("/api/lan/config", methods=["POST"])
+def lan_config_set():
+
+    data = request.get_json()
+
+    ip = data.get("ip")
+    mask = data.get("mask")
+    gateway = data.get("gateway")
+
+    return jsonify(
+        set_secondary_lan(ip, mask, gateway)
+    )

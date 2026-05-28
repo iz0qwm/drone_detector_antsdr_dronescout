@@ -75,17 +75,21 @@ tracker-mini/
 │   ├── routes/
 │   │   ├── status.py
 │   │   ├── network.py
-|       ├── network_manager.py
+|   |   ├── network_manager.py
 │   │   ├── maps.py
 │   │   └── settings.py
 │   │
-│   └── services/
-│       ├── system.py
-│       ├── network.py
-|       ├── network_manager.py
-│       ├── maps.py
-│       ├── ds110.py
-│       └── adsb.py
+│   ├── services/
+│   │   ├── system.py
+│   │   ├── network.py
+|   │   ├── network_manager.py
+│   │   ├── maps.py
+│   │   ├── ds110.py
+│   │   └── adsb.py
+│   │ 
+│   └── db
+│       ├── database.py 
+│       └── schema.sql
 │
 ├── frontend/
     ├── index.html
@@ -101,9 +105,14 @@ tracker-mini/
     │     map.js
 │
 ├── config/
-│   settings.json
+│     settings.json
 │
 ├── maps/
+      Italia_centrale.mbtiles
+      terrain.mbtiles
+      downloads/
+
+
 ├── logs/
 └── systemd/
 

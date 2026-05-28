@@ -15,18 +15,40 @@ async function loadStatus() {
 
 let map = null;
 
-if (typeof L !== "undefined") {
-    map = L.map('map').setView([41.9028, 12.4964], 10);
+async function initMap() {
 
-    L.tileLayer(
-        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        {
-            attribution: '&copy; OpenStreetMap'
+    try {
+
+        const res = await fetch('/api/settings');
+        const settings = await res.json();
+
+        const mapConfig = settings.map;
+
+        if (typeof L === "undefined") {
+            console.error("Leaflet not loaded");
+            return;
         }
-    ).addTo(map);
-}
-else {
-    console.error("Leaflet not loaded");
+
+        map = L.map('map').setView(
+            [
+                mapConfig.default_lat,
+                mapConfig.default_lon
+            ],
+            mapConfig.default_zoom
+        );
+
+        L.tileLayer(
+            '/tiles/{z}/{x}/{y}.png',
+            {
+                attribution: '&copy; OpenStreetMap'
+            }
+        ).addTo(map);
+
+    } catch(err) {
+
+        console.error("Map init error", err);
+
+    }
 }
 
 
@@ -35,18 +57,57 @@ async function loadNetworkStatus() {
         const res = await fetch('/api/network');
         const data = await res.json();
 
-        const eth = data.ethernet;
+        const adminLan = data.admin_lan;
+        const userLan = data.user_lan;
         const wifi = data.wifi;
 
+        let wifiLabel = "Disconnected";
+        let wifiExtra = "";
+
+        if (wifi.connected) {
+
+            if (wifi.ssid === "Portable-Air-Node") {
+
+                wifiLabel = "Access Point ACTIVE";
+                wifiExtra = `
+                    <b>SSID:</b> Portable-Air-Node<br>
+                `;
+
+            } else {
+
+                wifiLabel = "Connected";
+
+                wifiExtra = `
+                    <b>SSID:</b> ${wifi.ssid || "---"}<br>
+                `;
+            }
+        }
+
         document.getElementById('networkStatus').innerHTML = `
-            <b>Ethernet:</b> ${eth.connected ? 'Connected' : 'Disconnected'}<br>
-            <b>IP:</b> ${eth.ip || '---'}<br><br>
 
-            <b>WiFi:</b> ${wifi.connected ? 'Connected' : 'Disconnected'}<br>
-            <b>SSID:</b> ${wifi.ssid || '---'}<br>
-            <b>IP:</b> ${wifi.ip || '---'}<br><br>
+            <b>Admin LAN:</b>
+            ${adminLan.connected ? 'Connected' : 'Disconnected'}<br>
 
-            <b>Internet:</b> ${data.internet ? 'YES' : 'NO'}<br>
+            <b>IP:</b>
+            192.168.1.115<br><br>
+
+            <b>User LAN:</b>
+            ${userLan.connected ? 'Connected' : 'Disconnected'}<br>
+
+            <b>IP:</b>
+            ${userLan.ip || '---'}<br><br>
+
+            <b>WiFi:</b>
+            ${wifiLabel}<br>
+
+            ${wifiExtra}
+
+            <b>IP:</b>
+            ${wifi.ip || '---'}<br><br>
+
+            <b>Internet:</b>
+            ${data.internet ? 'YES' : 'NO'}
+
         `;
 
     } catch (err) {
@@ -60,6 +121,7 @@ async function loadNetworkStatus() {
 
 loadStatus();
 loadNetworkStatus();
+initMap();
 
 setInterval(() => {
     loadStatus();

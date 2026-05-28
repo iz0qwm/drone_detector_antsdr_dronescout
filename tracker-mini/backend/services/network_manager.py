@@ -1,5 +1,10 @@
 import subprocess
 import re
+import ipaddress
+
+from config import SETTINGS
+
+AP_SSID = SETTINGS["ap_ssid"]
 
 def list_connections():
     try:
@@ -233,7 +238,7 @@ def start_hotspot():
                 "ifname",
                 "wlan0",
                 "ssid",
-                "Portable-Air-Node",
+                AP_SSID,
                 "password",
                 "tracker123"
             ],
@@ -273,7 +278,7 @@ def stop_hotspot():
                 name, conn_type = parts
 
                 if conn_type == "802-11-wireless" and (
-                    "Hotspot" in name or name == "Portable-Air-Node"
+                    "Hotspot" in name or name == AP_SSID
                 ):
                     subprocess.check_output(
                         [
@@ -342,3 +347,165 @@ def hotspot_status():
         }
 
 
+def mask_to_prefix(mask):
+    try:
+        return ipaddress.IPv4Network(f"0.0.0.0/{mask}").prefixlen
+    except Exception:
+        return None
+
+
+def prefix_to_mask(prefix):
+    try:
+        return str(ipaddress.IPv4Network(f"0.0.0.0/{prefix}").netmask)
+    except Exception:
+        return ""
+
+
+def get_lan_config():
+    try:
+        result = subprocess.check_output(
+            [
+                "/usr/bin/nmcli",
+                "-g",
+                "ipv4.addresses,ipv4.gateway",
+                "connection",
+                "show",
+                "netplan-eth0"
+            ]
+        ).decode().splitlines()
+
+        addresses = result[0].split(",") if result else []
+
+        secondary_ip = ""
+        secondary_mask = "255.255.255.0"
+
+        for addr in addresses:
+            addr = addr.strip()
+
+            if not addr:
+                continue
+
+            if addr.startswith("192.168.1.115"):
+                continue
+
+            if "/" in addr:
+                ip, prefix = addr.split("/", 1)
+                secondary_ip = ip
+                secondary_mask = prefix_to_mask(prefix)
+            else:
+                secondary_ip = addr
+
+        gateway = result[1] if len(result) > 1 else ""
+
+        return {
+            "success": True,
+            "ip": secondary_ip,
+            "mask": secondary_mask,
+            "gateway": gateway
+        }
+
+    except Exception as e:
+        return {
+            "success": False,
+            "message": str(e)
+        }
+
+
+def set_secondary_lan(ip, mask, gateway=None):
+    try:
+        if not ip:
+            return {
+                "success": False,
+                "message": "User LAN IP missing"
+            }
+
+        prefix = mask_to_prefix(mask)
+
+        if prefix is None:
+            return {
+                "success": False,
+                "message": "Invalid subnet mask"
+            }
+
+        ipaddress.IPv4Address(ip)
+
+        if gateway:
+            ipaddress.IPv4Address(gateway)
+
+        management_ip = "192.168.1.115/24"
+        secondary_ip = f"{ip}/{prefix}"
+
+        addresses = f"{management_ip},{secondary_ip}"
+
+        subprocess.check_output(
+            [
+                "/usr/bin/sudo",
+                "/usr/bin/nmcli",
+                "connection",
+                "modify",
+                "netplan-eth0",
+                "ipv4.method",
+                "manual",
+                "ipv4.addresses",
+                addresses
+            ],
+            stderr=subprocess.STDOUT
+        )
+
+        if gateway:
+
+            subprocess.check_output(
+                [
+                    "/usr/bin/sudo",
+                    "/usr/bin/nmcli",
+                    "connection",
+                    "modify",
+                    "netplan-eth0",
+                    "ipv4.gateway",
+                    gateway
+                ],
+                stderr=subprocess.STDOUT
+            )
+
+        else:
+
+            subprocess.check_output(
+                [
+                    "/usr/bin/sudo",
+                    "/usr/bin/nmcli",
+                    "connection",
+                    "modify",
+                    "netplan-eth0",
+                    "ipv4.gateway",
+                    ""
+                ],
+                stderr=subprocess.STDOUT
+            )
+
+        subprocess.check_output(
+            [
+                "/usr/bin/sudo",
+                "/usr/bin/nmcli",
+                "connection",
+                "up",
+                "netplan-eth0"
+            ],
+            stderr=subprocess.STDOUT
+        )
+
+        return {
+            "success": True,
+            "message": "User LAN configuration updated"
+        }
+
+    except subprocess.CalledProcessError as e:
+        return {
+            "success": False,
+            "message": e.output.decode().strip()
+        }
+
+    except Exception as e:
+        return {
+            "success": False,
+            "message": str(e)
+        }

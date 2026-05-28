@@ -17,6 +17,29 @@ document.addEventListener("DOMContentLoaded", () => {
         disconnectBtn.addEventListener("click", disconnectWifi);
     }
 
+    const saveLanBtn = document.getElementById("saveLanBtn");
+
+    if (saveLanBtn) {
+        saveLanBtn.addEventListener("click", saveLanConfig);
+    }
+
+    const networkSettingsToggle =
+    document.getElementById("networkSettingsToggle");
+
+    const networkSettingsPanel =
+        document.getElementById("networkSettingsPanel");
+
+    if (networkSettingsToggle && networkSettingsPanel) {
+
+        networkSettingsToggle.addEventListener("click", () => {
+
+            networkSettingsPanel.classList.toggle("open");
+
+        });
+
+    }
+
+    loadLanConfig();
 });
 
 async function scanWifiNetworks() {
@@ -157,5 +180,60 @@ function escapeHtml(value) {
 }
 
 
+async function saveLanConfig() {
 
+    const ip = document.getElementById("lanIp").value;
+    const mask = document.getElementById("lanMask").value;
+    const gateway = document.getElementById("lanGateway").value;
 
+    try {
+
+        const res = await fetch("/api/lan/config", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                ip,
+                mask,
+                gateway
+            })
+        });
+
+        const data = await res.json();
+
+        alert(data.message);
+
+    } catch(err) {
+        console.error(err);
+        alert("LAN configuration error");
+    }
+}
+
+async function loadLanConfig() {
+
+    try {
+
+        const res = await fetch("/api/lan/config");
+        const data = await res.json();
+
+        if (!data.success) {
+            return;
+        }
+
+        document.getElementById("lanIp").value =
+            data.ip || "";
+
+        document.getElementById("lanMask").value =
+            data.mask || "255.255.255.0";
+
+        document.getElementById("lanGateway").value =
+            data.gateway || "";
+
+    } catch(err) {
+
+        console.error("LAN config load error", err);
+
+    }
+
+}

@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portable Air Awareness Node</title>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+    <script src="vendor/leaflet/leaflet.js"></script>
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/drawer.css">
 </head>
@@ -32,21 +33,58 @@
         <h2>System</h2>
 
         <div class="drawer-section">
+
             <h3>Network</h3>
 
-            <div id="networkStatus">
+            <div id="networkStatus" class="network-status">
                 Loading...
             </div>
 
-            <button id="scanWifiBtn">
-                Scan WiFi Networks
+            <button id="networkSettingsToggle" class="collapsible-btn">
+                Network Settings
             </button>
 
-            <button id="disconnectWifiBtn">
-                Disconnect WiFi
-            </button>
+            <div id="networkSettingsPanel" class="collapsible-panel">
 
-            <div id="wifiNetworks" class="wifi-networks"></div>
+                <button id="scanWifiBtn">
+                    Scan WiFi Networks
+                </button>
+
+                <button id="disconnectWifiBtn">
+                    Disconnect WiFi
+                </button>
+
+                <div id="wifiNetworks" class="wifi-networks"></div>
+
+                <hr>
+
+                <h4>User LAN</h4>
+
+                <input
+                    id="lanIp"
+                    class="rounded-input"
+                    placeholder="10.0.0.50"
+                >
+
+                <input
+                    id="lanMask"
+                    class="rounded-input"
+                    placeholder="255.255.255.0"
+                    value="255.255.255.0"
+                >
+
+                <input
+                    id="lanGateway"
+                    class="rounded-input"
+                    placeholder="10.0.0.1"
+                >
+
+                <button id="saveLanBtn">
+                    Save Config
+                </button>
+
+            </div>
+
         </div>
 
         <div class="drawer-section">
