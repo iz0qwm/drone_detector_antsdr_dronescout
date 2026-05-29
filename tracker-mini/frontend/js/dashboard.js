@@ -44,6 +44,9 @@ async function initMap() {
             }
         ).addTo(map);
 
+        // Expose map globally for Drawer and other modules
+        window.airNodeMap = map;
+
     } catch(err) {
 
         console.error("Map init error", err);

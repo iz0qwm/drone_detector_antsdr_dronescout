@@ -117,3 +117,158 @@ button {
         transform: translateY(0);
     }
 }
+
+.info-card {
+    background: rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 12px;
+    margin-top: 10px;
+}
+
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 5000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.open {
+    display: flex;
+}
+
+.modal-content {
+    width: 90%;
+    max-width: 700px;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: #1d1d1d;
+    color: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.modal-header button {
+    width: auto;
+    padding: 6px 12px;
+}
+
+.section-network {
+    color: #4fc3f7;
+}
+
+.section-maps {
+    color: #81c784;
+}
+
+.section-services {
+    color: #ffb74d;
+}
+
+.section-settings {
+    color: #ce93d8;
+}
+
+
+.btn-network {
+    background: #1976d2;
+}
+
+.btn-maps {
+    background: #2e7d32;
+}
+
+.btn-services {
+    background: #ef6c00;
+}
+
+.btn-settings {
+    background: #7b1fa2;
+}
+
+.btn-network:hover,
+.btn-maps:hover,
+.btn-services:hover,
+.btn-settings:hover {
+
+    filter: brightness(1.15);
+
+}
+
+.modal-header h2 {
+    color: #81c784;
+}
+
+.storage-card {
+    background: rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 12px;
+    line-height: 1.7;
+}
+
+.storage-header {
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:8px;
+    font-weight:bold;
+}
+
+.storage-bar {
+    height:14px;
+    border-radius:8px;
+    overflow:hidden;
+    background:rgba(255,255,255,0.12);
+}
+
+.storage-bar-fill {
+    height:100%;
+    transition:width 0.3s ease;
+}
+
+.storage-footer {
+    margin-top:8px;
+    font-size:13px;
+    opacity:0.8;
+}
+
+.download-mode-info {
+    margin: 10px 0 15px 0;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.08);
+    font-size: 13px;
+    font-style: italic;
+    color: #cccccc;
+}
+
+.download-center-info {
+    margin-bottom: 12px;
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
+    font-family: monospace;
+    font-size: 13px;
+
+}
+
+.coords-lock-info {
+    margin-top: 10px;
+    padding: 8px;
+    border-radius: 8px;
+    background: rgba(0,120,255,0.15);
+    color: #7fc4ff;
+    font-size: 13px;
+    text-align: center;
+}

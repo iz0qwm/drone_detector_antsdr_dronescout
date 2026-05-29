@@ -30,27 +30,30 @@
     <div id="map"></div>
 
     <aside id="drawer" class="drawer">
-        <h2>System</h2>
 
         <div class="drawer-section">
 
-            <h3>Network</h3>
+            <h3 class="section-network">
+                🌐 Network
+            </h3>
 
-            <div id="networkStatus" class="network-status">
-                Loading...
+            <div class="info-card">
+                <div id="networkStatus" class="network-status">
+                    Loading...
+                </div>
             </div>
 
-            <button id="networkSettingsToggle" class="collapsible-btn">
+            <button id="networkSettingsToggle" class="collapsible-btn btn-network">
                 Network Settings
             </button>
 
             <div id="networkSettingsPanel" class="collapsible-panel">
 
-                <button id="scanWifiBtn">
+                <button id="scanWifiBtn" class="btn-network">
                     Scan WiFi Networks
                 </button>
 
-                <button id="disconnectWifiBtn">
+                <button id="disconnectWifiBtn"  class="btn-network">
                     Disconnect WiFi
                 </button>
 
@@ -79,17 +82,28 @@
                     placeholder="10.0.0.1"
                 >
 
-                <button id="saveLanBtn">
+                <button id="saveLanBtn" class="btn-network">
                     Save Config
                 </button>
 
             </div>
 
         </div>
-
         <div class="drawer-section">
-            <h3>Services</h3>
-            <div>
+            <h3 class="section-maps">
+                🗺️ Maps
+            </h3>
+
+            <button id="openMapsManager" class="btn-maps">
+                Download Manager
+            </button>
+
+        </div>
+        <div class="drawer-section">
+            <h3 class="section-services">
+                📡 Services
+            </h3>
+            <div class="info-card">
                 Remote ID: OFF<br>
                 ADS-B: OFF<br>
                 GPS: OFF
@@ -97,10 +111,163 @@
         </div>
 
         <div class="drawer-section">
-            <h3>Settings</h3>
-            <button>System Settings</button>
+            <h3 class="section-settings">
+                ⚙️ Settings
+            </h3>
+            <button class="btn-settings">
+                System Settings
+            </button>
         </div>
     </aside>
+
+    <div id="mapsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Download Manager</h2>
+                <button id="closeMapsModal">
+                    ✕
+                </button>
+            </div>
+            <div id="mapsStorageInfo">
+                Loading...
+            </div>
+            <hr>
+            <h3>Installed Maps</h3>
+            <div id="mapsList">
+                Loading maps...
+            </div>
+            <hr>
+            <button id="downloadMapBtn">
+                Download New Map
+            </button>
+            <div id="downloadMapModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Download New Map</h2>
+                        <button id="closeDownloadMapModal">
+                           ✕
+                       </button>
+                    </div>
+                    <div class="download-mode">
+
+                        <label>
+                            <input
+                                type="radio"
+                                name="downloadMode"
+                                value="map"
+                                checked>
+                            Map
+                        </label>
+
+                        <label>
+                            <input
+                                type="radio"
+                                name="downloadMode"
+                                value="coords">
+                            Coordinates
+                        </label>
+
+                    </div>
+                    <div id="downloadModeInfo" class="download-mode-info">
+
+                        Download center defined by map position
+
+                    </div>
+                    <div id="downloadCenterInfo"
+                        class="download-center-info">
+
+                        Lat: --<br>
+                        Lon: --
+
+                    </div>
+                    <div id="mapModePanel">
+
+                        <div
+                            id="downloadMapPreview"
+                            style="
+                                height:250px;
+                                border-radius:12px;
+                                overflow:hidden;
+                                margin-bottom:12px;
+                            ">
+                        </div>
+
+                    </div>
+                    <div
+                    id="coordsModePanel"
+                    style="display:none;">
+
+                    <input
+                        id="downloadLat"
+                        class="rounded-input"
+                        placeholder="Latitude">
+
+                    <input
+                        id="downloadLon"
+                        class="rounded-input"
+                        placeholder="Longitude">
+
+                    <button
+                        id="gotoCoordinatesBtn"
+                        class="btn-maps">
+                        Go To Coordinates
+                    </button>
+                    <div class="coords-lock-info">
+
+                        ✓ Coordinates locked
+
+                    </div>
+                </div>
+                    <input
+                        id="downloadRadius"
+                        class="rounded-input"
+                        placeholder="Radius (km)"
+                        value="20"
+                    >
+                    <select
+                        id="downloadZoom"
+                        class="rounded-input">
+                        <option value="10">Zoom 10</option>
+                        <option value="11">Zoom 11</option>
+                        <option value="12">Zoom 12</option>
+                        <option value="13">Zoom 13</option>
+                        <option value="14" selected>Zoom 14</option>
+                    </select>
+                    <div id="downloadEstimate">
+                        Estimated size:
+                        -
+                    </div>
+                    <button
+                        id="estimateMapBtn"
+                        class="btn-maps">
+                        Estimate Size
+                    </button>
+                    <button
+                        id="startDownloadBtn"
+                        class="btn-maps">
+                        Start Download
+                    </button>
+                    <div id="downloadSummaryModal" class="modal">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2>Download Summary</h2>
+                                <button id="closeSummaryModal">
+                                    ✕
+                                </button>
+                            </div>
+                            <div id="downloadSummaryContent">
+                            </div>
+                            <button
+                                id="confirmDownloadBtn"
+                                class="btn-maps">
+                                Start Download
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="js/drawer.js"></script>
