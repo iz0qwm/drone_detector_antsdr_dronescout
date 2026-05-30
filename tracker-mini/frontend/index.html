@@ -128,8 +128,41 @@
                     ✕
                 </button>
             </div>
+            <h3>Map Provider</h3>
+                <div class="provider-card">
+                    Thunderforest account required
+                    <br><br>
+                    <a
+                    href="https://manage.thunderforest.com/"
+                    target="_blank">
+                    Create API Key
+                    </a>
+                    <br><br>
+                    <input
+                        id="thunderforestApiKey"
+                        class="rounded-input"
+                        readonly
+                    >
+                    <button id="editApiKeyBtn">
+                        Edit
+                    </button>
+                    <button id="saveApiKeyBtn">
+                        Save
+                    </button>
+                </div>
             <div id="mapsStorageInfo">
                 Loading...
+            </div>
+            <div id="downloadsContainer">
+
+                <h3>Current Downloads</h3>
+
+                <div id="downloadsList">
+
+                    No active downloads
+
+                </div>
+
             </div>
             <hr>
             <h3>Installed Maps</h3>
@@ -137,7 +170,7 @@
                 Loading maps...
             </div>
             <hr>
-            <button id="downloadMapBtn">
+            <button id="downloadMapBtn" class="btn-maps">
                 Download New Map
             </button>
             <div id="downloadMapModal" class="modal">
@@ -224,15 +257,6 @@
                         placeholder="Radius (km)"
                         value="20"
                     >
-                    <select
-                        id="downloadZoom"
-                        class="rounded-input">
-                        <option value="10">Zoom 10</option>
-                        <option value="11">Zoom 11</option>
-                        <option value="12">Zoom 12</option>
-                        <option value="13">Zoom 13</option>
-                        <option value="14" selected>Zoom 14</option>
-                    </select>
                     <div id="downloadEstimate">
                         Estimated size:
                         -
@@ -249,19 +273,42 @@
                     </button>
                     <div id="downloadSummaryModal" class="modal">
                         <div class="modal-content">
+
                             <div class="modal-header">
                                 <h2>Download Summary</h2>
                                 <button id="closeSummaryModal">
                                     ✕
                                 </button>
                             </div>
+
                             <div id="downloadSummaryContent">
                             </div>
+
+                            <hr>
+
+                            <h3>Map Settings</h3>
+
+                            <h3>Provider</h3>
+
+                            <div class="provider-card">
+
+                                Thunderforest Outdoors
+
+                            </div>
+
+                            <input
+                                id="downloadDescription"
+                                class="rounded-input"
+                                placeholder="Description (optional)">
+
                             <button
                                 id="confirmDownloadBtn"
                                 class="btn-maps">
+
                                 Start Download
+
                             </button>
+
                         </div>
                     </div>
                 </div>
@@ -270,6 +317,7 @@
     </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="js/maps_manager.js"></script>
     <script src="js/drawer.js"></script>
     <script src="js/dashboard.js"></script>
 

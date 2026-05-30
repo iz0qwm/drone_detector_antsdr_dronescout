@@ -66,6 +66,13 @@ default via 192.168.1.254 dev wlan0 proto dhcp src 192.168.1.179 metric 600
 pi@dsc-node02:~ $
 
 -------------------------------------------------
+TEST MAPPE
+-------------------------------------------------
+cd ~/tracker-mini/backend
+
+python -m services.map_downloader
+
+-------------------------------------------------
 Struttura
 
 tracker-mini/
@@ -84,6 +91,7 @@ tracker-mini/
 │   │   ├── network.py
 |   │   ├── network_manager.py
 │   │   ├── maps.py
+│   │   ├── map_downloader.py
 │   │   ├── ds110.py
 │   │   └── adsb.py
 │   │ 
@@ -110,7 +118,7 @@ tracker-mini/
 ├── maps/
       Italia_centrale.mbtiles
       terrain.mbtiles
-      downloads/
+      maps_catalog.json
 
 
 ├── logs/

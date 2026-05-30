@@ -102,6 +102,11 @@ button {
     outline: none;
 }
 
+.rounded-input option {
+    background: #1d1d1d;
+    color: white;
+}
+
 .rounded-input::placeholder {
     color: rgba(255,255,255,0.5);
 }
@@ -271,4 +276,116 @@ button {
     color: #7fc4ff;
     font-size: 13px;
     text-align: center;
+}
+
+.map-card {
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
+    margin-bottom: 8px;
+}
+
+.map-title {
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.map-description {
+    margin-top: 4px;
+    opacity: 0.9;
+}
+
+.map-meta {
+    margin-top: 6px;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+select.rounded-input {
+    cursor: pointer;
+}
+
+select.rounded-input:focus {
+    outline: 1px solid #4caf50;
+}
+
+
+.map-actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+}
+
+.map-actions button {
+    width: auto;
+    margin-top: 0;
+}
+
+.map-actions button {
+    width: auto;
+    margin-top: 0;
+    flex: 1;
+}
+
+/* Edit */
+
+.edit-map-btn {
+    background: #1565c0;
+    color: white;
+}
+
+.edit-map-btn:hover {
+    background: #1976d2;
+}
+
+/* Delete */
+
+.delete-map-btn {
+    background: #c62828;
+    color: white;
+}
+
+.delete-map-btn:hover {
+    background: #e53935;
+}
+
+.edit-map-btn,
+.delete-map-btn {
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease;
+}
+
+.edit-map-btn:hover,
+.delete-map-btn:hover {
+    transform: translateY(-1px);
+}
+
+.download-card {
+
+    background: #1f1f1f;
+
+    border: 1px solid #444;
+
+    border-radius: 10px;
+
+    padding: 10px;
+
+    margin-bottom: 10px;
+}
+
+.download-bar {
+    height: 12px;
+    background: #444;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.download-bar-fill {
+    height: 100%;
+    background: #4caf50;
+    width: 0%;
+    transition: width 0.3s;
 }

@@ -1,0 +1,25 @@
+{
+  "Italy.mbtiles": {
+    "description": "Mappa base Italia",
+    "created": "2026-05-01",
+    "source": "street",
+    "notes": "",
+    "active": true
+  },
+
+  "Italia_centrale.mbtiles": {
+    "description": "Area operativa centrale",
+    "created": "2026-05-10",
+    "source": "street",
+    "notes": "",
+    "active": false
+  },
+
+  "trento_test_20260530_230205.mbtiles": {
+    "description": "Trento Test",
+    "created": "2026-05-30",
+    "source": "thunderforest",
+    "notes": "",
+    "active": true
+  }
+}

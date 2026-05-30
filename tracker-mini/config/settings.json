@@ -4,11 +4,7 @@
   "map": {
     "default_lat": 41.9028,
     "default_lon": 12.4964,
-    "default_zoom": 10,
-    "base_map": "Italy.mbtiles",
-    "active_maps": [
-      "Italia_centrale.mbtiles",
-      "Italy.mbtiles"
-    ]
+    "default_zoom": 7,
+    "base_map": "Italy.mbtiles"
   }
 }
