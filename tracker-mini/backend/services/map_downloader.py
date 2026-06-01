@@ -332,19 +332,19 @@ def download_tile(
 def get_zoom_range(radius_km):
 
     if radius_km <= 5:
-        return 12, 16
+        return 12, 17
 
     if radius_km <= 10:
-        return 11, 15
+        return 11, 16
 
     if radius_km <= 25:
-        return 10, 14
+        return 10, 15
 
     if radius_km <= 50:
-        return 9, 13
+        return 9, 15
 
     if radius_km <= 100:
-        return 8, 12
+        return 8, 14
 
     return 7, 11
 

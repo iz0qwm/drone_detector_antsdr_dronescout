@@ -256,6 +256,56 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
+    // Drawer group toggle logic
+    document
+        .querySelectorAll(".drawer-group-btn")
+        .forEach(btn => {
+            btn.addEventListener("click", () => {
+                const targetId =
+                    btn.dataset.target;
+                const target =
+                    document.getElementById(
+                        targetId
+                    );
+                const isOpen =
+                    target.classList.contains(
+                        "open"
+                    );
+                document
+                    .querySelectorAll(
+                        ".drawer-group-panel"
+                    )
+                    .forEach(panel => {
+
+                        panel.classList.remove(
+                            "open"
+                        );
+
+                    });
+
+                document
+                    .querySelectorAll(
+                        ".drawer-group-btn"
+                    )
+                    .forEach(button => {
+
+                        button.classList.remove(
+                            "open"
+                        );
+
+                    });
+                if (!isOpen) {
+                    target.classList.add(
+                        "open"
+                    );
+                    btn.classList.add(
+                        "open"
+                    );
+                }
+            });
+        });
+
+
     loadLanConfig();
 });
 

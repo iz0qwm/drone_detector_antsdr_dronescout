@@ -4,6 +4,8 @@ from routes.network import network_bp
 from routes.network_manager import network_manager_bp
 from routes.settings import settings_bp
 from routes.maps import maps_bp
+from routes.missions import missions_bp
+
 
 app = Flask(__name__, static_folder="../frontend", static_url_path="")
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
@@ -24,6 +26,9 @@ app.register_blueprint(network_bp)
 app.register_blueprint(network_manager_bp)
 app.register_blueprint(settings_bp)
 app.register_blueprint(maps_bp)
+app.register_blueprint(missions_bp)
+
+
 
 @app.route("/")
 def index():

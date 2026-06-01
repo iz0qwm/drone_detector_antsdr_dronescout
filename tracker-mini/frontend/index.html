@@ -9,6 +9,8 @@
     <script src="vendor/leaflet/leaflet.js"></script>
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/drawer.css">
+    <link rel="stylesheet" href="css/missions.css">
+
 </head>
 <body>
 
@@ -31,93 +33,190 @@
 
     <aside id="drawer" class="drawer">
 
-        <div class="drawer-section">
+        <!-- NETWORK -->
 
-            <h3 class="section-network">
+        <div class="drawer-group">
+
+            <button class="drawer-group-btn" data-target="networkPanel">
                 🌐 Network
-            </h3>
+                <span class="drawer-arrow">▶</span>
+            </button>
 
-            <div class="info-card">
-                <div id="networkStatus" class="network-status">
-                    Loading...
+            <div id="networkPanel" class="drawer-group-panel">
+
+                <div class="info-card">
+                    <div id="networkStatus"
+                        class="network-status">
+                        Loading...
+                    </div>
                 </div>
-            </div>
 
-            <button id="networkSettingsToggle" class="collapsible-btn btn-network">
-                Network Settings
-            </button>
-
-            <div id="networkSettingsPanel" class="collapsible-panel">
-
-                <button id="scanWifiBtn" class="btn-network">
-                    Scan WiFi Networks
+                <button id="networkSettingsToggle"
+                    class="btn-network">
+                    Network Settings
                 </button>
 
-                <button id="disconnectWifiBtn"  class="btn-network">
-                    Disconnect WiFi
-                </button>
+                <div id="networkSettingsPanel" class="collapsible-panel">
 
-                <div id="wifiNetworks" class="wifi-networks"></div>
+                    <button id="scanWifiBtn" class="btn-network">
+                        Scan WiFi Networks
+                    </button>
 
-                <hr>
+                    <button id="disconnectWifiBtn"  class="btn-network">
+                        Disconnect WiFi
+                    </button>
 
-                <h4>User LAN</h4>
+                    <div id="wifiNetworks" class="wifi-networks"></div>
 
-                <input
-                    id="lanIp"
-                    class="rounded-input"
-                    placeholder="10.0.0.50"
-                >
+                    <hr>
 
-                <input
-                    id="lanMask"
-                    class="rounded-input"
-                    placeholder="255.255.255.0"
-                    value="255.255.255.0"
-                >
+                    <h4>User LAN</h4>
 
-                <input
-                    id="lanGateway"
-                    class="rounded-input"
-                    placeholder="10.0.0.1"
-                >
+                    <input
+                        id="lanIp"
+                        class="rounded-input"
+                        placeholder="10.0.0.50"
+                    >
 
-                <button id="saveLanBtn" class="btn-network">
-                    Save Config
-                </button>
+                    <input
+                        id="lanMask"
+                        class="rounded-input"
+                        placeholder="255.255.255.0"
+                        value="255.255.255.0"
+                    >
+
+                    <input
+                        id="lanGateway"
+                        class="rounded-input"
+                        placeholder="10.0.0.1"
+                    >
+
+                    <button id="saveLanBtn" class="btn-network">
+                        Save Config
+                    </button>
+
+                </div>
 
             </div>
 
         </div>
-        <div class="drawer-section">
-            <h3 class="section-maps">
+
+        <!-- MAPS -->
+
+        <div class="drawer-group">
+
+            <button class="drawer-group-btn" data-target="mapsPanel">
                 🗺️ Maps
-            </h3>
-
-            <button id="openMapsManager" class="btn-maps">
-                Download Manager
+                <span class="drawer-arrow">▶</span>
             </button>
 
-        </div>
-        <div class="drawer-section">
-            <h3 class="section-services">
-                📡 Services
-            </h3>
-            <div class="info-card">
-                Remote ID: OFF<br>
-                ADS-B: OFF<br>
-                GPS: OFF
+            <div id="mapsPanel" class="drawer-group-panel">
+
+                <button id="openMapsManager"
+                    class="btn-maps">
+                    Download Manager
+                </button>
+
+                <div class="info-card" style="margin-top:10px;">
+
+                    <b>Map Source</b><br><br>
+
+                    <select
+                        id="mapSourceSelect"
+                        class="rounded-input">
+
+                        <option value="auto">Automatic</option>
+                        <option value="online_topo">Online Topo</option>
+                        <option value="offline">Offline Maps</option>
+
+                    </select>
+
+                    <div
+                        id="mapSourceStatus"
+                        style="margin-top:8px;font-size:13px;">
+                        Loading...
+                    </div>
+
+                </div>
+
             </div>
+
         </div>
 
-        <div class="drawer-section">
-            <h3 class="section-settings">
-                ⚙️ Settings
-            </h3>
-            <button class="btn-settings">
-                System Settings
+        <!-- SYSTEM -->
+
+        <div class="drawer-group">
+
+            <button class="drawer-group-btn" data-target="systemPanel">
+                🖥️ System
+                <span class="drawer-arrow">▶</span>
             </button>
+
+            <div id="systemPanel" class="drawer-group-panel">
+
+                <div class="info-card">
+                    Remote ID: OFF<br>
+                    ADS-B: OFF<br>
+                    GPS: OFF
+                </div>
+
+                <button class="btn-settings">
+                    System Settings
+                </button>
+
+            </div>
+
         </div>
+
+        <!-- MISSIONS -->
+
+        <div class="drawer-group">
+
+            <button class="drawer-group-btn" data-target="missionsPanel">
+                🚁 Missions
+                <span class="drawer-arrow">▶</span>
+            </button>
+
+            <div id="missionsPanel" class="drawer-group-panel">
+
+                <button
+                    id="createMissionBtn"
+                    class="btn-mission">
+
+                    Create Mission
+
+                </button>
+
+                <button
+                    id="missionPlanningBtn"
+                    class="btn-mission">
+
+                    Mission Planning
+
+                </button>
+
+                <button
+                    id="missionTeamsBtn"
+                    class="btn-mission"
+                    disabled>
+
+                    Teams
+
+                </button>
+
+                <button
+                    id="missionImportExportBtn"
+                    class="btn-mission"
+                    disabled>
+
+                    Import / Export
+
+                </button>
+
+            </div>
+
+        </div>
+
     </aside>
 
     <div id="mapsModal" class="modal">
@@ -283,17 +382,11 @@
 
                             <div id="downloadSummaryContent">
                             </div>
-
                             <hr>
-
                             <h3>Map Settings</h3>
-
                             <h3>Provider</h3>
-
                             <div class="provider-card">
-
                                 Thunderforest Outdoors
-
                             </div>
 
                             <input
@@ -304,9 +397,7 @@
                             <button
                                 id="confirmDownloadBtn"
                                 class="btn-maps">
-
                                 Start Download
-
                             </button>
 
                         </div>
@@ -314,12 +405,63 @@
                 </div>
             </div>
         </div>
+        
     </div>
+ 
+    <div id="createMissionModal" class="modal">
+
+        <div class="modal-content mission-modal">
+
+            <div class="modal-header">
+
+                <h2>Create Mission</h2>
+                <button
+                    id="closeCreateMissionModal">
+                    ✕
+                </button>
+            </div>
+            <input
+                id="missionName"
+                class="rounded-input"
+                placeholder="Mission name">
+            <textarea
+                id="missionDescription"
+                class="mission-textarea"
+                placeholder="Description">
+            </textarea>
+            <button
+                id="saveMissionBtn"
+                class="btn-mission">
+                Create Mission
+            </button>
+        </div>
+    </div>
+    <div id="missionPlanningModal" class="modal">
+        <div class="modal-content mission-modal">
+            <div class="modal-header">
+                <h2>Mission Planning</h2>
+                <button
+                    id="closeMissionPlanningModal">
+                    ✕
+                </button>
+            </div>
+            <div id="currentMissionInfo">
+                No active mission
+            </div>
+            <hr>
+            <div
+                id="missionsList"
+                class="mission-list">
+                Loading...
+            </div>
+        </div>
+    </div>
+
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="js/maps_manager.js"></script>
+    <script src="js/missions.js"></script>
     <script src="js/drawer.js"></script>
     <script src="js/dashboard.js"></script>
-
 </body>
 </html>

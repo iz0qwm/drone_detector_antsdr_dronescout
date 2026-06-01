@@ -1,0 +1,75 @@
+PORTABLE AIR AWARENESS NODE – REQUISITI OPERATIVI CNSAS
+
+Obiettivo del sistema:
+fornire alle squadre operative del Soccorso Alpino e Speleologico una consapevolezza immediata dello spazio aereo locale durante le attività con UAS in aree montane o prive di connettività.
+
+Funzioni principali:
+
+1. Ricezione traffico aereo locale
+
+* Ricezione ADS-B di aerei ed elicotteri.
+* Visualizzazione su mappa locale.
+* Possibile futura integrazione OGN per alianti.
+
+2. Ricezione droni
+
+* Ricezione Remote ID.
+* Ricezione DJI Drone ID.
+* Visualizzazione immediata dei droni presenti nell’area operativa.
+
+3. Operatività offline
+
+* Nessuna connessione Internet necessaria.
+* Accesso tramite rete WiFi locale generata dalla postazione.
+* Cartografia scaricabile preventivamente.
+
+4. Interfaccia multi-dispositivo
+
+* Accesso da smartphone Android.
+* Accesso da tablet.
+* Accesso da PC Windows.
+
+5. Gestione missione UAS
+
+* Creazione e gestione di una missione operativa.
+* Definizione dell’area operativa mediante:
+  - disegno manuale sulla mappa;
+  - importazione di dati cartografici georeferiti;
+  - importazione di aree operative predefinite.
+* Supporto a punti, linee e poligoni.
+* Associazione della missione a uno specifico UAS o categoria UAS.
+* Generazione automatica delle aree Contingency e Safety sulla base dei parametri configurati.
+* Visualizzazione simultanea di:
+  - area operativa;
+  - area Contingency;
+  - area Safety.
+* Esportazione delle aree operative in formati compatibili con i controller UAS.
+* Supporto alle operazioni UAS in scenari SAR.
+
+6. Squadra operativa UAS
+
+* Visualizzazione della posizione della squadra UAS.
+* Definizione del punto di decollo.
+* Possibilità di aggiungere operatori UAS alla missione.
+* Gestione di più squadre UAS contemporaneamente.
+* Visualizzazione sulla mappa delle aree assegnate alle singole squadre UAS.
+
+7. Cartografia operativa
+
+* Utilizzo di mappe offline scaricate preventivamente.
+* Supporto a cartografia georeferita importata dall’utente.
+* Possibilità di sovrapporre cartografia operativa alle mappe base.
+* Gestione di layer attivabili/disattivabili.
+
+8. Allarmi operativi
+
+* Avviso per traffico aereo in avvicinamento.
+* Evidenziazione di droni presenti nell’area.
+
+Sviluppi futuri:
+
+* Integrazione OGN.
+* Importazione di cartografia GIS avanzata.
+* Registrazione e archiviazione delle missioni.
+* Esportazione missioni e report operativi.
+* Integrazione con piattaforme GIS esterne.

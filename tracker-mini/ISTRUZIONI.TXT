@@ -84,7 +84,10 @@ tracker-mini/
 │   │   ├── network.py
 |   |   ├── network_manager.py
 │   │   ├── maps.py
-│   │   └── settings.py
+│   │   ├── settings.py
+│   │   ├── missions.py
+│   │   ├── mission_teams.py        (futuro)
+│   │   └── mission_export.py       (futuro)
 │   │
 │   ├── services/
 │   │   ├── system.py
@@ -93,34 +96,54 @@ tracker-mini/
 │   │   ├── maps.py
 │   │   ├── map_downloader.py
 │   │   ├── ds110.py
-│   │   └── adsb.py
+│   │   ├── adsb.py
+│   │   ├── missions.py
+│   │   ├── mission_storage.py
+│   │   ├── mission_geometry.py
+│   │   └── mission_export.py       (futuro)
 │   │ 
 │   └── db
 │       ├── database.py 
 │       └── schema.sql
 │
 ├── frontend/
-    ├── index.html
-    ├── css/
-    │    main.css
-    │    drawer.css
-    │    map.css
-    │
-    ├── js/
-    │     dashboard.js
-    │     drawer.js
-    │     api.js
-    │     map.js
+│   ├── index.html
+│   ├── css/
+│   │     main.css
+│   │     drawer.css
+│   │     map.css
+│   │     missions.css
+│   │
+│   ├── js/
+│         dashboard.js
+│         drawer.js
+│         api.js
+│         map.js
+│   ├── missions.js
+│   ├── mission_planning.js   (futuro)
+│   ├── mission_teams.js      (futuro)
 │
+├── missions/
+│   ├── mission_index.json
+│   │
+│   ├── mission_001/
+│   │   ├── mission.json
+│   │   └── geometry.geojson
+│   │
+│   └── mission_002/
+│       ├── mission.json
+│       └── geometry.geojson
+│ 
+│ 
 ├── config/
 │     settings.json
 │
 ├── maps/
-      Italia_centrale.mbtiles
-      terrain.mbtiles
-      maps_catalog.json
-
-
+│      Italia_centrale.mbtiles
+│      terrain.mbtiles
+│      maps_catalog.json
+│ 
+│ 
 ├── logs/
 └── systemd/
 
