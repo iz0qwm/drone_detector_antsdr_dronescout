@@ -50,3 +50,46 @@ html, body {
     right: 0;
     bottom: 0;
 }
+
+
+.service-pill {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.led {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.led-green {
+    background: #4caf50;
+    box-shadow: 0 0 6px #4caf50;
+}
+
+.led-red {
+    background: #f44336;
+    box-shadow: 0 0 6px #f44336;
+}
+
+.led-orange {
+    background: #ff9800;
+    box-shadow: 0 0 6px #ff9800;
+}
+
+.led-off {
+    background: #555;
+}
+
+.status-bar {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}

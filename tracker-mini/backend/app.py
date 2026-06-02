@@ -5,7 +5,11 @@ from routes.network_manager import network_manager_bp
 from routes.settings import settings_bp
 from routes.maps import maps_bp
 from routes.missions import missions_bp
-
+from routes.services import (
+    services_bp
+)
+from routes.air_network import air_network_bp
+from routes.ogn_network import ogn_network_bp
 
 app = Flask(__name__, static_folder="../frontend", static_url_path="")
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
@@ -27,8 +31,9 @@ app.register_blueprint(network_manager_bp)
 app.register_blueprint(settings_bp)
 app.register_blueprint(maps_bp)
 app.register_blueprint(missions_bp)
-
-
+app.register_blueprint(services_bp)
+app.register_blueprint(air_network_bp)
+app.register_blueprint(ogn_network_bp)
 
 @app.route("/")
 def index():

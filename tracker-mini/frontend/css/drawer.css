@@ -415,3 +415,14 @@ select.rounded-input:focus {
 .btn-mission:hover {
     background: #009688;
 }
+
+.traffic-settings {
+    margin-top: 10px;
+    line-height: 1.8;
+}
+
+.traffic-settings label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}

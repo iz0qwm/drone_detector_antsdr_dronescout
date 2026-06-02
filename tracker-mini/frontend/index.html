@@ -20,10 +20,37 @@
         </div>
 
         <div class="status-bar">
-            <span id="hostname">---</span>
-            <span id="cpu">CPU --%</span>
-            <span id="ram">RAM --%</span>
-            <span id="disk">DISK --%</span>
+
+            <div class="service-pill">
+                <span id="ledNet" class="led led-off"></span>
+                NET
+            </div>
+
+            <div class="service-pill">
+                <span id="ledAdsLocal" class="led led-off"></span>
+                ADSB Rx
+            </div>
+
+            <div class="service-pill">
+                <span id="ledAdsNet" class="led led-off"></span>
+                ADSB Net
+            </div>
+
+            <div class="service-pill">
+                <span id="ledRid" class="led led-off"></span>
+                RID
+            </div>
+
+            <div class="service-pill">
+                <span id="ledOgn" class="led led-off"></span>
+                OGN
+            </div>
+
+            <div class="service-pill">
+                <span id="ledDsc" class="led led-off"></span>
+                DSC
+            </div>
+
         </div>
 
         <button id="drawerToggle">☰</button>
@@ -154,12 +181,36 @@
 
             <div id="systemPanel" class="drawer-group-panel">
 
-                <div class="info-card">
-                    Remote ID: OFF<br>
-                    ADS-B: OFF<br>
-                    GPS: OFF
-                </div>
+                <div
+                    id="systemStatus"
+                    class="info-card">
 
+                    Loading...
+
+                </div>
+                <div class="info-card traffic-settings">
+
+                    <b>Traffic Sources</b>
+
+                    <br><br>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="adsbNetworkEnabled"
+                            checked
+                        >
+                        ADS-B Network
+                    </label>
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="ognNetworkEnabled"
+                            checked
+                        >
+                        OGN Network
+                    </label>
+                </div>
                 <button class="btn-settings">
                     System Settings
                 </button>
@@ -462,6 +513,14 @@
     <script src="js/maps_manager.js"></script>
     <script src="js/missions.js"></script>
     <script src="js/drawer.js"></script>
+    <script src="js/air/air-network.js"></script>
+    <script src="js/air/air-layer.js"></script>
+    <script src="js/air/air-controller.js"></script>
+    <script src="js/glider/glider-utils.js"></script>
+    <script src="js/glider/glider-icons.js"></script>
+    <script src="js/glider/glider-layer.js"></script>
+    <script src="js/glider/glider-data.js"></script>
+    <script src="js/glider/glider-index.js"></script>
     <script src="js/dashboard.js"></script>
 </body>
 </html>

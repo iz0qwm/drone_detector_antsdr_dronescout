@@ -3,10 +3,29 @@ async function loadStatus() {
         const res = await fetch('/api/status');
         const data = await res.json();
 
-        document.getElementById('hostname').textContent = data.hostname;
-        document.getElementById('cpu').textContent = `CPU ${data.cpu}%`;
-        document.getElementById('ram').textContent = `RAM ${data.ram}%`;
-        document.getElementById('disk').textContent = `DISK ${data.disk}%`;
+        
+        const systemBox =
+            document.getElementById(
+                "systemStatus"
+            );
+
+        if (systemBox) {
+
+            systemBox.innerHTML = `
+                <b>Hostname:</b>
+                ${data.hostname}<br>
+
+                <b>CPU:</b>
+                ${data.cpu}%<br>
+
+                <b>RAM:</b>
+                ${data.ram}%<br>
+
+                <b>DISK:</b>
+                ${data.disk}%<br>
+            `;
+        }
+
 
     } catch (err) {
         console.error(err);
@@ -145,7 +164,55 @@ async function initMap() {
             mapConfig.default_zoom
         );
 
+        map.createPane(
+            "traffic-air"
+        );
+
+        map.getPane(
+            "traffic-air"
+        ).style.zIndex = 650;
+
+        map.createPane(
+            "traffic-glider"
+        );
+
+        map.getPane(
+            "traffic-glider"
+        ).style.zIndex = 655;
+
+        map.createPane(
+            "traffic-drone"
+        );
+
+        map.getPane(
+            "traffic-drone"
+        ).style.zIndex = 660;
+
+
         window.airNodeMap = map;
+
+        if (
+            window.AIR &&
+            AIR.startAirTraffic
+        ) {
+            AIR.startAirTraffic(
+                map,
+                {
+                    maxAltitudeMeters: 1000
+                }
+            );
+        }
+
+        if (
+            window.GLIDER &&
+            localStorage.getItem(
+                "ognNetworkEnabled"
+            ) !== "false"
+        ) {
+            window.GLIDER.start(
+                map
+            );
+        }
 
         await applyMapSource();
 
@@ -228,6 +295,7 @@ async function loadNetworkStatus() {
 
 loadStatus();
 loadNetworkStatus();
+initTrafficSettings();
 initMap();
 
 // Handle map source selection UI
@@ -266,13 +334,293 @@ document.addEventListener(
     }
 );
 
+function setLed(id, state) {
 
+    const led =
+        document.getElementById(id);
+
+    if (!led) {
+        return;
+    }
+
+    led.className = "led";
+
+    switch(state) {
+
+        case "green":
+            led.classList.add(
+                "led-green"
+            );
+            break;
+
+        case "red":
+            led.classList.add(
+                "led-red"
+            );
+            break;
+
+        case "orange":
+            led.classList.add(
+                "led-orange"
+            );
+            break;
+
+        default:
+            led.classList.add(
+                "led-off"
+            );
+    }
+}
+
+
+async function loadServices() {
+
+    try {
+
+        const res =
+            await fetch(
+                "/api/services"
+            );
+
+        const data =
+            await res.json();
+
+        setLed(
+            "ledNet",
+            data.internet
+                ? "green"
+                : "red"
+        );
+
+        setLed(
+            "ledAdsLocal",
+            data.ads_local
+                ? "green"
+                : "off"
+        );
+
+        const adsbEnabled =
+            localStorage.getItem(
+                "adsbNetworkEnabled"
+            ) !== "false";
+
+        setLed(
+            "ledAdsNet",
+            (
+                data.ads_network &&
+                adsbEnabled
+            )
+                ? "green"
+                : "red"
+        );
+
+        setLed(
+            "ledRid",
+            data.remote_id
+                ? "green"
+                : "off"
+        );
+
+        const ognEnabled =
+            localStorage.getItem(
+                "ognNetworkEnabled"
+            ) !== "false";
+
+        setLed(
+            "ledOgn",
+            (
+                data.ogn &&
+                ognEnabled
+            )
+                ? "green"
+                : "red"
+        );
+
+        setLed(
+            "ledDsc",
+            data.dsc
+                ? "green"
+                : "off"
+        );
+
+        const systemBox =
+            document.getElementById(
+                "systemStatus"
+            );
+
+        if (systemBox) {
+
+            systemBox.innerHTML += `
+                <hr>
+
+                <b>Services</b><br>
+
+                NET:
+                ${
+                    data.internet
+                        ? "ONLINE"
+                        : "OFF"
+                }<br>
+
+                ADSB Rx:
+                ${
+                    data.ads_local
+                        ? "ONLINE"
+                        : "OFF"
+                }<br>
+
+                ADSB Net:
+                ${
+                    (
+                        data.ads_network &&
+                        adsbEnabled
+                    )
+                        ? "ONLINE"
+                        : "OFF"
+                }<br>
+
+                RID:
+                ${
+                    data.remote_id
+                        ? "ONLINE"
+                        : "OFF"
+                }<br>
+
+                OGN:
+                ${
+                    data.ogn
+                        ? "ONLINE"
+                        : "OFF"
+                }<br>
+
+                DSC:
+                ${
+                    data.dsc
+                        ? "ONLINE"
+                        : "OFF"
+                }
+            `;
+        }
+
+    } catch(err) {
+
+        console.error(
+            "Services error",
+            err
+        );
+
+    }
+}
+
+
+function initTrafficSettings() {
+
+    // ADS-B Network Toggle
+    const checkbox =
+        document.getElementById(
+            "adsbNetworkEnabled"
+        );
+
+    if (!checkbox) {
+        return;
+    }
+
+    const saved =
+        localStorage.getItem(
+            "adsbNetworkEnabled"
+        );
+
+    checkbox.checked =
+        saved !== "false";
+
+    checkbox.addEventListener(
+        "change",
+        () => {
+
+            localStorage.setItem(
+                "adsbNetworkEnabled",
+                checkbox.checked
+            );
+
+            if (
+                !checkbox.checked &&
+                window.AIR &&
+                AIR.clearAirLayer
+            ) {
+
+                AIR.clearAirLayer();
+
+            }
+
+            loadServices();
+
+            console.log(
+                "[TRAFFIC]",
+                "ADS-B Network:",
+                checkbox.checked
+            );
+
+        }
+    );
+
+    // OGN Network Toggle
+    const ognCheckbox =
+        document.getElementById(
+            "ognNetworkEnabled"
+        );
+
+    if (ognCheckbox) {
+
+        const savedOgn =
+            localStorage.getItem(
+                "ognNetworkEnabled"
+            );
+
+        ognCheckbox.checked =
+            savedOgn !== "false";
+
+        ognCheckbox.addEventListener(
+            "change",
+            () => {
+
+                localStorage.setItem(
+                    "ognNetworkEnabled",
+                    ognCheckbox.checked
+                );
+
+                if (ognCheckbox.checked) {
+
+                    if (
+                        window.GLIDER &&
+                        window.airNodeMap
+                    ) {
+                        window.GLIDER.start(
+                            window.airNodeMap
+                        );
+                    }
+
+                } else {
+
+                    if (window.GLIDER) {
+                        window.GLIDER.stop();
+                    }
+
+                }
+
+                loadServices();
+
+            }
+        );
+    }
+}
 
 // Periodic refresh of status and network info every 5 seconds
 setInterval(async () => {
 
     loadStatus();
+    loadServices();
     loadNetworkStatus();
+
 
     const selected =
         localStorage.getItem(
@@ -284,3 +632,5 @@ setInterval(async () => {
     }
 
 }, 5000);
+
+
