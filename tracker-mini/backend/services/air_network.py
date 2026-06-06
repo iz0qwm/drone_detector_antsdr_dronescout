@@ -1,5 +1,6 @@
 import requests
 import time
+from services.logger import log
 
 MAX_ALTITUDE_METERS = 1000
 
@@ -41,7 +42,11 @@ def fetch_solarmonitor(bounds):
         res.raise_for_status()
         data = res.json()
     except Exception as e:
-        print("[ADS-N] solarmonitor error:", e)
+        log(
+            "ADSB",
+            "SolarMonitor unavailable",
+            level="WARNING"
+        )
         return []
 
     aircraft = []
@@ -96,7 +101,11 @@ def fetch_ogn(bounds):
         res.raise_for_status()
         data = res.json()
     except Exception as e:
-        print("[OGN] error:", e)
+        log(
+            "ADSB",
+            "OGN ADS-B unavailable",
+            level="WARNING"
+        )
         return []
 
     now = time.time()
@@ -165,7 +174,11 @@ def fetch_opensky(bounds):
         res.raise_for_status()
         data = res.json()
     except Exception as e:
-        print("[OpenSky] error:", e)
+        log(
+            "ADSB",
+            "OpenSky unavailable",
+            level="WARNING"
+        )
         return []
 
     aircraft = []

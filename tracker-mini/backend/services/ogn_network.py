@@ -1,5 +1,6 @@
 import requests
 import time
+from services.logger import log
 
 OGN_URL = "https://solarmonitor.kwos.org/api/ogn/traffic"
 
@@ -39,7 +40,11 @@ def get_ogn_traffic(bounds):
         data = res.json()
 
     except Exception as e:
-        print("[OGN-NET] error:", e)
+        log(
+            "OGN",
+            "Traffic source unavailable",
+            level="WARNING"
+        )
         return {
             "success": False,
             "objects": [],

@@ -10,11 +10,17 @@ from routes.services import (
 )
 from routes.air_network import air_network_bp
 from routes.ogn_network import ogn_network_bp
+from routes.hardware import (
+    hardware_bp
+)
 
 app = Flask(__name__, static_folder="../frontend", static_url_path="")
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 
 from services.network_manager import start_hotspot
+from services.ds110 import start as start_ds110
+from routes.remoteid import remoteid_bp
+from routes.logs import logs_bp
 
 try:
     print("Starting local hotspot...")
@@ -22,6 +28,13 @@ try:
     print(result)
 except Exception as e:
     print(f"Hotspot startup error: {e}")
+
+
+try:
+    print("Starting DS110 service...")
+    start_ds110()
+except Exception as e:
+    print(f"DS110 startup error: {e}")
 
 
 
@@ -34,6 +47,9 @@ app.register_blueprint(missions_bp)
 app.register_blueprint(services_bp)
 app.register_blueprint(air_network_bp)
 app.register_blueprint(ogn_network_bp)
+app.register_blueprint(hardware_bp)
+app.register_blueprint(remoteid_bp)
+app.register_blueprint(logs_bp)
 
 @app.route("/")
 def index():

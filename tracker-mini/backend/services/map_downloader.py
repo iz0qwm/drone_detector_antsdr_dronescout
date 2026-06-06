@@ -7,7 +7,7 @@ import requests
 from services.maps import load_map_provider
 import sqlite3
 import json
-
+from services.logger import log
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -65,6 +65,12 @@ def create_download_job():
             "message": "Waiting",
             "created": time.time()
         }
+
+    log(
+        "MAPS",
+        "Download job created",
+        job_id
+    )
 
     return job_id
 
@@ -485,6 +491,18 @@ def create_offline_map(
         radius_km
     )
 
+    log(
+        "MAPS",
+        "Starting map download",
+        description or "Unnamed map"
+    )
+
+    log(
+        "MAPS",
+        "Tiles to download:",
+        len(tiles)
+    )
+
     if job_id:
 
         update_download_job(
@@ -596,6 +614,12 @@ def create_offline_map(
     conn.commit()
 
     conn.close()
+
+    log(
+        "MAPS",
+        "Map completed",
+        filename
+    )
 
     return {
         "filename": filename,

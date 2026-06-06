@@ -1,10 +1,12 @@
 import subprocess
 import re
 import ipaddress
-
+from services.logger import log
 from config import SETTINGS
 
 AP_SSID = SETTINGS["ap_ssid"]
+AP_INTERFACE = "wlan0"
+CLIENT_INTERFACE = "wlan1"
 
 def list_connections():
     try:
@@ -62,8 +64,32 @@ def scan_wifi():
         pass
 
     try:
+        subprocess.run(
+            [
+                "/usr/bin/sudo",
+                "/usr/bin/nmcli",
+                "device",
+                "wifi",
+                "rescan",
+                "ifname",
+                CLIENT_INTERFACE
+            ],
+            stderr=subprocess.DEVNULL
+        )
+
         result = subprocess.check_output(
-            ["/usr/bin/nmcli", "-t", "-f", "SSID,SIGNAL,SECURITY", "device", "wifi", "list"]
+            [
+                "/usr/bin/nmcli",
+                "-t",
+                "-f",
+                "SSID,SIGNAL,SECURITY",
+                "device",
+                "wifi",
+                "list",
+                "ifname",
+                CLIENT_INTERFACE
+            ],
+            stderr=subprocess.DEVNULL
         ).decode().splitlines()
 
         networks = []
@@ -78,6 +104,9 @@ def scan_wifi():
                 if not ssid:
                     continue
 
+                if ssid == AP_SSID:
+                    continue
+
                 if ssid in seen:
                     continue
 
@@ -90,6 +119,13 @@ def scan_wifi():
                     "saved": ssid in saved_connections
                 })
 
+        log(
+            "NETWORK",
+            "WiFi scan completed",
+            len(networks),
+            "networks found"
+        )
+
         return networks
 
     except Exception as e:
@@ -98,13 +134,52 @@ def scan_wifi():
 
 def connect_wifi(ssid, password):
     try:
+
+        saved_connections = subprocess.check_output(
+            [
+                "/usr/bin/nmcli",
+                "-t",
+                "-f",
+                "NAME",
+                "connection",
+                "show"
+            ]
+        ).decode().splitlines()
+
+        if ssid in saved_connections:
+
+            result = subprocess.check_output(
+                [
+                    "/usr/bin/sudo",
+                    "/usr/bin/nmcli",
+                    "connection",
+                    "up",
+                    ssid
+                ],
+                stderr=subprocess.STDOUT
+            ).decode()
+
+            log(
+                "NETWORK",
+                "Connected to",
+                ssid
+            )
+
+            return {
+                "success": True,
+                "message": result.strip()
+            }
+
+
         cmd = [
             "/usr/bin/sudo",
             "/usr/bin/nmcli",
             "device",
             "wifi",
             "connect",
-            ssid
+            ssid,
+            "ifname",
+            CLIENT_INTERFACE
         ]
 
         if password:
@@ -115,71 +190,43 @@ def connect_wifi(ssid, password):
             stderr=subprocess.STDOUT
         ).decode()
 
+        subprocess.run(
+            [
+                "/usr/bin/sudo",
+                "/usr/bin/nmcli",
+                "connection",
+                "modify",
+                ssid,
+                "connection.autoconnect",
+                "yes"
+            ],
+            stderr=subprocess.DEVNULL
+        )
+
+        log(
+            "NETWORK",
+            "Connected to",
+            ssid
+        )
+
         return {
             "success": True,
             "message": result.strip()
         }
 
     except subprocess.CalledProcessError as e:
-        error_msg = e.output.decode().strip()
 
-        try:
-            connections = subprocess.check_output(
-                [
-                    "/usr/bin/nmcli",
-                    "-t",
-                    "-f",
-                    "NAME,TYPE",
-                    "connection",
-                    "show"
-                ]
-            ).decode().splitlines()
+        log(
+            "NETWORK",
+            "Connection failed",
+            ssid,
+            level="ERROR"
+        )
 
-            for line in connections:
-                parts = line.rsplit(":", 1)
-
-                if len(parts) == 2:
-                    name, conn_type = parts
-
-                    if conn_type == "802-11-wireless" and ssid in name:
-                        subprocess.run(
-                            [
-                                "/usr/bin/sudo",
-                                "/usr/bin/nmcli",
-                                "connection",
-                                "delete",
-                                name
-                            ],
-                            stderr=subprocess.DEVNULL
-                        )
-
-            retry_cmd = [
-                "/usr/bin/sudo",
-                "/usr/bin/nmcli",
-                "device",
-                "wifi",
-                "connect",
-                ssid
-            ]
-
-            if password:
-                retry_cmd.extend(["password", password])
-
-            retry_result = subprocess.check_output(
-                retry_cmd,
-                stderr=subprocess.STDOUT
-            ).decode()
-
-            return {
-                "success": True,
-                "message": retry_result.strip()
-            }
-
-        except Exception:
-            return {
-                "success": False,
-                "message": error_msg
-            }
+        return {
+            "success": False,
+            "message": e.output.decode().strip()
+        }
 
 
 def disconnect_wifi():
@@ -190,7 +237,7 @@ def disconnect_wifi():
                 "/usr/bin/nmcli",
                 "device",
                 "disconnect",
-                "wlan0"
+                CLIENT_INTERFACE
             ],
             stderr=subprocess.STDOUT
         ).decode()
@@ -236,7 +283,7 @@ def start_hotspot():
                 "wifi",
                 "hotspot",
                 "ifname",
-                "wlan0",
+                AP_INTERFACE,
                 "ssid",
                 AP_SSID,
                 "password",
@@ -244,6 +291,12 @@ def start_hotspot():
             ],
             stderr=subprocess.STDOUT
         ).decode()
+
+        log(
+            "NETWORK",
+            "Hotspot started",
+            AP_SSID
+        )
 
         return {
             "success": True,
@@ -296,6 +349,11 @@ def stop_hotspot():
                         "message": f"Hotspot {name} stopped"
                     }
 
+        log(
+            "NETWORK",
+            "Hotspot stopped"
+        )
+
         return {
             "success": False,
             "message": "No hotspot active"
@@ -328,8 +386,8 @@ def hotspot_status():
             if len(parts) == 3:
                 name, conn_type, device = parts
 
-                if conn_type == "802-11-wireless" and device == "wlan0":
-                    if name == "Portable-Air-Node" or "Hotspot" in name:
+                if conn_type == "802-11-wireless" and device == AP_INTERFACE:
+                    if name == AP_SSID or "Hotspot" in name:
                         return {
                             "active": True,
                             "ssid": name

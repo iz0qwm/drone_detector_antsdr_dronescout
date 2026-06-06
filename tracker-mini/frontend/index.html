@@ -188,6 +188,14 @@
                     Loading...
 
                 </div>
+                <div
+                    id="servicesStatus"
+                    class="info-card"
+                    style="margin-top:10px;">
+
+                    Loading...
+
+                </div>
                 <div class="info-card traffic-settings">
 
                     <b>Traffic Sources</b>
@@ -211,9 +219,29 @@
                         OGN Network
                     </label>
                 </div>
-                <button class="btn-settings">
+                <button
+                    id="systemSettingsBtn"
+                    class="btn-settings">
+
                     System Settings
+
                 </button>
+
+                <div
+                    id="systemSettingsPanel"
+                    class="collapsible-panel">
+
+                    <h4>Hardware Status</h4>
+
+                    <div
+                        id="hardwareStatus"
+                        class="info-card">
+
+                        Loading...
+
+                    </div>
+
+                </div>
 
             </div>
 
@@ -228,6 +256,10 @@
                 <span class="drawer-arrow">▶</span>
             </button>
 
+            <button id="openLogsBtn" class="btn-logs">
+                📜 Logs
+            </button>
+            
             <div id="missionsPanel" class="drawer-group-panel">
 
                 <button
@@ -507,7 +539,28 @@
             </div>
         </div>
     </div>
+    <div id="logsModal" class="modal">
+        <div class="modal-content">
 
+            <div class="modal-header">
+                <h2>System Logs</h2>
+                <button id="closeLogsModal">
+                    ✕
+                </button>
+            </div>
+
+            <button
+                id="clearLogsBtn"
+                class="delete-map-btn">
+                Clear Logs
+            </button>
+
+            <div id="logsContainer"
+                class="logs-container">
+                Loading...
+            </div>
+        </div>
+    </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="js/maps_manager.js"></script>

@@ -233,30 +233,10 @@ async function loadNetworkStatus() {
 
         const adminLan = data.admin_lan;
         const userLan = data.user_lan;
-        const wifi = data.wifi;
+        const wifiAp = data.wifi_ap;
+        const wifiClient = data.wifi_client;
 
-        let wifiLabel = "Disconnected";
-        let wifiExtra = "";
-
-        if (wifi.connected) {
-
-            if (wifi.ssid === "Portable-Air-Node") {
-
-                wifiLabel = "Access Point ACTIVE";
-                wifiExtra = `
-                    <b>SSID:</b> Portable-Air-Node<br>
-                `;
-
-            } else {
-
-                wifiLabel = "Connected";
-
-                wifiExtra = `
-                    <b>SSID:</b> ${wifi.ssid || "---"}<br>
-                `;
-            }
-        }
-
+        
         document.getElementById('networkStatus').innerHTML = `
 
             <b>Admin LAN:</b>
@@ -271,13 +251,23 @@ async function loadNetworkStatus() {
             <b>IP:</b>
             ${userLan.ip || '---'}<br><br>
 
-            <b>WiFi:</b>
-            ${wifiLabel}<br>
+            <b>Access Point:</b>
+            ${wifiAp.connected ? 'ACTIVE' : 'OFF'}<br>
 
-            ${wifiExtra}
+            <b>SSID:</b>
+            ${wifiAp.ssid || '---'}<br>
 
             <b>IP:</b>
-            ${wifi.ip || '---'}<br><br>
+            ${wifiAp.ip || '---'}<br><br>
+
+            <b>WiFi Client:</b>
+            ${wifiClient.connected ? 'Connected' : 'Disconnected'}<br>
+
+            <b>SSID:</b>
+            ${wifiClient.ssid || '---'}<br>
+
+            <b>IP:</b>
+            ${wifiClient.ip || '---'}<br><br>
 
             <b>Internet:</b>
             ${data.internet ? 'YES' : 'NO'}
@@ -443,32 +433,26 @@ async function loadServices() {
                 : "off"
         );
 
-        const systemBox =
+        const servicesBox =
             document.getElementById(
-                "systemStatus"
+                "servicesStatus"
             );
 
-        if (systemBox) {
-
-            systemBox.innerHTML += `
-                <hr>
-
-                <b>Services</b><br>
-
+        if (servicesBox) {
+            servicesBox.innerHTML = `
+                <b>Services</b><br><br>
                 NET:
                 ${
                     data.internet
                         ? "ONLINE"
                         : "OFF"
                 }<br>
-
                 ADSB Rx:
                 ${
                     data.ads_local
                         ? "ONLINE"
                         : "OFF"
                 }<br>
-
                 ADSB Net:
                 ${
                     (
@@ -478,21 +462,18 @@ async function loadServices() {
                         ? "ONLINE"
                         : "OFF"
                 }<br>
-
                 RID:
                 ${
                     data.remote_id
                         ? "ONLINE"
                         : "OFF"
                 }<br>
-
                 OGN:
                 ${
                     data.ogn
                         ? "ONLINE"
                         : "OFF"
                 }<br>
-
                 DSC:
                 ${
                     data.dsc

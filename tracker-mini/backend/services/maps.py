@@ -4,6 +4,8 @@ from pathlib import Path
 from config import SETTINGS
 import shutil
 import json
+from services.logger import log
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -265,6 +267,12 @@ def delete_map(map_name):
     if not file_path.exists():
         return False, "Map not found"
     file_path.unlink()
+    log(
+        "MAPS",
+        "Deleted map",
+        map_name
+    )
+
     return True, "Map deleted"
 
 
@@ -285,6 +293,14 @@ def set_map_active(
     catalog[map_name]["active"] = active
 
     save_catalog(catalog)
+
+    log(
+        "MAPS",
+        "Map",
+        map_name,
+        "active:",
+        active
+    )
 
     return True
 
@@ -316,6 +332,12 @@ def update_map_description(
     catalog[map_name]["description"] = description
 
     save_catalog(catalog)
+
+    log(
+        "MAPS",
+        "Updated description",
+        map_name
+    )
 
     return True
 

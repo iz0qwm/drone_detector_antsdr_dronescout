@@ -2,7 +2,7 @@ from pathlib import Path
 import json
 from datetime import datetime
 import shutil
-
+from services.logger import log
 
 from services.mission_storage import (
     load_index,
@@ -95,6 +95,14 @@ def create_mission(
         "status": "Planning"
     })
     save_index(index)
+
+    log(
+        "MISSION",
+        "Created",
+        mission_id,
+        name
+    )
+
     return mission
 
 
@@ -122,6 +130,13 @@ def set_current_mission(
     set_current_mission_id(
         mission_id
     )
+
+    log(
+        "MISSION",
+        "Selected",
+        mission_id
+    )
+
     return True
 
 
@@ -163,6 +178,12 @@ def delete_mission(mission_id):
             None
         )
 
+    log(
+        "MISSION",
+        "Deleted",
+        mission_id
+    )
+
     return True
 
 
@@ -197,6 +218,12 @@ def import_geojson(
 
     uploaded_file.save(
         save_path
+    )
+
+    log(
+        "MISSION",
+        "Imported layer",
+        filename
     )
 
     return {

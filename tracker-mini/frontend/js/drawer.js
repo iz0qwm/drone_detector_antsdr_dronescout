@@ -255,6 +255,82 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
+    const systemSettingsBtn =
+        document.getElementById(
+            "systemSettingsBtn"
+        );
+
+    const systemSettingsPanel =
+        document.getElementById(
+            "systemSettingsPanel"
+        );
+
+    if (
+        systemSettingsBtn &&
+        systemSettingsPanel
+    ) {
+
+        systemSettingsBtn.addEventListener(
+            "click",
+            () => {
+
+                systemSettingsPanel
+                    .classList
+                    .toggle("open");
+
+                loadHardwareStatus();
+
+            }
+        );
+    }
+
+    const openLogsBtn =
+        document.getElementById(
+            "openLogsBtn"
+        );
+
+    const logsModal =
+        document.getElementById(
+            "logsModal"
+        );
+
+    const closeLogsModal =
+        document.getElementById(
+            "closeLogsModal"
+        );
+
+    if (openLogsBtn) {
+        openLogsBtn.addEventListener(
+            "click",
+            () => {
+                logsModal.classList.add(
+                    "open"
+                );
+                loadLogs();
+                window.logsRefreshTimer =
+                    setInterval(
+                        loadLogs,
+                        2000
+                    );
+            }
+        );
+
+    }
+
+    if (closeLogsModal) {
+        closeLogsModal.addEventListener(
+            "click",
+            () => {
+                logsModal.classList.remove(
+                    "open"
+                );
+                clearInterval(
+                    window.logsRefreshTimer
+                );
+            }
+        );
+
+    }
 
     // Drawer group toggle logic
     document
@@ -305,6 +381,26 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
+    // Initial load log count
+    document
+        .getElementById(
+            "clearLogsBtn"
+        )
+        ?.addEventListener(
+            "click",
+            async () => {
+
+                await fetch(
+                    "/api/logs/clear",
+                    {
+                        method: "POST"
+                    }
+                );
+
+                loadLogs();
+
+            }
+        );
 
     loadLanConfig();
 });
@@ -506,3 +602,74 @@ async function loadLanConfig() {
 }
 
 
+async function loadHardwareStatus() {
+
+    const box =
+        document.getElementById(
+            "hardwareStatus"
+        );
+
+    if (!box) {
+        return;
+    }
+
+    try {
+
+        const res =
+            await fetch(
+                "/api/hardware"
+            );
+
+        const data =
+            await res.json();
+
+        box.innerHTML = `
+            <b>WiFi Client Adapter</b><br>
+            ${
+                data.wifi_client
+                ? "🟢 Detected"
+                : "🔴 Missing"
+            }
+        `;
+
+    } catch (err) {
+
+        box.innerHTML =
+            "Hardware status unavailable";
+
+    }
+}
+
+
+async function loadLogs() {
+
+    try {
+
+        const res =
+            await fetch(
+                "/api/logs"
+            );
+
+        const logs =
+            await res.json();
+
+        const box =
+            document.getElementById(
+                "logsContainer"
+            );
+
+        box.innerHTML = logs
+            .slice()
+            .reverse()
+            .map(log =>
+                `<div class="log-line">[${log.time}] [${log.level}] [${log.component}] ${log.message}</div>`
+            )
+            .join("");
+
+    } catch(err) {
+
+        console.error(err);
+
+    }
+
+}

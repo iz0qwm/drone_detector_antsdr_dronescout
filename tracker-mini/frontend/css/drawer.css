@@ -426,3 +426,27 @@ select.rounded-input:focus {
     align-items: center;
     gap: 8px;
 }
+
+.btn-logs {
+    background: #455a64;
+}
+
+.btn-logs:hover {
+    background: #546e7a;
+}
+
+.logs-container {
+    margin-top: 10px;
+    background: #111;
+    border-radius: 10px;
+    padding: 10px;
+    height: 500px;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.log-line {
+    padding: 2px 0;
+    border-bottom: 1px solid #222;
+}
