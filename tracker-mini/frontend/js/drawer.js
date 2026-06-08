@@ -451,6 +451,63 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         );
 
+    document
+        .getElementById("copyLogsBtn")
+        ?.addEventListener(
+            "click",
+            () => {
+
+                const text =
+                    document.getElementById(
+                        "logsContainer"
+                    ).innerText;
+
+                const textarea =
+                    document.createElement(
+                        "textarea"
+                    );
+
+                textarea.value = text;
+
+                textarea.style.position =
+                    "fixed";
+
+                textarea.style.left =
+                    "-9999px";
+
+                document.body.appendChild(
+                    textarea
+                );
+
+                textarea.focus();
+                textarea.select();
+
+                const success =
+                    document.execCommand(
+                        "copy"
+                    );
+
+                document.body.removeChild(
+                    textarea
+                );
+
+                if (success) {
+
+                    alert(
+                        "Logs copied"
+                    );
+
+                } else {
+
+                    alert(
+                        "Copy failed"
+                    );
+
+                }
+
+            }
+        );
+
     loadLanConfig();
 });
 
@@ -676,8 +733,26 @@ async function loadHardwareStatus() {
             <b>WiFi Client Adapter</b><br>
             ${
                 data.wifi_client
-                ? "🟢 Detected"
-                : "🔴 Missing"
+                    ? "🟢 Detected"
+                    : "🔴 Missing"
+            }
+
+            <br><br>
+
+            <b>DS110 RID Receiver</b><br>
+            ${
+                data.ds110
+                    ? "🟢 Connected"
+                    : "🔴 Missing"
+            }
+
+            <br><br>
+
+            <b>DS110 RID Heartbeat</b><br>
+            ${
+                data.ds110_alive
+                    ? "🟢 Active"
+                    : "🔴 No Data"
             }
         `;
 

@@ -93,3 +93,43 @@ html, body {
     align-items: center;
     flex-wrap: wrap;
 }
+
+
+.services-grid {
+
+    display: grid;
+    grid-template-columns:
+        repeat(2, 1fr);
+    gap: 8px;
+}
+
+.service-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background:
+        rgba(255,255,255,0.05);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.mini-led {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.mini-led-green {
+    background: #4caf50;
+    box-shadow:
+        0 0 6px #4caf50;
+}
+
+.mini-led-red {
+    background: #f44336;
+    box-shadow:
+        0 0 6px #f44336;
+}

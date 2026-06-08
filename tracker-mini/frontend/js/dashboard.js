@@ -440,46 +440,70 @@ async function loadServices() {
 
         if (servicesBox) {
             servicesBox.innerHTML = `
-                <b>Services</b><br><br>
-                NET:
-                ${
-                    data.internet
-                        ? "ONLINE"
-                        : "OFF"
-                }<br>
-                ADSB Rx:
-                ${
-                    data.ads_local
-                        ? "ONLINE"
-                        : "OFF"
-                }<br>
-                ADSB Net:
-                ${
-                    (
-                        data.ads_network &&
-                        adsbEnabled
-                    )
-                        ? "ONLINE"
-                        : "OFF"
-                }<br>
-                RID:
-                ${
-                    data.remote_id
-                        ? "ONLINE"
-                        : "OFF"
-                }<br>
-                OGN:
-                ${
-                    data.ogn
-                        ? "ONLINE"
-                        : "OFF"
-                }<br>
-                DSC:
-                ${
-                    data.dsc
-                        ? "ONLINE"
-                        : "OFF"
-                }
+
+                <div class="services-grid">
+
+                    <div class="service-item">
+                        <span class="mini-led ${
+                            data.internet
+                                ? "mini-led-green"
+                                : "mini-led-red"
+                        }"></span>
+                        NET
+                    </div>
+
+                    <div class="service-item">
+                        <span class="mini-led ${
+                            data.ads_local
+                                ? "mini-led-green"
+                                : "mini-led-red"
+                        }"></span>
+                        ADSB Rx
+                    </div>
+
+                    <div class="service-item">
+                        <span class="mini-led ${
+                            (
+                                data.ads_network &&
+                                adsbEnabled
+                            )
+                                ? "mini-led-green"
+                                : "mini-led-red"
+                        }"></span>
+                        ADSB Net
+                    </div>
+
+                    <div class="service-item">
+                        <span class="mini-led ${
+                            data.remote_id
+                                ? "mini-led-green"
+                                : "mini-led-red"
+                        }"></span>
+                        RID
+                    </div>
+
+                    <div class="service-item">
+                        <span class="mini-led ${
+                            (
+                                data.ogn &&
+                                ognEnabled
+                            )
+                                ? "mini-led-green"
+                                : "mini-led-red"
+                        }"></span>
+                        OGN
+                    </div>
+
+                    <div class="service-item">
+                        <span class="mini-led ${
+                            data.dsc
+                                ? "mini-led-green"
+                                : "mini-led-red"
+                        }"></span>
+                        DSC
+                    </div>
+
+                </div>
             `;
         }
 

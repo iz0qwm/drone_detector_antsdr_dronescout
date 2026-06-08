@@ -62,7 +62,7 @@ def fetch_solarmonitor(bounds):
         if not in_bounds(lat, lon, bounds):
             continue
 
-        if (a.get("seen") or 999) > 15:
+        if (a.get("seen") or 999) > 30:
             continue
 
         altitude = alt_ft * 0.3048
@@ -257,6 +257,13 @@ def get_network_aircraft(bounds):
     solarmonitor = fetch_solarmonitor(bounds)
     ogn = fetch_ogn(bounds)
     opensky = fetch_opensky(bounds)
+
+    log(
+        "ADSB",
+        f"Sources: SOLAR={len(solarmonitor)} "
+        f"OGN={len(ogn)} "
+        f"OPENSKY={len(opensky)}"
+    )
 
     return {
         "success": True,

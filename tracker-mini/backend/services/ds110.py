@@ -20,6 +20,7 @@ last_serial = None
 ODID_MESSAGE_SIZE = 25
 ODID_ID_SIZE = 20
 DEBUG_DS110 = False
+last_heartbeat = 0
 
 def is_valid_position(lat, lon):
     if lat is None or lon is None:
@@ -173,6 +174,10 @@ def ds110_worker():
 
             log("DS110", "Heartbeat received")
 
+            global last_heartbeat
+
+            last_heartbeat = time.time()
+
             log(
                 "DS110",
                 "MAVLink dialect:",
@@ -205,6 +210,7 @@ def ds110_worker():
                     msg_id = "N/A"
 
                 if msg_type == "HEARTBEAT":
+                    last_heartbeat = time.time()
                     continue
 
                 
@@ -489,3 +495,13 @@ def identify_drone(serial):
             break
 
     return vendor, model
+
+
+def is_alive(timeout=30):
+
+    if last_heartbeat == 0:
+        return False
+
+    return (
+        time.time() - last_heartbeat
+    ) < timeout
