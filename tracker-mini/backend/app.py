@@ -21,6 +21,7 @@ from services.network_manager import start_hotspot
 from services.ds110 import start as start_ds110
 from routes.remoteid import remoteid_bp
 from routes.logs import logs_bp
+from routes.update import update_bp
 
 try:
     print("Starting local hotspot...")
@@ -37,6 +38,11 @@ except Exception as e:
     print(f"DS110 startup error: {e}")
 
 
+
+app.register_blueprint(
+    update_bp,
+    url_prefix="/api/update"
+)
 
 app.register_blueprint(status_bp)
 app.register_blueprint(network_bp)

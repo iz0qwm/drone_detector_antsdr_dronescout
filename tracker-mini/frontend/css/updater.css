@@ -1,0 +1,27 @@
+.update-banner {
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.update-banner-ready {
+    background: #2e7d32;
+}
+
+.update-banner-installing {
+    background: #ef6c00;
+}
+
+.update-version-card {
+    margin-bottom: 15px;
+}
+
+.update-checklist {
+    line-height: 1.8;
+}
+
+.update-status {
+    margin-top: 15px;
+}

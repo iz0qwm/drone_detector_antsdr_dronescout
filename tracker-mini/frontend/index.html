@@ -9,6 +9,7 @@
     <script src="vendor/leaflet/leaflet.js"></script>
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/drawer.css">
+    <link rel="stylesheet" href="css/updater.css">
     <link rel="stylesheet" href="css/missions.css">
 
 </head>
@@ -226,7 +227,13 @@
                     System Settings
 
                 </button>
+                <button
+                    id="systemUpdateBtn"
+                    class="btn-settings">
 
+                    System Update
+
+                </button>
                 <div
                     id="systemSettingsPanel"
                     class="collapsible-panel">
@@ -562,6 +569,64 @@
         </div>
     </div>
 
+    <div id="updateModal" class="modal">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h2>System Update</h2>
+
+                <button id="closeUpdateModal">
+                    ✕
+                </button>
+
+            </div>
+
+            <div
+                id="currentVersionInfo"
+                class="info-card update-version-card">
+
+                Loading version...
+
+            </div>
+
+            <input
+                type="file"
+                id="updateFile"
+                accept=".zip"
+                class="rounded-input">
+
+            <button
+                id="uploadUpdateBtn"
+                class="btn-settings">
+
+                Upload & Verify
+
+            </button>
+
+            <div
+                id="updateStatus"
+                class="info-card"
+                style="margin-top:15px;">
+
+                Select a package
+
+            </div>
+
+            <button
+                id="installUpdateBtn"
+                class="btn-mission"
+                style="display:none;">
+
+                Install Update
+
+            </button>
+
+        </div>
+
+    </div>
+
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="js/maps_manager.js"></script>
     <script src="js/missions.js"></script>
@@ -574,6 +639,7 @@
     <script src="js/glider/glider-layer.js"></script>
     <script src="js/glider/glider-data.js"></script>
     <script src="js/glider/glider-index.js"></script>
+    <script src="js/updater.js"></script>
     <script src="js/dashboard.js"></script>
 </body>
 </html>

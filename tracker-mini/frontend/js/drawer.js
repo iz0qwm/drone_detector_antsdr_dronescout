@@ -332,6 +332,55 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
+
+    const updateModal =
+    document.getElementById(
+        "updateModal"
+    );
+
+    const openUpdateBtn =
+        document.getElementById(
+            "systemUpdateBtn"
+        );
+
+    const closeUpdateBtn =
+        document.getElementById(
+            "closeUpdateModal"
+        );
+
+    if (
+        openUpdateBtn &&
+        updateModal
+    ) {
+
+        openUpdateBtn.addEventListener(
+            "click",
+            () => {
+
+                updateModal.classList.add(
+                    "open"
+                );
+                loadCurrentVersion();
+            }
+        );
+    }
+
+    if (
+        closeUpdateBtn &&
+        updateModal
+    ) {
+
+        closeUpdateBtn.addEventListener(
+            "click",
+            () => {
+
+                updateModal.classList.remove(
+                    "open"
+                );
+
+            }
+        );
+    }
     // Drawer group toggle logic
     document
         .querySelectorAll(".drawer-group-btn")
