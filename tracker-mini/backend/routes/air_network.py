@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from services.logger import log
 
 from services.air_network import (
     get_bounds_args,
@@ -28,6 +29,14 @@ def air_network():
         )
 
     except Exception as e:
+
+        import traceback
+
+        log(
+            "ADSB",
+            "AIR NETWORK API ERROR:\n" + traceback.format_exc(),
+            level="ERROR"
+        )
 
         return jsonify({
             "success": False,

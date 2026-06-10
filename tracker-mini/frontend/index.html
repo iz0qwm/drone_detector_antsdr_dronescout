@@ -219,6 +219,14 @@
                         >
                         OGN Network
                     </label>
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="droneNetworkEnabled"
+                            checked
+                        >
+                        Drone Network
+                    </label>
                 </div>
                 <button
                     id="systemSettingsBtn"
@@ -636,6 +644,7 @@
     </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-rotatedmarker/leaflet.rotatedMarker.js"></script>
     <script src="js/maps_manager.js"></script>
     <script src="js/missions.js"></script>
     <script src="js/drawer.js"></script>
@@ -647,6 +656,9 @@
     <script src="js/glider/glider-layer.js"></script>
     <script src="js/glider/glider-data.js"></script>
     <script src="js/glider/glider-index.js"></script>
+    <script src="js/drones/drone-network.js"></script>
+    <script src="js/drones/drone-layer.js"></script>
+    <script src="js/drones/drone-controller.js"></script>
     <script src="js/updater.js"></script>
     <script src="js/dashboard.js"></script>
 </body>

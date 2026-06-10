@@ -204,6 +204,18 @@ async function initMap() {
         }
 
         if (
+            window.DRONES &&
+            DRONES.startDroneTraffic &&
+            localStorage.getItem(
+                "droneNetworkEnabled"
+            ) !== "false"
+        ) {
+            DRONES.startDroneTraffic(
+                map
+            );
+        }
+
+        if (
             window.GLIDER &&
             localStorage.getItem(
                 "ognNetworkEnabled"
@@ -404,11 +416,19 @@ async function loadServices() {
                 : "red"
         );
 
+        const droneEnabled =
+            localStorage.getItem(
+                "droneNetworkEnabled"
+            ) !== "false";
+
         setLed(
             "ledRid",
-            data.remote_id
+            (
+                data.remote_id &&
+                droneEnabled
+            )
                 ? "green"
-                : "off"
+                : "red"
         );
 
         const ognEnabled =
@@ -617,6 +637,63 @@ function initTrafficSettings() {
             }
         );
     }
+
+
+    // Drone Network Toggle
+
+    const droneCheckbox =
+        document.getElementById(
+            "droneNetworkEnabled"
+        );
+
+    if (droneCheckbox) {
+
+        const savedDrone =
+            localStorage.getItem(
+                "droneNetworkEnabled"
+            );
+
+        droneCheckbox.checked =
+            savedDrone !== "false";
+
+        droneCheckbox.addEventListener(
+            "change",
+            () => {
+
+                localStorage.setItem(
+                    "droneNetworkEnabled",
+                    droneCheckbox.checked
+                );
+
+                if (!droneCheckbox.checked) {
+
+                    if (
+                        window.DRONES &&
+                        DRONES.clearDroneLayer
+                    ) {
+                        DRONES.clearDroneLayer();
+                    }
+
+                } else {
+
+                    if (
+                        window.DRONES &&
+                        window.airNodeMap
+                    ) {
+                        DRONES.startDroneTraffic(
+                            window.airNodeMap
+                        );
+                    }
+
+                }
+
+                loadServices();
+
+            }
+        );
+    }
+
+
 }
 
 // Periodic refresh of status and network info every 5 seconds

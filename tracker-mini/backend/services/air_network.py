@@ -56,6 +56,20 @@ def fetch_solarmonitor(bounds):
         lon = a.get("lon")
         alt_ft = a.get("alt_geom") or a.get("alt_baro")
 
+        if alt_ft is None:
+            continue
+
+        try:
+            alt_ft = float(alt_ft)
+        except Exception:
+            log(
+                "ADSB",
+                f"BAD SOLAR ALT: {alt_ft} "
+                f"type={type(alt_ft)} "
+                f"hex={a.get('hex')}"
+            )
+            continue
+
         if lat is None or lon is None or alt_ft is None:
             continue
 
@@ -142,14 +156,31 @@ def fetch_ogn(bounds):
         if not icao:
             icao = "ogn_" + str(obj.get("id", "unknown")).lower()
 
+        speed = obj.get("speed")
+
+        try:
+            speed = float(speed)
+        except Exception:
+            speed = None
+            
+        heading = obj.get("heading")
+
+        if not isinstance(heading, (int, float)) and heading is not None:
+            log(
+                "ADSB",
+                f"BAD OGN HEADING: {heading} "
+                f"type={type(heading)} "
+                f"id={obj.get('id')}"
+            )
+
         aircraft.append({
             "icao": icao,
             "callsign": obj.get("callsign") or obj.get("id") or "N/A",
             "lat": lat,
             "lon": lon,
             "altitude": alt,
-            "speed": obj.get("speed"),
-            "heading": obj.get("heading") or 0,
+            "speed": speed,
+            "heading": heading or 0,
             "category": category,
             "isHelicopter": is_heli,
             "source": "OGN_ADSB",

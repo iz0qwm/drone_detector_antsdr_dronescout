@@ -75,23 +75,28 @@ AIR.updateAirLayer = function (aircraftList) {
                 const el = marker.getElement();
 
                 if (el) {
-                    const svg = el.querySelector("svg");
                     const opacity = computeOpacity(ac);
 
                     el.style.opacity = opacity.toString();
                     el.style.filter = opacity < 0.5 ? "grayscale(0.5)" : "none";
 
-                    if (svg) {
-                        svg.style.transition = "transform 0.5s linear";
-                        const newHeading = ac.heading ?? 0;
+                    const newHeading =
+                        ac.heading ?? 0;
 
-                        if (
-                          marker._heading === undefined ||
-                          Math.abs(marker._heading - newHeading) > HEADING_THRESHOLD
-                        ) {
-                          svg.style.transform = `rotate(${newHeading}deg)`;
-                          marker._heading = newHeading;
-                        }
+                    if (
+                        marker._heading === undefined ||
+                        Math.abs(
+                            marker._heading -
+                            newHeading
+                        ) > HEADING_THRESHOLD
+                    ) {
+
+                        marker.setRotationAngle(
+                            newHeading
+                        );
+
+                        marker._heading =
+                            newHeading;
                     }
                 }
                 marker.setPopupContent(popup(ac));
@@ -263,119 +268,55 @@ function isValidAircraft(ac) {
 
 
 
-function createAircraftIcon(ac) {
-  const isHelicopter = ac.isHelicopter === true;
+function getAdsbIcon(ac) {
 
-  const size = isHelicopter ? 28 : 30;
-  const color = isHelicopter ? "#FFFF00" : "#FF00FF";
-  const heading = ac.heading ?? 0;
+  if (ac.isHelicopter) {
+    return "/icons/helicopter.png";
+  }
 
-  const pathHelicopter = `
-    M 0 -10 L 2 -5 L 4 0 L 4 5 L 2 5 L 0 5
-    L -2 5 L -4 5 L -4 0 L -2 -5 Z
-    M -11 -11 L -10 -12 L 11 6 L 10 7 Z
-    M 9 -12 L 10 -11 L -10 7 L -11 6 Z
-    M -2 5 L -2 14 L 2 14 L 2 16
-    L 3 16 L 3 12 L 2 12 L 2 5
-  `;
+  switch (ac.category) {
 
-  const pathAirplane = `
-    M -10.0035 -1.9825 L -10.0052 -2.9825
-    L -0.007 -4 L -0.0157 -9
-    L 0.9808 -11.0017 L 3.9808 -11.007
-    L 4.9843 -9.0087 L 4.993 -4.0087
-    L 14.9947 -3.0262 L 14.9965 -2.0262
-    L 5 -0.0087 L 5.007 3.9913
-    L 8.0105 5.986 L 8.014 7.986
-    L 5.0105 5.9913 L 5.0174 9.9913
-    L 0.0175 10 L 0.0105 6
-    L -2.986 8.0052 L -2.9895 6.0052
-    L 0.007 4 L 0 0 Z
-  `;
+    case "A1":
+      return "/icons/plane_light.png";
 
-  const svg = `
-    <svg width="${size}" height="${size}"
-         viewBox="-16 -16 32 32"
-         style="
-           transform: rotate(${heading}deg);
-           transform-origin: 50% 50%;
-         ">
-      <path d="${isHelicopter ? pathHelicopter : pathAirplane}"
-            fill="${color}"
-            stroke="white"
-            stroke-width="1"/>
-    </svg>
-  `;
+    case "A2":
+      return "/icons/plane_light_1.png";
 
-  return L.divIcon({
-    html: svg,
-    className: "adsb-aircraft-icon",
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2]
-  });
+    case "A3":
+      return "/icons/plane_medium.png";
+
+    case "A5":
+      return "/icons/plane_heavy.png";
+
+    default:
+      return "/icons/plane_unknown.png";
+  }
 }
-
 
 function createMarker(ac) {
 
-  const size = ac.isHelicopter ? 28 : 30;
-  const half = size / 2;
+  const size = ac.isHelicopter ? 32 : 32;
 
-  const svgPathHeli = `
-    M 0 -10 L 2 -5 L 4 0 L 4 5 L 2 5 L 0 5
-    L -2 5 L -4 5 L -4 0 L -2 -5 Z
-    M -11 -11 L -10 -12 L 11 6 L 10 7 Z
-    M 9 -12 L 10 -11 L -10 7 L -11 6 Z
-    M -2 5 L -2 14 L 2 14 L 2 16
-    L 3 16 L 3 12 L 2 12 L 2 5
-  `;
-
-  const svgPathPlane = `
-    M -10.0035 -1.9825 L -10.0052 -2.9825
-    L -0.007 -4 L -0.0157 -9
-    L 0.9808 -11.0017 L 3.9808 -11.007
-    L 4.9843 -9.0087 L 4.993 -4.0087
-    L 14.9947 -3.0262 L 14.9965 -2.0262
-    L 5 -0.0087 L 5.007 3.9913
-    L 8.0105 5.986 L 8.014 7.986
-    L 5.0105 5.9913 L 5.0174 9.9913
-    L 0.0175 10 L 0.0105 6
-    L -2.986 8.0052 L -2.9895 6.0052
-    L 0.007 4 L 0 0 Z
-  `;
-
-  const path = ac.isHelicopter ? svgPathHeli : svgPathPlane;
-  const fill = ac.isHelicopter ? "#ffff00" : "#ff00ff";
-
-  const icon = L.divIcon({
-    className: "adsb-svg-marker",
+  const icon = L.icon({
+    iconUrl: getAdsbIcon(ac),
     iconSize: [size, size],
-    iconAnchor: [half, half],
-    html: `
-      <svg
-        width="${size}"
-        height="${size}"
-        viewBox="-16 -16 32 32"
-        style="
-          transform: rotate(${ac.heading || 0}deg);
-          transform-origin: 50% 50%;
-        "
-      >
-        <path d="${path}"
-          fill="${fill}"
-          stroke="white"
-          stroke-width="1.2"
-        />
-      </svg>
-    `
+    iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -10]
   });
 
-  const marker = L.marker([ac.lat, ac.lon], {
-    icon,
-    pane: 'traffic-air'
-  });
+  const marker = L.marker(
+      [ac.lat, ac.lon],
+      {
+        icon,
+        pane: "traffic-air",
+        rotationAngle: ac.heading || 0
+      }
+  );
 
-  marker.bindPopup(popup(ac));
+  marker.bindPopup(
+    popup(ac)
+  );
+
   return marker;
 }
 

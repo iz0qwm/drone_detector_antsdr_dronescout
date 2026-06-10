@@ -231,7 +231,7 @@ def ds110_worker():
 
                     
                 if msg_type == "BAD_DATA":
-
+                    #log("DS110", "BAD_DATA RECEIVED Mybe a non-MAVLink message? DJI DroneID frames are sent as MAVLink2 BAD_DATA with the raw frame in the payload")
                     raw = bytes(msg.data)
 
                     # ci interessano solo frame MAVLink2
@@ -303,15 +303,20 @@ def ds110_worker():
                     continue 
 
                 if msg_type == "OPEN_DRONE_ID_MESSAGE_PACK":
-
                     
                     raw = bytes(msg.messages)
 
-                   
+                    #log(
+                    #    "DS110",
+                    #    f"ODID RAW size={msg.msg_pack_size} data={raw.hex()}"
+                    #)
+
                     decoded = decode_odid_pack(
                         msg.messages,
                         msg.msg_pack_size
                     )
+
+                    #log("DS110", f"RID PACK: {decoded}")
 
                     if decoded.get("serial"):
                         last_serial = decoded["serial"]
