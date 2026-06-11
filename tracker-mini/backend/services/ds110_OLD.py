@@ -240,19 +240,8 @@ def ds110_worker():
                     #)
 
                     # ci interessano solo frame MAVLink2
-                    #if not raw.startswith(b"\xfd") or len(raw) < 70:
-                    #    continue
-
-                    if not raw.startswith(b"\xfd"):
+                    if not raw.startswith(b"\xfd") or len(raw) < 70:
                         continue
-
-                    if len(raw) >= 12:
-                        msg_id = (
-                            raw[7]
-                            | (raw[8] << 8)
-                            | (raw[9] << 16)
-                        )
-
 
                     msg_id = (
                         raw[7]
@@ -260,71 +249,12 @@ def ds110_worker():
                         | (raw[9] << 16)
                     )
 
-
                     if msg_id != 12915:
                         continue
 
 
                     payload = raw[10:-2]
 
-                    dji_serial = clean_string(
-                        payload[26:46].decode(
-                            "ascii",
-                            errors="ignore"
-                        )
-                    )
-
-                    is_dji = dji_serial.startswith(("1581F", "1581E"))
-
-                    decoded = None if is_dji else decode_bad_data_odid_pack(raw)
-
-                    if decoded:
-                        serial = decoded.get("serial")
-
-                        if serial and serial.startswith("1596"):
-                            log(
-                                "DS110",
-                                f"DRONETAG VIA BAD_DATA ({serial})"
-                            )
-                        if decoded.get("serial"):
-                            last_serial = decoded["serial"]
-
-                        key = (
-                            decoded.get("serial")
-                            or last_serial
-                            or decoded.get("operator_id")
-                            or "unknown"
-                        )
-
-                        existing = remoteid_aircraft.get(key, {})
-
-                        for field, value in decoded.items():
-                            if value is None:
-                                continue
-
-                            if field in ("lat", "lon"):
-                                continue
-
-                            existing[field] = value
-
-                        decoded_lat = decoded.get("lat")
-                        decoded_lon = decoded.get("lon")
-
-                        if is_valid_position(decoded_lat, decoded_lon):
-                            existing["lat"] = decoded_lat
-                            existing["lon"] = decoded_lon
-
-                        remoteid_aircraft[key] = existing
-
-                        #if existing.get("serial") and is_valid_position(existing.get("lat"), existing.get("lon")):
-                        #    log(
-                        #        "DS110",
-                        #        f"RID Aircraft: {existing.get('vendor')} {existing.get('model')} "
-                        #        f"({existing.get('serial')}) @ {existing.get('lat'):.7f},{existing.get('lon'):.7f}"
-                        #    )
-
-                        continue
-                        
                     try:
 
                         serial = clean_string(
@@ -390,13 +320,7 @@ def ds110_worker():
                         msg.msg_pack_size
                     )
 
-                    serial = decoded.get("serial")
-
-                    #if serial and serial.startswith("1596"):
-                    #    log(
-                    #        "DS110",
-                    #        f"DRONETAG VIA OPEN_DRONE_ID_MESSAGE_PACK ({serial})"
-                    #    )
+                    #log("DS110", f"RID PACK: {decoded}")
 
                     if decoded.get("serial"):
                         last_serial = decoded["serial"]
@@ -590,37 +514,3 @@ def is_alive(timeout=30):
     return (
         time.time() - last_heartbeat
     ) < timeout
-
-
-def decode_bad_data_odid_pack(raw):
-    if not raw.startswith(b"\xfd") or len(raw) < 36:
-        return None
-
-    msg_id = (
-        raw[7]
-        | (raw[8] << 8)
-        | (raw[9] << 16)
-    )
-
-    if msg_id != 12915:
-        return None
-
-    payload = raw[10:-2]
-
-    if len(payload) < 24:
-        return None
-
-    single_message_size = payload[22]
-    msg_pack_size = payload[23]
-
-    if single_message_size != ODID_MESSAGE_SIZE or msg_pack_size < 1:
-        return None
-
-    messages = payload[24:]
-
-    expected_len = msg_pack_size * ODID_MESSAGE_SIZE
-
-    if len(messages) < expected_len:
-        messages = messages + bytes(expected_len - len(messages))
-
-    return decode_odid_pack(messages, msg_pack_size)

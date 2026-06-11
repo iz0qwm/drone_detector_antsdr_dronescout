@@ -261,7 +261,82 @@
             </div>
 
         </div>
+        <!-- DSC -->
 
+        <div class="drawer-group">
+
+            <button class="drawer-group-btn" data-target="dscPanel">
+                📡 DSC
+                <span class="drawer-arrow">▶</span>
+            </button>
+
+            <div id="dscPanel" class="drawer-group-panel">
+
+                <div class="info-card">
+
+                    <b>Node Name</b>
+
+                    <input
+                        id="dscNodeName"
+                        class="rounded-input"
+                        placeholder="DSC Node 01">
+
+                    <b>Position Source</b>
+
+                    <label>
+                        <input
+                            type="radio"
+                            name="dscPositionSource"
+                            value="manual"
+                            checked>
+                        Manual
+                    </label>
+
+                    <label>
+                        <input
+                            type="radio"
+                            name="dscPositionSource"
+                            value="gps">
+                        GPS
+                    </label>
+
+                    <br><br>
+
+                    <b>Latitude</b>
+
+                    <input
+                        id="dscLat"
+                        class="rounded-input"
+                        placeholder="41.902783">
+
+                    <b>Longitude</b>
+
+                    <input
+                        id="dscLon"
+                        class="rounded-input"
+                        placeholder="12.496366">
+
+                    <button
+                        id="dscSelectPositionBtn"
+                        class="btn-settings">
+
+                        📍 Select Position
+
+                    </button>
+
+                    <button
+                        id="dscSaveBtn"
+                        class="btn-settings">
+
+                        Save
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
         <!-- MISSIONS -->
 
         <div class="drawer-group">

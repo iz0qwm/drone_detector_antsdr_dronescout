@@ -509,6 +509,8 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
     loadLanConfig();
+    initDscSettings();
+
 });
 
 async function scanWifiNetworks() {
@@ -795,5 +797,193 @@ async function loadLogs() {
         console.error(err);
 
     }
+
+}
+
+
+function initDscSettings() {
+
+    const nodeName =
+        document.getElementById(
+            "dscNodeName"
+        );
+
+    const lat =
+        document.getElementById(
+            "dscLat"
+        );
+
+    const lon =
+        document.getElementById(
+            "dscLon"
+        );
+
+    if (!nodeName) {
+        return;
+    }
+
+    loadDscSettings();
+
+    document
+        .getElementById(
+            "dscSaveBtn"
+        )
+        ?.addEventListener(
+            "click",
+            saveDscSettings
+        );
+
+    document
+        .getElementById(
+            "dscSelectPositionBtn"
+        )
+        ?.addEventListener(
+            "click",
+            selectTrackerPosition
+        );
+
+
+}
+
+async function loadDscSettings() {
+
+    try {
+
+        const res =
+            await fetch(
+                "/api/dsc/settings"
+            );
+
+        const data =
+            await res.json();
+
+        document.getElementById(
+            "dscNodeName"
+        ).value =
+            data.node_name || "DSC Node";
+
+        document.getElementById(
+            "dscLat"
+        ).value =
+            data.lat || "";
+
+        document.getElementById(
+            "dscLon"
+        ).value =
+            data.lon || "";
+
+        document
+            .querySelector(
+                `input[name="dscPositionSource"][value="${data.position_source || "manual"}"]`
+            )
+            ?.setAttribute(
+                "checked",
+                true
+            );
+
+        if (
+            data.lat &&
+            data.lon
+        ) {
+
+            setTimeout(() => {
+
+                updateTrackerMarker(
+                    parseFloat(data.lat),
+                    parseFloat(data.lon),
+                    data.node_name
+                );
+
+            }, 1000);
+
+        }
+
+    } catch(err) {
+
+        console.error(
+            "DSC settings load error",
+            err
+        );
+
+    }
+}
+
+
+async function saveDscSettings() {
+
+    try {
+
+        const payload = {
+
+            node_name:
+                document.getElementById(
+                    "dscNodeName"
+                ).value,
+
+            lat:
+                parseFloat(
+                    document.getElementById(
+                        "dscLat"
+                    ).value
+                ),
+
+            lon:
+                parseFloat(
+                    document.getElementById(
+                        "dscLon"
+                    ).value
+                ),
+
+            position_source:
+                document.querySelector(
+                    'input[name="dscPositionSource"]:checked'
+                ).value
+        };
+
+        const res =
+            await fetch(
+                "/api/dsc/settings",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+                    body: JSON.stringify(
+                        payload
+                    )
+                }
+            );
+
+        if (!res.ok) {
+
+            throw new Error(
+                "Save failed"
+            );
+
+        }
+
+        alert(
+            "DSC settings saved"
+        );
+
+    } catch(err) {
+
+        console.error(err);
+
+        alert(
+            "Unable to save DSC settings"
+        );
+
+    }
+}
+
+function selectTrackerPosition() {
+
+    trackerSelectionMode = true;
+
+    alert(
+        "Click on the map to select tracker position"
+    );
 
 }

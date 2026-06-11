@@ -22,6 +22,8 @@ from services.ds110 import start as start_ds110
 from routes.remoteid import remoteid_bp
 from routes.logs import logs_bp
 from routes.update import update_bp
+from routes.dsc import dsc_bp
+
 
 try:
     print("Starting local hotspot...")
@@ -56,6 +58,7 @@ app.register_blueprint(ogn_network_bp)
 app.register_blueprint(hardware_bp)
 app.register_blueprint(remoteid_bp)
 app.register_blueprint(logs_bp)
+app.register_blueprint(dsc_bp)
 
 @app.route("/")
 def index():

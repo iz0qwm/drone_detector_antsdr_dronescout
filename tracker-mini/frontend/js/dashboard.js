@@ -191,6 +191,40 @@ async function initMap() {
 
         window.airNodeMap = map;
 
+        // gestione click su mappa per posizione Marker tracker
+        map.on("click", (e) => {
+
+            if (!trackerSelectionMode) {
+                return;
+            }
+
+            const lat = e.latlng.lat;
+            const lon = e.latlng.lng;
+
+            document.getElementById(
+                "dscLat"
+            ).value = lat.toFixed(6);
+
+            document.getElementById(
+                "dscLon"
+            ).value = lon.toFixed(6);
+
+            updateTrackerMarker(
+                lat,
+                lon,
+                document.getElementById(
+                    "dscNodeName"
+                ).value
+            );
+
+            trackerSelectionMode = false;
+
+            alert(
+                "Tracker position selected"
+            );
+
+        });
+
         if (
             window.AIR &&
             AIR.startAirTraffic
@@ -695,6 +729,44 @@ function initTrafficSettings() {
 
 
 }
+
+
+let trackerMarker = null;
+let trackerSelectionMode = false;
+
+function updateTrackerMarker(lat, lon, name) {
+
+    if (!window.airNodeMap) {
+        return;
+    }
+
+    const icon = L.icon({
+        iconUrl: "icons/receiver.png",
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+    });
+
+    if (!trackerMarker) {
+
+        trackerMarker = L.marker(
+            [lat, lon],
+            { icon }
+        ).addTo(window.airNodeMap);
+
+    } else {
+
+        trackerMarker.setLatLng(
+            [lat, lon]
+        );
+
+    }
+
+    trackerMarker.bindPopup(`
+        <b>${name || "DSC Node"}</b><br>
+        DSC Tracker
+    `);
+}
+
 
 // Periodic refresh of status and network info every 5 seconds
 setInterval(async () => {
