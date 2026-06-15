@@ -3,6 +3,9 @@ from config import (
     save_settings
 )
 
+import socket
+
+
 def get_dsc_settings():
 
     return SETTINGS.get(
@@ -13,7 +16,17 @@ def get_dsc_settings():
 
 def update_dsc_settings(data):
 
+    existing = SETTINGS.get(
+        "dsc",
+        {}
+    )
+
     SETTINGS["dsc"] = {
+
+        "node_id":
+            existing.get(
+                "node_id"
+            ) or socket.gethostname(),
 
         "node_name":
             data.get(

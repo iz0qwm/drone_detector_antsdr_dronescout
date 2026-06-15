@@ -1,6 +1,6 @@
 import os
 from services.ds110 import is_alive
-
+from config import SETTINGS
 
 def get_hardware_status():
 
@@ -11,7 +11,7 @@ def get_hardware_status():
         ),
 
         "ds110": os.path.exists(
-            "/dev/ttyACM0"
+            SETTINGS["ds110"]["device"]
         ),
 
         "ds110_alive": is_alive()

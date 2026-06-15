@@ -510,7 +510,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     loadLanConfig();
     initDscSettings();
+    loadDs110Settings();
+    loadSerialPorts();
 
+    document
+        .getElementById("saveDs110Btn")
+        ?.addEventListener(
+            "click",
+            saveDs110Settings
+        );
 });
 
 async function scanWifiNetworks() {
@@ -858,6 +866,35 @@ async function loadDscSettings() {
             await res.json();
 
         document.getElementById(
+            "dscNodeId"
+        ).value =
+            data.node_id || "";
+
+
+        const warning =
+            document.getElementById(
+                "dscNodeWarning"
+            );
+
+        if (warning) {
+            warning.style.display = "none";
+            if (!data.node_id) {
+                warning.style.display = "block";
+                warning.innerHTML =
+                    "⚠ Node ID not configured";
+            } else if (
+                !data.node_id.startsWith(
+                    "dsc-node"
+                )
+            ) {
+                warning.style.display = "block";
+                warning.innerHTML =
+                    `⚠ Unusual Node ID: ${data.node_id}`;
+            }
+
+        }
+
+        document.getElementById(
             "dscNodeName"
         ).value =
             data.node_name || "DSC Node";
@@ -985,5 +1022,148 @@ function selectTrackerPosition() {
     alert(
         "Click on the map to select tracker position"
     );
+
+}
+
+async function loadDs110Settings() {
+
+    try {
+
+        const res =
+            await fetch(
+                "/api/ds110/settings"
+            );
+
+        const data =
+            await res.json();
+
+        document.getElementById(
+            "ds110Interface"
+        ).value =
+            data.interface || "usb";
+
+        await loadSerialPorts();
+
+        document.getElementById(
+            "ds110Device"
+        ).value =
+            data.device || "/dev/ttyACM0";
+
+        document.getElementById(
+            "ds110Baudrate"
+        ).value =
+            data.baudrate || 115200;
+
+    } catch(err) {
+
+        console.error(
+            "DS110 settings load error",
+            err
+        );
+
+    }
+
+}
+
+async function saveDs110Settings() {
+
+    try {
+
+        const payload = {
+
+            interface:
+                document.getElementById(
+                    "ds110Interface"
+                ).value,
+
+            device:
+                document.getElementById(
+                    "ds110Device"
+                ).value,
+
+            baudrate:
+                parseInt(
+                    document.getElementById(
+                        "ds110Baudrate"
+                    ).value
+                )
+        };
+
+        const res =
+            await fetch(
+                "/api/ds110/settings",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+                    body: JSON.stringify(
+                        payload
+                    )
+                }
+            );
+
+        if (!res.ok) {
+            throw new Error();
+        }
+
+        alert(
+            "DS110 settings saved"
+        );
+
+    } catch(err) {
+
+        console.error(err);
+
+        alert(
+            "Unable to save DS110 settings"
+        );
+
+    }
+
+}
+
+async function loadSerialPorts() {
+
+    const select =
+        document.getElementById(
+            "ds110Device"
+        );
+
+    if (!select) {
+        return;
+    }
+
+    const res =
+        await fetch(
+            "/api/serial/ports"
+        );
+
+    const data = await res.json();
+
+    select.innerHTML = "";
+
+    data.ports.forEach(port => {
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+        option.value = port;
+        option.textContent = port;
+
+        if (
+            port === data.current
+        ) {
+            option.selected = true;
+        }
+
+        select.appendChild(
+            option
+        );
+
+    });
 
 }

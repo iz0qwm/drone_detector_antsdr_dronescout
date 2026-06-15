@@ -23,7 +23,9 @@ from routes.remoteid import remoteid_bp
 from routes.logs import logs_bp
 from routes.update import update_bp
 from routes.dsc import dsc_bp
-
+from services.dsc_heartbeat import (
+    start_dsc_heartbeat
+)
 
 try:
     print("Starting local hotspot...")
@@ -39,7 +41,13 @@ try:
 except Exception as e:
     print(f"DS110 startup error: {e}")
 
-
+try:
+    print("Starting DSC heartbeat...")
+    start_dsc_heartbeat()
+except Exception as e:
+    print(
+        f"DSC heartbeat startup error: {e}"
+    )
 
 app.register_blueprint(
     update_bp,

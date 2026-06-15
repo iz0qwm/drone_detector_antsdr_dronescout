@@ -255,7 +255,58 @@
                         Loading...
 
                     </div>
+                    <hr>
 
+                    <h4>DS110 Settings</h4>
+
+                    <div class="info-card">
+
+                        <b>Interface</b>
+
+                        <select
+                            id="ds110Interface"
+                            class="rounded-input">
+
+                            <option value="usb">
+                                USB
+                            </option>
+
+                            <option value="uart">
+                                UART
+                            </option>
+
+                        </select>
+
+                        <br><br>
+
+                        <b>Device</b>
+
+                        <select
+                            id="ds110Device"
+                            class="rounded-input">
+                        </select>
+
+                        <br><br>
+
+                        <b>Baud Rate</b>
+
+                        <input
+                            id="ds110Baudrate"
+                            class="rounded-input"
+                            type="number"
+                            placeholder="115200">
+
+                        <br><br>
+
+                        <button
+                            id="saveDs110Btn"
+                            class="btn-settings">
+
+                            Save DS110 Settings
+
+                        </button>
+
+                    </div>
                 </div>
 
             </div>
@@ -274,6 +325,27 @@
 
                 <div class="info-card">
 
+                    <b>Node ID</b>
+
+                    <input
+                        id="dscNodeId"
+                        class="rounded-input"
+                        readonly
+                    >
+                    <div
+                        id="dscNodeWarning"
+                        style="
+                            display:none;
+                            margin-top:6px;
+                            padding:8px;
+                            border-radius:8px;
+                            background:#ffebee;
+                            color:#c62828;
+                            font-size:13px;
+                        ">
+                    </div>
+
+                    <br>
                     <b>Node Name</b>
 
                     <input

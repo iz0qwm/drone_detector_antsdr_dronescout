@@ -7,6 +7,10 @@ import struct
 from datetime import datetime, timezone
 import glob
 from services.logger import log
+from config import SETTINGS
+from services.dsc_bridge import (
+    send_detected_drone_to_dsc
+)
 
 
 log("DS110", "Available serials: {}".format(glob.glob("/dev/ttyACM*")))
@@ -161,8 +165,8 @@ def ds110_worker():
             log("DS110", "Connecting...")
 
             master = mavutil.mavlink_connection(
-                "/dev/ttyACM0",
-                baud=115200,
+                SETTINGS["ds110"]["device"],
+                baud=SETTINGS["ds110"]["baudrate"],
                 dialect="common"
             )
             log("DS110", "Waiting heartbeat...")
@@ -316,6 +320,20 @@ def ds110_worker():
 
                         remoteid_aircraft[key] = existing
 
+                        if (
+                            existing.get("serial")
+                            and is_valid_position(
+                                existing.get("lat"),
+                                existing.get("lon")
+                            )
+                        ):
+                            log(
+                                "DSC",
+                                f"Sending BAD_DATA {existing.get('serial')}"
+                            )
+
+                            send_detected_drone_to_dsc(existing)
+
                         #if existing.get("serial") and is_valid_position(existing.get("lat"), existing.get("lon")):
                         #    log(
                         #        "DS110",
@@ -369,6 +387,11 @@ def ds110_worker():
                                 timezone.utc
                             ).isoformat()
                         }
+
+                        # invia il drone a DSC
+                        drone = remoteid_aircraft[serial]
+                        send_detected_drone_to_dsc(drone)
+
 
                     except Exception as e:
 
@@ -432,6 +455,12 @@ def ds110_worker():
 
                     remoteid_aircraft[key] = existing
 
+                    log(
+                        "DSC",
+                        f"Sending {existing.get('serial')}"
+                    )
+                    send_detected_drone_to_dsc(existing)
+
                 if (
                     existing.get("serial")
                     and is_valid_position(
@@ -445,6 +474,7 @@ def ds110_worker():
                         f"Aircraft: {existing.get('vendor')} {existing.get('model')} ({existing.get('serial')}) @ {existing.get('lat'):.7f},{existing.get('lon'):.7f}"
                     )
 
+                    send_detected_drone_to_dsc(existing)
 
                 elif msg_type == "ADSB_VEHICLE":
 
