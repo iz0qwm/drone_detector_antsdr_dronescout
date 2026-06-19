@@ -731,6 +731,12 @@ async function loadHardwareStatus() {
 
     try {
 
+        const gpsRes =
+            await fetch("/api/gps/status");
+
+        const gps =
+            await gpsRes.json();
+
         const res =
             await fetch(
                 "/api/hardware"
@@ -740,6 +746,7 @@ async function loadHardwareStatus() {
             await res.json();
 
         box.innerHTML = `
+
             <b>WiFi Client Adapter</b><br>
             ${
                 data.wifi_client
@@ -763,6 +770,49 @@ async function loadHardwareStatus() {
                 data.ds110_alive
                     ? "🟢 Active"
                     : "🔴 No Data"
+            }
+
+            <hr>
+
+            <b>GPS Receiver</b><br>
+            ${
+                gps.available
+                    ? "🟢 Connected"
+                    : "🔴 Missing"
+            }
+
+            <br><br>
+
+            <b>GPS Fix</b><br>
+            ${
+                gps.fix
+                    ? `🟢 ${gps.mode}D Fix`
+                    : "🔴 No Fix"
+            }
+
+            <br><br>
+
+            <b>Satellites</b><br>
+            ${gps.satellites ?? "-"}
+
+            <br><br>
+
+            <b>HDOP</b><br>
+            ${gps.hdop ?? "-"}
+
+            <br><br>
+
+            <b>Position</b><br>
+            ${
+                gps.lat
+                    ? gps.lat.toFixed(6)
+                    : "-"
+            }
+            ,
+            ${
+                gps.lon
+                    ? gps.lon.toFixed(6)
+                    : "-"
             }
         `;
 
@@ -832,6 +882,8 @@ function initDscSettings() {
 
     loadDscSettings();
 
+    initDscPositionSourceUi();
+
     document
         .getElementById(
             "dscSaveBtn"
@@ -853,6 +905,121 @@ function initDscSettings() {
 
 }
 
+
+function initDscPositionSourceUi() {
+
+    const radios =
+        document.querySelectorAll(
+            'input[name="dscPositionSource"]'
+        );
+
+    radios.forEach(radio => {
+
+        radio.addEventListener(
+            "change",
+            updateDscPositionSourceUi
+        );
+
+    });
+
+    updateDscPositionSourceUi();
+}
+
+
+function updateDscPositionSourceUi() {
+
+    const selected =
+        document.querySelector(
+            'input[name="dscPositionSource"]:checked'
+        )?.value || "manual";
+
+    const useGps =
+        selected === "gps";
+
+    if (useGps) {
+
+        fetch("/api/gps/status")
+            .then(res => res.json())
+            .then(gps => {
+
+                if (
+                    gps.fix &&
+                    gps.lat &&
+                    gps.lon
+                ) {
+
+                    updateTrackerMarker(
+                        gps.lat,
+                        gps.lon,
+                        document.getElementById(
+                            "dscNodeName"
+                        ).value
+                    );
+
+                }
+
+            });
+
+    } else {
+
+        const latValue =
+            parseFloat(
+                document.getElementById(
+                    "dscLat"
+                ).value
+            );
+
+        const lonValue =
+            parseFloat(
+                document.getElementById(
+                    "dscLon"
+                ).value
+            );
+
+        if (
+            !isNaN(latValue) &&
+            !isNaN(lonValue)
+        ) {
+
+            updateTrackerMarker(
+                latValue,
+                lonValue,
+                document.getElementById(
+                    "dscNodeName"
+                ).value
+            );
+
+        }
+
+    }
+
+    const lat =
+        document.getElementById("dscLat");
+
+    const lon =
+        document.getElementById("dscLon");
+
+    const selectBtn =
+        document.getElementById(
+            "dscSelectPositionBtn"
+        );
+
+    if (lat) {
+        lat.disabled = useGps;
+    }
+
+    if (lon) {
+        lon.disabled = useGps;
+    }
+
+    if (selectBtn) {
+        selectBtn.disabled = useGps;
+        selectBtn.style.opacity =
+            useGps ? "0.5" : "1";
+    }
+}
+
+
 async function loadDscSettings() {
 
     try {
@@ -870,6 +1037,11 @@ async function loadDscSettings() {
         ).value =
             data.node_id || "";
 
+
+        document.getElementById(
+            "dscSyncEnabled"
+        ).checked =
+            data.sync_enabled !== false;
 
         const warning =
             document.getElementById(
@@ -909,31 +1081,25 @@ async function loadDscSettings() {
         ).value =
             data.lon || "";
 
+        const positionSource =
+            data.position_source || "manual";
+
         document
-            .querySelector(
-                `input[name="dscPositionSource"][value="${data.position_source || "manual"}"]`
+            .querySelectorAll(
+                'input[name="dscPositionSource"]'
             )
-            ?.setAttribute(
-                "checked",
-                true
-            );
+            .forEach(radio => {
+                radio.checked =
+                    radio.value === positionSource;
+            });
 
-        if (
-            data.lat &&
-            data.lon
-        ) {
+        updateDscPositionSourceUi();
 
-            setTimeout(() => {
+        setTimeout(() => {
 
-                updateTrackerMarker(
-                    parseFloat(data.lat),
-                    parseFloat(data.lon),
-                    data.node_name
-                );
+            updateDscPositionSourceUi();
 
-            }, 1000);
-
-        }
+        }, 1000);
 
     } catch(err) {
 
@@ -944,6 +1110,9 @@ async function loadDscSettings() {
 
     }
 }
+
+
+
 
 
 async function saveDscSettings() {
@@ -970,6 +1139,11 @@ async function saveDscSettings() {
                         "dscLon"
                     ).value
                 ),
+
+            sync_enabled:
+                document.getElementById(
+                    "dscSyncEnabled"
+                ).checked,
 
             position_source:
                 document.querySelector(

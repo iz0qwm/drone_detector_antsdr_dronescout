@@ -1,10 +1,14 @@
 window.DRONES = window.DRONES || {};
 
-DRONES.startDroneTraffic =
-function(map) {
+DRONES.droneTrafficTimer = null;
+
+DRONES.startDroneTraffic = function(map) {
+
+    if (DRONES.droneTrafficTimer) {
+        return;
+    }
 
     async function update() {
-
         const aircraft =
             await DRONES.fetchRemoteIdAircraft();
 
@@ -16,8 +20,23 @@ function(map) {
 
     update();
 
-    setInterval(
-        update,
-        5000
-    );
+    DRONES.droneTrafficTimer =
+        setInterval(
+            update,
+            5000
+        );
+};
+
+DRONES.stopDroneTraffic = function() {
+    if (DRONES.droneTrafficTimer) {
+        clearInterval(
+            DRONES.droneTrafficTimer
+        );
+
+        DRONES.droneTrafficTimer = null;
+    }
+
+    if (DRONES.clearDroneLayer) {
+        DRONES.stopDroneTraffic();
+    }
 };

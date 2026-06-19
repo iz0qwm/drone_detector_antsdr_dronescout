@@ -5,6 +5,7 @@ import requests
 from services.logger import log
 from services.network import has_internet
 from services.dsc_settings import get_dsc_settings
+from services.gps import get_gps_status
 import time
 import socket
 
@@ -21,6 +22,18 @@ def build_observer():
 
     cfg = get_dsc_settings()
 
+    lat = cfg.get("lat")
+    lon = cfg.get("lon")
+
+    if cfg.get("position_source") == "gps":
+
+        gps = get_gps_status()
+
+        if gps.get("fix"):
+
+            lat = gps.get("lat")
+            lon = gps.get("lon")
+
     return {
         "id": cfg.get("node_id") or socket.gethostname(),
 
@@ -31,8 +44,8 @@ def build_observer():
 
         "type": "tracker-mini",
 
-        "lat": cfg.get("lat"),
-        "lon": cfg.get("lon"),
+        "lat": lat,
+        "lon": lon,
 
         "capabilities": [
             "remoteid",
@@ -43,6 +56,17 @@ def build_observer():
 
 
 def send_detected_drone_to_dsc(drone):
+
+    #
+    # Non devo trasmettere per configurazione?
+    #
+    cfg = get_dsc_settings()
+
+    if not cfg.get(
+        "sync_enabled",
+        True
+    ):
+        return False
 
     #
     # niente Internet

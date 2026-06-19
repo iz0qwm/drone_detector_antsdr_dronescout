@@ -44,7 +44,17 @@ def update_dsc_settings(data):
             data.get("lat"),
 
         "lon":
-            data.get("lon")
+            data.get("lon"),
+
+        "sync_enabled":
+            data.get(
+                "sync_enabled",
+                existing.get(
+                    "sync_enabled",
+                    True
+                )
+            )
+
     }
 
     save_settings()

@@ -38,6 +38,7 @@ async function loadStatus() {
 // -----------------------------
 let map = null;
 let currentTileLayer = null;
+let darkOverlay = null;
 
 async function getSelectedMapSource() {
 
@@ -103,6 +104,33 @@ function getTileLayerConfig(source) {
     };
 }
 
+
+function updateDarkMap() {
+
+    const enabled =
+        localStorage.getItem(
+            "darkMapEnabled"
+        ) === "true";
+
+    if (!darkOverlay) {
+        return;
+    }
+
+    if (enabled) {
+
+        if (!map.hasLayer(darkOverlay)) {
+            darkOverlay.addTo(map);
+        }
+
+    } else {
+
+        if (map.hasLayer(darkOverlay)) {
+            map.removeLayer(darkOverlay);
+        }
+
+    }
+}
+
 async function applyMapSource() {
 
     if (!map) {
@@ -163,6 +191,19 @@ async function initMap() {
             ],
             mapConfig.default_zoom
         );
+
+        darkOverlay = L.rectangle(
+            [[-90, -180], [90, 180]],
+            {
+                color: "#000000",
+                weight: 0,
+                fillColor: "#000000",
+                fillOpacity: 0.35,
+                interactive: false
+            }
+        );
+
+        updateDarkMap();
 
         map.createPane(
             "traffic-air"
@@ -367,6 +408,34 @@ document.addEventListener(
             }
         );
 
+        const darkMapCheckbox =
+            document.getElementById(
+                "darkMapEnabled"
+            );
+
+        if (darkMapCheckbox) {
+
+            darkMapCheckbox.checked =
+                localStorage.getItem(
+                    "darkMapEnabled"
+                ) === "true";
+
+            darkMapCheckbox.addEventListener(
+                "change",
+                () => {
+
+                    localStorage.setItem(
+                        "darkMapEnabled",
+                        darkMapCheckbox.checked
+                    );
+
+                    updateDarkMap();
+
+                }
+            );
+
+        }
+
     }
 );
 
@@ -421,6 +490,29 @@ async function loadServices() {
         const data =
             await res.json();
 
+        
+        let dscSyncEnabled = true;
+        let dscPositionSource = "manual";
+
+
+        try {
+            const dscRes =
+                await fetch("/api/dsc/settings");
+
+            const dscSettings =
+                await dscRes.json();
+
+            dscPositionSource =
+                dscSettings.position_source
+                    || "manual";
+
+            dscSyncEnabled =
+                dscSettings.sync_enabled !== false;
+
+        } catch (err) {
+            dscSyncEnabled = false;
+        }
+
         setLed(
             "ledNet",
             data.internet
@@ -450,17 +542,9 @@ async function loadServices() {
                 : "red"
         );
 
-        const droneEnabled =
-            localStorage.getItem(
-                "droneNetworkEnabled"
-            ) !== "false";
-
         setLed(
             "ledRid",
-            (
-                data.remote_id &&
-                droneEnabled
-            )
+            data.remote_id
                 ? "green"
                 : "red"
         );
@@ -482,10 +566,27 @@ async function loadServices() {
 
         setLed(
             "ledDsc",
-            data.dsc
+            (
+                data.dsc &&
+                dscSyncEnabled
+            )
                 ? "green"
-                : "off"
+                : "red"
         );
+
+        const dscModeLabel =
+            document.getElementById(
+                "dscModeLabel"
+            );
+
+        if (dscModeLabel) {
+
+            dscModeLabel.textContent =
+                dscPositionSource === "gps"
+                    ? "DSC-G"
+                    : "DSC-M";
+
+        }
 
         const servicesBox =
             document.getElementById(
@@ -550,11 +651,18 @@ async function loadServices() {
 
                     <div class="service-item">
                         <span class="mini-led ${
-                            data.dsc
+                            (
+                                data.dsc &&
+                                dscSyncEnabled
+                            )
                                 ? "mini-led-green"
                                 : "mini-led-red"
                         }"></span>
-                        DSC
+                        ${
+                            dscPositionSource === "gps"
+                                ? "DSC-G"
+                                : "DSC-M"
+                        }
                     </div>
 
                 </div>
@@ -572,7 +680,7 @@ async function loadServices() {
 }
 
 
-function initTrafficSettings() {
+async function initTrafficSettings() {
 
     // ADS-B Network Toggle
     const checkbox =
@@ -682,21 +790,42 @@ function initTrafficSettings() {
 
     if (droneCheckbox) {
 
-        const savedDrone =
-            localStorage.getItem(
-                "droneNetworkEnabled"
+        try {
+
+            const res =
+                await fetch("/api/ds110/status");
+
+            const data =
+                await res.json();
+
+            droneCheckbox.checked =
+                data.enabled === true;
+
+        } catch (err) {
+
+            console.error(
+                "DS110 status error",
+                err
             );
 
-        droneCheckbox.checked =
-            savedDrone !== "false";
-
+        }
         droneCheckbox.addEventListener(
             "change",
-            () => {
+            async () => {
 
-                localStorage.setItem(
-                    "droneNetworkEnabled",
-                    droneCheckbox.checked
+                await fetch(
+                    "/api/ds110/enable",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+                        body: JSON.stringify({
+                            enabled:
+                                droneCheckbox.checked
+                        })
+                    }
                 );
 
                 if (!droneCheckbox.checked) {

@@ -5,14 +5,13 @@ from routes.network_manager import network_manager_bp
 from routes.settings import settings_bp
 from routes.maps import maps_bp
 from routes.missions import missions_bp
-from routes.services import (
-    services_bp
-)
+from routes.services import (services_bp)
 from routes.air_network import air_network_bp
 from routes.ogn_network import ogn_network_bp
-from routes.hardware import (
-    hardware_bp
-)
+from routes.hardware import (hardware_bp)
+from routes.ds110 import ds110_bp
+from routes.gps import gps_bp
+
 
 app = Flask(__name__, static_folder="../frontend", static_url_path="")
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
@@ -23,9 +22,9 @@ from routes.remoteid import remoteid_bp
 from routes.logs import logs_bp
 from routes.update import update_bp
 from routes.dsc import dsc_bp
-from services.dsc_heartbeat import (
-    start_dsc_heartbeat
-)
+from services.dsc_heartbeat import (start_dsc_heartbeat)
+from config import SETTINGS
+
 
 try:
     print("Starting local hotspot...")
@@ -36,8 +35,15 @@ except Exception as e:
 
 
 try:
-    print("Starting DS110 service...")
-    start_ds110()
+    if SETTINGS.get(
+        "traffic",
+        {}
+    ).get(
+        "remoteid_enabled",
+        True
+    ):
+        print("Starting DS110 service...")
+        start_ds110()
 except Exception as e:
     print(f"DS110 startup error: {e}")
 
@@ -67,6 +73,9 @@ app.register_blueprint(hardware_bp)
 app.register_blueprint(remoteid_bp)
 app.register_blueprint(logs_bp)
 app.register_blueprint(dsc_bp)
+app.register_blueprint(ds110_bp)
+app.register_blueprint(gps_bp, url_prefix="/api/gps")
+
 
 @app.route("/")
 def index():

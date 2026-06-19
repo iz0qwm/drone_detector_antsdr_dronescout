@@ -5,6 +5,9 @@ import socket
 from services.logger import log
 from services.network import has_internet
 from services.dsc_settings import get_dsc_settings
+from services.gps import get_gps_status
+
+
 
 HEARTBEAT_URL = (
     "https://europe-west8-droneskycheck-d0136.cloudfunctions.net/"
@@ -27,8 +30,30 @@ def build_payload():
 
     cfg = get_dsc_settings()
 
-    lat = cfg.get("lat")
-    lon = cfg.get("lon")
+    #
+    # Non devo trasmettere per configurazione?
+    #
+    if not cfg.get(
+        "sync_enabled",
+        True
+    ):
+        return
+
+
+    if cfg.get("position_source") == "gps":
+
+        gps = get_gps_status()
+
+        if not gps.get("fix"):
+            return None
+
+        lat = gps.get("lat")
+        lon = gps.get("lon")
+
+    else:
+
+        lat = cfg.get("lat")
+        lon = cfg.get("lon")
 
     if lat is None or lon is None:
         return None

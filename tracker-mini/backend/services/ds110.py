@@ -327,11 +327,7 @@ def ds110_worker():
                                 existing.get("lon")
                             )
                         ):
-                            log(
-                                "DSC",
-                                f"Sending BAD_DATA {existing.get('serial')}"
-                            )
-
+                            # Send Bad Data decoded to DSC
                             send_detected_drone_to_dsc(existing)
 
                         #if existing.get("serial") and is_valid_position(existing.get("lat"), existing.get("lon")):
@@ -455,10 +451,7 @@ def ds110_worker():
 
                     remoteid_aircraft[key] = existing
 
-                    log(
-                        "DSC",
-                        f"Sending {existing.get('serial')}"
-                    )
+                    # Sending to DSC
                     send_detected_drone_to_dsc(existing)
 
                 if (
@@ -512,10 +505,18 @@ def start():
     thread.start()
 
 def stop():
-
     global running
+    global master
 
     running = False
+
+    try:
+        if master:
+            master.close()
+    except:
+        pass
+
+    clear_aircraft()
 
 
 
@@ -654,3 +655,7 @@ def decode_bad_data_odid_pack(raw):
         messages = messages + bytes(expected_len - len(messages))
 
     return decode_odid_pack(messages, msg_pack_size)
+
+
+def clear_aircraft():
+    remoteid_aircraft.clear()

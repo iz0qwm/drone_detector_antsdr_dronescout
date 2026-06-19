@@ -1,7 +1,8 @@
 from services.network import (
     get_network_status
 )
-from services.ds110 import is_alive
+
+import services.ds110 as ds110
 
 def get_services_status():
 
@@ -20,7 +21,7 @@ def get_services_status():
         "ads_network": internet,
 
         # futuro bridge DSC
-        "remote_id": is_alive(),
+        "remote_id": ds110.running,
 
         # futuro OGN
         "ogn": internet,

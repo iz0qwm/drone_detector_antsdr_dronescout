@@ -49,7 +49,9 @@
 
             <div class="service-pill">
                 <span id="ledDsc" class="led led-off"></span>
-                DSC
+                <span id="dscModeLabel">
+                    DSC-M
+                </span>
             </div>
 
         </div>
@@ -158,7 +160,14 @@
                         <option value="offline">Offline Maps</option>
 
                     </select>
+                    <br><br>
 
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="darkMapEnabled">
+                        Dark Map
+                    </label>
                     <div
                         id="mapSourceStatus"
                         style="margin-top:8px;font-size:13px;">
@@ -225,7 +234,7 @@
                             id="droneNetworkEnabled"
                             checked
                         >
-                        Drone Network
+                        Remote ID (DS110)
                     </label>
                 </div>
                 <button
@@ -345,14 +354,24 @@
                         ">
                     </div>
 
-                    <br>
+                    <br><br>
                     <b>Node Name</b>
 
                     <input
                         id="dscNodeName"
                         class="rounded-input"
                         placeholder="DSC Node 01">
+                    
+                    <br><br>
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="dscSyncEnabled"
+                            checked>
+                        Enable DSC Cloud Sync
+                    </label>
 
+                    <br><br>
                     <b>Position Source</b>
 
                     <label>
