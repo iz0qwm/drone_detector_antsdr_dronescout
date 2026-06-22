@@ -29,11 +29,29 @@ AIR.startAirTraffic = function(map, options = {}) {
             maxLon: ne.lng
         };
 
-        const aircraft =
+        const networkAircraft =
             await AIR.fetchNetworkAircraft(
                 bounds,
                 options
             );
+
+        const localAircraft =
+            await AIR.fetchLocalAircraft(
+                bounds
+            );
+
+        const aircraft = [
+            ...networkAircraft,
+            ...localAircraft
+        ];
+
+        console.log(
+            "[AIR]",
+            "NET:",
+            networkAircraft.length,
+            "LOCAL:",
+            localAircraft.length
+        );
 
         AIR.updateAirLayer(
             aircraft

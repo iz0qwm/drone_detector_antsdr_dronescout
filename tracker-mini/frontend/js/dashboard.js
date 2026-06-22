@@ -520,11 +520,19 @@ async function loadServices() {
                 : "red"
         );
 
+        const adsbLocalEnabled =
+            document.getElementById(
+                "adsbLocalEnabled"
+            )?.checked ?? true;
+
         setLed(
             "ledAdsLocal",
-            data.ads_local
+            (
+                data.ads_local &&
+                adsbLocalEnabled
+            )
                 ? "green"
-                : "off"
+                : "red"
         );
 
         const adsbEnabled =
@@ -562,6 +570,21 @@ async function loadServices() {
             )
                 ? "green"
                 : "red"
+        );
+
+        let meshState = "red";
+
+        if (data.meshtastic_enabled) {
+
+            meshState =
+                data.meshtastic_alive
+                    ? "green"
+                    : "orange";
+        }
+
+        setLed(
+            "ledMesh",
+            meshState
         );
 
         setLed(
@@ -609,7 +632,10 @@ async function loadServices() {
 
                     <div class="service-item">
                         <span class="mini-led ${
-                            data.ads_local
+                            (
+                                data.ads_local &&
+                                adsbLocalEnabled
+                            )
                                 ? "mini-led-green"
                                 : "mini-led-red"
                         }"></span>
@@ -647,6 +673,21 @@ async function loadServices() {
                                 : "mini-led-red"
                         }"></span>
                         OGN
+                    </div>
+
+                    <div class="service-item">
+                        <span class="mini-led ${
+                            (
+                                data.meshtastic_enabled
+                                    ? (
+                                        data.meshtastic_alive
+                                            ? "mini-led-green"
+                                            : "mini-led-orange"
+                                    )
+                                    : "mini-led-red"
+                            )
+                        }"></span>
+                        MESH
                     </div>
 
                     <div class="service-item">
@@ -856,6 +897,137 @@ async function initTrafficSettings() {
         );
     }
 
+    // Meshtastic
+    const meshtasticCheckbox =
+        document.getElementById(
+            "meshtasticEnabled"
+        );
+
+    if (meshtasticCheckbox) {
+
+        try {
+
+            const res =
+                await fetch(
+                    "/api/meshtastic/status"
+                );
+
+            const data =
+                await res.json();
+
+            meshtasticCheckbox.checked =
+                data.enabled === true;
+
+        } catch (err) {
+
+            console.error(
+                "Meshtastic status error",
+                err
+            );
+
+        }
+
+        meshtasticCheckbox.addEventListener(
+            "change",
+            async () => {
+
+                await fetch(
+                    "/api/meshtastic/enable",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+                        body: JSON.stringify({
+                            enabled:
+                                meshtasticCheckbox.checked
+                        })
+                    }
+                );
+
+                loadServices();
+
+            }
+        );
+    }
+
+    // ADSB Rx
+    const adsbLocalCheckbox =
+        document.getElementById(
+            "adsbLocalEnabled"
+        );
+
+    if (adsbLocalCheckbox) {
+
+        try {
+
+            const res =
+                await fetch(
+                    "/api/readsb/status"
+                );
+
+            const data =
+                await res.json();
+
+            adsbLocalCheckbox.checked =
+                data.enabled === true;
+
+        } catch (err) {
+
+            console.error(
+                "READSB status error",
+                err
+            );
+
+        }
+
+        adsbLocalCheckbox.addEventListener(
+            "change",
+            async () => {
+
+                try {
+
+                    await fetch(
+                        "/api/readsb/enable",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+                            body: JSON.stringify({
+                                enabled:
+                                    adsbLocalCheckbox.checked
+                            })
+                        }
+                    );
+
+                } catch (err) {
+
+                    console.error(
+                        "READSB enable error",
+                        err
+                    );
+
+                }
+
+                if (!adsbLocalCheckbox.checked) {
+
+                    if (
+                        window.AIR &&
+                        AIR.clearAirLayer
+                    ) {
+                        AIR.clearAirLayer();
+                    }
+
+                }
+
+                loadServices();
+
+            }
+        );
+    }
 
 }
 

@@ -774,6 +774,40 @@ async function loadHardwareStatus() {
 
             <hr>
 
+            <b>Meshtastic Gateway</b><br>
+            ${
+                data.meshtastic
+                    ? "🟢 Connected"
+                    : "🔴 Missing"
+            }
+
+            <br><br>
+
+            <b>Meshtastic Link</b><br>
+            ${
+                data.meshtastic_alive
+                    ? "🟢 Active"
+                    : "🔴 No Data"
+            }
+
+            <hr>
+            <b>ADS-B Receiver</b><br>
+            ${
+                data.adsb_receiver
+                    ? "🟢 Connected"
+                    : "🔴 Missing"
+            }
+
+            <br><br>
+
+            <b>ADS-B Decoder</b><br>
+            ${
+                data.adsb_decoder
+                    ? "🟢 Active"
+                    : "🔴 Offline"
+            }
+
+            <hr>
             <b>GPS Receiver</b><br>
             ${
                 gps.available

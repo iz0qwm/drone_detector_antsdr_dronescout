@@ -1,8 +1,37 @@
+import os
+import time
+
 from services.network import (
     get_network_status
 )
 
 import services.ds110 as ds110
+import services.meshtastic_service as meshtastic
+
+READSB_JSON = "/run/readsb/aircraft.json"
+
+
+def adsb_local_alive():
+
+    if not os.path.exists(
+        READSB_JSON
+    ):
+        return False
+
+    try:
+
+        age = (
+            time.time()
+            - os.path.getmtime(
+                READSB_JSON
+            )
+        )
+
+        return age < 30
+
+    except Exception:
+        return False
+
 
 def get_services_status():
 
@@ -14,19 +43,25 @@ def get_services_status():
 
         "internet": internet,
 
-        # per ora fake
-        "ads_local": False,
+        "ads_local":
+            adsb_local_alive(),
 
-        # se c'è internet
-        "ads_network": internet,
+        "ads_network":
+            internet,
 
-        # futuro bridge DSC
-        "remote_id": ds110.running,
+        "remote_id":
+            ds110.running,
+            
+        "meshtastic_enabled":
+            meshtastic.running,
 
-        # futuro OGN
-        "ogn": internet,
+        "meshtastic_alive":
+            meshtastic.is_alive(),
 
-        # futuro DSC
-        "dsc": internet
+        "ogn":
+            internet,
+
+        "dsc":
+            internet
 
     }

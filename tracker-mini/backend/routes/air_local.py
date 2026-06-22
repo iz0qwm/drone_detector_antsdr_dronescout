@@ -1,23 +1,25 @@
-from flask import Blueprint, jsonify, request
-from services.logger import log
+from flask import Blueprint
+from flask import jsonify
+from flask import request
 
-from services.air_network import (
+from services.air_local import (
     get_bounds_args,
-    get_network_aircraft
+    get_local_aircraft
 )
 
-air_network_bp = Blueprint(
-    "air_network",
+air_local_bp = Blueprint(
+    "air_local",
     __name__
 )
 
 
-@air_network_bp.route(
-    "/api/air/network"
+@air_local_bp.route(
+    "/api/air/local"
 )
-def air_network():
+def air_local():
 
     try:
+
         bounds = get_bounds_args(
             request
         )
@@ -28,7 +30,7 @@ def air_network():
         )
 
         return jsonify(
-            get_network_aircraft(
+            get_local_aircraft(
                 bounds,
                 show_all
             )
@@ -38,9 +40,12 @@ def air_network():
 
         import traceback
 
+        from services.logger import log
+
         log(
             "ADSB",
-            "AIR NETWORK API ERROR:\n" + traceback.format_exc(),
+            "AIR LOCAL API ERROR:\n"
+            + traceback.format_exc(),
             level="ERROR"
         )
 

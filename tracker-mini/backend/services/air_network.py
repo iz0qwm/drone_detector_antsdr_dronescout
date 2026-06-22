@@ -33,7 +33,7 @@ def in_bounds(lat, lon, bounds):
     )
 
 
-def fetch_solarmonitor(bounds):
+def fetch_solarmonitor(bounds, show_all=False):
     try:
         res = requests.get(
             SOLARMONITOR_ADSB_URL,
@@ -82,7 +82,11 @@ def fetch_solarmonitor(bounds):
         altitude = alt_ft * 0.3048
         is_heli = a.get("category") == "A7"
 
-        if not is_heli and altitude > MAX_ALTITUDE_METERS:
+        if (
+            not show_all
+            and not is_heli
+            and altitude > 1000
+        ):
             continue
 
         speed = a.get("gs")
@@ -106,7 +110,7 @@ def fetch_solarmonitor(bounds):
     return aircraft
 
 
-def fetch_ogn(bounds):
+def fetch_ogn(bounds, show_all=False):
     try:
         res = requests.get(
             OGN_URL,
@@ -145,7 +149,11 @@ def fetch_ogn(bounds):
         category = obj.get("category")
         is_heli = category == "A7"
 
-        if not is_heli and alt > MAX_ALTITUDE_METERS:
+        if (
+            not show_all
+            and not is_heli
+            and alt > MAX_ALTITUDE_METERS
+        ):
             continue
 
         icao = obj.get("icao")
@@ -190,7 +198,7 @@ def fetch_ogn(bounds):
     return aircraft
 
 
-def fetch_opensky(bounds):
+def fetch_opensky(bounds, show_all=False):
     try:
         res = requests.get(
             OPENSKY_URL,
@@ -243,7 +251,11 @@ def fetch_opensky(bounds):
             or callsign.startswith("HELI")
         )
 
-        if not is_heli and altitude > MAX_ALTITUDE_METERS:
+        if (
+            not show_all
+            and not is_heli
+            and altitude > MAX_ALTITUDE_METERS
+        ):
             continue
 
         aircraft.append({
@@ -284,10 +296,21 @@ def merge_aircraft(*lists):
     return list(merged.values())
 
 
-def get_network_aircraft(bounds):
-    solarmonitor = fetch_solarmonitor(bounds)
-    ogn = fetch_ogn(bounds)
-    opensky = fetch_opensky(bounds)
+def get_network_aircraft(bounds, show_all=False):
+    solarmonitor = fetch_solarmonitor(
+        bounds,
+        show_all
+    )
+
+    ogn = fetch_ogn(
+        bounds,
+        show_all
+    )
+
+    opensky = fetch_opensky(
+        bounds,
+        show_all
+    )
 
     log(
         "ADSB",

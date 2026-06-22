@@ -133,3 +133,8 @@ html, body {
     box-shadow:
         0 0 6px #f44336;
 }
+
+.mini-led-orange {
+    background: #ff9800;
+    box-shadow: 0 0 6px #ff9800;
+}

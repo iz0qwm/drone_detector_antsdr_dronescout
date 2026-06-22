@@ -1,10 +1,33 @@
 {
   "admin_lan_ip": "192.168.1.115",
   "ap_ssid": "Portable-Air-Node",
+  "ds110": {
+    "interface": "uart",
+    "device": "/dev/serial0",
+    "baudrate": 115200
+  },
   "map": {
     "default_lat": 41.9028,
     "default_lon": 12.4964,
     "default_zoom": 7,
     "base_map": "Italy.mbtiles"
+  },
+  "dsc": {
+    "node_id": "dsc-node02",
+    "node_name": "DSC Node 02",
+    "position_source": "gps",
+    "lat": 41.893399,
+    "lon": 12.577479,
+    "sync_enabled": true
+  },
+  "traffic": {
+    "remoteid_enabled": true,
+    "meshtastic_enabled": false
+  },
+  "meshtastic": {
+    "enabled": true,
+    "device": "/dev/serial/by-id/usb-Espressif_Systems_LilyGo_TBeam-S3-Core_48CA435BFC80-if00",
+    "node_id": "!435bfc80",
+    "node_name": "dsc-node02"
   }
 }

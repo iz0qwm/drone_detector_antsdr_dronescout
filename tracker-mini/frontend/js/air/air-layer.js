@@ -243,24 +243,39 @@ function isValidAircraft(ac) {
     }
   }
 
-  const maxAlt = Number.isFinite(AIR.maxAltitudeMeters)
-    ? AIR.maxAltitudeMeters
-    : MAX_ALT_DEFAULT;
+  const showAllAircraft =
+      document.getElementById(
+          "showHighAltitudeAircraft"
+      )?.checked === true;
+
+  if (showAllAircraft) {
+      return true;
+  }
+
+  const maxAlt = Number.isFinite(
+      AIR.maxAltitudeMeters
+  )
+      ? AIR.maxAltitudeMeters
+      : MAX_ALT_DEFAULT;
 
   // quota mancante → accetti
-  if (ac.altitude == null || !Number.isFinite(ac.altitude)) {
-    return true;
+  if (
+      ac.altitude == null ||
+      !Number.isFinite(ac.altitude)
+  ) {
+      return true;
   }
 
   const ok = ac.altitude <= maxAlt;
+
   if (!ok) {
-    console.warn(
-      "[ADS-B] filtered by altitude",
-      ac.icao,
-      ac.altitude,
-      ">",
-      maxAlt
-    );
+      console.warn(
+          "[ADS-B] filtered by altitude",
+          ac.icao,
+          ac.altitude,
+          ">",
+          maxAlt
+      );
   }
 
   return ok;
@@ -322,10 +337,38 @@ function createMarker(ac) {
 
 
 
+function getSourceLabel(source) {
+
+  switch (source) {
+
+    case "LOCAL_ADSB":
+      return "📡 RTL-SDR";
+
+    case "SOLARMONITOR":
+      return "🌐 SolarMonitor";
+
+    case "OPENSKY":
+      return "🌐 OpenSky";
+
+    case "OGN":
+      return "🪂 OGN";
+
+    default:
+      return source || "Unknown";
+  }
+}
+
+
 function popup(ac) {
+
+  const source =
+  getSourceLabel(ac.source);
+
+
   return `
     <b>${ac.callsign}</b><br>
     ICAO: ${ac.icao}<br>
+    Fonte: ${source}<br>
     Quota: ${Math.round(ac.altitude)} m<br>
     Velocità raw: ${ac.speed}<br>
     Velocità: ${
@@ -333,6 +376,5 @@ function popup(ac) {
         ? Math.round(ac.speed * 3.6) + " km/h"
         : "N/D"
     }
-
   `;
 }

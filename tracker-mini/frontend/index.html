@@ -46,7 +46,10 @@
                 <span id="ledOgn" class="led led-off"></span>
                 OGN
             </div>
-
+            <div class="service-pill">
+                <span id="ledMesh" class="led led-off"></span>
+                MESH
+            </div>
             <div class="service-pill">
                 <span id="ledDsc" class="led led-off"></span>
                 <span id="dscModeLabel">
@@ -236,6 +239,27 @@
                         >
                         Remote ID (DS110)
                     </label>
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="meshtasticEnabled"
+                        >
+                        Meshtastic
+                    </label>
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="adsbLocalEnabled"
+                            checked
+                        >
+                        ADS-B Local (RTL-SDR)
+                    </label>
+                    <label style="margin-left:20px;">
+                        <input
+                            type="checkbox"
+                            id="showHighAltitudeAircraft">
+                        Show all aircraft over 1000m
+                    </label>
                 </div>
                 <button
                     id="systemSettingsBtn"
@@ -372,7 +396,7 @@
                     </label>
 
                     <br><br>
-                    <b>Position Source</b>
+                    <b>Pos. Source</b>
 
                     <label>
                         <input

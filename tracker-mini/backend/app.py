@@ -11,6 +11,9 @@ from routes.ogn_network import ogn_network_bp
 from routes.hardware import (hardware_bp)
 from routes.ds110 import ds110_bp
 from routes.gps import gps_bp
+from routes.readsb import readsb_bp
+from routes.meshtastic import meshtastic_bp
+
 
 
 app = Flask(__name__, static_folder="../frontend", static_url_path="")
@@ -23,6 +26,7 @@ from routes.logs import logs_bp
 from routes.update import update_bp
 from routes.dsc import dsc_bp
 from services.dsc_heartbeat import (start_dsc_heartbeat)
+from routes.air_local import air_local_bp
 from config import SETTINGS
 
 
@@ -75,6 +79,9 @@ app.register_blueprint(logs_bp)
 app.register_blueprint(dsc_bp)
 app.register_blueprint(ds110_bp)
 app.register_blueprint(gps_bp, url_prefix="/api/gps")
+app.register_blueprint(air_local_bp)
+app.register_blueprint(readsb_bp)
+app.register_blueprint(meshtastic_bp)
 
 
 @app.route("/")
