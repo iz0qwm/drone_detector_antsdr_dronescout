@@ -31,6 +31,14 @@ def get_status():
     })
 
 
+@meshtastic_bp.route("/gateway")
+def get_gateway():
+
+    return jsonify({
+        "ok": True,
+        "gateway": meshtastic_service.get_gateway_info()
+    })
+
 @meshtastic_bp.route(
     "/enable",
     methods=["POST"]

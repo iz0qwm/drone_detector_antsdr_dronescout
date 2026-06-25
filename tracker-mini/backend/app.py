@@ -27,6 +27,8 @@ from routes.update import update_bp
 from routes.dsc import dsc_bp
 from services.dsc_heartbeat import (start_dsc_heartbeat)
 from routes.air_local import air_local_bp
+from routes.teams import teams_bp
+
 from config import SETTINGS
 
 
@@ -82,7 +84,7 @@ app.register_blueprint(gps_bp, url_prefix="/api/gps")
 app.register_blueprint(air_local_bp)
 app.register_blueprint(readsb_bp)
 app.register_blueprint(meshtastic_bp)
-
+app.register_blueprint(teams_bp)
 
 @app.route("/")
 def index():

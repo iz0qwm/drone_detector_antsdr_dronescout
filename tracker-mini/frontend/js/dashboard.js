@@ -301,6 +301,16 @@ async function initMap() {
             );
         }
 
+        if (
+            window.MESHTASTIC &&
+            localStorage.getItem(
+                "meshtasticEnabled"
+            ) !== "false"
+        ) {
+            MESHTASTIC.start(
+                map
+            );
+        }
         await applyMapSource();
 
     } catch(err) {
@@ -950,6 +960,25 @@ async function initTrafficSettings() {
 
             }
         );
+
+        if (meshtasticCheckbox.checked) {
+
+            if (
+                window.MESHTASTIC &&
+                window.airNodeMap
+            ) {
+                MESHTASTIC.start(
+                    window.airNodeMap
+                );
+            }
+
+        } else {
+
+            if (window.MESHTASTIC) {
+                MESHTASTIC.stop();
+            }
+
+        }
     }
 
     // ADSB Rx

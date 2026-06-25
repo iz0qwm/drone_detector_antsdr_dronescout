@@ -485,8 +485,7 @@
 
                 <button
                     id="missionTeamsBtn"
-                    class="btn-mission"
-                    disabled>
+                    class="btn-mission">
 
                     Teams
 
@@ -744,6 +743,29 @@
             </div>
         </div>
     </div>
+    <div id="missionTeamsModal" class="modal">
+
+        <div class="modal-content mission-modal">
+
+            <div class="modal-header">
+
+                <h2>Mission Team (Meshtastic)</h2>
+
+                <button id="closeMissionTeamsModal">
+                    ✕
+                </button>
+
+            </div>
+
+            <div id="teamsContainer">
+
+                Loading...
+
+            </div>
+
+        </div>
+
+    </div>
     <div id="logsModal" class="modal">
         <div class="modal-content">
 
@@ -849,6 +871,9 @@
     <script src="js/drones/drone-network.js"></script>
     <script src="js/drones/drone-layer.js"></script>
     <script src="js/drones/drone-controller.js"></script>
+    <script src="js/meshtastic/meshtastic-network.js"></script>
+    <script src="js/meshtastic/meshtastic-layer.js"></script>
+    <script src="js/meshtastic/meshtastic-controller.js"></script>
     <script src="js/updater.js"></script>
     <script src="js/dashboard.js"></script>
 </body>

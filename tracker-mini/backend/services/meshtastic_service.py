@@ -11,6 +11,14 @@ from pubsub import pub
 
 
 meshtastic_nodes = {}
+REGIONS = {
+    0: "UNSET",
+    1: "US",
+    2: "EU433",
+    3: "EU868",
+    4: "CN",
+}
+
 
 running = False
 thread = None
@@ -50,6 +58,11 @@ def update_node_from_meshtastic(node_id, node):
     lat, lon, alt = decode_position(position)
 
     existing = meshtastic_nodes.get(node_id, {})
+    last_heard = node.get("lastHeard")
+    snr = node.get("snr")
+    hop_start = node.get("hopStart")
+    hop_limit = node.get("hopLimit")
+    via_mqtt = node.get("viaMqtt")
 
     existing.update({
         "id": node_id,
@@ -58,12 +71,22 @@ def update_node_from_meshtastic(node_id, node):
         "shortName": user.get("shortName"),
         "hwModel": user.get("hwModel"),
         "macaddr": user.get("macaddr"),
+        "role": node.get("role"),
+        "isFavorite": node.get("isFavorite"),
+        "lastHeard": last_heard,
+        "snr": snr,
+        "hopStart": hop_start,
+        "hopLimit": hop_limit,
+        "viaMqtt": via_mqtt,
         "lat": lat if lat is not None else existing.get("lat"),
         "lon": lon if lon is not None else existing.get("lon"),
         "altitude": alt if alt is not None else existing.get("altitude"),
         "batteryLevel": metrics.get("batteryLevel"),
         "voltage": metrics.get("voltage"),
         "channelUtilization": metrics.get("channelUtilization"),
+        "precisionBits": position.get("precisionBits"),
+        "groundSpeed": position.get("groundSpeed"),
+        "groundTrack": position.get("groundTrack"),
         "last_seen": now_iso()
     })
 
@@ -347,6 +370,209 @@ def stop():
 def get_nodes():
     return list(meshtastic_nodes.values())
 
+
+def get_gateway_info():
+
+    if not interface:
+        return {
+            "connected": False
+        }
+
+    try:
+
+        local = interface.localNode
+
+        config = getattr(
+            local,
+            "localConfig",
+            None
+        )
+
+        module_config = getattr(
+            local,
+            "moduleConfig",
+            None
+        )
+
+        lora = getattr(
+            config,
+            "lora",
+            None
+        )
+
+        position = getattr(
+            config,
+            "position",
+            None
+        )
+
+        device = getattr(
+            config,
+            "device",
+            None
+        )
+
+        telemetry = getattr(
+            module_config,
+            "telemetry",
+            None
+        )
+        region = getattr(
+            lora,
+            "region",
+            None
+        )
+
+        if isinstance(region, int):
+            region = REGIONS.get(
+                region,
+                str(region)
+            )
+        else:
+            region = str(region)
+            
+        channels = []
+
+        for ch in getattr(
+            local,
+            "channels",
+            []
+        ):
+
+            settings = getattr(
+                ch,
+                "settings",
+                None
+            )
+
+            channels.append({
+                "index": getattr(
+                    ch,
+                    "index",
+                    None
+                ),
+                "role": str(
+                    getattr(
+                        ch,
+                        "role",
+                        ""
+                    )
+                ),
+                "name": getattr(
+                    settings,
+                    "name",
+                    ""
+                ) if settings else "",
+                "has_psk": bool(
+                    getattr(
+                        settings,
+                        "psk",
+                        None
+                    )
+                ) if settings else False
+            })
+
+        return {
+            "connected": True,
+            "node_num": getattr(
+                local,
+                "nodeNum",
+                None
+            ),
+            "device_path": getattr(
+                interface,
+                "devPath",
+                None
+            ),
+
+            "lora": {
+                "region": region if lora else "",
+                "hop_limit": getattr(
+                    lora,
+                    "hop_limit",
+                    None
+                ) if lora else None,
+                "tx_enabled": getattr(
+                    lora,
+                    "tx_enabled",
+                    None
+                ) if lora else None,
+                "tx_power": getattr(
+                    lora,
+                    "tx_power",
+                    None
+                ) if lora else None,
+                "use_preset": getattr(
+                    lora,
+                    "use_preset",
+                    None
+                ) if lora else None,
+                "ignore_mqtt": getattr(
+                    lora,
+                    "ignore_mqtt",
+                    None
+                ) if lora else None
+            },
+
+            "position_config": {
+                "fixed_position": getattr(
+                    position,
+                    "fixed_position",
+                    None
+                ) if position else None,
+                "position_broadcast_secs": getattr(
+                    position,
+                    "position_broadcast_secs",
+                    None
+                ) if position else None,
+                "smart_enabled": getattr(
+                    position,
+                    "position_broadcast_smart_enabled",
+                    None
+                ) if position else None,
+                "smart_min_distance": getattr(
+                    position,
+                    "broadcast_smart_minimum_distance",
+                    None
+                ) if position else None,
+                "smart_min_interval": getattr(
+                    position,
+                    "broadcast_smart_minimum_interval_secs",
+                    None
+                ) if position else None
+            },
+
+            "device_config": {
+                "node_info_broadcast_secs": getattr(
+                    device,
+                    "node_info_broadcast_secs",
+                    None
+                ) if device else None
+            },
+
+            "telemetry": {
+                "device_update_interval": getattr(
+                    telemetry,
+                    "device_update_interval",
+                    None
+                ) if telemetry else None
+            },
+
+            "channels": channels
+        }
+
+    except Exception as e:
+
+        log(
+            "MESHTASTIC",
+            f"Gateway info error: {e}"
+        )
+
+        return {
+            "connected": False,
+            "error": str(e)
+        }
+    
 
 def clear_nodes():
     meshtastic_nodes.clear()
