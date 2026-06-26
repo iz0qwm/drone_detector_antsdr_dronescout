@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/drawer.css">
     <link rel="stylesheet" href="css/updater.css">
     <link rel="stylesheet" href="css/missions.css">
+    <link rel="stylesheet" href="css/mission-toolbar.css">
 
 </head>
 <body>
@@ -63,6 +64,35 @@
     </header>
 
     <div id="map"></div>
+
+    <div id="missionToolbar">
+
+        <button id="drawRectangleBtn">
+            □
+        </button>
+
+        <button id="drawPolygonBtn">
+            ⬠
+        </button>
+
+        <button id="drawCircleBtn">
+            ○
+        </button>
+
+        <button id="drawMarkerBtn">
+            📍
+        </button>
+
+        <button id="editGeometryBtn">
+            ✏
+        </button>
+
+        <button id="deleteGeometryBtn">
+            🗑
+        </button>
+
+    </div>
+
 
     <aside id="drawer" class="drawer">
 
@@ -858,6 +888,13 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-rotatedmarker/leaflet.rotatedMarker.js"></script>
     <script src="js/maps_manager.js"></script>
+    <script src="js/missions/mission-network.js"></script>
+    <script src="js/missions/mission-layer.js"></script>
+    <script src="js/missions/mission-planning.js"></script>
+    <script src="js/missions/mission-teams.js"></script>
+    <script src="js/missions/mission-draw.js"></script>
+    <script src="js/missions/mission-toolbar.js"></script>
+    <script src="js/missions/mission-controller.js"></script>
     <script src="js/missions.js"></script>
     <script src="js/drawer.js"></script>
     <script src="js/air/air-network.js"></script>

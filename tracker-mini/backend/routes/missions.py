@@ -11,12 +11,15 @@ from services.missions import (
     get_current_mission,
     set_current_mission,
     delete_mission,
-    import_geojson,
-    list_imported_layers
+    import_geojson
 )
 
-from pathlib import Path
-import json
+from services.layer_storage import (
+    list_layers,
+    get_layer,
+    save_layer,
+    delete_layer
+)
 
 
 missions_bp = Blueprint(
@@ -172,9 +175,16 @@ def api_import_geojson():
         file
     )
 
+    if result is None:
+
+        return jsonify({
+            "success": False,
+            "message": "Unable to import GeoJSON"
+        }), 400
+
     return jsonify({
         "success": True,
-        "file": result
+        "layer": result
     })
 
 
@@ -186,40 +196,194 @@ def api_layers(
     mission_id
 ):
 
+    mission = get_mission(
+        mission_id
+    )
+
+    if mission is None:
+
+        return jsonify({
+            "success": False,
+            "message": "Mission not found"
+        }), 404
+
     return jsonify(
-        list_imported_layers(
+        list_layers(
             mission_id
         )
     )
 
 
 @missions_bp.route(
-    "/api/missions/<mission_id>/layers/<filename>",
+    "/api/missions/<mission_id>/layers/<layer_id>",
     methods=["GET"]
 )
 def api_layer_content(
     mission_id,
-    filename
+    layer_id
 ):
 
-    layer_file = (
-        Path("/home/pi/tracker-mini/missions") /
-        mission_id /
-        "imports" /
-        filename
+    layer = get_layer(
+        mission_id,
+        layer_id
     )
 
-    if not layer_file.exists():
+    if layer is None:
 
         return jsonify({
-            "success": False
+            "success": False,
+            "message": "Layer not found"
         }), 404
 
-    with open(
-        layer_file,
-        "r"
-    ) as f:
+    return jsonify(
+        layer
+    )
 
-        data = json.load(f)
 
-    return jsonify(data)
+@missions_bp.route(
+    "/api/missions/<mission_id>/layers",
+    methods=["POST"]
+)
+def api_create_layer(
+    mission_id
+):
+
+    mission = get_mission(
+        mission_id
+    )
+
+    if mission is None:
+
+        return jsonify({
+            "success": False,
+            "message": "Mission not found"
+        }), 404
+
+    data = request.get_json() or {}
+
+    layer = {
+        "name": data.get(
+            "name",
+            "New Layer"
+        ),
+        "type": data.get(
+            "type",
+            "generic"
+        ),
+        "geometry": data.get(
+            "geometry",
+            None
+        ),
+        "visible": data.get(
+            "visible",
+            True
+        ),
+        "locked": data.get(
+            "locked",
+            False
+        ),
+        "style": data.get(
+            "style",
+            {}
+        ),
+        "properties": data.get(
+            "properties",
+            {}
+        ),
+        "geojson": data.get(
+            "geojson",
+            None
+        )
+    }
+
+    saved = save_layer(
+        mission_id,
+        layer
+    )
+
+    return jsonify({
+        "success": True,
+        "layer": saved
+    })
+
+
+@missions_bp.route(
+    "/api/missions/<mission_id>/layers/<layer_id>",
+    methods=["PUT"]
+)
+def api_update_layer(
+    mission_id,
+    layer_id
+):
+
+    mission = get_mission(
+        mission_id
+    )
+
+    if mission is None:
+
+        return jsonify({
+            "success": False,
+            "message": "Mission not found"
+        }), 404
+
+    existing = get_layer(
+        mission_id,
+        layer_id
+    )
+
+    if existing is None:
+
+        return jsonify({
+            "success": False,
+            "message": "Layer not found"
+        }), 404
+
+    data = request.get_json() or {}
+
+    existing.update(
+        data
+    )
+
+    existing["id"] = layer_id
+
+    saved = save_layer(
+        mission_id,
+        existing
+    )
+
+    return jsonify({
+        "success": True,
+        "layer": saved
+    })
+
+
+
+@missions_bp.route(
+    "/api/missions/<mission_id>/layers/<layer_id>",
+    methods=["DELETE"]
+)
+def api_delete_layer(
+    mission_id,
+    layer_id
+):
+
+    mission = get_mission(
+        mission_id
+    )
+
+    if mission is None:
+
+        return jsonify({
+            "success": False,
+            "message": "Mission not found"
+        }), 404
+
+    ok = delete_layer(
+        mission_id,
+        layer_id
+    )
+
+    return jsonify({
+        "success": ok
+    })

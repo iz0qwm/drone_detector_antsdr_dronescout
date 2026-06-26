@@ -12,6 +12,13 @@ from services.mission_storage import (
     set_current_mission_id
 )
 
+from services.layer_storage import (
+    list_layers,
+    save_layer,
+    get_layer,
+    delete_layer
+)
+
 MISSIONS_DIR = Path(
     "/home/pi/tracker-mini/missions"
 )
@@ -39,12 +46,12 @@ def create_mission(
         exist_ok=True
     )
 
-    imports_dir = (
+    layers_dir = (
         mission_dir /
-        "imports"
+        "layers"
     )
 
-    imports_dir.mkdir(
+    layers_dir.mkdir(
         exist_ok=True
     )
 
@@ -70,22 +77,7 @@ def create_mission(
             indent=2
         )
 
-    with open(
-        mission_dir /
-        "geometry.geojson",
-        "w"
-    ) as f:
 
-        json.dump(
-            {
-                "type":
-                    "FeatureCollection",
-
-                "features": []
-            },
-            f,
-            indent=2
-        )
 
     index = load_index()
     index.append({
@@ -198,56 +190,41 @@ def import_geojson(
     )
 
     if not mission_dir.exists():
-        return False
+        return None
 
-    imports_dir = (
-        mission_dir /
-        "imports"
+    geojson = json.load(
+        uploaded_file.stream
     )
 
-    imports_dir.mkdir(
-        exist_ok=True
-    )
+    layer = {
+        "name": uploaded_file.filename,
+        "type": "geojson",
+        "geometry": "feature_collection",
+        "visible": True,
+        "locked": False,
+        "style": {},
+        "properties": {
+            "source": "import",
+            "filename": uploaded_file.filename
+        },
+        "geojson": geojson,
+        "order": 0,
+        "created": datetime.utcnow().isoformat(),
+    }
 
-    filename = uploaded_file.filename
-
-    save_path = (
-        imports_dir /
-        filename
-    )
-
-    uploaded_file.save(
-        save_path
+    saved = save_layer(
+        mission_id,
+        layer
     )
 
     log(
         "MISSION",
-        "Imported layer",
-        filename
+        "Imported GeoJSON layer",
+        mission_id,
+        saved["id"],
+        uploaded_file.filename
     )
 
-    return {
-        "filename": filename
-    }
+    return saved
 
 
-def list_imported_layers(
-    mission_id
-):
-
-    imports_dir = (
-        MISSIONS_DIR /
-        mission_id /
-        "imports"
-    )
-
-    if not imports_dir.exists():
-        return []
-
-    return sorted(
-        [
-            f.name
-            for f in imports_dir.iterdir()
-            if f.is_file()
-        ]
-    )
