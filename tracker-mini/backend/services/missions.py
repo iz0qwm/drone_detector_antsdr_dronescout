@@ -111,6 +111,81 @@ def get_mission(mission_id):
         return json.load(f)
 
 
+def update_mission(
+    mission_id,
+    data
+):
+
+    mission = get_mission(
+        mission_id
+    )
+
+    if mission is None:
+        return None
+
+    mission["name"] = data.get(
+        "name",
+        mission["name"]
+    )
+
+    mission["description"] = data.get(
+        "description",
+        mission.get(
+            "description",
+            ""
+        )
+    )
+
+    mission["status"] = data.get(
+        "status",
+        mission.get(
+            "status",
+            "Planning"
+        )
+    )
+
+    mission_file = (
+        MISSIONS_DIR /
+        mission_id /
+        "mission.json"
+    )
+
+    with open(
+        mission_file,
+        "w"
+    ) as f:
+
+        json.dump(
+            mission,
+            f,
+            indent=2
+        )
+
+    index = load_index()
+
+    for item in index:
+
+        if item["id"] == mission_id:
+
+            item["name"] = mission["name"]
+            item["description"] = mission["description"]
+            item["status"] = mission["status"]
+
+            break
+
+    save_index(
+        index
+    )
+
+    log(
+        "MISSION",
+        "Updated",
+        mission_id,
+        mission["name"]
+    )
+
+    return mission
+
 def set_current_mission(
     mission_id
 ):

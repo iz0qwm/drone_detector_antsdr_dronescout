@@ -6,7 +6,11 @@
     <title>Portable Air Awareness Node</title>
 
     <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+    <link rel="stylesheet" href="vendor/leaflet-geoman/leaflet-geoman.css">
     <script src="vendor/leaflet/leaflet.js"></script>
+    <script src="vendor/leaflet-geoman/leaflet-geoman.min.js"></script>
+    <script src="vendor/leaflet-plugins/leaflet.rotatedMarker.js"></script>
+
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/drawer.css">
     <link rel="stylesheet" href="css/updater.css">
@@ -83,12 +87,28 @@
             📍
         </button>
 
-        <button id="editGeometryBtn">
-            ✏
+        <button
+            id="editVerticesBtn"
+            title="Edit vertices">
+            ✋
         </button>
 
-        <button id="deleteGeometryBtn">
-            🗑
+        <button
+            id="saveGeometryBtn"
+            title="Save">
+            💾
+        </button>
+
+        <button
+            id="revertGeometryBtn"
+            title="Revert">
+            ↺
+        </button>
+
+        <button
+            id="cancelGeometryBtn"
+            title="Close">
+            ✖
         </button>
 
     </div>
@@ -762,10 +782,28 @@
                     ✕
                 </button>
             </div>
-            <div id="currentMissionInfo">
-                No active mission
+            <h3>
+                Active Mission
+            </h3>
+            <div
+                id="currentMissionInfo"
+                class="mission-current-card">
+                No mission loaded
             </div>
             <hr>
+            <div
+                class="mission-objects-header">
+                <h3>
+                    Mission Objects
+                </h3>
+                <label class="mission-show-all">
+                    <input
+                        id="showAllMissionObjects"
+                        type="checkbox"
+                        checked>
+                    Show all
+                </label>
+            </div>
             <div
                 id="missionsList"
                 class="mission-list">
@@ -773,6 +811,93 @@
             </div>
         </div>
     </div>
+    <div id="layerPropertiesModal" class="modal">
+
+        <div class="modal-content layer-properties">
+
+            <button
+                id="closeLayerPropertiesBtn"
+                class="modal-close">
+
+                ✕
+
+            </button>
+
+            <h2>
+                Layer Properties
+            </h2>
+
+            <label>Name</label>
+
+            <input
+                id="layerName"
+                type="text">
+
+            <label>Category</label>
+
+            <select id="layerCategory">
+
+                <option value="generic">
+                    Generic
+                </option>
+
+                <option value="search">
+                    Search Area
+                </option>
+
+                <option value="fire">
+                    Fire Area
+                </option>
+
+                <option value="landing">
+                    Landing Zone
+                </option>
+
+                <option value="buffer">
+                    Buffer
+                </option>
+
+                <option value="poi">
+                    Point of Interest
+                </option>
+
+            </select>
+
+            <label>Color</label>
+
+            <input
+                id="layerColor"
+                type="color"
+                value="#ff0000">
+
+            <label>Description</label>
+
+            <textarea
+                id="layerDescription">
+            </textarea>
+
+            <div class="modal-buttons">
+
+                <button
+                    id="cancelLayerPropertiesBtn">
+
+                    Cancel
+
+                </button>
+
+                <button
+                    id="saveLayerPropertiesBtn">
+
+                    Save
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
     <div id="missionTeamsModal" class="modal">
 
         <div class="modal-content mission-modal">
@@ -885,11 +1010,10 @@
 
     </div>
 
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-rotatedmarker/leaflet.rotatedMarker.js"></script>
     <script src="js/maps_manager.js"></script>
     <script src="js/missions/mission-network.js"></script>
     <script src="js/missions/mission-layer.js"></script>
+    <script src="js/missions/mission-layer-properties.js"></script>
     <script src="js/missions/mission-planning.js"></script>
     <script src="js/missions/mission-teams.js"></script>
     <script src="js/missions/mission-draw.js"></script>

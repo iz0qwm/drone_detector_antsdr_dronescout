@@ -11,6 +11,7 @@ from services.missions import (
     get_current_mission,
     set_current_mission,
     delete_mission,
+    update_mission,
     import_geojson
 )
 
@@ -386,4 +387,36 @@ def api_delete_layer(
 
     return jsonify({
         "success": ok
+    })
+
+
+@missions_bp.route(
+    "/api/missions/<mission_id>",
+    methods=["PUT"]
+)
+def api_update_mission(
+    mission_id
+):
+
+    mission = get_mission(
+        mission_id
+    )
+
+    if mission is None:
+
+        return jsonify({
+            "success": False,
+            "message": "Mission not found"
+        }), 404
+
+    data = request.get_json() or {}
+
+    mission = update_mission(
+        mission_id,
+        data
+    )
+
+    return jsonify({
+        "success": True,
+        "mission": mission
     })

@@ -99,3 +99,185 @@
     font-weight: bold;
     margin-bottom: 8px;
 }
+
+
+.mission-layer-card {
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 8px;
+}
+
+.mission-layer-header {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.mission-layer-info {
+    font-size: 12px;
+    opacity: .75;
+    margin-top: 2px;
+}
+
+.mission-layer-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.btn-layer-action {
+    background: rgba(255,255,255,.10);
+    color: white;
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.btn-layer-action:hover {
+    background: rgba(255,255,255,.18);
+}
+
+.btn-layer-delete {
+    background: rgba(180,40,40,.25);
+    color: white;
+    border: 1px solid rgba(255,80,80,.4);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.btn-layer-delete:hover {
+    background: rgba(220,60,60,.45);
+}
+
+.mission-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    position:relative;
+}
+
+.mission-menu-button{
+    width:34px;
+    height:34px;
+    border:none;
+    border-radius:8px;
+    background:rgba(255,255,255,.08);
+    color:white;
+    cursor:pointer;
+    font-size:20px;
+}
+
+.mission-menu-button{
+    width:34px;
+    height:34px;
+    border:none;
+    border-radius:8px;
+    background:rgba(255,255,255,.08);
+    color:white;
+    cursor:pointer;
+    font-size:20px;
+}
+
+.mission-menu button:hover{
+    background:rgba(255,255,255,.08);
+}
+
+
+.mission-menu button.danger{
+    color:#ff7b7b;
+}
+
+.mission-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 165px;
+    width: auto;
+    background: #2f2f2f;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0,0,0,.45);
+    overflow: hidden;
+    z-index: 10000;
+}
+
+.mission-menu.open{
+    display:block;
+}
+
+.mission-menu hr{
+    margin:0;
+    border:none;
+    border-top:1px solid rgba(255,255,255,.08);
+}
+
+.mission-menu button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 7px 12px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.mission-menu button:hover{
+    background:rgba(255,255,255,.08);
+}
+
+.mission-menu .danger{
+    color:#ff6a6a;
+}
+
+.mission-menu-container {
+    position: relative;
+    display: inline-flex;
+    align-items: flex-start;
+}
+
+
+.layer-properties {
+    width:420px;
+    max-width:90vw;
+}
+
+.layer-properties label {
+    display:block;
+    margin-top:12px;
+    margin-bottom:4px;
+}
+
+.layer-properties input,
+.layer-properties select,
+.layer-properties textarea {
+    width:100%;
+    box-sizing:border-box;
+}
+
+.layer-properties textarea {
+    min-height:90px;
+}
+
+.mission-objects-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.mission-show-all {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.mission-show-all input {
+    margin: 0;
+}

@@ -177,6 +177,56 @@ MISSION.api = {
         return await res.json();
 
     },
+
+    async updateMission(
+        missionId,
+        mission
+    ) {
+
+        const res = await fetch(
+
+            `/api/missions/${missionId}`,
+
+            {
+                method: "PUT",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body: JSON.stringify(
+                    mission
+                )
+
+            }
+
+        );
+
+        return await res.json();
+
+    },
+
+
+    async deleteMission(
+        missionId
+    ) {
+
+        const res = await fetch(
+
+            `/api/missions/${missionId}`,
+
+            {
+                method: "DELETE"
+            }
+
+        );
+
+        return await res.json();
+
+    },
+
+
 };
 
 

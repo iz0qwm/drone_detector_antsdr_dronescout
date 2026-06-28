@@ -45,13 +45,13 @@ AIR.startAirTraffic = function(map, options = {}) {
             ...localAircraft
         ];
 
-        console.log(
+        /* console.log(
             "[AIR]",
             "NET:",
             networkAircraft.length,
             "LOCAL:",
             localAircraft.length
-        );
+        ); */
 
         AIR.updateAirLayer(
             aircraft

@@ -9,7 +9,7 @@ window.MISSION = window.MISSION || {};
         bindButtons();
 
         MISSION.toolbar.init();
-
+        MISSION.layerProperties.init();
     }
 
     function bindButtons() {
@@ -104,7 +104,7 @@ window.MISSION = window.MISSION || {};
 
     function closeMissionPlanning() {
 
-        MISSION.draw.stop();
+        MISSION.draw.cancel();
 
         MISSION.toolbar.hide();
 

@@ -2,6 +2,22 @@ window.MISSION = window.MISSION || {};
 
 MISSION.toolbar = {
 
+    mode: null,
+    showButton(id) {
+
+        document
+            .getElementById(id)
+            ?.classList.remove("hidden");
+
+    },
+
+    hideButton(id) {
+
+        document
+            .getElementById(id)
+            ?.classList.add("hidden");
+
+    },
     show() {
 
         document
@@ -21,6 +37,40 @@ MISSION.toolbar = {
             )
             .classList
             .remove("open");
+
+    },
+
+    setNewLayerMode() {
+
+        this.mode = "new-layer";
+
+        this.showButton("drawRectangleBtn");
+        this.showButton("drawPolygonBtn");
+        this.showButton("drawCircleBtn");
+        this.showButton("drawMarkerBtn");
+
+        this.hideButton("editVerticesBtn");
+
+        this.showButton("saveGeometryBtn");
+        this.hideButton("revertGeometryBtn");
+        this.showButton("cancelGeometryBtn");
+
+    },
+
+    setEditLayerMode() {
+
+        this.mode = "edit-layer";
+
+        this.hideButton("drawRectangleBtn");
+        this.hideButton("drawPolygonBtn");
+        this.hideButton("drawCircleBtn");
+        this.hideButton("drawMarkerBtn");
+
+        this.showButton("editVerticesBtn");
+
+        this.showButton("saveGeometryBtn");
+        this.showButton("revertGeometryBtn");
+        this.showButton("cancelGeometryBtn");
 
     },
 
@@ -80,29 +130,56 @@ MISSION.toolbar = {
 
         document
             .getElementById(
-                "editGeometryBtn"
+                "editVerticesBtn"
             )
             ?.addEventListener(
                 "click",
                 () => {
 
-                    MISSION.draw.startEdit();
+                    MISSION.draw.enableVertexEditing();
 
                 }
             );
 
         document
             .getElementById(
-                "deleteGeometryBtn"
+                "saveGeometryBtn"
             )
             ?.addEventListener(
                 "click",
                 () => {
 
-                    MISSION.draw.startDelete();
+                    MISSION.draw.save();
 
                 }
             );
-    }
+
+        document
+            .getElementById(
+                "revertGeometryBtn"
+            )
+            ?.addEventListener(
+                "click",
+                () => {
+
+                    MISSION.draw.revert();
+
+                }
+            );
+
+        document
+            .getElementById(
+                "cancelGeometryBtn"
+            )
+            ?.addEventListener(
+                "click",
+                () => {
+
+                    MISSION.draw.cancel();
+
+                }
+            );
+            
+        }
 
 };

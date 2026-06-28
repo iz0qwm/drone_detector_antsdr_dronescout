@@ -114,12 +114,12 @@ async function(
         const data =
             await res.json();
 
-        console.log(
+        /* console.log(
             "[AIR-LOCAL] aircraft=",
             data.aircraft?.length || 0,
             "showAll=",
             showAll
-        );
+        ); */
 
         return data.aircraft || [];
 
