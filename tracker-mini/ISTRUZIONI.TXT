@@ -165,3 +165,55 @@ tracker-mini/
 | GPS: OFF             |                            |
 | [Manage]             |                            |
 +----------------------+----------------------------+
+
+
+
+Struttura documentazione:
+
+docs/
+
+index.md
+
+product-overview.md
+product-vision.md
+release-notes.md
+glossary.md
+
+user/
+    installation.md
+    first-start.md
+    dashboard.md
+    maps.md
+    traffic-monitoring.md
+    mission-planning.md
+    teams.md
+    settings.md
+    troubleshooting.md
+    faq.md
+
+hardware/
+    overview.md
+    power.md
+    networking.md
+    gps.md
+    ads-b.md
+    remote-id.md
+    meshtastic.md
+    raspberry-pi.md
+
+maintenance/
+    backup.md
+    restore.md
+    update.md
+    diagnostics.md
+    logs.md
+
+developer/
+    architecture.md
+    backend.md
+    frontend.md
+    services.md
+    api.md
+    mission-storage.md
+    coding-guidelines.md
+    roadmap.md
