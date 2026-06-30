@@ -182,13 +182,13 @@ Recommended sequence:
 | `user/mission-planning.md` | Planned | User Guide | Describes mission creation, planning and map objects. |
 | `user/teams.md` | Planned | User Guide | Describes team awareness and coordination workflows. |
 | `user/troubleshooting.md` | Planned | User Guide | Provides operator-level troubleshooting procedures. |
-| `hardware/overview.md` | Planned | Hardware Documentation | Introduces hardware components and integration scope. |
-| `hardware/power.md` | Planned | Hardware Documentation | Describes power inputs, distribution and field power considerations. |
-| `hardware/networking.md` | Planned | Hardware Documentation | Describes network interfaces and deployment connectivity options. |
-| `hardware/gps.md` | Planned | Hardware Documentation | Describes GPS receiver integration and antenna considerations. |
+| `hardware/overview.md` | Complete | Hardware Documentation | Introduces hardware components and integration scope. |
+| `hardware/power.md` | Complete | Hardware Documentation | Describes power inputs, distribution and field power considerations. |
+| `hardware/networking.md` | Complete | Hardware Documentation | Describes network interfaces and deployment connectivity options. |
+| `hardware/gps.md` | Complete | Hardware Documentation | Describes GPS receiver integration and antenna considerations. |
 | `hardware/ads-b.md` | Planned | Hardware Documentation | Describes ADS-B hardware integration. |
-| `hardware/remote-id.md` | Planned | Hardware Documentation | Describes Remote ID hardware integration. |
-| `hardware/meshtastic.md` | Planned | Hardware Documentation | Describes Meshtastic hardware integration. |
+| `hardware/remote-id.md` | Complete | Hardware Documentation | Describes Remote ID hardware integration. |
+| `hardware/meshtastic.md` | Complete | Hardware Documentation | Describes Meshtastic hardware integration. |
 | `hardware/raspberry-pi.md` | Planned | Hardware Documentation | Describes Raspberry Pi platform integration and system role. |
 | `developer/architecture.md` | Planned | Developer Documentation | Describes software architecture and internal organization. |
 | `developer/api.md` | Planned | Developer Documentation | Documents API surfaces and integration points. |

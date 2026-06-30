@@ -1,4 +1,5 @@
 from flask import Flask, send_from_directory
+from pathlib import Path
 from routes.status import status_bp
 from routes.network import network_bp
 from routes.network_manager import network_manager_bp
@@ -17,6 +18,12 @@ from routes.meshtastic import meshtastic_bp
 
 
 app = Flask(__name__, static_folder="../frontend", static_url_path="")
+app.config["MAX_CONTENT_LENGTH"] = 500 * 1024 * 1024
+
+print(
+    "MAX_CONTENT_LENGTH =",
+    app.config["MAX_CONTENT_LENGTH"]
+)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 
 from services.network_manager import start_hotspot
@@ -30,6 +37,13 @@ from routes.air_local import air_local_bp
 from routes.teams import teams_bp
 
 from config import SETTINGS
+
+HELP_DIR = (
+    Path(__file__).parent.parent
+    / "frontend"
+    / "help"
+    / "site"
+)
 
 
 try:
@@ -89,6 +103,48 @@ app.register_blueprint(teams_bp)
 @app.route("/")
 def index():
     return send_from_directory(app.static_folder, "index.html")
+
+@app.route("/help/")
+def help_index():
+
+    return send_from_directory(
+        HELP_DIR,
+        "index.html"
+    )
+
+@app.route("/help/<path:path>")
+def help_files(path):
+
+    full_path = HELP_DIR / path
+
+    if full_path.is_dir():
+
+        return send_from_directory(
+            full_path,
+            "index.html"
+        )
+
+    if full_path.exists():
+
+        return send_from_directory(
+            HELP_DIR,
+            path
+        )
+
+    index_file = HELP_DIR / path / "index.html"
+
+    if index_file.exists():
+
+        return send_from_directory(
+            HELP_DIR / path,
+            "index.html"
+        )
+
+    return (
+        "Not Found",
+        404
+    )
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

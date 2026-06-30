@@ -1,0 +1,68 @@
+site_name: Mini Tracker Help
+site_description: Manuale del Mini Tracker
+
+theme:
+  name: material
+  language: it
+
+docs_dir: docs
+site_dir: site
+
+extra_javascript:
+  - javascripts/mermaid.min.js
+  - javascripts/mermaid-init.js
+
+markdown_extensions:
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+nav:
+  - Home: index.md
+
+  - Product:
+      - Overview: product-overview.md
+      - Vision: product-vision.md
+      - Release Notes: release-notes.md
+      - Glossary: glossary.md
+
+  - User Guide:
+      - Installation: user/installation.md
+      - First Start: user/first-start.md
+      - Dashboard: user/dashboard.md
+      - Maps: user/maps.md
+      - Traffic Monitoring: user/traffic-monitoring.md
+      - Mission Planning: user/mission-planning.md
+      - Teams: user/teams.md
+      - Settings: user/settings.md
+      - Troubleshooting: user/troubleshooting.md
+      - FAQ: user/faq.md
+
+  - Hardware:
+      - Overview: hardware/overview.md
+      - Power: hardware/power.md
+      - Networking: hardware/networking.md
+      - GPS: hardware/gps.md
+      - ADS-B: hardware/ads-b.md
+      - Remote ID: hardware/remote-id.md
+      - Meshtastic: hardware/meshtastic.md
+      - Raspberry Pi: hardware/raspberry-pi.md
+
+  - Maintenance:
+      - Backup: maintenance/backup.md
+      - Restore: maintenance/restore.md
+      - Update: maintenance/update.md
+      - Diagnostics: maintenance/diagnostics.md
+      - Logs: maintenance/logs.md
+
+  - Developer:
+      - Architecture: developer/architecture.md
+      - Backend: developer/backend.md
+      - Frontend: developer/frontend.md
+      - Services: developer/services.md
+      - API: developer/api.md
+      - Mission Storage: developer/mission-storage.md
+      - Coding Guidelines: developer/coding-guidelines.md
+      - Roadmap: developer/roadmap.md

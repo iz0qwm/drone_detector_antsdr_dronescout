@@ -1,11 +1,20 @@
-------------
-ATTIVAZIONE
-------------
+------------------
+ATTIVAZIONE LINUX
+------------------
 cd /home/pi/tracker-mini
 
 #python3 -m venv venv
 source venv/bin/activate
 python backend/app.py
+
+--------------------
+ATTIVAZIONE WINDOWS
+--------------------
+cd C:\PROVA\DRONI\Tracker Droni>cd tracker-mini
+.venv\Scripts\activate
+
+cd C:\PROVA\DRONI\Tracker Droni\tracker-mini\frontend\help
+mkdocs build
 
 ----------------------------------------
 CREAZIONE sudo
