@@ -284,6 +284,34 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     }
 
+    const systemPowerBtn =
+        document.getElementById(
+            "systemPowerBtn"
+        );
+
+    const systemPowerPanel =
+        document.getElementById(
+            "systemPowerPanel"
+        );
+
+    if (
+        systemPowerBtn &&
+        systemPowerPanel
+    ) {
+
+        systemPowerBtn.addEventListener(
+            "click",
+            () => {
+
+                systemPowerPanel
+                    .classList
+                    .toggle("open");
+
+            }
+        );
+    }
+
+
     const openLogsBtn =
         document.getElementById(
             "openLogsBtn"
@@ -508,6 +536,28 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         );
 
+    document
+        .getElementById("restartAppBtn")
+        ?.addEventListener(
+            "click",
+            restartApplication
+        );
+
+    document
+        .getElementById("rebootSystemBtn")
+        ?.addEventListener(
+            "click",
+            rebootSystem
+        );
+
+    document
+        .getElementById("shutdownSystemBtn")
+        ?.addEventListener(
+            "click",
+            shutdownSystem
+        );
+        
+    
     loadLanConfig();
     initDscSettings();
     loadDs110Settings();
@@ -1373,5 +1423,107 @@ async function loadSerialPorts() {
         );
 
     });
+
+}
+
+
+async function restartApplication() {
+
+    if (
+        !confirm(
+            "Restart Tracker Mini application?"
+        )
+    ) {
+        return;
+    }
+
+    try {
+
+        fetch("/api/system/restart", {
+            method: "POST"
+        }).catch(() => {});
+
+        alert("Tracker Mini is restarting...");
+
+    } catch (err) {
+
+        console.error(err);
+
+        alert(
+            "Unable to restart application."
+        );
+
+    }
+
+}
+
+async function rebootSystem() {
+
+    if (
+        !confirm(
+            "Reboot Raspberry now?"
+        )
+    ) {
+        return;
+    }
+
+    try {
+
+        fetch(
+            "/api/system/reboot",
+            {
+                method: "POST"
+            }
+        ).catch(() => {});
+
+        alert(
+            "Raspberry reboot started."
+        );
+
+    } catch (err) {
+
+        console.error(err);
+
+        alert(
+            "Unable to reboot Raspberry."
+        );
+
+    }
+
+}
+
+
+async function shutdownSystem() {
+
+    if (
+        !confirm(
+            "Shutdown Raspberry now?"
+        )
+    ) {
+        return;
+    }
+
+    try {
+
+        fetch(
+            "/api/system/shutdown",
+            {
+                method: "POST"
+            }
+        ).catch(() => {});
+
+        alert(
+            "Raspberry shutdown started."
+        );
+
+    } catch (err) {
+
+        console.error(err);
+
+        alert(
+            "Unable to shutdown Raspberry."
+        );
+
+    }
 
 }

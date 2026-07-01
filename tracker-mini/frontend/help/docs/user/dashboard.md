@@ -82,7 +82,7 @@ The Dashboard is organized around three operational areas.
 |----------|----------------------|
 | **Status Bar** | Provides immediate awareness of network, receiver and synchronization state. |
 | **Map View** | Displays the operational area, traffic information, team positions and mission layers. |
-| **Operational Drawer** | Provides access to supporting workflows such as network checks, map management, system status, DSC, missions and logs. |
+| **Operational Drawer** | Provides access to supporting workflows such as network checks, map management, system status, system settings, system power, system update, DSC, missions and logs. |
 
 The operator normally spends most of the time in the map view and uses the drawer only when verification, configuration or mission actions are required.
 
@@ -183,6 +183,22 @@ Some controls affect only Dashboard visualization, while others control backend 
 
 ---
 
+## System Controls
+
+The System drawer panel provides operational access to status, traffic source controls, hardware status, DS110 settings, power actions and update access.
+
+| System Area | Operator Use |
+|----------|--------------|
+| **System Status** | Shows host and service state used for operational verification. |
+| **Traffic Sources** | Enables or disables supported traffic sources and aircraft altitude filtering. |
+| **System Settings** | Opens hardware status and DS110 receiver settings. |
+| **System Power** | Provides Restart Application, Reboot Raspberry and Shutdown Raspberry actions. |
+| **System Update** | Opens the update modal for package upload, verification and install request creation. |
+
+Power actions ask for operator confirmation before sending the request to Mini Tracker. Restart Application restarts the Tracker Mini application service. Reboot Raspberry and Shutdown Raspberry request operating system reboot or shutdown for the Mini Tracker computing platform.
+
+---
+
 ## Mission Access
 
 The Dashboard provides access to mission functions without making mission planning the default workspace.
@@ -260,8 +276,7 @@ Recommended operational sequence:
 - Browser-local settings are used for selected map source, dark map mode and selected visualization toggles.
 - Traffic visibility depends on source availability, receiver state, map position and filtering options.
 - Some Dashboard functions depend on connected hardware and active backend services.
-- System update, detailed hardware diagnostics and maintenance procedures are covered in the **Maintenance Guide**.
+- System update, power actions, detailed hardware diagnostics and maintenance procedures should be used carefully during field operations because they may interrupt Dashboard availability.
 
 ---
-
 

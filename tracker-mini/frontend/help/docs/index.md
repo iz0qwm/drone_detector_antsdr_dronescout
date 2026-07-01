@@ -186,12 +186,18 @@ Recommended sequence:
 | `hardware/power.md` | Complete | Hardware Documentation | Describes power inputs, distribution and field power considerations. |
 | `hardware/networking.md` | Complete | Hardware Documentation | Describes network interfaces and deployment connectivity options. |
 | `hardware/gps.md` | Complete | Hardware Documentation | Describes GPS receiver integration and antenna considerations. |
-| `hardware/ads-b.md` | Planned | Hardware Documentation | Describes ADS-B hardware integration. |
+| `hardware/ads-b.md` | Complete | Hardware Documentation | Describes ADS-B hardware integration. |
 | `hardware/remote-id.md` | Complete | Hardware Documentation | Describes Remote ID hardware integration. |
 | `hardware/meshtastic.md` | Complete | Hardware Documentation | Describes Meshtastic hardware integration. |
-| `hardware/raspberry-pi.md` | Planned | Hardware Documentation | Describes Raspberry Pi platform integration and system role. |
-| `developer/architecture.md` | Planned | Developer Documentation | Describes software architecture and internal organization. |
-| `developer/api.md` | Planned | Developer Documentation | Documents API surfaces and integration points. |
+| `hardware/raspberry-pi.md` | Complete | Hardware Documentation | Describes Raspberry Pi platform integration and system role. |
+| `developer/architecture.md` | Complete | Developer Documentation | Describes software architecture and internal organization. |
+| `developer/repository.md` | Complete | Developer Documentation | Describes repository organization and project layout. |
+| `developer/services.md` | Complete | Developer Documentation | Describes backend service responsibilities and interactions. |
+| `developer/backend.md` | Complete | Developer Documentation | Describes Flask backend implementation and request flow. |
+| `developer/frontend.md` | Complete | Developer Documentation | Describes Dashboard frontend implementation. |
+| `developer/mission-storage.md` | Complete | Developer Documentation | Describes mission storage and mission data workflows. |
+| `developer/api.md` | Complete | Developer Documentation | Documents API surfaces and integration points. |
+| `developer/coding-guidelines.md` | Complete | Developer Documentation | Describes project coding style and contribution guidance. |
 | `user/faq.md` | Planned | Product Documentation | Answers common user and operator questions. |
 | `release-notes.md` | Planned | Product Documentation | Tracks product changes across releases. |
 | `glossary.md` | Planned | Product Documentation | Defines product terminology and abbreviations. |

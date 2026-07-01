@@ -10,7 +10,7 @@ python backend/app.py
 --------------------
 ATTIVAZIONE WINDOWS
 --------------------
-cd C:\PROVA\DRONI\Tracker Droni>cd tracker-mini
+cd C:\PROVA\DRONI\Tracker Droni\tracker-mini
 .venv\Scripts\activate
 
 cd C:\PROVA\DRONI\Tracker Droni\tracker-mini\frontend\help
@@ -219,10 +219,11 @@ maintenance/
 
 developer/
     architecture.md
+    repository.md
+    services.md
     backend.md
     frontend.md
-    services.md
-    api.md
     mission-storage.md
+    api.md
     coding-guidelines.md
     roadmap.md

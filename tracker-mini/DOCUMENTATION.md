@@ -177,6 +177,13 @@ Developer documentation may describe:
 * coding practices
 
 Developer documentation should remain implementation-oriented.
+Developer documentation should explain the project from high-level architecture down to implementation details.
+
+Each document should build upon the previous one.
+
+Avoid repeating the same concepts in multiple documents.
+
+Cross-reference previously documented architecture whenever appropriate.
 
 ---
 
@@ -199,16 +206,22 @@ Keep diagrams readable and reasonably compact.
 
 # Existing Documentation
 
-Before creating a new document, verify whether it already exists.
+Before creating or modifying documentation, verify whether the corresponding document already exists.
 
 If the document already exists:
 
-* extend it
-* improve it
-* preserve its style
+- extend it rather than replacing it;
+- update only the sections affected by the implementation changes;
+- preserve its writing style, structure and formatting;
+- prefer editing existing sections over creating new ones;
+- never move information between documents unless necessary;
+- keep the generated diff as small as possible;
+- avoid unnecessary documentation churn;
+- do not create duplicate documents.
 
-Do not create duplicate documents.
+Every documentation change should be directly justified by a verified change in the project implementation.
 
+Treat documentation updates as code maintenance, not content rewriting.
 ---
 
 # Project Inspection

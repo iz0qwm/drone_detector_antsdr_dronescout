@@ -655,6 +655,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#system-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#mission-access" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1076,7 +1087,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../hardware/ads-b.md" class="md-nav__link">
+      <a href="../../hardware/ads-b/" class="md-nav__link">
         
   
   
@@ -1160,7 +1171,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../hardware/raspberry-pi.md" class="md-nav__link">
+      <a href="../../hardware/raspberry-pi/" class="md-nav__link">
         
   
   
@@ -1436,7 +1447,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/architecture.md" class="md-nav__link">
+      <a href="../../developer/architecture/" class="md-nav__link">
         
   
   
@@ -1464,7 +1475,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/backend.md" class="md-nav__link">
+      <a href="../../developer/backend/" class="md-nav__link">
         
   
   
@@ -1492,7 +1503,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/frontend.md" class="md-nav__link">
+      <a href="../../developer/frontend/" class="md-nav__link">
         
   
   
@@ -1520,7 +1531,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/services.md" class="md-nav__link">
+      <a href="../../developer/services/" class="md-nav__link">
         
   
   
@@ -1548,7 +1559,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/api.md" class="md-nav__link">
+      <a href="../../developer/api/" class="md-nav__link">
         
   
   
@@ -1576,7 +1587,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/mission-storage.md" class="md-nav__link">
+      <a href="../../developer/mission-storage/" class="md-nav__link">
         
   
   
@@ -1604,7 +1615,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/coding-guidelines.md" class="md-nav__link">
+      <a href="../../developer/coding-guidelines/" class="md-nav__link">
         
   
   
@@ -1786,6 +1797,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#system-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#mission-access" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1924,7 +1946,7 @@
 </tr>
 <tr>
 <td><strong>Operational Drawer</strong></td>
-<td>Provides access to supporting workflows such as network checks, map management, system status, DSC, missions and logs.</td>
+<td>Provides access to supporting workflows such as network checks, map management, system status, system settings, system power, system update, DSC, missions and logs.</td>
 </tr>
 </tbody>
 </table>
@@ -2014,6 +2036,40 @@
 <p>This is useful when the operator needs to reduce map clutter, isolate a data source or verify whether a receiver is producing data.</p>
 <p>Some controls affect only Dashboard visualization, while others control backend receiver services. Receiver availability still depends on the connected hardware and the current operating environment.</p>
 <hr />
+<h2 id="system-controls">System Controls</h2>
+<p>The System drawer panel provides operational access to status, traffic source controls, hardware status, DS110 settings, power actions and update access.</p>
+<table>
+<thead>
+<tr>
+<th>System Area</th>
+<th>Operator Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>System Status</strong></td>
+<td>Shows host and service state used for operational verification.</td>
+</tr>
+<tr>
+<td><strong>Traffic Sources</strong></td>
+<td>Enables or disables supported traffic sources and aircraft altitude filtering.</td>
+</tr>
+<tr>
+<td><strong>System Settings</strong></td>
+<td>Opens hardware status and DS110 receiver settings.</td>
+</tr>
+<tr>
+<td><strong>System Power</strong></td>
+<td>Provides Restart Application, Reboot Raspberry and Shutdown Raspberry actions.</td>
+</tr>
+<tr>
+<td><strong>System Update</strong></td>
+<td>Opens the update modal for package upload, verification and install request creation.</td>
+</tr>
+</tbody>
+</table>
+<p>Power actions ask for operator confirmation before sending the request to Mini Tracker. Restart Application restarts the Tracker Mini application service. Reboot Raspberry and Shutdown Raspberry request operating system reboot or shutdown for the Mini Tracker computing platform.</p>
+<hr />
 <h2 id="mission-access">Mission Access</h2>
 <p>The Dashboard provides access to mission functions without making mission planning the default workspace.</p>
 <p>From the Dashboard, the operator can open mission workflows to:</p>
@@ -2075,7 +2131,7 @@
 <li>Browser-local settings are used for selected map source, dark map mode and selected visualization toggles.</li>
 <li>Traffic visibility depends on source availability, receiver state, map position and filtering options.</li>
 <li>Some Dashboard functions depend on connected hardware and active backend services.</li>
-<li>System update, detailed hardware diagnostics and maintenance procedures are covered in the <strong>Maintenance Guide</strong>.</li>
+<li>System update, power actions, detailed hardware diagnostics and maintenance procedures should be used carefully during field operations because they may interrupt Dashboard availability.</li>
 </ul>
 <hr />
 
