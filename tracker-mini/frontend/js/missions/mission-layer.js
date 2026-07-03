@@ -11,12 +11,13 @@ MISSION.layer = {
         }
 
         const feature = layer.geojson;
-        
+
         if (
             feature?.properties?.leafletType ===
             "Circle"
         ) {
-            return L.circle(
+
+            const circle = L.circle(
                 [
                     feature.geometry.coordinates[1],
                     feature.geometry.coordinates[0]
@@ -27,24 +28,159 @@ MISSION.layer = {
                     ...(layer.style || {})
                 }
             );
+
+            this.decorate(
+                layer,
+                circle,
+                feature
+            );
+
+            return circle;
+
         }
 
         return L.geoJSON(
-            layer.geojson,
+            feature,
             {
                 style: layer.style || {},
-                onEachFeature(feature, leafletLayer) {
 
-                    leafletLayer.bindPopup(
-                        layer.name || "Mission Layer"
+                onEachFeature: (
+                    feature,
+                    leafletLayer
+                ) => {
+
+                    this.decorate(
+                        layer,
+                        leafletLayer,
+                        feature
                     );
 
                 }
+
             }
         );
 
     },
+    addLabel(layer, leafletLayer, feature) {
 
+        if (layer.properties?.showLabel === false) {
+            return;
+        }
+
+        const text =
+            this.buildLabel(
+                layer,
+                feature
+            );
+
+        if (!text) {
+            return;
+        }
+
+        leafletLayer.bindTooltip(
+            text,
+            {
+                permanent: true,
+                direction: "center",
+                className: "mission-label"
+            }
+        );
+
+    },
+    buildLabel(layer, feature) {
+
+        let lines = [];
+
+        if (layer.name) {
+            lines.push(layer.name);
+        }
+
+        if (
+            layer.properties?.showMeasurements
+        ) {
+
+            //
+            // Circle
+            //
+            if (
+                feature?.properties?.leafletType ===
+                "Circle"
+            ) {
+
+                const radius =
+                    feature.properties.radius;
+
+                const area =
+                    Math.PI * radius * radius;
+
+                if (radius) {
+
+                    lines.push(
+                        `📏 R = ${Math.round(radius)} m`
+                    );
+
+                    lines.push(
+                        `⬜ ${(area / 1000000).toFixed(2)} km²`
+                    );
+
+                }
+
+            }
+
+            //
+            // Polygon
+            //
+            else if (
+                feature.geometry.type ===
+                "Polygon"
+            ) {
+
+                const area =
+                    turf.area(feature);
+
+                lines.push(
+                    `⬜ ${(area / 1000000).toFixed(2)} km²`
+                );
+
+            }
+
+        }
+
+        return lines.join("<br>");
+
+    },
+    addPopup(layer, leafletLayer) {
+
+        leafletLayer.bindPopup(`
+
+            <b>${layer.name || "Mission Object"}</b>
+
+            <br>
+
+            Type:
+            ${layer.type || "-"}
+
+            <br>
+
+            ${layer.properties?.description || ""}
+
+        `);
+
+    },
+    decorate(layer, leafletLayer, feature) {
+
+        this.addLabel(
+            layer,
+            leafletLayer,
+            feature
+        );
+
+        this.addPopup(
+            layer,
+            leafletLayer
+        );
+
+    },
     show(layer) {
 
         if (!layer || !layer.id) {

@@ -14,7 +14,7 @@ from routes.ds110 import ds110_bp
 from routes.gps import gps_bp
 from routes.readsb import readsb_bp
 from routes.meshtastic import meshtastic_bp
-
+from routes.notifications import notifications_bp
 
 
 app = Flask(__name__, static_folder="../frontend", static_url_path="")
@@ -99,6 +99,8 @@ app.register_blueprint(air_local_bp)
 app.register_blueprint(readsb_bp)
 app.register_blueprint(meshtastic_bp)
 app.register_blueprint(teams_bp)
+app.register_blueprint(notifications_bp)
+
 
 @app.route("/")
 def index():

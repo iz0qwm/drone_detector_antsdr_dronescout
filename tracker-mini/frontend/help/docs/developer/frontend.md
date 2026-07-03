@@ -81,7 +81,7 @@ Frontend logic is split by subsystem.
 | `drones/` | Remote ID polling and drone marker layer. |
 | `glider/` | OGN / FLARM polling, icons and marker layer. |
 | `meshtastic/` | Team/operator polling and operator marker layer. |
-| `missions/` | Mission APIs, planning modal, drawing, layer rendering, layer properties, toolbar and teams view. |
+| `missions/` | Mission APIs, planning modal, drawing, layer rendering, layer properties, toolbar, teams view and notification message actions. |
 
 Modules communicate through browser globals rather than ES modules.
 
@@ -206,6 +206,8 @@ sequenceDiagram
 ```
 
 Mission storage details are documented in `developer/mission-storage.md`.
+
+The Teams view in `mission-teams.js` calls team APIs for gateway, operator and external node display. It also calls notification APIs to list messages and send messages to one operator or to all online configured operators.
 
 ---
 

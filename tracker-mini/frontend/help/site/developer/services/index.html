@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../frontend/">
+        <link rel="prev" href="../repository/">
       
       
-        <link rel="next" href="../api/">
+        <link rel="next" href="../backend/">
       
       
         
@@ -328,7 +328,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../release-notes.md" class="md-nav__link">
+      <a href="../../release-notes/" class="md-nav__link">
         
   
   
@@ -578,7 +578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user/mission-planning.md" class="md-nav__link">
+      <a href="../../user/mission-planning/" class="md-nav__link">
         
   
   
@@ -606,7 +606,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user/teams.md" class="md-nav__link">
+      <a href="../../user/teams/" class="md-nav__link">
         
   
   
@@ -1050,7 +1050,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/backup.md" class="md-nav__link">
+      <a href="../../maintenance/backup/" class="md-nav__link">
         
   
   
@@ -1078,7 +1078,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/restore.md" class="md-nav__link">
+      <a href="../../maintenance/restore/" class="md-nav__link">
         
   
   
@@ -1106,7 +1106,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/update.md" class="md-nav__link">
+      <a href="../../maintenance/update/" class="md-nav__link">
         
   
   
@@ -1134,7 +1134,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/diagnostics.md" class="md-nav__link">
+      <a href="../../maintenance/diagnostics/" class="md-nav__link">
         
   
   
@@ -1162,7 +1162,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/logs.md" class="md-nav__link">
+      <a href="../../maintenance/logs/" class="md-nav__link">
         
   
   
@@ -1274,42 +1274,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../backend/" class="md-nav__link">
+      <a href="../repository/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Backend
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../frontend/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Frontend
+    Repository
   
 
     
@@ -1548,14 +1520,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/" class="md-nav__link">
+      <a href="../backend/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    API
+    Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../frontend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend
   
 
     
@@ -1604,6 +1604,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../coding-guidelines/" class="md-nav__link">
         
   
@@ -1632,7 +1660,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../roadmap.md" class="md-nav__link">
+      <a href="../roadmap/" class="md-nav__link">
         
   
   
@@ -1936,6 +1964,10 @@
 <td>Mission team status derived from mission team files and Meshtastic nodes.</td>
 </tr>
 <tr>
+<td><code>notification_service.py</code></td>
+<td>In-memory notification records and operator message delivery through Meshtastic.</td>
+</tr>
+<tr>
 <td><code>dsc_settings.py</code></td>
 <td>DSC settings read and update through <code>SETTINGS</code>.</td>
 </tr>
@@ -1990,6 +2022,7 @@
     DS110["ds110.py"]
     Mesh["meshtastic_service.py"]
     Teams["teams.py"]
+    Notifications["notification_service.py"]
     GPS["gps.py"]
     DSCHeartbeat["dsc_heartbeat.py"]
     DSCBridge["dsc_bridge.py"]
@@ -1999,6 +2032,7 @@
     Routes --&gt; ServicesStatus
     Routes --&gt; Hardware
     Routes --&gt; Teams
+    Routes --&gt; Notifications
     Routes --&gt; Missions
 
     ServicesStatus --&gt; Network
@@ -2007,6 +2041,8 @@
     Hardware --&gt; DS110
     Hardware --&gt; Mesh
     Teams --&gt; Mesh
+    Notifications --&gt; Mesh
+    Notifications --&gt; Teams
     DSCHeartbeat --&gt; GPS
     DSCBridge --&gt; GPS
     DS110 --&gt; DSCBridge
@@ -2082,6 +2118,10 @@
 <tr>
 <td><code>meshtastic_service.py</code></td>
 <td><code>meshtastic_nodes</code>, <code>running</code>, <code>thread</code>, <code>interface</code>, packet timing and last sent position.</td>
+</tr>
+<tr>
+<td><code>notification_service.py</code></td>
+<td><code>notifications</code>, an in-memory list of notification records and send status.</td>
 </tr>
 <tr>
 <td><code>map_downloader.py</code></td>
@@ -2221,7 +2261,7 @@
 <li><code>frontend/js/drones/*</code> calls the Remote ID aircraft API.</li>
 <li><code>frontend/js/glider/*</code> calls the OGN / FLARM API.</li>
 <li><code>frontend/js/meshtastic/*</code> calls team APIs.</li>
-<li><code>frontend/js/missions/*</code> calls mission and layer APIs.</li>
+<li><code>frontend/js/missions/*</code> calls mission, layer, team and notification APIs.</li>
 </ul>
 <p>The service layer does not know about frontend modules. It returns JSON structures that the frontend renders.</p>
 <hr />

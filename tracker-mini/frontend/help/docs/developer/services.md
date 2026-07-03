@@ -58,6 +58,7 @@ flowchart TD
 | `ogn_network.py` | OGN / FLARM traffic fetch and filtering. |
 | `meshtastic_service.py` | Meshtastic serial gateway worker and node cache. |
 | `teams.py` | Mission team status derived from mission team files and Meshtastic nodes. |
+| `notification_service.py` | In-memory notification records and operator message delivery through Meshtastic. |
 | `dsc_settings.py` | DSC settings read and update through `SETTINGS`. |
 | `dsc_heartbeat.py` | DSC heartbeat background worker. |
 | `dsc_bridge.py` | Outbound detected-drone posting to DSC. |
@@ -86,6 +87,7 @@ flowchart TD
     DS110["ds110.py"]
     Mesh["meshtastic_service.py"]
     Teams["teams.py"]
+    Notifications["notification_service.py"]
     GPS["gps.py"]
     DSCHeartbeat["dsc_heartbeat.py"]
     DSCBridge["dsc_bridge.py"]
@@ -95,6 +97,7 @@ flowchart TD
     Routes --> ServicesStatus
     Routes --> Hardware
     Routes --> Teams
+    Routes --> Notifications
     Routes --> Missions
 
     ServicesStatus --> Network
@@ -103,6 +106,8 @@ flowchart TD
     Hardware --> DS110
     Hardware --> Mesh
     Teams --> Mesh
+    Notifications --> Mesh
+    Notifications --> Teams
     DSCHeartbeat --> GPS
     DSCBridge --> GPS
     DS110 --> DSCBridge
@@ -151,6 +156,7 @@ Some services keep live state in memory.
 |----------|---------------|
 | `ds110.py` | `remoteid_aircraft`, `running`, `thread`, `last_heartbeat`, `last_serial`. |
 | `meshtastic_service.py` | `meshtastic_nodes`, `running`, `thread`, `interface`, packet timing and last sent position. |
+| `notification_service.py` | `notifications`, an in-memory list of notification records and send status. |
 | `map_downloader.py` | `_download_jobs` and `_download_lock`. |
 | `logger.py` | `_logs`, an in-memory deque limited to 2000 entries. |
 | `dsc_heartbeat.py` | `_status`, last attempt and heartbeat state. |
@@ -227,7 +233,7 @@ Examples:
 - `frontend/js/drones/*` calls the Remote ID aircraft API.
 - `frontend/js/glider/*` calls the OGN / FLARM API.
 - `frontend/js/meshtastic/*` calls team APIs.
-- `frontend/js/missions/*` calls mission and layer APIs.
+- `frontend/js/missions/*` calls mission, layer, team and notification APIs.
 
 The service layer does not know about frontend modules. It returns JSON structures that the frontend renders.
 

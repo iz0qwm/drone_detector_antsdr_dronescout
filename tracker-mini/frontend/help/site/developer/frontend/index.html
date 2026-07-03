@@ -14,7 +14,7 @@
         <link rel="prev" href="../backend/">
       
       
-        <link rel="next" href="../services/">
+        <link rel="next" href="../mission-storage/">
       
       
         
@@ -328,7 +328,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../release-notes.md" class="md-nav__link">
+      <a href="../../release-notes/" class="md-nav__link">
         
   
   
@@ -578,7 +578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user/mission-planning.md" class="md-nav__link">
+      <a href="../../user/mission-planning/" class="md-nav__link">
         
   
   
@@ -606,7 +606,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user/teams.md" class="md-nav__link">
+      <a href="../../user/teams/" class="md-nav__link">
         
   
   
@@ -1050,7 +1050,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/backup.md" class="md-nav__link">
+      <a href="../../maintenance/backup/" class="md-nav__link">
         
   
   
@@ -1078,7 +1078,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/restore.md" class="md-nav__link">
+      <a href="../../maintenance/restore/" class="md-nav__link">
         
   
   
@@ -1106,7 +1106,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/update.md" class="md-nav__link">
+      <a href="../../maintenance/update/" class="md-nav__link">
         
   
   
@@ -1134,7 +1134,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/diagnostics.md" class="md-nav__link">
+      <a href="../../maintenance/diagnostics/" class="md-nav__link">
         
   
   
@@ -1162,7 +1162,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/logs.md" class="md-nav__link">
+      <a href="../../maintenance/logs/" class="md-nav__link">
         
   
   
@@ -1254,6 +1254,62 @@
     
   
     Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../repository/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
   
 
     
@@ -1553,14 +1609,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../services/" class="md-nav__link">
+      <a href="../mission-storage/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Services
+    Mission Storage
   
 
     
@@ -1609,34 +1665,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../mission-storage/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Mission Storage
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../coding-guidelines/" class="md-nav__link">
         
   
@@ -1665,7 +1693,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../roadmap.md" class="md-nav__link">
+      <a href="../roadmap/" class="md-nav__link">
         
   
   
@@ -2007,7 +2035,7 @@
 </tr>
 <tr>
 <td><code>missions/</code></td>
-<td>Mission APIs, planning modal, drawing, layer rendering, layer properties, toolbar and teams view.</td>
+<td>Mission APIs, planning modal, drawing, layer rendering, layer properties, toolbar, teams view and notification message actions.</td>
 </tr>
 </tbody>
 </table>
@@ -2139,6 +2167,7 @@
     API--&gt;&gt;UI: success
     UI-&gt;&gt;UI: Render layer on map</code></pre>
 <p>Mission storage details are documented in <code>developer/mission-storage.md</code>.</p>
+<p>The Teams view in <code>mission-teams.js</code> calls team APIs for gateway, operator and external node display. It also calls notification APIs to list messages and send messages to one operator or to all online configured operators.</p>
 <hr />
 <h2 id="traffic-layers">Traffic Layers</h2>
 <p>Traffic modules poll backend APIs and update map layers.</p>

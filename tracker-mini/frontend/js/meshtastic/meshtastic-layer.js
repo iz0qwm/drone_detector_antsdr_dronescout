@@ -55,7 +55,7 @@ MESHTASTIC.updateOperatorsLayer = function(operators) {
         const popup = `
             <b>${op.longName || op.name || "Operator"}</b><br>
             Short: ${op.shortName ?? "-"}<br>
-            Node: ${op.nodeId ?? "-"}<br>
+            Node: ${op.nodeId || op.id || "-"}<br>
             Battery: ${op.battery ?? "-"}<br>
             SNR: ${op.snr ?? "-"} dB<br>
             Last Seen: ${op.lastSeen ?? "-"}<br>

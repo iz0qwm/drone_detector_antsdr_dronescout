@@ -46,6 +46,20 @@ MISSION.layerProperties = {
 
         document
             .getElementById(
+                "layerShowLabel"
+            )
+            .checked =
+                layer?.properties?.showLabel ?? true;
+
+        document
+            .getElementById(
+                "layerShowMeasurements"
+            )
+            .checked =
+                layer?.properties?.showMeasurements ?? true;
+                
+        document
+            .getElementById(
                 "layerPropertiesModal"
             )
             .classList
@@ -117,7 +131,21 @@ MISSION.layerProperties = {
                         .getElementById(
                             "layerDescription"
                         )
-                        .value
+                        .value,
+
+                showLabel:
+                    document
+                        .getElementById(
+                            "layerShowLabel"
+                        )
+                        .checked,
+
+                showMeasurements:
+                    document
+                        .getElementById(
+                            "layerShowMeasurements"
+                        )
+                        .checked
 
             },
 

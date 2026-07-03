@@ -172,6 +172,7 @@ Route modules expose JSON APIs for the Dashboard.
 | `maps.py` | Offline tile serving, map listing, map metadata, map downloads and provider settings. |
 | `missions.py` | Mission CRUD, current mission selection, mission layers and GeoJSON import. |
 | `teams.py` | Mission team configuration and Meshtastic-backed team status. |
+| `notifications.py` | Notification listing, clearing and operator message delivery. |
 | `services.py` | Aggregated service status for Dashboard indicators. |
 | `hardware.py` | Aggregated hardware status. |
 | `remoteid.py` | Remote ID aircraft list. |
@@ -300,6 +301,7 @@ flowchart TD
     DSC["dsc_heartbeat.py<br/>threaded worker"]
     Maps["map_downloader.py<br/>download worker threads"]
     Mesh["meshtastic_service.py<br/>threaded worker"]
+    Notifications["notification_service.py"]
     Logs["logger.py<br/>in-memory deque"]
 
     App --> Network
@@ -307,10 +309,12 @@ flowchart TD
     App --> DSC
     App --> Maps
     App --> Mesh
+    App --> Notifications
     App --> Logs
 
     DS110 --> DSCBridge["dsc_bridge.py"]
     Mesh --> GPS["gps.py"]
+    Notifications --> Mesh
     DSC --> GPS
     DSCBridge --> GPS
 ```
@@ -319,6 +323,7 @@ The current implementation uses in-memory state for some live services:
 
 - Remote ID aircraft in `ds110.py`
 - Meshtastic nodes in `meshtastic_service.py`
+- Notification messages in `notification_service.py`
 - Map download job state in `map_downloader.py`
 - Application logs in `logger.py`
 
@@ -523,6 +528,7 @@ Mini Tracker displays several categories of traffic and operational position dat
 | **OGN / FLARM** | `ogn_network.py` | `frontend/js/glider/*` | Reads SolarMonitor OGN traffic and keeps supported sources. |
 | **Remote ID** | `ds110.py` and `remoteid.py` | `frontend/js/drones/*` | Reads DS110 MAVLink stream and exposes detected aircraft. |
 | **Meshtastic operators** | `meshtastic_service.py` and `teams.py` | `frontend/js/meshtastic/*` | Uses Meshtastic node data matched to mission operators. |
+| **Operator notifications** | `notification_service.py` | `frontend/js/missions/mission-teams.js` | Records notification state and sends operator messages through Meshtastic. |
 | **GPS node position** | `gps.py` and `dsc_settings.py` | `dashboard.js`, `drawer.js` | Supports Dashboard status, DSC position mode and Meshtastic gateway position updates. |
 
 Traffic source enablement is split between backend service state and frontend display preferences. Some display choices are stored in browser `localStorage`.

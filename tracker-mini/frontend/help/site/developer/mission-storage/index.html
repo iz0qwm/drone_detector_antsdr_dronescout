@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../api/">
+        <link rel="prev" href="../frontend/">
       
       
-        <link rel="next" href="../coding-guidelines/">
+        <link rel="next" href="../api/">
       
       
         
@@ -328,7 +328,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../release-notes.md" class="md-nav__link">
+      <a href="../../release-notes/" class="md-nav__link">
         
   
   
@@ -578,7 +578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user/mission-planning.md" class="md-nav__link">
+      <a href="../../user/mission-planning/" class="md-nav__link">
         
   
   
@@ -606,7 +606,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user/teams.md" class="md-nav__link">
+      <a href="../../user/teams/" class="md-nav__link">
         
   
   
@@ -1050,7 +1050,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/backup.md" class="md-nav__link">
+      <a href="../../maintenance/backup/" class="md-nav__link">
         
   
   
@@ -1078,7 +1078,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/restore.md" class="md-nav__link">
+      <a href="../../maintenance/restore/" class="md-nav__link">
         
   
   
@@ -1106,7 +1106,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/update.md" class="md-nav__link">
+      <a href="../../maintenance/update/" class="md-nav__link">
         
   
   
@@ -1134,7 +1134,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/diagnostics.md" class="md-nav__link">
+      <a href="../../maintenance/diagnostics/" class="md-nav__link">
         
   
   
@@ -1162,7 +1162,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/logs.md" class="md-nav__link">
+      <a href="../../maintenance/logs/" class="md-nav__link">
         
   
   
@@ -1274,42 +1274,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../backend/" class="md-nav__link">
+      <a href="../repository/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Backend
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../frontend/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Frontend
+    Repository
   
 
     
@@ -1358,14 +1330,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/" class="md-nav__link">
+      <a href="../backend/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    API
+    Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../frontend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend
   
 
     
@@ -1637,6 +1637,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../coding-guidelines/" class="md-nav__link">
         
   
@@ -1665,7 +1693,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../roadmap.md" class="md-nav__link">
+      <a href="../roadmap/" class="md-nav__link">
         
   
   
@@ -2183,7 +2211,8 @@
 </tr>
 </tbody>
 </table>
-<p>Team status is built by combining configured operators with Meshtastic nodes.</p>
+<p>Team status is built by combining configured operators with Meshtastic nodes. The matching key is the operator <code>shortName</code> and the Meshtastic node short name. When a match is found, the operator entry is updated with the Meshtastic <code>nodeId</code>, <code>lastSeen</code> and <code>online</code> state.</p>
+<p>Nodes that match the local Meshtastic gateway are reported separately as gateway data. Nodes that do not match configured operators are reported as external nodes.</p>
 <hr />
 <h2 id="crud-workflow">CRUD Workflow</h2>
 <p>Mission CRUD is implemented in <code>services/missions.py</code> and exposed through <code>routes/missions.py</code>.</p>

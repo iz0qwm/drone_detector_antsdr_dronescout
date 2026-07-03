@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../../hardware/raspberry-pi/">
+        <link rel="prev" href="../../maintenance/logs/">
       
       
-        <link rel="next" href="../backend/">
+        <link rel="next" href="../repository/">
       
       
         
@@ -328,7 +328,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../release-notes.md" class="md-nav__link">
+      <a href="../../release-notes/" class="md-nav__link">
         
   
   
@@ -578,7 +578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user/mission-planning.md" class="md-nav__link">
+      <a href="../../user/mission-planning/" class="md-nav__link">
         
   
   
@@ -606,7 +606,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user/teams.md" class="md-nav__link">
+      <a href="../../user/teams/" class="md-nav__link">
         
   
   
@@ -1050,7 +1050,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/backup.md" class="md-nav__link">
+      <a href="../../maintenance/backup/" class="md-nav__link">
         
   
   
@@ -1078,7 +1078,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/restore.md" class="md-nav__link">
+      <a href="../../maintenance/restore/" class="md-nav__link">
         
   
   
@@ -1106,7 +1106,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/update.md" class="md-nav__link">
+      <a href="../../maintenance/update/" class="md-nav__link">
         
   
   
@@ -1134,7 +1134,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/diagnostics.md" class="md-nav__link">
+      <a href="../../maintenance/diagnostics/" class="md-nav__link">
         
   
   
@@ -1162,7 +1162,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/logs.md" class="md-nav__link">
+      <a href="../../maintenance/logs/" class="md-nav__link">
         
   
   
@@ -1607,6 +1607,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../repository/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../backend/" class="md-nav__link">
         
   
@@ -1663,14 +1719,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../services/" class="md-nav__link">
+      <a href="../mission-storage/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Services
+    Mission Storage
   
 
     
@@ -1719,34 +1775,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../mission-storage/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Mission Storage
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../coding-guidelines/" class="md-nav__link">
         
   
@@ -1775,7 +1803,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../roadmap.md" class="md-nav__link">
+      <a href="../roadmap/" class="md-nav__link">
         
   
   
@@ -2329,6 +2357,10 @@
 <td>Mission team configuration and Meshtastic-backed team status.</td>
 </tr>
 <tr>
+<td><code>notifications.py</code></td>
+<td>Notification listing, clearing and operator message delivery.</td>
+</tr>
+<tr>
 <td><code>services.py</code></td>
 <td>Aggregated service status for Dashboard indicators.</td>
 </tr>
@@ -2472,6 +2504,7 @@
     DSC["dsc_heartbeat.py&lt;br/&gt;threaded worker"]
     Maps["map_downloader.py&lt;br/&gt;download worker threads"]
     Mesh["meshtastic_service.py&lt;br/&gt;threaded worker"]
+    Notifications["notification_service.py"]
     Logs["logger.py&lt;br/&gt;in-memory deque"]
 
     App --&gt; Network
@@ -2479,16 +2512,19 @@
     App --&gt; DSC
     App --&gt; Maps
     App --&gt; Mesh
+    App --&gt; Notifications
     App --&gt; Logs
 
     DS110 --&gt; DSCBridge["dsc_bridge.py"]
     Mesh --&gt; GPS["gps.py"]
+    Notifications --&gt; Mesh
     DSC --&gt; GPS
     DSCBridge --&gt; GPS</code></pre>
 <p>The current implementation uses in-memory state for some live services:</p>
 <ul>
 <li>Remote ID aircraft in <code>ds110.py</code></li>
 <li>Meshtastic nodes in <code>meshtastic_service.py</code></li>
+<li>Notification messages in <code>notification_service.py</code></li>
 <li>Map download job state in <code>map_downloader.py</code></li>
 <li>Application logs in <code>logger.py</code></li>
 </ul>
@@ -2741,6 +2777,12 @@
 <td><code>meshtastic_service.py</code> and <code>teams.py</code></td>
 <td><code>frontend/js/meshtastic/*</code></td>
 <td>Uses Meshtastic node data matched to mission operators.</td>
+</tr>
+<tr>
+<td><strong>Operator notifications</strong></td>
+<td><code>notification_service.py</code></td>
+<td><code>frontend/js/missions/mission-teams.js</code></td>
+<td>Records notification state and sends operator messages through Meshtastic.</td>
 </tr>
 <tr>
 <td><strong>GPS node position</strong></td>

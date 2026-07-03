@@ -328,7 +328,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../release-notes.md" class="md-nav__link">
+      <a href="../../release-notes/" class="md-nav__link">
         
   
   
@@ -803,7 +803,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mission-planning.md" class="md-nav__link">
+      <a href="../mission-planning/" class="md-nav__link">
         
   
   
@@ -831,7 +831,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../teams.md" class="md-nav__link">
+      <a href="../teams/" class="md-nav__link">
         
   
   
@@ -1275,7 +1275,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/backup.md" class="md-nav__link">
+      <a href="../../maintenance/backup/" class="md-nav__link">
         
   
   
@@ -1303,7 +1303,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/restore.md" class="md-nav__link">
+      <a href="../../maintenance/restore/" class="md-nav__link">
         
   
   
@@ -1331,7 +1331,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/update.md" class="md-nav__link">
+      <a href="../../maintenance/update/" class="md-nav__link">
         
   
   
@@ -1359,7 +1359,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/diagnostics.md" class="md-nav__link">
+      <a href="../../maintenance/diagnostics/" class="md-nav__link">
         
   
   
@@ -1387,7 +1387,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/logs.md" class="md-nav__link">
+      <a href="../../maintenance/logs/" class="md-nav__link">
         
   
   
@@ -1497,6 +1497,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../developer/repository/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../developer/backend/" class="md-nav__link">
         
   
@@ -1553,14 +1609,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/services/" class="md-nav__link">
+      <a href="../../developer/mission-storage/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Services
+    Mission Storage
   
 
     
@@ -1609,34 +1665,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/mission-storage/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Mission Storage
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../developer/coding-guidelines/" class="md-nav__link">
         
   
@@ -1665,7 +1693,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/roadmap.md" class="md-nav__link">
+      <a href="../../developer/roadmap/" class="md-nav__link">
         
   
   
@@ -1932,6 +1960,8 @@
 <li>Preparation of additional offline map areas</li>
 </ul>
 <p>The operator normally uses the map continuously during an operation and uses map management functions before or during deployment when additional geographic coverage is required.</p>
+<p><img alt="Maps Overview" src="../../images/user/maps/user_maps_overview.png" /></p>
+<p><em>Maps panel with map source selection in the Dashboard drawer.</em></p>
 <hr />
 <h2 id="offline-first-philosophy">Offline First Philosophy</h2>
 <p>Mini Tracker follows an Offline First approach.</p>
@@ -1983,6 +2013,8 @@
 </tbody>
 </table>
 <p>The selected map source is stored locally by the browser.</p>
+<p><img alt="Map Sources" src="../../images/user/maps/user_maps_map_sources.png" /></p>
+<p><em>Map source selector with online, automatic and offline map modes.</em></p>
 <hr />
 <h2 id="automatic-map-selection">Automatic Map Selection</h2>
 <p>Automatic mode is intended for normal operation.</p>
@@ -2014,6 +2046,8 @@
 </ul>
 <p>The Download Manager requires Internet connectivity before it can be opened for download operations.</p>
 <p>Map downloads use the configured Thunderforest provider. A valid provider API key is required before new areas can be downloaded.</p>
+<p><img alt="Download Manager" src="../../images/user/maps/user_maps_offline_philosophy.png" /></p>
+<p><em>Download Manager provider, storage and current download status.</em></p>
 <hr />
 <h2 id="preparing-offline-coverage">Preparing Offline Coverage</h2>
 <p>A new offline map area can be defined in two ways:</p>
@@ -2036,11 +2070,15 @@
 </tbody>
 </table>
 <p>The operator defines the center point and radius of the area. Mini Tracker estimates the approximate download size and shows a summary before starting the download.</p>
+<p><img alt="Download New Map" src="../../images/user/maps/user_maps_download_manager.png" /></p>
+<p><em>New offline map download defined by map position.</em></p>
 <p>During the download, progress is shown as a download job with percentage and tile count information.</p>
 <p>When the download completes, the new map becomes available in the installed maps list.</p>
 <hr />
 <h2 id="installed-map-library">Installed Map Library</h2>
 <p>Installed maps can be reviewed from the Download Manager.</p>
+<p><img alt="Installed Maps Library" src="../../images/user/maps/user_maps_installed_maps_library.png" /></p>
+<p><em>Installed maps list with active state, show, edit and delete controls.</em></p>
 <p>For each map, Mini Tracker may display operational metadata such as:</p>
 <ul>
 <li>Description</li>

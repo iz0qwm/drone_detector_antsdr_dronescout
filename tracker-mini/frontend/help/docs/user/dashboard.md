@@ -18,6 +18,10 @@ The Dashboard is not intended to replace the dedicated configuration, mission pl
 
 The Dashboard provides a single operational picture by combining system state, map context and live operational information.
 
+![Dashboard Overview](../images/user/dashboard/user_dashboard_overview.png)
+
+*Dashboard overview with the operational map, status indicators and Missions drawer.*
+
 The operator uses the Dashboard to answer four operational questions:
 
 - Is the Mini Tracker node running correctly?
@@ -117,6 +121,10 @@ The operator should verify these indicators after startup and periodically durin
 
 The map is the primary operational area of the Dashboard.
 
+![Dashboard Map View](../images/user/dashboard/user_dashboard_map_view.png)
+
+*Dashboard map view with traffic overlays and system controls.*
+
 It provides geographic context for:
 
 - Air traffic
@@ -159,6 +167,10 @@ flowchart LR
 ```
 
 Traffic objects are displayed as map markers. Selecting a marker opens the available details for that object.
+
+![Dashboard Traffic Information](../images/user/dashboard/user_dashboard_traffic_information.png)
+
+*Traffic marker details shown on the operational map.*
 
 The Dashboard supports:
 
@@ -210,6 +222,7 @@ From the Dashboard, the operator can open mission workflows to:
 - Import GeoJSON layers
 - Draw or edit mission objects
 - Review team information from Meshtastic
+- Send short operational messages to mission operators
 
 Mission planning procedures are covered in the **Mission Planning Guide**.
 
@@ -221,7 +234,7 @@ TODO: The inspected frontend shows Duplicate Mission and Export Mission controls
 
 When Meshtastic is enabled and operator data is available, the Dashboard can show mission operator positions on the map.
 
-Operator markers provide quick awareness of team location and node status. The mission team view provides additional information about the gateway, configured operators and external nodes.
+Operator markers provide quick awareness of team location and node status. The mission team view provides additional information about the gateway, configured operators, external nodes, NodeDB maintenance actions and operator messages.
 
 Detailed Meshtastic behavior is covered in the **Meshtastic Guide**.
 
@@ -279,4 +292,3 @@ Recommended operational sequence:
 - System update, power actions, detailed hardware diagnostics and maintenance procedures should be used carefully during field operations because they may interrupt Dashboard availability.
 
 ---
-

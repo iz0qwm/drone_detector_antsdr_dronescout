@@ -179,8 +179,8 @@ Recommended sequence:
 | `user/installation.md` | Complete | User Guide | Describes installation and preparation before first use. |
 | `user/first-start.md` | Complete | User Guide | Guides the first operational preparation workflow before deployment. |
 | `user/settings.md` | Planned | User Guide | Describes operator settings and configuration workflows. |
-| `user/mission-planning.md` | Planned | User Guide | Describes mission creation, planning and map objects. |
-| `user/teams.md` | Planned | User Guide | Describes team awareness and coordination workflows. |
+| `user/mission-planning.md` | Complete | User Guide | Describes mission creation, planning and map objects. |
+| `user/teams.md` | Complete | User Guide | Describes team awareness and coordination workflows. |
 | `user/troubleshooting.md` | Planned | User Guide | Provides operator-level troubleshooting procedures. |
 | `hardware/overview.md` | Complete | Hardware Documentation | Introduces hardware components and integration scope. |
 | `hardware/power.md` | Complete | Hardware Documentation | Describes power inputs, distribution and field power considerations. |
@@ -190,6 +190,11 @@ Recommended sequence:
 | `hardware/remote-id.md` | Complete | Hardware Documentation | Describes Remote ID hardware integration. |
 | `hardware/meshtastic.md` | Complete | Hardware Documentation | Describes Meshtastic hardware integration. |
 | `hardware/raspberry-pi.md` | Complete | Hardware Documentation | Describes Raspberry Pi platform integration and system role. |
+| `maintenance/backup.md` | Complete | Maintenance Documentation | Describes current backup capabilities and update-created internal backups. |
+| `maintenance/restore.md` | Complete | Maintenance Documentation | Describes current restore capabilities and update rollback scope. |
+| `maintenance/update.md` | Complete | Maintenance Documentation | Describes the Dashboard update workflow and backend update subsystem. |
+| `maintenance/diagnostics.md` | Complete | Maintenance Documentation | Describes available Dashboard diagnostic information and current limitations. |
+| `maintenance/logs.md` | Complete | Maintenance Documentation | Describes in-memory logging and the Dashboard log viewer. |
 | `developer/architecture.md` | Complete | Developer Documentation | Describes software architecture and internal organization. |
 | `developer/repository.md` | Complete | Developer Documentation | Describes repository organization and project layout. |
 | `developer/services.md` | Complete | Developer Documentation | Describes backend service responsibilities and interactions. |

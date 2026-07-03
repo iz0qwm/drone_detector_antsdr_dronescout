@@ -10,6 +10,7 @@
     <script src="vendor/leaflet/leaflet.js"></script>
     <script src="vendor/leaflet-geoman/leaflet-geoman.min.js"></script>
     <script src="vendor/leaflet-plugins/leaflet.rotatedMarker.js"></script>
+    <script src="vendor/leaflet-plugins/turf.min.js"></script>
 
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/drawer.css">
@@ -828,19 +829,18 @@
                 No mission loaded
             </div>
             <hr>
-            <div
-                class="mission-objects-header">
-                <h3>
-                    Mission Objects
-                </h3>
-                <label class="mission-show-all">
-                    <input
-                        id="showAllMissionObjects"
-                        type="checkbox"
-                        checked>
-                    Show all
-                </label>
-            </div>
+
+            <label class="mission-show-all">
+                <input
+                    id="showAllMissionObjects"
+                    type="checkbox">
+                Show mission objects on map
+            </label>
+
+            <hr>
+
+            <h3>Available Missions</h3>
+            Click on a mission to activate it. Active mission objects will be displayed on the map.
             <div
                 id="missionsList"
                 class="mission-list">
@@ -912,7 +912,23 @@
             <textarea
                 id="layerDescription">
             </textarea>
+            <hr>
 
+            <label class="mission-option">
+                <input
+                    id="layerShowLabel"
+                    type="checkbox"
+                    checked>
+                Show label
+            </label>
+
+            <label class="mission-option">
+                <input
+                    id="layerShowMeasurements"
+                    type="checkbox"
+                    checked>
+                Show measurements
+            </label>
             <div class="modal-buttons">
 
                 <button
@@ -952,6 +968,91 @@
             <div id="teamsContainer">
 
                 Loading...
+
+            </div>
+
+        </div>
+
+    </div>
+    <div id="messageModal" class="modal">
+
+        <div class="modal-content message-modal">
+
+            <div class="modal-header">
+
+                <h2 id="messageModalTitle">
+                    Send Message
+                </h2>
+
+                <button id="closeMessageModal">
+                    ✕
+                </button>
+
+            </div>
+
+            <h3>
+                Quick Messages
+            </h3>
+
+            <div class="message-templates">
+
+               <button
+                    class="btn-mission"
+                    onclick="MISSION.teams.insertTemplate('drone')">
+                    🛸 Drone
+                </button>
+
+                <button class="btn-mission"
+                    onclick="MISSION.teams.insertTemplate('aircraft')">
+                    ✈ Aircraft
+                </button>
+
+                <button class="btn-mission"
+                    onclick="MISSION.teams.insertTemplate('helicopter')">
+                    🚁 Helicopter
+                </button>
+
+                <button class="btn-mission"
+                    onclick="MISSION.teams.insertTemplate('warning')">
+                    ⚠ Warning
+                </button>
+
+                <button class="btn-mission"
+                    onclick="MISSION.teams.insertTemplate('info')">
+                    📢 Info
+                </button>
+
+            </div>
+
+            <hr>
+
+            <label>
+                Custom Message
+            </label>
+
+            <textarea
+                id="messageText"
+                class="mission-textarea"
+                placeholder="Type your message...">
+            </textarea>
+
+            <div class="mission-actions">
+
+                <button
+                    id="sendMessageBtn"
+                    class="btn-mission">
+
+                    Send
+
+                </button>
+
+                <button
+                    id="cancelMessageBtn"
+                    class="btn-delete-mission">
+
+                    Cancel
+
+                </button>
 
             </div>
 

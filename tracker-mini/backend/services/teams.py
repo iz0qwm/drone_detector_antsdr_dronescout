@@ -123,7 +123,7 @@ def normalize_node(node):
 
     return {
 
-        "id": node.get("id"),
+        "nodeId": node.get("id"),
         "num": node.get("num"),
 
         "name": node_name(node),
@@ -151,7 +151,6 @@ def normalize_node(node):
         "last_seen": node.get("last_seen"),
         "lastHeard": node.get("lastHeard"),
 
-        "status": "online"
     }
 
 
@@ -278,7 +277,7 @@ def bind_operator_node(operator, node):
         if op["id"] != operator["id"]:
             continue
 
-        node_id = node.get("id")
+        node_id = node.get("nodeId")
 
         now = datetime.utcnow().isoformat()
 

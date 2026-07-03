@@ -65,6 +65,10 @@ The operator should interpret the Dashboard as a consolidated operational view. 
 
 Mini Tracker can display information from several operational sources.
 
+![Traffic Sources](../images/user/traffic-monitoring/user_traffic-monitoring_traffic_sources.png)
+
+*Traffic sources panel with aircraft details on the operational map.*
+
 | Source | Operational Purpose |
 |----------|----------------------|
 | **ADS-B** | Awareness of cooperative aircraft and helicopters equipped with ADS-B transmitters. |
@@ -136,7 +140,7 @@ Operator information may include:
 
 Meshtastic operators are part of team awareness rather than air traffic. They are displayed in the same operational map view because their position is relevant to mission coordination.
 
-TODO: The inspected team status currently exposes a messages field, but no active operator-facing message workflow was identified in the traffic map view.
+Operator messaging is handled from the Teams workflow rather than from traffic map markers.
 
 ---
 
@@ -266,4 +270,3 @@ Recommended sequence:
 - The Dashboard refreshes traffic information periodically.
 
 ---
-

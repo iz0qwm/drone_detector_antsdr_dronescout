@@ -80,7 +80,15 @@ Node information may include:
 - Channel utilization
 - Last seen information
 
-Mission operators are matched to configured operators by short name. Nodes that are not matched to configured operators are shown as external nodes in the Mission Teams view.
+Mission operators are configured in the active mission. Mini Tracker matches received Meshtastic nodes to configured operators by short name and stores the matched node identifier on the operator entry.
+
+Nodes are separated into three groups for operational use:
+
+| Group | Meaning |
+|----------|---------|
+| **Gateway** | The local Meshtastic gateway connected to Mini Tracker. |
+| **Mission Operators** | Configured operators whose short name matches a received Meshtastic node. |
+| **External Nodes** | Meshtastic nodes not matched to configured mission operators. |
 
 ---
 
@@ -129,11 +137,11 @@ Missing telemetry values should be treated as unavailable data, not necessarily 
 
 ## Messages
 
-The Meshtastic service recognizes incoming text-message packets at the receiver level.
+The Meshtastic service recognizes incoming text-message packets at the receiver level and can send direct text messages to a Meshtastic node.
 
-The current Mission Teams view includes a Messages section, but the current team status data does not expose an active operator message list or message sending workflow.
+Operator-facing message workflows are handled through the Mission Teams panel and the backend Notification Service. The Notification Service records notification state and uses Meshtastic as the current transport for operator messages.
 
-Operators should treat the implemented Meshtastic integration primarily as team awareness and position display.
+The Teams panel supports sending a message to one operator or to all online configured operators.
 
 ---
 
@@ -162,6 +170,8 @@ The Mission Teams workflow uses Meshtastic node data to support mission coordina
 The operator can configure mission operators with long names and short names. When a received Meshtastic node matches a configured operator by short name, Mini Tracker associates that node with the mission operator.
 
 The Mission Teams view displays gateway information, configured mission operators and external nodes detected through Meshtastic.
+
+The view also provides NodeDB maintenance actions for removing one external node from the radio or clearing the radio NodeDB. These actions request changes on the Meshtastic radio and clear the corresponding Mini Tracker in-memory node state.
 
 ---
 

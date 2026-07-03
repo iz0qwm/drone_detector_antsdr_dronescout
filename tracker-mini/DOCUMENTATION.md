@@ -7,6 +7,23 @@ This document defines the documentation rules for the Mini Tracker project.
 Always read this document before creating or modifying any documentation.
 
 ---
+# Documentation Language
+
+All documentation must be written in **English**.
+
+This applies to:
+
+- new documentation;
+- updates to existing documentation;
+- code examples;
+- tables;
+- figure captions;
+- Mermaid diagrams.
+
+When prompts or user requests are written in another language, the generated documentation must still be written entirely in English.
+
+Only direct quotations, user interface labels, or proper names may remain in their original language when appropriate.
+---
 
 # Documentation Location
 
@@ -239,6 +256,63 @@ If implementation and documentation differ, prefer the current implementation.
 Do not invent features, hardware capabilities or workflows that cannot be confirmed by inspecting the project.
 
 If information cannot be verified, omit it rather than guessing.
+
+---
+
+# Documentation Images
+
+Documentation screenshots are stored under:
+
+docs/images/
+
+The directory structure mirrors the documentation structure.
+
+Example:
+
+images/
+    user/
+        dashboard/
+        maps/
+        traffic-monitoring/
+        mission-planning/
+
+
+Screenshot filenames must follow this convention:
+
+<section>_<document-name>_<description>.png
+
+Examples:
+
+user_dashboard_overview.png
+user_dashboard_map_view.png
+user_dashboard_services.png
+
+user_maps_overview.png
+user_maps_download_manager.png
+
+user_traffic-monitoring_traffic_sources.png
+
+Reuse existing screenshots whenever possible.
+
+Before creating a new screenshot, verify whether an appropriate image already exists.
+
+When updating documentation, insert screenshots near the section they describe using standard Markdown image syntax.
+
+Example:
+
+![Dashboard Overview](../images/user/dashboard/user_dashboard_overview.png)
+
+Add a short explanatory caption when the screenshot highlights an important interface element.
+
+Screenshots are considered part of the documentation.
+
+When updating an existing document, inspect the corresponding images directory and use available screenshots whenever they improve readability.
+
+Never reference screenshots that do not exist.
+
+Do not create placeholder image references.
+
+Images should complement the text rather than replace it.
 
 ---
 

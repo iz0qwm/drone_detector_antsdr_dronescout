@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from services import meshtastic_service
 from services.logger import log
+from services import notification_service
 
 meshtastic_bp = Blueprint(
     "meshtastic",
@@ -77,3 +78,56 @@ def enable_meshtastic():
     })
 
 
+@meshtastic_bp.route(
+    "/nodes/reset",
+    methods=["POST"]
+)
+def reset_nodes():
+
+    try:
+        meshtastic_service.reset_nodedb()
+
+        return jsonify({
+            "ok": True
+        })
+
+    except Exception as e:
+
+        log(
+            "MESHTASTIC",
+            f"NodeDB reset error: {e}"
+        )
+
+        return jsonify({
+            "ok": False,
+            "error": str(e)
+        }), 500
+
+
+@meshtastic_bp.route(
+    "/nodes/<path:node_id>",
+    methods=["DELETE"]
+)
+def remove_node(node_id):
+
+    try:
+        meshtastic_service.remove_node(
+            node_id
+        )
+
+        return jsonify({
+            "ok": True
+        })
+
+    except Exception as e:
+
+        log(
+            "MESHTASTIC",
+            f"Remove node error: {e}"
+        )
+
+        return jsonify({
+            "ok": False,
+            "error": str(e)
+        }), 500
+    

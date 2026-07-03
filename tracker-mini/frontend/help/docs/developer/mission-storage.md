@@ -201,7 +201,9 @@ Operator entries contain:
 | `lastSeen` | Last match timestamp. |
 | `online` | Current online state. |
 
-Team status is built by combining configured operators with Meshtastic nodes.
+Team status is built by combining configured operators with Meshtastic nodes. The matching key is the operator `shortName` and the Meshtastic node short name. When a match is found, the operator entry is updated with the Meshtastic `nodeId`, `lastSeen` and `online` state.
+
+Nodes that match the local Meshtastic gateway are reported separately as gateway data. Nodes that do not match configured operators are reported as external nodes.
 
 ---
 
@@ -305,4 +307,3 @@ When adding new layer fields, keep existing frontend rendering behavior in mind.
 - `developer/services.md`
 - `developer/api.md`
 - `user/dashboard.md`
-

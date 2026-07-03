@@ -588,3 +588,52 @@ def is_alive(timeout=30):
     return (time.time() - last_packet_time) < timeout
 
 
+def reset_nodedb():
+    if not interface:
+        raise RuntimeError("Meshtastic interface not connected")
+
+    interface.localNode.resetNodeDb()
+    meshtastic_nodes.clear()
+
+    log(
+        "MESHTASTIC",
+        "NodeDB reset requested"
+    )
+
+
+def remove_node(node_id):
+    if not interface:
+        raise RuntimeError("Meshtastic interface not connected")
+
+    interface.localNode.removeNode(node_id)
+
+    meshtastic_nodes.pop(
+        node_id,
+        None
+    )
+
+    log(
+        "MESHTASTIC",
+        f"Node removed from NodeDB: {node_id}"
+    )
+
+
+def send_direct_message(node_id, text):
+    if not interface:
+        raise RuntimeError("Meshtastic interface not connected")
+
+    if not node_id:
+        raise ValueError("Missing node_id")
+
+    if not text:
+        raise ValueError("Missing message text")
+
+    interface.sendText(
+        text,
+        destinationId=node_id
+    )
+
+    log(
+        "MESHTASTIC",
+        f"Direct message sent to {node_id}: {text}"
+    )

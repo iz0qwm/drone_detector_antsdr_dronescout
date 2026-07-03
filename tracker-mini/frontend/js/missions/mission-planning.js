@@ -8,6 +8,17 @@ MISSION.planning = {
     showAllHandlerInitialized: false,
     async open() {
 
+        MISSION.layer.clearAll();
+
+        const showAll =
+            document.getElementById(
+                "showAllMissionObjects"
+            );
+
+        if (showAll) {
+            showAll.checked = false;
+        }
+
         if (
             !this.menuHandlerInitialized
         ) {
@@ -123,12 +134,6 @@ MISSION.planning = {
                             <button id="renameMissionBtn">
                                 ✏ Rename mission
                             </button>
-                            <button id="duplicateMissionBtn">
-                                📄 Duplicate mission
-                            </button>
-                            <button id="exportMissionBtn">
-                                📤 Export mission
-                            </button>
                             <hr>
                             <button id="importGeoJsonBtn">
                                 📁 Import Layer
@@ -151,8 +156,7 @@ MISSION.planning = {
                     type="file"
                     accept=".geojson,.json"
                     style="display:none">
-                <h3>Mission Objects</h3>
-
+                <h4>Mission Objects</h4>
                 <div id="missionLayers">
                     Loading...
                 </div>
@@ -444,7 +448,8 @@ MISSION.planning = {
                 await MISSION.api.layers(
                     missionId
                 );
-
+            
+               
             if (!layers.length) {
 
                 container.innerHTML =
@@ -456,6 +461,11 @@ MISSION.planning = {
             container.innerHTML = "";
 
             layers.forEach(layer => {
+
+                const visible =
+                    MISSION.layer.isVisible(
+                        layer.id
+                    );
 
                 const row =
                     document.createElement(
@@ -489,7 +499,7 @@ MISSION.planning = {
                             data-action="view"
                             data-layer="${layer.id}">
 
-                            👁 Visible
+                            ${visible ? "🙈 Hide" : "👁 Show"}
 
                         </button>
 
@@ -590,7 +600,7 @@ MISSION.planning = {
                     }
                 );
             });
-
+            this.updateShowAllCheckbox();
         }
 
         catch(err) {
@@ -636,9 +646,9 @@ MISSION.planning = {
             }
 
         }
+        this.updateShowAllCheckbox();
 
     },
-
     async toggleLayerVisibility(
         missionId,
         layerId
@@ -650,12 +660,80 @@ MISSION.planning = {
                 layerId
             );
 
-        MISSION.layer.toggle(
-            layer
-        );
+        const visible =
+            MISSION.layer.toggle(
+                layer
+            );
+
+        const button =
+            document.querySelector(
+
+                `[data-action="view"][data-layer="${layerId}"]`
+
+            );
+
+        if (button) {
+
+            button.textContent =
+                visible
+                    ? "🙈 Hide"
+                    : "👁 Show";
+
+        }
+
+        this.updateShowAllCheckbox();
 
     },
+    updateShowAllCheckbox() {
 
+        const checkbox =
+            document.getElementById(
+                "showAllMissionObjects"
+            );
+
+        if (!checkbox) {
+            return;
+        }
+
+        const layers =
+            document.querySelectorAll(
+                ".mission-layer-card"
+            );
+
+        if (!layers.length) {
+
+            checkbox.checked = false;
+            checkbox.indeterminate = false;
+
+            return;
+
+        }
+
+        let visible = 0;
+
+        layers.forEach(row => {
+
+            const layerId =
+                row.dataset.layerId;
+
+            if (
+                MISSION.layer.isVisible(
+                    layerId
+                )
+            ) {
+                visible++;
+            }
+
+        });
+
+        checkbox.indeterminate =
+            visible > 0 &&
+            visible < layers.length;
+
+        checkbox.checked =
+            visible === layers.length;
+
+    },
     async editLayer(
         missionId,
         layer

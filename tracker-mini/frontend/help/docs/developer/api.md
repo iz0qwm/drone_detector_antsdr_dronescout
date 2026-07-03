@@ -586,6 +586,72 @@ Response fields: `success`.
 
 ---
 
+## Notifications API
+
+### `GET /api/notifications`
+
+Returns in-memory notification messages.
+
+Request parameters: none.
+
+Response fields:
+
+| Field | Description |
+|----------|-------------|
+| `ok` | Request result. |
+| `messages` | Notification entries in reverse chronological order. |
+
+Notification entries include `id`, `timestamp`, `category`, `severity`, `source`, `target`, `target_node_id`, `text` and `status`. Failed send attempts may include `error`.
+
+### `DELETE /api/notifications`
+
+Clears in-memory notification messages.
+
+Request parameters: none.
+
+Response fields: `ok`.
+
+### `POST /api/notifications/operator`
+
+Sends a notification message to one operator node through the Notification Service.
+
+Request JSON:
+
+| Field | Required | Description |
+|----------|----------|-------------|
+| `node_id` | Yes | Meshtastic node ID used as the delivery target. |
+| `text` | Yes | Message text. |
+| `category` | No | Notification category; defaults to `manual`. |
+| `severity` | No | Notification severity; defaults to `info`. |
+
+Response fields:
+
+| Field | Description |
+|----------|-------------|
+| `ok` | True when the notification status is `sent`. |
+| `notification` | Notification record with final status. |
+
+### `POST /api/notifications/all`
+
+Sends a notification message to all configured online operators with an associated node ID.
+
+Request JSON:
+
+| Field | Required | Description |
+|----------|----------|-------------|
+| `text` | Yes | Message text. |
+| `category` | No | Notification category; defaults to `manual`. |
+| `severity` | No | Notification severity; defaults to `info`. |
+
+Response fields:
+
+| Field | Description |
+|----------|-------------|
+| `ok` | Request result. |
+| `notifications` | Notification records created for the selected online operators. |
+
+---
+
 ## Traffic API
 
 ### `GET /api/air/local`
@@ -711,6 +777,22 @@ Request JSON:
 | `enabled` | No | Boolean; defaults to true. |
 
 Response fields: `success`, `enabled`.
+
+### `POST /api/meshtastic/nodes/reset`
+
+Requests a complete Meshtastic radio NodeDB reset and clears the Mini Tracker node cache.
+
+Request parameters: none.
+
+Response fields: `ok`, or `ok: false` and `error` with HTTP 500 when the radio interface is not connected or the reset fails.
+
+### `DELETE /api/meshtastic/nodes/<node_id>`
+
+Requests removal of one node from the Meshtastic radio NodeDB and removes it from the Mini Tracker node cache.
+
+Path parameters: `node_id`.
+
+Response fields: `ok`, or `ok: false` and `error` with HTTP 500 when the radio interface is not connected or removal fails.
 
 ---
 

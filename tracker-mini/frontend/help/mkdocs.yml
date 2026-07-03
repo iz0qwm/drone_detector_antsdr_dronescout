@@ -58,11 +58,12 @@ nav:
       - Logs: maintenance/logs.md
 
   - Developer:
-      - Architecture: developer/architecture.md
-      - Backend: developer/backend.md
-      - Frontend: developer/frontend.md
-      - Services: developer/services.md
-      - API: developer/api.md
-      - Mission Storage: developer/mission-storage.md
-      - Coding Guidelines: developer/coding-guidelines.md
-      - Roadmap: developer/roadmap.md
+    - Architecture: developer/architecture.md
+    - Repository: developer/repository.md
+    - Services: developer/services.md
+    - Backend: developer/backend.md
+    - Frontend: developer/frontend.md
+    - Mission Storage: developer/mission-storage.md
+    - API: developer/api.md
+    - Coding Guidelines: developer/coding-guidelines.md
+    - Roadmap: developer/roadmap.md

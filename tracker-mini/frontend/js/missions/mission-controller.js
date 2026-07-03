@@ -43,6 +43,22 @@ window.MISSION = window.MISSION || {};
             "missionTeamsBtn",
             openMissionTeams
         );
+
+
+        bindButton(
+            "closeMessageModal",
+            closeMessage
+        );
+
+        bindButton(
+            "cancelMessageBtn",
+            closeMessage
+        );
+
+        bindButton(
+            "sendMessageBtn",
+            sendCurrentMessage
+        );
     }
 
     function bindButton(id, handler) {
@@ -129,6 +145,20 @@ window.MISSION = window.MISSION || {};
         closeModal(
             "missionTeamsModal"
         );
+
+    }
+
+    function closeMessage() {
+
+        closeModal(
+            "messageModal"
+        );
+
+    }
+
+    async function sendCurrentMessage() {
+
+        await MISSION.teams.sendCurrentMessage();
 
     }
 

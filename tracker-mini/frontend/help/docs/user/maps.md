@@ -29,6 +29,10 @@ It supports:
 
 The operator normally uses the map continuously during an operation and uses map management functions before or during deployment when additional geographic coverage is required.
 
+![Maps Overview](../images/user/maps/user_maps_overview.png)
+
+*Maps panel with map source selection in the Dashboard drawer.*
+
 ---
 
 ## Offline First Philosophy
@@ -76,6 +80,10 @@ Mini Tracker supports three map source modes.
 
 The selected map source is stored locally by the browser.
 
+![Map Sources](../images/user/maps/user_maps_map_sources.png)
+
+*Map source selector with online, automatic and offline map modes.*
+
 ---
 
 ## Automatic Map Selection
@@ -122,6 +130,10 @@ The Download Manager requires Internet connectivity before it can be opened for 
 
 Map downloads use the configured Thunderforest provider. A valid provider API key is required before new areas can be downloaded.
 
+![Download Manager](../images/user/maps/user_maps_offline_philosophy.png)
+
+*Download Manager provider, storage and current download status.*
+
 ---
 
 ## Preparing Offline Coverage
@@ -135,6 +147,10 @@ A new offline map area can be defined in two ways:
 
 The operator defines the center point and radius of the area. Mini Tracker estimates the approximate download size and shows a summary before starting the download.
 
+![Download New Map](../images/user/maps/user_maps_download_manager.png)
+
+*New offline map download defined by map position.*
+
 During the download, progress is shown as a download job with percentage and tile count information.
 
 When the download completes, the new map becomes available in the installed maps list.
@@ -144,6 +160,10 @@ When the download completes, the new map becomes available in the installed maps
 ## Installed Map Library
 
 Installed maps can be reviewed from the Download Manager.
+
+![Installed Maps Library](../images/user/maps/user_maps_installed_maps_library.png)
+
+*Installed maps list with active state, show, edit and delete controls.*
 
 For each map, Mini Tracker may display operational metadata such as:
 
@@ -271,4 +291,3 @@ Recommended sequence:
 - Dark Map applies a darker visual overlay to the map and does not change the installed map data.
 
 ---
-

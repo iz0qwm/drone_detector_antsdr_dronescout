@@ -85,7 +85,7 @@ The backend uses route blueprints grouped by subsystem.
 | Networking | `network.py`, `network_manager.py` |
 | Settings | `settings.py`, `dsc.py` |
 | Maps | `maps.py` |
-| Missions and teams | `missions.py`, `teams.py` |
+| Missions, teams and notifications | `missions.py`, `teams.py`, `notifications.py` |
 | Traffic | `air_local.py`, `air_network.py`, `ogn_network.py`, `remoteid.py` |
 | Hardware control | `ds110.py`, `readsb.py`, `gps.py`, `meshtastic.py` |
 | Logs | `logs.py` |
