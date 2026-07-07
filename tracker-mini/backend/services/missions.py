@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 import shutil
 from services.logger import log
+from services.dsc_client import fetch_zones
 
 from services.mission_storage import (
     load_index,
@@ -303,3 +304,102 @@ def import_geojson(
     return saved
 
 
+def import_dsc_zones(
+    mission_id,
+    bbox,
+    simplify=True,
+    limit=500,
+    zone_type=None
+):
+
+    mission_dir = (
+        MISSIONS_DIR /
+        mission_id
+    )
+
+    if not mission_dir.exists():
+        return {
+            "success": False,
+            "message": "Mission not found"
+        }
+
+    result = fetch_zones(
+        bbox=bbox,
+        simplify=simplify,
+        limit=limit,
+        zone_type=zone_type
+    )
+
+    if not result.get("success"):
+        return result
+
+    existing_layers = list_layers(
+        mission_id
+    )
+
+    for existing_layer in existing_layers:
+
+        if (
+            existing_layer
+            .get("properties", {})
+            .get("source") == "dsc"
+            and
+            existing_layer
+            .get("properties", {})
+            .get("dataset") == "zones"
+        ):
+
+            delete_layer(
+                mission_id,
+                existing_layer["id"]
+            )
+
+            log(
+                "MISSION",
+                "Replaced existing DSC zones layer",
+                mission_id,
+                existing_layer["id"]
+            )
+            
+    layer = {
+        "name": "Drone Sky Check zones",
+        "type": "geojson",
+        "geometry": "feature_collection",
+        "visible": True,
+        "locked": True,
+        "style": {},
+        "properties": {
+            "source": "dsc",
+            "readonly": True,
+            "dataset": "zones",
+            "metadata": result["metadata"]
+        },
+        "geojson": result["geojson"],
+        "order": 0,
+        "created": datetime.utcnow().isoformat()
+    }
+
+    saved = save_layer(
+        mission_id,
+        layer
+    )
+
+    features = len(
+        result["geojson"].get(
+            "features",
+            []
+        )
+    )
+
+    log(
+        "MISSION",
+        "Imported DSC zones",
+        mission_id,
+        saved["id"],
+        f"{features} features"
+    )
+
+    return {
+        "success": True,
+        "layer": saved
+    }

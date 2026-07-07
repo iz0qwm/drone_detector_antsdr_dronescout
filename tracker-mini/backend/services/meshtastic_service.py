@@ -338,8 +338,14 @@ def start():
     if running:
         return
 
-    if not SETTINGS.get("meshtastic", {}).get("enabled", False):
-        log("MESHTASTIC", "Disabled in settings")
+    if not SETTINGS.get("traffic", {}).get(
+        "meshtastic_enabled",
+        False
+    ):
+        log(
+            "MESHTASTIC",
+            "Disabled in settings"
+        )
         return
 
     running = True

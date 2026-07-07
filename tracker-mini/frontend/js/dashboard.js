@@ -499,8 +499,20 @@ async function loadServices() {
 
         const data =
             await res.json();
-
         
+        window.services = data;
+        
+        if (
+            document
+                .getElementById("importDscModal")
+                ?.classList
+                .contains("open")
+        ) {
+
+            MISSION.dsc.updateStatus();
+
+        }
+
         let dscSyncEnabled = true;
         let dscPositionSource = "manual";
 

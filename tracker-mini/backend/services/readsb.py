@@ -1,9 +1,46 @@
 import subprocess
 
 from services.logger import log
+from config import SETTINGS, save_settings
+from pathlib import Path
+import time
 
 
 SERVICE_NAME = "readsb-local.service"
+
+
+def is_receiving():
+
+    try:
+
+        aircraft = Path(
+            "/run/readsb/aircraft.json"
+        )
+
+        if not aircraft.exists():
+            return False
+
+        age = (
+            time.time() -
+            aircraft.stat().st_mtime
+        )
+
+        return age < 30
+
+    except Exception:
+
+        return False
+    
+def is_config_enabled():
+
+    return SETTINGS.get(
+        "traffic",
+        {}
+    ).get(
+        "adsb_local_enabled",
+        False
+    )
+
 
 
 def is_enabled():
@@ -38,6 +75,10 @@ def is_enabled():
 
 
 def set_enabled(enabled):
+
+    SETTINGS["traffic"]["adsb_local_enabled"] = enabled
+
+    save_settings()
 
     try:
 
@@ -93,3 +134,13 @@ def set_enabled(enabled):
         )
 
         return False
+    
+
+def start():
+
+    return set_enabled(True)
+
+
+def stop():
+
+    return set_enabled(False)

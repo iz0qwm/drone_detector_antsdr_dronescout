@@ -135,11 +135,15 @@ MISSION.planning = {
                                 ✏ Rename mission
                             </button>
                             <hr>
-                            <button id="importGeoJsonBtn">
-                                📁 Import Layer
-                            </button>
                             <button id="newLayerBtn">
                                 ➕ New Object
+                            </button>
+                            <hr>
+                            <button id="importGeoJsonBtn">
+                                📁 Import GeoJSON
+                            </button>
+                            <button id="importDscZonesBtn">
+                                ☁ Import from Drone Sky Check
                             </button>
                             <hr>
                             <button
@@ -184,6 +188,21 @@ MISSION.planning = {
                     }
                 );
 
+            document
+                .getElementById(
+                    "importDscZonesBtn"
+                )
+                ?.addEventListener(
+                    "click",
+                    () => {
+
+                        MISSION.dsc.openImportDialog(
+                            mission.id
+                        );
+
+                    }
+                );
+                
             document
                 .getElementById(
                     "geojsonFileInput"
@@ -467,6 +486,10 @@ MISSION.planning = {
                         layer.id
                     );
 
+                const isDscLayer =
+                    layer.properties?.metadata?.source ===
+                    "dsc_zones";
+
                 const row =
                     document.createElement(
                         "div"
@@ -523,7 +546,8 @@ MISSION.planning = {
                         <button
                             class="btn-small"
                             data-action="shape"
-                            data-layer="${layer.id}">
+                            data-layer="${layer.id}"
+                            ${isDscLayer ? "disabled" : ""}>
 
                             🧭 Shape
 

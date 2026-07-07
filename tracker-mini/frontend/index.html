@@ -950,7 +950,101 @@
         </div>
 
     </div>
+    <div id="importDscModal" class="modal">
 
+        <div class="modal-content mission-modal">
+
+            <div class="modal-header">
+
+                <h2>Import from Drone Sky Check</h2>
+
+                <button id="closeImportDscModal">
+                    ✕
+                </button>
+
+            </div>
+            <div
+                id="dscImportStatus"
+                class="info-card">
+
+                Loading...
+
+            </div>
+
+            <div class="mission-import-help">
+
+                <b>Import Area</b>
+
+                <p>
+                    Use the map below to pan and zoom until the desired
+                    area is visible.
+                </p>
+
+                <p>
+                    When you press <b>Import</b>, all Drone Sky Check
+                    aeronautical zones currently visible in the map
+                    will be downloaded into the mission.
+                </p>
+
+                <p class="mission-import-warning">
+                    ℹ If this mission already contains a
+                    <b>Drone Sky Check Geozones</b> layer,
+                    it will be automatically replaced.
+                </p>
+
+            </div>
+
+            <div
+                id="dscImportPreview"
+                style="
+                    height:220px;
+                    border-radius:12px;
+                    overflow:hidden;
+                    margin-top:10px;
+                    margin-bottom:10px;
+                ">
+            </div>
+            <br><br>
+            <label class="mission-option">
+                <input
+                    id="dscSimplify"
+                    type="checkbox"
+                    checked>
+                Simplified geometry
+            </label>
+            <div
+                id="dscImportProgress"
+                class="dsc-import-progress"
+                style="display:none;">
+
+                <div class="dsc-spinner"></div>
+
+                <div
+                    id="dscImportProgressText"
+                    class="dsc-import-progress-text">
+                </div>
+
+            </div>
+            <div class="modal-buttons">
+
+                <button
+                    id="cancelImportDscBtn">
+
+                    Cancel
+
+                </button>
+                <button
+                    id="startImportDscBtn">
+
+                    Import
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
     <div id="missionTeamsModal" class="modal">
 
         <div class="modal-content mission-modal">
@@ -1156,6 +1250,7 @@
     <script src="js/missions/mission-teams.js"></script>
     <script src="js/missions/mission-draw.js"></script>
     <script src="js/missions/mission-toolbar.js"></script>
+    <script src="js/missions/mission-dsc.js"></script>
     <script src="js/missions/mission-controller.js"></script>
     <script src="js/missions.js"></script>
     <script src="js/drawer.js"></script>

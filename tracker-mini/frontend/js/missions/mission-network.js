@@ -209,22 +209,52 @@ MISSION.api = {
 
 
     async deleteMission(
-        missionId
+            missionId
+        ) {
+
+            const res = await fetch(
+
+                `/api/missions/${missionId}`,
+
+                {
+                    method: "DELETE"
+                }
+
+            );
+
+            return await res.json();
+
+        },
+
+        async importDscZones(
+        missionId,
+        options
     ) {
 
-        const res = await fetch(
+        const res =
+            await fetch(
 
-            `/api/missions/${missionId}`,
+                `/api/missions/${missionId}/import-dsc-zones`,
 
-            {
-                method: "DELETE"
-            }
+                {
+                    method: "POST",
 
-        );
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify(
+                        options
+                    )
+
+                }
+
+            );
 
         return await res.json();
 
-    },
+    }
 
 
 };

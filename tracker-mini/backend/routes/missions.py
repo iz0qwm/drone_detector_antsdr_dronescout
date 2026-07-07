@@ -12,7 +12,8 @@ from services.missions import (
     set_current_mission,
     delete_mission,
     update_mission,
-    import_geojson
+    import_geojson,
+    import_dsc_zones
 )
 
 from services.layer_storage import (
@@ -420,3 +421,83 @@ def api_update_mission(
         "success": True,
         "mission": mission
     })
+
+
+@missions_bp.route(
+    "/api/missions/<mission_id>/import-dsc-zones",
+    methods=["POST"]
+)
+def api_import_dsc_zones(
+    mission_id
+):
+
+    mission = get_mission(
+        mission_id
+    )
+
+    if mission is None:
+
+        return jsonify({
+            "success": False,
+            "message": "Mission not found"
+        }), 404
+
+    data = request.get_json() or {}
+
+    bbox = data.get("bbox")
+
+    if (
+        not isinstance(bbox, list)
+        or len(bbox) != 4
+    ):
+
+        return jsonify({
+            "success": False,
+            "message": (
+                "Invalid bbox. Expected "
+                "[minLat, minLon, maxLat, maxLon]"
+            )
+        }), 400
+
+    try:
+        bbox = [
+            float(x) for x in bbox
+        ]
+    except Exception:
+
+        return jsonify({
+            "success": False,
+            "message": "Invalid bbox values"
+        }), 400
+
+    min_lat, min_lon, max_lat, max_lon = bbox
+
+    if (
+        min_lat >= max_lat
+        or min_lon >= max_lon
+    ):
+
+        return jsonify({
+            "success": False,
+            "message": "Invalid bbox order"
+        }), 400
+
+    result = import_dsc_zones(
+        mission_id=mission_id,
+        bbox=bbox,
+        simplify=data.get(
+            "simplify",
+            True
+        ),
+        limit=data.get(
+            "limit",
+            500
+        ),
+        zone_type=data.get(
+            "type"
+        )
+    )
+
+    status = 200 if result.get("success") else 400
+
+    return jsonify(result), status

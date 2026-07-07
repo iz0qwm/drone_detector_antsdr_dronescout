@@ -8,7 +8,7 @@
 
 This document describes how operators use Mission Planning within Mini Tracker.
 
-Mission Planning allows the operator to select the active mission, review mission objects, display mission objects on the map, import GeoJSON layers and create or modify map objects for the current mission.
+Mission Planning allows the operator to select the active mission, review mission objects, display mission objects on the map, import GeoJSON or Drone Sky Check layers and create or modify map objects for the current mission.
 
 Mission objects are part of the operational map picture. They can represent areas, points, landing zones, buffers or other operational references used during field activity.
 
@@ -33,7 +33,7 @@ The Missions section provides access to:
 - Teams
 - Import / Export
 
-The current inspected Dashboard shows **Import / Export** as disabled. GeoJSON layer import is available from the active mission menu inside Mission Planning.
+The current inspected Dashboard shows **Import / Export** as disabled. GeoJSON and Drone Sky Check layer import are available from the active mission menu inside Mission Planning.
 
 ![Create Mission Panel](../images/user/mission-planning/user_mission-planning_create_mission_panel.png)
 
@@ -56,8 +56,9 @@ The active mission menu provides the available mission actions:
 | Action | Operational Use |
 |----------|------------------|
 | **Rename mission** | Change the mission name and description. |
-| **Import Layer** | Import a GeoJSON or JSON file as a mission layer. |
 | **New Object** | Start drawing a new mission object on the map. |
+| **Import GeoJSON** | Import a GeoJSON or JSON file as a mission layer. |
+| **Import from Drone Sky Check** | Download Drone Sky Check aeronautical zones for the selected map area. |
 | **Delete mission** | Delete the active mission after confirmation. |
 
 Deleting the active mission also clears the active mission selection.
@@ -107,15 +108,59 @@ Showing an object adds it to the map and centers the map around the object exten
 
 Mission object popups show the object name, type and description when available.
 
+Drone Sky Check layers are shown in the same mission object list, but their geometry is read-only. The **Shape** action is disabled for these layers.
+
 ---
 
 ## Importing GeoJSON Layers
 
-GeoJSON import is available from the active mission menu by selecting **Import Layer**.
+GeoJSON file import is available from the active mission menu by selecting **Import GeoJSON**.
 
 The import workflow accepts `.geojson` and `.json` files. The uploaded file is stored as a mission layer for the active mission and then appears in the mission object list.
 
 Imported layers are treated like other mission objects for map visibility, deletion and object list management.
+
+---
+
+## Importing Drone Sky Check Zones
+
+Drone Sky Check import is available from the active mission menu by selecting **Import from Drone Sky Check**.
+
+The import window shows the Drone Sky Check availability state and a preview map. The preview map follows the main operational map when the import window opens. The operator can pan and zoom the preview map to choose the area to import.
+
+When the operator selects **Import**, Mini Tracker downloads Drone Sky Check aeronautical zones visible in the preview map and stores them as a mission layer named **Drone Sky Check zones**.
+
+The import window includes:
+
+| Control | Operational Use |
+|----------|------------------|
+| **Import Area** | Shows the map area used for the Drone Sky Check request. |
+| **Simplified geometry** | Requests simplified geometry for the imported zones when enabled. |
+| **Import** | Starts the download and mission layer update. |
+| **Cancel** | Closes the import window without importing. |
+
+During import, the window shows progress messages while Mini Tracker connects to Drone Sky Check, downloads aeronautical areas and updates the mission.
+
+If the active mission already contains a Drone Sky Check zones layer, the existing layer is replaced by the new import. This prevents repeated imports from creating duplicate Drone Sky Check zone layers in the same mission.
+
+Drone Sky Check import requires Drone Sky Check availability. If the service is unavailable, the import action is disabled in the import window.
+
+---
+
+## Drone Sky Check Layers
+
+Imported Drone Sky Check zones are mission layers, but they behave differently from operator-created layers.
+
+| Behavior | Operator-Created Layer | Drone Sky Check Layer |
+|----------|------------------------|-----------------------|
+| Visibility | Can be shown or hidden. | Can be shown or hidden. |
+| Rename | Can be renamed from the mission object list. | Can be renamed from the mission object list. |
+| Delete | Can be deleted from the mission object list. | Can be deleted from the mission object list. |
+| Shape editing | Available through **Shape**. | Disabled. |
+| Geometry | Created or edited by the operator. | Downloaded from Drone Sky Check. |
+| Labels and measurements | Controlled from layer properties. | Disabled by default for imported zones. |
+
+Drone Sky Check zones use their own map styling. Selecting a zone on the map opens a popup with the zone name, type, lower limit and upper limit when those fields are present in the downloaded data.
 
 ---
 
@@ -150,6 +195,8 @@ In edit mode, the toolbar allows the operator to enable vertex editing and save 
 
 Closing the drawing toolbar cancels the active drawing or editing session.
 
+Geometry editing is not available for Drone Sky Check layers.
+
 ---
 
 ## Layer Properties
@@ -177,6 +224,8 @@ Available categories are:
 - Point of Interest
 
 Labels may include the object name and, when enabled, measurements for supported geometries such as circles and polygons.
+
+For Drone Sky Check layers, labels and measurements are disabled.
 
 ---
 
@@ -216,7 +265,7 @@ Recommended sequence:
 3. Select the mission that should be active for the operation.
 4. Review the current mission objects.
 5. Show only the mission objects required on the operational map.
-6. Import GeoJSON layers or draw new objects when additional references are required.
+6. Import GeoJSON layers, import Drone Sky Check zones or draw new objects when additional references are required.
 7. Confirm object labels, measurements and colors before using them during the operation.
 
 ---
@@ -227,7 +276,7 @@ Recommended sequence:
 - Use clear mission and object names so they can be recognized quickly in the object list and on the map.
 - Display only the mission objects needed for the current phase of the operation.
 - Use object categories consistently across missions.
-- Verify imported GeoJSON layers on the map before relying on them operationally.
+- Verify imported GeoJSON and Drone Sky Check layers on the map before relying on them operationally.
 - Use labels and measurements when they improve map interpretation, and disable them when the map becomes crowded.
 - Delete obsolete objects when they are no longer useful for the mission.
 
@@ -237,6 +286,9 @@ Recommended sequence:
 
 - Mission objects are stored as local mission layers.
 - GeoJSON import adds a layer to the active mission; it does not import a complete mission package.
+- Drone Sky Check import downloads aeronautical zones for the selected map area into the active mission.
+- Re-importing Drone Sky Check zones replaces the existing Drone Sky Check zones layer for that mission.
+- Drone Sky Check layers are read-only for geometry editing.
 - The Dashboard shows a mission creation dialog with name and description fields, while current planning operations are performed on missions available in the mission list.
 - The **Import / Export** button in the Missions drawer is currently disabled.
 - Mission object visibility is a display control and should not be used as confirmation that an object has been deleted.

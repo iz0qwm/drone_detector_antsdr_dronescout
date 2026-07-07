@@ -10,6 +10,7 @@ window.MISSION = window.MISSION || {};
 
         MISSION.toolbar.init();
         MISSION.layerProperties.init();
+        MISSION.dsc.init();
     }
 
     function bindButtons() {

@@ -73,12 +73,15 @@ async function(
     bounds
 ) {
 
-    const enabled =
-        localStorage.getItem(
+    const checkbox =
+        document.getElementById(
             "adsbLocalEnabled"
         );
 
-    if (enabled === "false") {
+    if (
+        checkbox &&
+        !checkbox.checked
+    ) {
         return [];
     }
 

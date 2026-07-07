@@ -15,6 +15,8 @@ from routes.gps import gps_bp
 from routes.readsb import readsb_bp
 from routes.meshtastic import meshtastic_bp
 from routes.notifications import notifications_bp
+from services.ui.lcd import lcd
+from services.readsb import start as start_readsb
 
 
 app = Flask(__name__, static_folder="../frontend", static_url_path="")
@@ -35,6 +37,7 @@ from routes.dsc import dsc_bp
 from services.dsc_heartbeat import (start_dsc_heartbeat)
 from routes.air_local import air_local_bp
 from routes.teams import teams_bp
+from services.meshtastic_service import start as start_meshtastic
 
 from config import SETTINGS
 
@@ -53,7 +56,8 @@ try:
 except Exception as e:
     print(f"Hotspot startup error: {e}")
 
-
+# Start services based on settings
+# RID
 try:
     if SETTINGS.get(
         "traffic",
@@ -64,8 +68,40 @@ try:
     ):
         print("Starting DS110 service...")
         start_ds110()
+
 except Exception as e:
     print(f"DS110 startup error: {e}")
+
+# Meshtastic
+try:
+
+    print("Starting Meshtastic service...")
+
+    start_meshtastic()
+
+except Exception as e:
+    print(f"Meshtastic startup error: {e}")
+
+# ReadSB    
+try:
+
+    if SETTINGS.get(
+        "traffic",
+        {}
+    ).get(
+        "adsb_local_enabled",
+        True
+    ):
+
+        print("Starting ADS-B receiver...")
+
+        start_readsb()
+
+except Exception as e:
+    print(f"ADS-B startup error: {e}")
+
+
+
 
 try:
     print("Starting DSC heartbeat...")
@@ -74,6 +110,13 @@ except Exception as e:
     print(
         f"DSC heartbeat startup error: {e}"
     )
+
+try:
+    print("Starting LCD service...")
+    lcd.start()
+except Exception as e:
+    print(f"LCD startup error: {e}")
+
 
 app.register_blueprint(
     update_bp,

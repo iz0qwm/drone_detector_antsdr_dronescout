@@ -16,6 +16,10 @@ MISSION.layerProperties = {
         this.currentMissionId = missionId;
         this.currentLayer = layer;
 
+        const isDscLayer =
+            layer?.properties?.metadata?.source ===
+            "dsc_zones";
+            
         document
             .getElementById(
                 "layerName"
@@ -49,15 +53,28 @@ MISSION.layerProperties = {
                 "layerShowLabel"
             )
             .checked =
-                layer?.properties?.showLabel ?? true;
+                isDscLayer
+                    ? false
+                    : (layer?.properties?.showLabel ?? true);
 
         document
             .getElementById(
                 "layerShowMeasurements"
             )
             .checked =
-                layer?.properties?.showMeasurements ?? true;
-                
+            isDscLayer
+                ? false
+                : (layer?.properties?.showMeasurements ?? true);
+
+        document.getElementById(
+            "layerShowLabel"
+        ).disabled = isDscLayer;
+
+        document.getElementById(
+            "layerShowMeasurements"
+        ).disabled = isDscLayer;
+
+
         document
             .getElementById(
                 "layerPropertiesModal"

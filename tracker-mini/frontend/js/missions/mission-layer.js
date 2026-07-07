@@ -4,6 +4,81 @@ MISSION.layers = {};
 
 MISSION.layer = {
 
+    getDscStyle(feature) {
+
+        const lower =
+            Number(
+                feature?.properties?.lowerLimit ?? -1
+            );
+
+        if (lower === 0) {
+
+            return {
+                color: "rgba(0,0,0,0.35)",
+                weight: 0.9,
+                fillColor: "#ff2a2a",
+                fillOpacity: 0.19
+            }
+
+        }
+
+        if (lower === 25) {
+
+            return {
+                color: "#222",
+                weight: 0.7,
+                fillColor: "#ff9800",
+                fillOpacity: 0.19
+            }
+
+        }
+
+        if (lower === 45) {
+
+            return {
+                color: "#222",
+                weight: 0.7,
+                fillColor: "#ffeb3b",
+                fillOpacity: 0.19
+            }
+
+        }
+
+        if (lower === 60) {
+
+            return {
+                color: "#222",
+                weight: 0.5,
+                fillColor: "#29b6f6",
+                fillOpacity: 0.18
+            }
+
+        }
+
+        if (lower === 120) {
+
+            return {
+                color: "#222",
+                weight: 0.7,
+                fillOpacity: 0
+            };
+
+        }
+
+        return {
+
+            color: "#222",
+
+            weight: 0.7,
+
+            fillColor: "#9e9e9e",
+
+            fillOpacity: 0.19
+
+        }
+
+    },
+
     buildLeafletLayer(layer) {
 
         if (!layer.geojson) {
@@ -42,7 +117,20 @@ MISSION.layer = {
         return L.geoJSON(
             feature,
             {
-                style: layer.style || {},
+                style: feature => {
+
+                    if (
+                        layer.properties?.metadata?.source ===
+                        "dsc_zones"
+                    ) {
+
+                        return this.getDscStyle(feature);
+
+                    }
+
+                    return layer.style || {};
+
+                },
 
                 onEachFeature: (
                     feature,
@@ -62,6 +150,13 @@ MISSION.layer = {
 
     },
     addLabel(layer, leafletLayer, feature) {
+
+        if (
+            layer.properties?.metadata?.source ===
+            "dsc_zones"
+        ) {
+            return;
+        }
 
         if (layer.properties?.showLabel === false) {
             return;
@@ -149,23 +244,32 @@ MISSION.layer = {
         return lines.join("<br>");
 
     },
-    addPopup(layer, leafletLayer) {
-
+    addPopup(layer, leafletLayer, feature) {
+        if (
+            layer.properties?.metadata?.source ===
+            "dsc_zones"
+        ) {
+            leafletLayer.bindPopup(`
+                <b>${feature.properties.name}</b>
+                <br>
+                ${feature.properties.type}
+                <br>
+                Lower:
+                ${feature.properties.lowerLimit} m
+                <br>
+                Upper:
+                ${feature.properties.upperLimit} m
+            `);
+            return;
+        }
         leafletLayer.bindPopup(`
-
             <b>${layer.name || "Mission Object"}</b>
-
             <br>
-
             Type:
             ${layer.type || "-"}
-
             <br>
-
             ${layer.properties?.description || ""}
-
         `);
-
     },
     decorate(layer, leafletLayer, feature) {
 
@@ -177,7 +281,8 @@ MISSION.layer = {
 
         this.addPopup(
             layer,
-            leafletLayer
+            leafletLayer,
+            feature
         );
 
     },
@@ -288,5 +393,5 @@ MISSION.layer = {
         });
 
     }
-
+    
 };

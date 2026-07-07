@@ -94,9 +94,30 @@ async function uploadAndVerifyPackage() {
             !verify.success
         ) {
 
-            status.innerHTML =
-                `<b>Verification failed</b><br>
-                Stage: ${verify.stage}`;
+            let details = "";
+
+            if (verify.details?.error) {
+                details = `<pre>${verify.details.error}</pre>`;
+            }
+            else if (verify.details?.errors) {
+                details =
+                    `<pre>${JSON.stringify(
+                        verify.details.errors,
+                        null,
+                        2
+                    )}</pre>`;
+            }
+            else if (verify.details?.missing) {
+                details =
+                    `<pre>${verify.details.missing.join("\n")}</pre>`;
+            }
+
+            status.innerHTML = `
+                <b>Verification failed</b><br>
+                Stage: ${verify.stage}
+                <br><br>
+                ${details}
+            `;
 
             return;
         }

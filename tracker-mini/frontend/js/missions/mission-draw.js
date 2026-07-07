@@ -266,7 +266,6 @@ MISSION.draw = {
         return null;
 
     },
-
     save() {
         MISSION.layerProperties.open(
             this.mode,
@@ -275,75 +274,45 @@ MISSION.draw = {
         );
         console.log("[DRAW] Save");
     },
-
     revert() {
         console.log("[DRAW] Revert");
-
         if (
             this.mode !== "edit-layer"
         ) {
             return;
         }
-
     },
-
     cancel() {
-
         console.log("[DRAW] Cancel");
-
         this.disableGeomanModes();
-
         if (this.drawnLayer) {
-
             window.airNodeMap.removeLayer(
                 this.drawnLayer
             );
-
         }
-
         this.drawnLayer = null;
         this.temporaryGeoJson = null;
-
         MISSION.toolbar.hide();
-
         this.resetSession();
     },
-
     resetSession() {
-
         this.mode = null;
-
         this.editingMissionId = null;
-
         this.editingLayer = null;
-
         this.leafletLayer = null;
-
         this.originalGeoJson = null;
-
         this.temporaryGeoJson = null;
-
         this.drawnLayer = null;
-
     }, 
-
     disableGeomanModes() {
-
         if (!window.airNodeMap?.pm) {
             return;
         }
-
         window.airNodeMap.pm.disableDraw();
-
         if (this.leafletLayer?.pm) {
             this.leafletLayer.pm.disable();
         }
-
     },
-
-    
-
-
 };
 
 
