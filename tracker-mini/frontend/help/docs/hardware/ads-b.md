@@ -158,7 +158,7 @@ Mini Tracker exposes ADS-B state through:
 | **ADS-B Local (RTL-SDR)** | Enables or disables the local readsb receiver service. |
 | **Show all aircraft over 1000m** | Allows higher non-helicopter aircraft to remain visible. |
 
-The Dashboard stores the network ADS-B display preference in browser local storage. Local ADS-B state is read from the backend and changing the local ADS-B checkbox sends a request to start or stop the readsb service.
+The Dashboard stores the network ADS-B display preference in browser local storage. Local ADS-B state is read from the backend and changing the local ADS-B checkbox sends a request to start or stop the readsb service. The local ADS-B enabled state is persisted in the Mini Tracker traffic configuration and applied during backend startup.
 
 The aircraft layer refreshes periodically and uses the current map bounds when requesting traffic. Moving or zooming the map changes the area used for ADS-B traffic requests.
 

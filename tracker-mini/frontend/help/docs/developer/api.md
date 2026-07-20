@@ -533,6 +533,23 @@ Deletes a layer.
 
 Response fields: `success`.
 
+### `POST /api/missions/<mission_id>/import-dsc-zones`
+
+Imports Drone Sky Check zones as a mission layer.
+
+Request JSON:
+
+| Field | Required | Description |
+|----------|----------|-------------|
+| `bbox` | Yes | Bounding box as `[minLat, minLon, maxLat, maxLon]`. |
+| `simplify` | No | Whether to request simplified geometry; defaults to true. |
+| `limit` | No | Maximum number of zones requested; defaults to 500. |
+| `type` | No | Optional zone type filter. |
+
+Response fields: `success`, `layer` when successful, or `success: false` and `message`.
+
+Invalid mission IDs return HTTP 404. Invalid bounding boxes return HTTP 400. If a DSC zones layer already exists in the mission, the backend replaces it before saving the new layer.
+
 ---
 
 ## Teams API
@@ -748,6 +765,8 @@ Request JSON:
 
 Response fields: `success`, `enabled`.
 
+The route also persists `SETTINGS["traffic"]["adsb_local_enabled"]` so backend startup can apply the selected local ADS-B state.
+
 ### `GET /api/meshtastic/nodes`
 
 Returns Meshtastic nodes.
@@ -777,6 +796,8 @@ Request JSON:
 | `enabled` | No | Boolean; defaults to true. |
 
 Response fields: `success`, `enabled`.
+
+The service start path still checks the persistent traffic configuration. If Meshtastic traffic is disabled in settings, the worker does not connect to the serial gateway.
 
 ### `POST /api/meshtastic/nodes/reset`
 

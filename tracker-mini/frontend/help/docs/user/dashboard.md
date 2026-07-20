@@ -193,6 +193,8 @@ This is useful when the operator needs to reduce map clutter, isolate a data sou
 
 Some controls affect only Dashboard visualization, while others control backend receiver services. Receiver availability still depends on the connected hardware and the current operating environment.
 
+The ADS-B Local control changes the local receiver service state on Mini Tracker. Network ADS-B and OGN controls are browser display preferences.
+
 ---
 
 ## System Controls
@@ -286,7 +288,7 @@ Recommended operational sequence:
 - The Dashboard refreshes system, service and network information periodically.
 - Offline maps remain available without Internet connectivity when installed for the operating area.
 - Online map sources and map downloads require Internet access.
-- Browser-local settings are used for selected map source, dark map mode and selected visualization toggles.
+- Browser-local settings are used for selected map source, dark map mode and selected visualization toggles. ADS-B Local service state is controlled by Mini Tracker rather than by browser-local storage.
 - Traffic visibility depends on source availability, receiver state, map position and filtering options.
 - Some Dashboard functions depend on connected hardware and active backend services.
 - System update, power actions, detailed hardware diagnostics and maintenance procedures should be used carefully during field operations because they may interrupt Dashboard availability.

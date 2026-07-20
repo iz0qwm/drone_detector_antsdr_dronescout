@@ -340,7 +340,7 @@ async function loadNetworkStatus() {
             ${adminLan.connected ? 'Connected' : 'Disconnected'}<br>
 
             <b>IP:</b>
-            192.168.1.115<br><br>
+            ${adminLan.ip || '---'}<br><br>
 
             <b>User LAN:</b>
             ${userLan.connected ? 'Connected' : 'Disconnected'}<br>
@@ -549,10 +549,7 @@ async function loadServices() {
 
         setLed(
             "ledAdsLocal",
-            (
-                data.ads_local &&
-                adsbLocalEnabled
-            )
+            data.ads_local
                 ? "green"
                 : "red"
         );
@@ -654,10 +651,7 @@ async function loadServices() {
 
                     <div class="service-item">
                         <span class="mini-led ${
-                            (
-                                data.ads_local &&
-                                adsbLocalEnabled
-                            )
+                            data.ads_local
                                 ? "mini-led-green"
                                 : "mini-led-red"
                         }"></span>

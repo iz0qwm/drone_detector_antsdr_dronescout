@@ -176,6 +176,34 @@ The backend reads the uploaded file as JSON and saves it as a layer with:
 
 The current implementation confirms layer import. It does not implement a complete mission export workflow.
 
+## Drone Sky Check Zone Imports
+
+The backend supports importing Drone Sky Check aeronautical zones into the selected mission.
+
+The route `/api/missions/<mission_id>/import-dsc-zones` accepts a JSON request with:
+
+- `bbox` as `[minLat, minLon, maxLat, maxLon]`
+- `simplify`
+- `limit`
+- optional `type`
+
+The backend downloads zones through `services/dsc_client.py` and saves the result as a layer with:
+
+- `name: "Drone Sky Check zones"`
+- `type: "geojson"`
+- `geometry: "feature_collection"`
+- `visible: true`
+- `locked: true`
+- `properties.source: "dsc"`
+- `properties.readonly: true`
+- `properties.dataset: "zones"`
+- `properties.metadata.source: "dsc_zones"`
+- `geojson` containing the downloaded FeatureCollection
+
+Before saving a new DSC zones layer, the backend deletes any existing layer in the same mission with `properties.source: "dsc"` and `properties.dataset: "zones"`. This keeps one current DSC zones layer per mission.
+
+The frontend treats DSC zone layers as non-editable geometry. The mission list disables shape editing for these layers, the properties dialog disables labels and measurements, and the map renderer applies DSC-specific styling and popups based on feature properties.
+
 ---
 
 ## Teams

@@ -55,6 +55,7 @@ flowchart TD
     ADSB["ADS-B Reception"]
     RID["Remote ID Reception"]
     Mesh["Meshtastic Gateway"]
+    LCD["LCD Status Display"]
 
     Dash["Dashboard"]
     Operator["Operator"]
@@ -66,6 +67,7 @@ flowchart TD
     ADSB --> Compute
     RID --> Compute
     Mesh --> Compute
+    Compute --> LCD
 
     Compute --> Dash
 
@@ -87,6 +89,7 @@ The hardware architecture is based on independent subsystems that contribute to 
 | **ADS-B Reception** | Supports awareness of aircraft equipped with ADS-B transmitters. |
 | **Remote ID Reception** | Supports awareness of drones transmitting supported Remote ID data. |
 | **Meshtastic Gateway** | Supports team awareness and operator positioning. |
+| **LCD Status Display** | Provides local boot and subsystem status information on the Mini Tracker unit. |
 | **Dashboard Integration** | Presents subsystem state and operational information through the operator interface. |
 
 These subsystems should be understood as parts of one integrated field device rather than as separate standalone projects.
@@ -174,6 +177,16 @@ The Meshtastic subsystem supports team awareness and operator positioning.
 When configured and available, Meshtastic information can help Mini Tracker display mission operator positions and node status as part of the operational picture.
 
 Meshtastic performance depends on gateway state, antenna placement, configured nodes and local radio conditions.
+
+---
+
+## LCD Status Display
+
+The LCD status display provides local visual feedback on the Mini Tracker unit.
+
+The current implementation supports a 20x4 I²C character display. During application startup, Mini Tracker shows a boot screen and then switches to a status screen that is refreshed by the backend LCD service.
+
+The status screen currently shows fields for local ADS-B, Remote ID, Meshtastic, IP and Access Point information. It is a local hardware status aid and does not replace the Dashboard.
 
 ---
 

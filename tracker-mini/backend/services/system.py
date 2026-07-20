@@ -1,6 +1,9 @@
 import psutil
 import socket
 import subprocess
+from time import sleep
+from services.ui.lcd import lcd
+
 
 def get_system_status():
     return {
@@ -37,6 +40,12 @@ def reboot_system():
 
 
 def shutdown_system():
+
+    try:
+        lcd.show_shutdown()
+        sleep(2)
+    except Exception:
+        pass
 
     subprocess.run(
         [

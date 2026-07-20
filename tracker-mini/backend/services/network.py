@@ -67,7 +67,35 @@ def has_internet():
         return False
 
 
+def get_admin_lan_status():
+    stats = psutil.net_if_stats()
+
+    eth_up = (
+        stats.get("eth0").isup
+        if "eth0" in stats
+        else False
+    )
+
+    eth_ips = get_interface_ipv4_addresses(
+        "eth0"
+    )
+
+    return {
+        "connected": (
+            eth_up and
+            ADMIN_LAN_IP in eth_ips
+        ),
+        "ip": (
+            ADMIN_LAN_IP
+            if ADMIN_LAN_IP in eth_ips
+            else None
+        )
+    }
+
+
 def get_network_status():
+    admin_lan = get_admin_lan_status()
+
     stats = psutil.net_if_stats()
 
     eth_up = (
@@ -103,10 +131,7 @@ def get_network_status():
     client_ssid = get_wifi_ssid(CLIENT_INTERFACE)
 
     return {
-        "admin_lan": {
-            "connected": eth_up,
-            "ip": ADMIN_LAN_IP
-        },
+        "admin_lan": admin_lan,
 
         "user_lan": {
             "connected": eth_up and user_lan_ip is not None,

@@ -59,19 +59,25 @@ flowchart TD
     Flask["Create Flask App"]
     Hotspot["Start Local Hotspot"]
     DS110["Start DS110 if Enabled"]
+    Mesh["Start Meshtastic if Enabled"]
+    Readsb["Start ADS-B Local if Enabled"]
     DSC["Start DSC Heartbeat"]
+    LCD["Start LCD Service"]
     Register["Register Blueprints"]
     Serve["Serve Dashboard and Help"]
 
     Start --> Flask
     Flask --> Hotspot
     Hotspot --> DS110
-    DS110 --> DSC
-    DSC --> Register
+    DS110 --> Mesh
+    Mesh --> Readsb
+    Readsb --> DSC
+    DSC --> LCD
+    LCD --> Register
     Register --> Serve
 ```
 
-Startup attempts are wrapped in `try` blocks and errors are printed. Startup failures for hotspot, DS110 or DSC heartbeat do not stop blueprint registration.
+Startup attempts are wrapped in `try` blocks and errors are printed. Startup failures for hotspot, traffic services, DSC heartbeat or LCD initialization do not stop blueprint registration.
 
 ---
 
@@ -157,7 +163,7 @@ flowchart TD
     Config --> Settings
 ```
 
-Routes that update DS110 or DSC settings mutate the shared `SETTINGS` object and then call `save_settings()`.
+Routes that update DS110, DSC or selected traffic settings mutate the shared `SETTINGS` object and then call `save_settings()`. The local ADS-B control route persists `SETTINGS["traffic"]["adsb_local_enabled"]`; backend startup reads the traffic flags before starting Remote ID, local ADS-B and Meshtastic services.
 
 ---
 

@@ -1,0 +1,23 @@
+# Mini Tracker backend runtime dependencies.
+# Built from backend imports and runtime hardware paths; Python standard
+# library modules are intentionally omitted.
+
+# Web API and HTTP integrations
+Flask
+Werkzeug
+requests
+
+# System status and operating system inspection
+psutil
+
+# Hardware and communication integrations
+pymavlink
+# Serial transport used by the DS110 and Meshtastic communication stacks.
+pyserial
+gpsd-py3
+meshtastic
+PyPubSub
+RPLCD
+# SMBus access used by the RPLCD I2C display path.
+smbus2
+gpiozero

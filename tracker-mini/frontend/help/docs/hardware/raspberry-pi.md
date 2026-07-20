@@ -36,6 +36,7 @@ It hosts the services that:
 - Communicate with the DS110 Remote ID receiver
 - Track local ADS-B decoder state
 - Communicate with the Meshtastic gateway when enabled
+- Drive the local LCD status display when available
 - Store configuration and map files
 - Report system, network, hardware and service status
 - Support update, backup and restore workflows
@@ -96,9 +97,51 @@ The current implementation interacts with the operating system through:
 | **Power control** | Uses operating system reboot and shutdown commands when requested from the Dashboard. |
 | **GPS service** | Reads GPS data from `gpsd` on `127.0.0.1:2947`. |
 | **Device filesystem** | Checks serial and network device paths such as `/dev/serial0`, `/dev/ttyACM*`, `/dev/ttyUSB*` and `/sys/class/net/wlan1`. |
+| **GPIO input** | Uses `gpiozero` for local input hardware when the rotary encoder is available. |
+| **I²C display** | Initializes the supported 20x4 LCD through the I²C interface when the display hardware and library are available. |
 | **System status** | Reads CPU, RAM, disk usage, uptime and hostname for Dashboard status. |
 
 These operating system interfaces are part of the Mini Tracker platform integration. Operators should normally verify their state from the Dashboard instead of using low-level operating system commands during field use.
+
+---
+
+## Python Runtime And GPIO Access
+
+Mini Tracker runs its backend inside a Python virtual environment.
+
+On the deployed Raspberry Pi, the virtual environment must be allowed to read Python packages installed by the operating system. The deployment virtual environment configuration file, `venv/pyvenv.cfg`, must contain:
+
+```ini
+include-system-site-packages = true
+```
+
+This setting is required because `gpiozero` uses the `lgpio` pin factory on the Raspberry Pi hardware. In the Mini Tracker deployment environment, `lgpio` is provided by the Raspberry Pi / Debian operating system package and is available as:
+
+```text
+/usr/lib/python3/dist-packages/lgpio.py
+```
+
+`lgpio` is therefore a system dependency, not a normal Python package managed by the Mini Tracker `requirements.txt` file.
+
+If the virtual environment is created with `include-system-site-packages = false`, `gpiozero` cannot see the operating-system `lgpio` module. In that condition it may fall back to the experimental native pin factory, and GPIO access can fail with errors such as:
+
+```text
+OSError: [Errno 22] Invalid argument
+```
+
+Maintainers can verify the active `gpiozero` pin factory from the Mini Tracker virtual environment with:
+
+```bash
+python -c "from gpiozero import RotaryEncoder, Device; e=RotaryEncoder(5,6,max_steps=0); print(Device.pin_factory); e.close()"
+```
+
+The expected result must indicate:
+
+```text
+gpiozero.pins.lgpio.LGPIOFactory
+```
+
+This confirms that `gpiozero` is using the Raspberry Pi `lgpio` backend instead of the native fallback.
 
 ---
 
@@ -116,6 +159,7 @@ The Raspberry Pi hosts the Mini Tracker application and supporting service workf
 | **GPS status** | Reads GPS fix, position, satellite and HDOP information from the local GPS service. |
 | **ADS-B local control** | Controls the local ADS-B receiver service and monitors decoder output. |
 | **Meshtastic integration** | Connects to the configured Meshtastic serial gateway when enabled. |
+| **LCD status display** | Shows a boot screen and then periodically refreshes a local hardware status screen. |
 | **Maps and storage** | Serves offline map tiles and reports map storage information. |
 | **Update workflow** | Handles update package upload, validation, backup, test install and install request creation. |
 | **System power controls** | Provides Dashboard actions to restart the application, reboot the Raspberry Pi or shut down the Raspberry Pi. |
@@ -148,6 +192,8 @@ The Raspberry Pi provides the hardware and operating system interfaces used by M
 | **Wi-Fi Client** | Uses `wlan1` when a Wi-Fi Client adapter is present. |
 | **USB / serial devices** | Supports serial-connected devices exposed through `/dev/ttyACM*`, `/dev/ttyUSB*` and `/dev/serial/by-id/*`. |
 | **GPIO / UART serial** | Supports the configured DS110 UART path `/dev/serial0` when the receiver is configured for UART operation. |
+| **GPIO input** | Supports the rotary encoder input through `gpiozero` when the optional local control hardware is present. |
+| **I²C display** | Supports the 20x4 PCF8574 LCD used for local Mini Tracker status feedback. |
 | **Local service interfaces** | Reads GPS from `gpsd` and ADS-B decoder state from `/run/readsb/aircraft.json`. |
 
 The current DS110 configuration uses the UART device path `/dev/serial0` at 115200 baud. The Dashboard also supports selecting USB or UART mode and choosing an available serial device path for the DS110 receiver.
@@ -214,7 +260,10 @@ The current implementation:
 
 - Starts the local Wi-Fi Access Point when it is not already active
 - Starts the DS110 Remote ID receiver worker when Remote ID is enabled in settings
+- Starts Meshtastic when Meshtastic traffic is enabled in settings
+- Starts the local ADS-B receiver service when local ADS-B traffic is enabled in settings
 - Starts the DSC heartbeat workflow
+- Starts the LCD background service
 - Registers the Dashboard and API routes
 - Serves the Dashboard and Help pages locally
 

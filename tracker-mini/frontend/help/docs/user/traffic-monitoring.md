@@ -262,6 +262,7 @@ Recommended sequence:
 ## Operational Notes
 
 - Local ADS-B requires the local receiver and decoder to be active.
+- The ADS-B Local control starts or stops the local receiver service on Mini Tracker.
 - Network ADS-B and OGN / FLARM information require Internet connectivity.
 - Remote ID visibility depends on receiver state, radio range and supported transmitted data.
 - Meshtastic visibility depends on gateway state, node availability and position data.

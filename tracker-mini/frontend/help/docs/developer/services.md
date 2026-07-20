@@ -57,6 +57,7 @@ flowchart TD
 | `air_network.py` | Network ADS-B fetch and merge from SolarMonitor, OGN-derived ADS-B and OpenSky. |
 | `ogn_network.py` | OGN / FLARM traffic fetch and filtering. |
 | `meshtastic_service.py` | Meshtastic serial gateway worker and node cache. |
+| `ui/lcd.py` | 20x4 I²C LCD service, boot screen and periodically refreshed hardware status screen. |
 | `teams.py` | Mission team status derived from mission team files and Meshtastic nodes. |
 | `notification_service.py` | In-memory notification records and operator message delivery through Meshtastic. |
 | `dsc_settings.py` | DSC settings read and update through `SETTINGS`. |
@@ -126,7 +127,8 @@ Several services create background threads.
 |----------|--------|------------|---------|
 | DS110 worker | `ds110.py` | `app.py` at startup when Remote ID is enabled, or `/api/ds110/enable` | Reads MAVLink messages from the configured DS110 device and updates Remote ID aircraft state. |
 | DSC heartbeat loop | `dsc_heartbeat.py` | `app.py` at startup | Posts tracker heartbeat data when synchronization and Internet connectivity are available. |
-| Meshtastic worker | `meshtastic_service.py` | `/api/meshtastic/enable` | Connects to the configured Meshtastic serial device, refreshes nodes and updates gateway position. |
+| Meshtastic worker | `meshtastic_service.py` | `app.py` at startup when Meshtastic traffic is enabled, or `/api/meshtastic/enable` when the traffic configuration permits startup | Connects to the configured Meshtastic serial device, refreshes nodes and updates gateway position. |
+| LCD worker | `ui/lcd.py` | `app.py` at startup | Shows the boot screen, then refreshes the hardware status screen once per second. |
 | Map download worker | `routes/maps.py` and `map_downloader.py` | `/api/maps/download` | Downloads map tiles and writes an MBTiles file while updating in-memory job progress. |
 
 ```mermaid
@@ -136,11 +138,13 @@ flowchart LR
     DS110["DS110 Thread"]
     DSC["DSC Heartbeat Thread"]
     Mesh["Meshtastic Thread"]
+    LCD["LCD Thread"]
     Download["Map Download Thread"]
 
     Flask --> DS110
     Flask --> DSC
     Flask --> Mesh
+    Flask --> LCD
     Flask --> Download
 ```
 
@@ -156,6 +160,7 @@ Some services keep live state in memory.
 |----------|---------------|
 | `ds110.py` | `remoteid_aircraft`, `running`, `thread`, `last_heartbeat`, `last_serial`. |
 | `meshtastic_service.py` | `meshtastic_nodes`, `running`, `thread`, `interface`, packet timing and last sent position. |
+| `ui/lcd.py` | LCD availability, page state, thread state and display status fields. |
 | `notification_service.py` | `notifications`, an in-memory list of notification records and send status. |
 | `map_downloader.py` | `_download_jobs` and `_download_lock`. |
 | `logger.py` | `_logs`, an in-memory deque limited to 2000 entries. |
@@ -174,6 +179,7 @@ The current threading model is simple:
 
 - Workers are daemon threads.
 - DS110 and Meshtastic workers use module-level `running` flags.
+- The LCD service owns its display refresh loop and updates its own screen state independently of Dashboard polling.
 - Map downloads use a thread per requested download job.
 - Download job state is protected by a `threading.Lock`.
 - Logs and most other in-memory state are module-level structures.
@@ -193,6 +199,7 @@ Several services call operating system tools or read operating system paths.
 | Access Point | `network_manager.py` | Starts hotspot mode on `wlan0`. |
 | Local ADS-B service | `readsb.py` | Uses `sudo systemctl start/stop/is-active readsb-local.service`. |
 | System power and restart | `system.py` | Uses `sudo systemctl restart tracker-mini.service`, `sudo /usr/sbin/reboot` and `sudo /usr/sbin/shutdown -h now`. |
+| LCD display | `ui/lcd.py` | Uses RPLCD `CharLCD` over I²C with PCF8574, address `0x27`, port `1`, 20 columns and 4 rows. |
 | Wi-Fi Client presence | `hardware.py` | Checks `/sys/class/net/wlan1`. |
 | Serial devices | `settings.py`, `hardware.py` | Uses `/dev/serial*`, `/dev/ttyACM*`, `/dev/ttyUSB*`, `/dev/ttyAMA*`, `/dev/ttyS*`. |
 | GPS | `gps.py` | Connects to gpsd and to `127.0.0.1:2947`. |
@@ -214,6 +221,7 @@ Hardware-facing services use the operating system as the boundary.
 | Meshtastic Gateway | Serial device configured in `SETTINGS["meshtastic"]["device"]`, read with `SerialInterface`. |
 | GPS | Local gpsd service. |
 | ADS-B Receiver | `readsb-local.service` and `/run/readsb/aircraft.json`. |
+| 20x4 I²C LCD | PCF8574 I²C character display initialized by `ui/lcd.py` when available. |
 | Network Interfaces | `eth0`, `wlan0` and `wlan1` through psutil and NetworkManager. |
 
 Services report operational state to the Dashboard through API endpoints. They do not expose a formal hardware object model.

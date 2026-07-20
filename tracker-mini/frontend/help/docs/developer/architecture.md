@@ -129,7 +129,10 @@ During startup, the backend attempts to:
 
 - Start the local Wi-Fi Access Point
 - Start the DS110 Remote ID worker when Remote ID is enabled in settings
+- Start the Meshtastic worker when Meshtastic traffic is enabled in settings
+- Start the local ADS-B receiver service when local ADS-B traffic is enabled in settings
 - Start the DSC heartbeat worker
+- Start the LCD background service
 - Register all API route blueprints
 - Serve the Dashboard at `/`
 - Serve Help pages under `/help/`
@@ -141,7 +144,10 @@ flowchart TD
 
     Hotspot["start_hotspot()"]
     DS110["start_ds110()"]
+    Mesh["start_meshtastic()"]
+    Readsb["start_readsb()"]
     Heartbeat["start_dsc_heartbeat()"]
+    LCD["lcd.start()"]
 
     Static["Static Dashboard"]
     Help["Generated Help Site"]
@@ -149,7 +155,10 @@ flowchart TD
 
     App --> Hotspot
     App --> DS110
+    App --> Mesh
+    App --> Readsb
     App --> Heartbeat
+    App --> LCD
     App --> Static
     App --> Help
     App --> Blueprints
@@ -301,6 +310,7 @@ flowchart TD
     DSC["dsc_heartbeat.py<br/>threaded worker"]
     Maps["map_downloader.py<br/>download worker threads"]
     Mesh["meshtastic_service.py<br/>threaded worker"]
+    LCD["ui/lcd.py<br/>threaded worker"]
     Notifications["notification_service.py"]
     Logs["logger.py<br/>in-memory deque"]
 
@@ -309,6 +319,7 @@ flowchart TD
     App --> DSC
     App --> Maps
     App --> Mesh
+    App --> LCD
     App --> Notifications
     App --> Logs
 
@@ -344,6 +355,7 @@ Mini Tracker interacts with hardware through operating system interfaces and loc
 | **DS110 Remote ID receiver** | `ds110.py` connects to the configured serial or UART device using pymavlink. |
 | **ADS-B receiver / decoder** | `readsb.py` controls `readsb-local.service`; `air_local.py` reads `/run/readsb/aircraft.json`. |
 | **Meshtastic gateway** | `meshtastic_service.py` connects to the configured serial device with `SerialInterface`. |
+| **20x4 I²C LCD** | `services/ui/lcd.py` initializes a 20x4 PCF8574 display at I²C address `0x27` when the RPLCD library and hardware are available. |
 | **Operating system status and control** | `system.py` uses `psutil` and hostname information and executes privileged restart, reboot and shutdown commands when requested. |
 
 The hardware abstraction layer is pragmatic. It reports availability and state through file paths, service status, receiver heartbeats and recent decoder output rather than through a formal device model.
@@ -435,6 +447,8 @@ flowchart TD
 ```
 
 Because the settings object is loaded into process memory, developers should treat direct file edits and runtime settings updates carefully.
+
+At startup, `backend/app.py` reads `SETTINGS["traffic"]` to decide whether to start selected traffic services. Confirmed startup flags include `remoteid_enabled`, `adsb_local_enabled` and `meshtastic_enabled`. Local ADS-B enable changes are persisted by the readsb service route through `save_settings()`.
 
 ---
 
@@ -531,7 +545,7 @@ Mini Tracker displays several categories of traffic and operational position dat
 | **Operator notifications** | `notification_service.py` | `frontend/js/missions/mission-teams.js` | Records notification state and sends operator messages through Meshtastic. |
 | **GPS node position** | `gps.py` and `dsc_settings.py` | `dashboard.js`, `drawer.js` | Supports Dashboard status, DSC position mode and Meshtastic gateway position updates. |
 
-Traffic source enablement is split between backend service state and frontend display preferences. Some display choices are stored in browser `localStorage`.
+Traffic source enablement is split between backend service state and frontend display preferences. Local ADS-B service control is read from the backend and persisted through the traffic configuration. Network ADS-B and OGN display choices remain browser-local preferences.
 
 ---
 

@@ -58,6 +58,8 @@ The Meshtastic gateway is treated as an external radio subsystem connected to Mi
 
 The current configuration identifies a serial device path and a Meshtastic node identity. The system uses this gateway to receive node information and to publish the Mini Tracker node position when position information is available.
 
+Backend startup attempts to start the Meshtastic worker through the persistent traffic configuration. If Meshtastic traffic is disabled in settings, the service does not connect to the configured serial gateway.
+
 Gateway operation depends on the configured device being present, the gateway being reachable and Meshtastic radio conditions in the field.
 
 ---

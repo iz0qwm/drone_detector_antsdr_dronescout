@@ -49,7 +49,6 @@ def is_enabled():
 
         result = subprocess.run(
             [
-                "/usr/bin/sudo",
                 "/usr/bin/systemctl",
                 "is-active",
                 SERVICE_NAME
