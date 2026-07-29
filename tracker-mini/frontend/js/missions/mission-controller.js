@@ -31,6 +31,11 @@ window.MISSION = window.MISSION || {};
         );
 
         bindButton(
+            "saveMissionBtn",
+            createMission
+        );
+
+        bindButton(
             "closeMissionPlanningModal",
             closeMissionPlanning
         );
@@ -97,6 +102,12 @@ window.MISSION = window.MISSION || {};
             "createMissionModal"
         );
 
+        document
+            .getElementById(
+                "missionName"
+            )
+            ?.focus();
+
     }
 
     function closeCreateMission() {
@@ -104,6 +115,100 @@ window.MISSION = window.MISSION || {};
         closeModal(
             "createMissionModal"
         );
+
+    }
+
+    async function createMission() {
+
+        const nameInput =
+            document.getElementById(
+                "missionName"
+            );
+
+        const descriptionInput =
+            document.getElementById(
+                "missionDescription"
+            );
+
+        const name =
+            (
+                nameInput?.value ||
+                ""
+            ).trim();
+
+        const description =
+            (
+                descriptionInput?.value ||
+                ""
+            ).trim();
+
+        if (!name) {
+
+            alert(
+                "Mission name required"
+            );
+
+            nameInput?.focus();
+
+            return;
+
+        }
+
+        try {
+
+            const result =
+                await MISSION.api.createMission({
+                    name,
+                    description
+                });
+
+            if (!result.success) {
+
+                alert(
+                    result.message ||
+                    "Unable to create mission"
+                );
+
+                return;
+
+            }
+
+            if (nameInput) {
+                nameInput.value = "";
+            }
+
+            if (descriptionInput) {
+                descriptionInput.value = "";
+            }
+
+            closeCreateMission();
+
+            await MISSION.api.selectMission(
+                result.mission.id
+            );
+
+            if (
+                document
+                    .getElementById(
+                        "missionPlanningModal"
+                    )
+                    ?.classList
+                    .contains("open")
+            ) {
+
+                await MISSION.planning.refresh();
+
+            }
+
+        } catch (err) {
+
+            console.error(err);
+
+            alert(
+                "Unable to create mission"
+            );
+
+        }
 
     }
 

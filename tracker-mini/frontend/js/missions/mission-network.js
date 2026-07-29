@@ -44,6 +44,28 @@ MISSION.api = {
 
     },
 
+    async createMission(
+        mission
+    ) {
+
+        const res = await fetch(
+            "/api/missions/create",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+                body: JSON.stringify(
+                    mission
+                )
+            }
+        );
+
+        return await res.json();
+
+    },
+
     async layers(missionId) {
 
         const res = await fetch(

@@ -47,7 +47,7 @@ def api_missions():
 )
 def api_create_mission():
 
-    data = request.get_json()
+    data = request.get_json() or {}
 
     name = (
         data.get("name")
