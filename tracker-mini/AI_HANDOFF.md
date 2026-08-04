@@ -137,11 +137,11 @@ Only one major Feature Spec should be actively implemented at a time unless the 
 
 ### MT-TRAFFIC-01 — Traffic Proximity Awareness
 
-Status: Planned
+Status: **Specified** — awaiting review
 Owner: Kiro
-Specification: Not created
-Working branch: Current repository branch
-Starting commit: To be recorded
+Specification: `.kiro/specs/traffic-proximity-awareness/` (requirements.md, design.md, tasks.md)
+Working branch: Current repository branch (main)
+Starting commit: To be recorded at implementation start
 Latest commit: Not started
 Push status: Not started
 
@@ -588,38 +588,33 @@ DSC integration test support: Not present
 ## Active Work Record
 
 ```text
-Task: Onboarding Inspection
-Feature: N/A (infrastructure)
+Task: Traffic Proximity Awareness — Feature Spec
+Feature: MT-TRAFFIC-01
 Owner: Kiro
 Working branch: main
-Starting commit: 512e341
-Latest commit: Pending (this workflow correction)
+Starting commit: ad28ed8
+Latest commit: Pending (spec creation)
 Push status: Pending
-Specification: N/A
-Status: In Progress
+Specification: .kiro/specs/traffic-proximity-awareness/
+Status: Spec created, awaiting Raffaello review
 Started: 2026-08-04
 Last updated: 2026-08-04
 
 Files modified:
-  .kiro/steering/product.md (created)
-  .kiro/steering/tech.md (created)
-  .kiro/steering/structure.md (created)
-  .kiro/steering/workflow.md (created)
-  .kiro/steering/hardware.md (created)
-  .kiro/steering/documentation.md (created)
-  .kiro/steering/lessons-learned.md (created)
+  .kiro/specs/traffic-proximity-awareness/requirements.md (created)
+  .kiro/specs/traffic-proximity-awareness/design.md (created)
+  .kiro/specs/traffic-proximity-awareness/tasks.md (created)
   AI_HANDOFF.md (updated)
-  AGENTS.md (collaboration section updated)
 
-Services affected: None
+Services affected: None (spec only)
 Hardware affected: None
 Shared contracts affected: None
 
-Tests completed: None (no test framework)
-Physical tests completed: Ping connectivity to 192.168.1.115 confirmed
-Known issues: SSH authentication pending — need credentials from Raffaello
-Rollback reference: N/A (no production changes)
-Next action: SSH inspection of physical Mini Tracker
+Tests completed: None (spec only, no code changes)
+Physical tests completed: None
+Known issues: None
+Rollback reference: ad28ed8 (no production changes)
+Next action: Raffaello reviews spec, then implementation begins
 ```
 
 ---

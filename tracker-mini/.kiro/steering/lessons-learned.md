@@ -37,6 +37,12 @@ Project-specific patterns, preferences, and lessons learned over time.
 - **Raffaello** è il proprietario del prodotto Mini Tracker. Approva requisiti, design, merge e operazioni distruttive sul device fisico.
 - Quando il codice dice "chiedi a Raffaello" si intende per decisioni di prodotto o accesso privilegiato al device. Il lavoro quotidiano di sviluppo è con Claudia.
 
+## Git Push Behavior in This Terminal
+
+- The first `git push` (without explicit `origin main`) works but produces no visible success output due to terminal echo noise.
+- A subsequent `git push origin main` reports "Everything up-to-date" because the first push already succeeded.
+- To confirm push success, check `git log --oneline -1` and verify that `origin/main` points to the expected commit hash. Don't rely on push command output in this terminal.
+
 ## Onboarding Dependency
 
 - Physical device inspection requires SSH access that cannot be automated without stored credentials.
