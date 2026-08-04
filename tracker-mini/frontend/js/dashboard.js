@@ -311,6 +311,12 @@ async function initMap() {
                 map
             );
         }
+
+        // Start proximity awareness
+        if (window.PROXIMITY && PROXIMITY.start) {
+            PROXIMITY.start(map);
+        }
+
         await applyMapSource();
 
     } catch(err) {

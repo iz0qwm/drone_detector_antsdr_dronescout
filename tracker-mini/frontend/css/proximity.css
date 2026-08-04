@@ -1,0 +1,146 @@
+/* Traffic Proximity Awareness styles */
+
+/* Nearby Traffic Panel */
+#proximityPanel {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(30, 30, 30, 0.92);
+    color: #fff;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+    font-size: 12px;
+    min-width: 280px;
+    max-width: 360px;
+    z-index: 1000;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    display: none;
+    pointer-events: auto;
+}
+
+.prox-panel-header {
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    color: #aaa;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 4px;
+}
+
+.prox-panel-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.prox-panel-entry {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.prox-panel-entry:hover {
+    background: rgba(255,255,255,0.08);
+}
+
+.prox-drone-label {
+    color: #ccc;
+    font-size: 11px;
+    min-width: 60px;
+}
+
+.prox-arrow {
+    color: #666;
+    font-size: 11px;
+}
+
+.prox-target-label {
+    color: #fff;
+    font-weight: 600;
+    min-width: 55px;
+}
+
+.prox-distance {
+    color: #ddd;
+    min-width: 50px;
+    text-align: right;
+}
+
+.prox-state-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 3px;
+    min-width: 28px;
+    text-align: center;
+}
+
+.prox-state-warning { background: #FF3B30; color: #fff; }
+.prox-state-caution { background: #FF9500; color: #fff; }
+.prox-state-monitor { background: #007AFF; color: #fff; }
+.prox-state-stale   { background: #555; color: #aaa; }
+
+.prox-trend {
+    font-size: 11px;
+    min-width: 24px;
+    text-align: center;
+}
+
+.prox-trend-apr { color: #FF3B30; font-weight: 700; }
+.prox-trend-div { color: #34C759; }
+.prox-trend-neutral { color: #8E8E93; }
+
+.prox-source {
+    font-size: 9px;
+    color: #666;
+    min-width: 30px;
+}
+
+.prox-panel-footer {
+    font-size: 9px;
+    color: #666;
+    margin-top: 6px;
+    padding-top: 4px;
+    border-top: 1px solid #333;
+    text-align: center;
+    font-style: italic;
+}
+
+/* Distance label on map */
+.proximity-label {
+    background: transparent;
+    border: none;
+}
+
+.prox-label-text {
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    font-family: -apple-system, monospace;
+}
+
+.prox-label-text.prox-warning { border: 1px solid #FF3B30; }
+.prox-label-text.prox-caution { border: 1px solid #FF9500; }
+.prox-label-text.prox-monitor { border: 1px solid #007AFF; }
+.prox-label-text.prox-stale   { border: 1px solid #8E8E93; }
+
+/* Warning pulse animation (subtle) */
+@keyframes prox-pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.prox-ring-pulse {
+    animation: prox-pulse 2s ease-in-out infinite;
+}

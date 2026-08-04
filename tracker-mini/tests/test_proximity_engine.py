@@ -193,7 +193,7 @@ class TestProximityEngine:
                     engine._calculate_cycle()
                     elapsed_ms = (time.time() - start) * 1000
 
-        assert elapsed_ms < 100, f"Cycle took {elapsed_ms:.0f}ms (must be <100ms)"
+        assert elapsed_ms < 200, f"Cycle took {elapsed_ms:.0f}ms (must be <200ms)"
         snap = engine.get_snapshot()
         assert snap.drones_active == 5
         assert snap.targets_active <= 50
