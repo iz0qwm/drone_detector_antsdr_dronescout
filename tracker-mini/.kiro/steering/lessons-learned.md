@@ -68,6 +68,16 @@ Critical for any feature working with multiple traffic sources:
 - This means any new backend feature that needs to know whether the user wants ADSBNet (like the proximity engine) must have its OWN configuration flag (e.g., `proximity.adsb_net_enabled`).
 - Do not assume the backend can read the frontend localStorage preference.
 - This pattern may apply to OGN as well (`localStorage("ognNetworkEnabled")` — same frontend-only toggle pattern).
+- **UPDATE**: MT-TRAFFIC-01 introduces a unified `settings.traffic.adsb_net_enabled` backend setting with migration from localStorage. Once implemented, this replaces the localStorage-only pattern.
+
+## Updater Deployment Scope
+
+- The Mini Tracker updater deploys ONLY `backend/` and `frontend/`.
+- `config/settings.json` is NEVER overwritten by updates — it stays on the device.
+- Every new configuration key must have a code-defined default in backend Python.
+- Missing config sections must be handled gracefully (merged with defaults, no crash).
+- Tests, specs, pytest.ini, .kiro/ files are development-only and not deployed.
+- Before finishing any feature: mentally verify that removing everything outside `backend/` + `frontend/` would not break the running application.
 
 ## Onboarding Dependency
 
