@@ -38,6 +38,8 @@ This file does not replace:
 
 Primary development agent: Kiro
 
+Kiro is the only development agent working on Mini Tracker during this phase.
+
 Kiro may:
 
 * inspect the entire Mini Tracker workspace under tracker-mini;
@@ -45,23 +47,18 @@ Kiro may:
 * modify backend and frontend code;
 * add and update tests;
 * update documentation;
-* create focused development branches;
+* commit directly on the current branch;
+* push completed and tested work to the current remote branch;
 * connect to the physical Mini Tracker through the LAN;
-* deploy approved development branches to the staging installation;
-* execute hardware validation;
-* prepare commits for review.
+* deploy committed versions to the staging installation;
+* execute hardware validation.
 
 Raffaello remains responsible for:
 
 * approving requirements and design decisions;
 * approving potentially destructive system operations;
 * validating operational behavior;
-* approving merges into the stable branch;
 * deciding when a feature is ready for operational use.
-
-Codex is not currently working on the Mini Tracker repository.
-
-No file ownership split between Kiro and Codex is required during this phase.
 
 ---
 
@@ -89,38 +86,38 @@ Differences between repository code, documentation and deployed behavior must be
 
 ### Phase: Repository and Device Onboarding
 
-Status: Planned
+Status: **In Progress** — local workspace inspection complete, physical device inspection pending SSH credentials.
 
-The initial task is to inspect:
+Completed:
 
-* Mini Tracker workspace architecture;
-* backend services;
-* frontend structure;
-* application startup;
-* hardware integrations;
-* network configuration;
-* traffic ingestion;
-* Meshtastic integration;
-* DSC communication;
-* persistence;
-* logging;
-* tests;
-* physical Mini Tracker deployment.
+* Local workspace structure inspected
+* Backend architecture understood (Flask + service modules + threaded workers)
+* Frontend architecture understood (static JS + Leaflet + polling)
+* Configuration system documented
+* Hardware integration points identified from source code
+* Six steering files created under `.kiro/steering/`
+* Git repository state verified
+* Mini Tracker reachable on LAN (ping OK to 192.168.1.115)
 
-No new production feature should be implemented before the onboarding inspection and steering documentation have been reviewed.
+Pending:
+
+* SSH access to physical device for runtime inspection
+* Comparison of deployed code vs repository
+* Physical hardware verification (serial devices, I2C, GPIO, services)
+* Staging environment verification
 
 Expected outputs:
 
-* `.kiro/steering/product.md`;
-* `.kiro/steering/tech.md`;
-* `.kiro/steering/structure.md`;
-* `.kiro/steering/workflow.md`;
-* `.kiro/steering/hardware.md`;
-* `.kiro/steering/documentation.md`;
-* repository and deployment comparison;
-* recommended staging workflow;
-* recommended rollback workflow;
-* first Feature Spec scope.
+* `.kiro/steering/product.md` ✓
+* `.kiro/steering/tech.md` ✓
+* `.kiro/steering/structure.md` ✓
+* `.kiro/steering/workflow.md` ✓
+* `.kiro/steering/hardware.md` ✓
+* `.kiro/steering/documentation.md` ✓
+* repository and deployment comparison — pending SSH
+* recommended staging workflow — documented in workflow.md
+* recommended rollback workflow — documented in workflow.md
+* first Feature Spec scope — Traffic Proximity Awareness
 
 ---
 
@@ -143,7 +140,10 @@ Only one major Feature Spec should be actively implemented at a time unless the 
 Status: Planned
 Owner: Kiro
 Specification: Not created
-Implementation branch: Not created
+Working branch: Current repository branch
+Starting commit: To be recorded
+Latest commit: Not started
+Push status: Not started
 
 Goal:
 
@@ -179,7 +179,10 @@ The feature must be described as informational and non-certified.
 Status: Planned
 Owner: Kiro
 Specification: Not created
-Implementation branch: Not created
+Working branch: Current repository branch
+Starting commit: To be recorded
+Latest commit: Not started
+Push status: Not started
 
 Goal:
 
@@ -224,7 +227,10 @@ The design must account for:
 Status: Planned
 Owner: Kiro
 Specification: Not created
-Implementation branch: Not created
+Working branch: Current repository branch
+Starting commit: To be recorded
+Latest commit: Not started
+Push status: Not started
 
 Goal:
 
@@ -271,35 +277,56 @@ The Mini Tracker–DSC data contract must be reviewed before implementation begi
 
 ## Repository Workflow
 
-All source code changes must be made in the development clone of the repository.
+All source code changes must be made in the local development clone of the repository.
 
 Do not use the physical Mini Tracker as the primary code-editing environment.
 
-For each major feature:
+### Before beginning a development task
 
-1. create or update its Feature Spec;
-2. review requirements;
-3. review technical design;
-4. review implementation tasks;
-5. create a dedicated Git branch;
-6. implement focused tasks;
-7. run development-machine tests;
-8. create a commit;
-9. deploy the committed branch to the staging installation;
-10. run physical hardware tests;
-11. record the results in this file;
-12. merge only after approval.
+1. Verify the current branch.
+2. Verify the current commit.
+3. Record the commit as the stable starting point.
+4. Verify that there are no unrelated local modifications.
+5. Pull the latest changes from the current remote branch.
+6. Confirm that the local branch is synchronized with the remote branch.
 
-Recommended branch names:
+### For every feature or meaningful task
 
-```text
-feature/traffic-proximity-awareness
-feature/meshtastic-operational-network
-feature/dsc-operational-area-sync
-fix/<short-description>
+1. Read the relevant Feature Spec.
+2. Implement the work incrementally.
+3. Create small and focused commits.
+4. Run all relevant available tests.
+5. Perform physical Mini Tracker validation when required.
+6. Update documentation when required.
+7. Update `AI_HANDOFF.md`.
+8. Push the completed and tested commits to the current remote branch.
+
+A separate feature branch is not required. Kiro works directly on the current checked-out branch.
+
+Raffaello retrieves completed work using a normal `git pull`.
+
+### Git safety
+
+The following are strictly prohibited:
+
+* `git push --force` or any force-push variant;
+* rewriting, rebasing or amending already pushed commits;
+* deleting remote history;
+* staging files outside `tracker-mini`;
+* committing credentials, passwords, tokens or device-specific secrets;
+* mixing unrelated changes in one commit;
+* using repository-wide `git add -A` or `git commit -a`.
+
+Because `tracker-mini` is inside a larger Git repository, always use workspace-scoped commands:
+
+```bash
+git status --short -- .
+git diff -- .
+git diff --cached -- .
+git add -- .
 ```
 
-Do not make unrelated refactoring changes inside feature branches.
+Before every commit and push, verify that every changed or staged file belongs to `tracker-mini`.
 
 ---
 
@@ -429,10 +456,9 @@ Read-only inspection commands do not require separate approval unless they expos
 
 Before every physical deployment, record:
 
-* stable branch;
-* stable commit;
-* staging branch;
-* staging commit;
+* current branch;
+* stable commit (the commit running on the device before deployment);
+* deployment commit (the commit being deployed);
 * services that will be stopped;
 * services that will be started;
 * configuration files affected;
@@ -447,6 +473,8 @@ Rollback is complete only when:
 * the dashboard is reachable;
 * critical services report the expected state;
 * no new persistent error remains in the logs.
+
+The physical staging installation (`/home/pi/tracker-mini-staging`) may be used when safe and practical for hardware testing. It does not require a separate Git branch. A committed version from the current branch may be deployed to the staging installation.
 
 ---
 
@@ -489,10 +517,16 @@ Documentation must:
 
 The following decisions are currently approved:
 
-* Kiro is the primary Mini Tracker development agent for this phase.
+* Kiro is the only Mini Tracker development agent during this phase.
+* Kiro works directly on the current repository branch.
+* Separate feature branches are not required.
+* Work is divided through Feature Specs and focused commits.
+* Completed and tested work is pushed to the current remote branch.
+* Raffaello synchronizes through a normal `git pull`.
+* Pushed history must never be rewritten.
 * Major features must use separate Feature Specs.
 * Features will be developed sequentially.
-* Development changes are made in the Git clone.
+* Development changes are made in the local Git clone.
 * The physical Mini Tracker is used for integration and hardware validation.
 * Direct source-code editing on the physical tracker is discouraged.
 * Hardware configuration changes require explicit review.
@@ -506,31 +540,29 @@ The following decisions are currently approved:
 
 ## Current Deployment Status
 
-Repository remote: To be verified
-Development branch: To be verified
-Development commit: To be verified
-Physical deployment path: To be verified
-Physical branch: To be verified
-Physical commit: To be verified
-Python version: To be verified
-Operating system: To be verified
-Service manager: To be verified
-Staging environment: To be defined
-
-Kiro must replace these placeholders after the onboarding inspection.
+Repository remote: `https://github.com/iz0qwm/drone_detector_antsdr_dronescout`
+Development branch: `main`
+Development commit: `512e341` ("modifiche per kiro")
+Physical deployment path: `/home/pi/tracker-mini` (to be verified via SSH)
+Physical branch: To be verified via SSH
+Physical commit: To be verified via SSH
+Python version: To be verified via SSH
+Operating system: Raspberry Pi OS (Debian-based, to be confirmed via SSH)
+Service manager: systemd (`tracker-mini.service`)
+Staging environment: Not yet created
 
 ---
 
 ## Test Status
 
-Automated test framework: To be verified
-Backend tests: To be verified
-Frontend tests: To be verified
-Hardware mocks: To be verified
+Automated test framework: **None** — no test files exist in the repository
+Backend tests: Not present
+Frontend tests: Not present
+Hardware mocks: Not present
 Physical integration tests: Not started
-Traffic simulation tools: To be verified
-Meshtastic test support: To be verified
-DSC integration test support: To be verified
+Traffic simulation tools: Not present
+Meshtastic test support: Not present
+DSC integration test support: Not present
 
 ---
 
@@ -547,35 +579,47 @@ DSC integration test support: To be verified
 * Device-specific configuration must not be committed.
 * Operational warnings must avoid creating a false impression of certification.
 * DSC operational areas must remain clearly distinct from official airspace data.
+* No automated tests exist — all validation is manual.
+* Application logs are in-memory only (lost on restart).
+* Flash storage is the single point of persistence (power loss risk).
 
 ---
 
 ## Active Work Record
 
-No active implementation task has been started.
-
-When work begins, add an entry using this format:
-
 ```text
-Task:
-Feature:
-Owner:
-Branch:
-Specification:
-Status:
-Started:
-Last updated:
+Task: Onboarding Inspection
+Feature: N/A (infrastructure)
+Owner: Kiro
+Working branch: main
+Starting commit: 512e341
+Latest commit: Pending (this workflow correction)
+Push status: Pending
+Specification: N/A
+Status: In Progress
+Started: 2026-08-04
+Last updated: 2026-08-04
 
 Files modified:
-Services affected:
-Hardware affected:
-Shared contracts affected:
+  .kiro/steering/product.md (created)
+  .kiro/steering/tech.md (created)
+  .kiro/steering/structure.md (created)
+  .kiro/steering/workflow.md (created)
+  .kiro/steering/hardware.md (created)
+  .kiro/steering/documentation.md (created)
+  .kiro/steering/lessons-learned.md (created)
+  AI_HANDOFF.md (updated)
+  AGENTS.md (collaboration section updated)
 
-Tests completed:
-Physical tests completed:
-Known issues:
-Rollback reference:
-Next action:
+Services affected: None
+Hardware affected: None
+Shared contracts affected: None
+
+Tests completed: None (no test framework)
+Physical tests completed: Ping connectivity to 192.168.1.115 confirmed
+Known issues: SSH authentication pending — need credentials from Raffaello
+Rollback reference: N/A (no production changes)
+Next action: SSH inspection of physical Mini Tracker
 ```
 
 ---

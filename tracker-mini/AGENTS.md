@@ -136,14 +136,20 @@ Do not begin implementation until the specification has been reviewed when the t
 
 ## Collaboration
 
-Multiple coding agents may work on the repository.
+Kiro is currently the primary and only Mini Tracker development agent.
+
+A dedicated feature branch is not required. Work is performed directly on the current checked-out branch.
+
+Commits must remain small and focused.
+
+Pushed history must not be rewritten.
+
+All Git operations must remain limited to `tracker-mini`.
 
 Before modifying files:
 
 * inspect `AI_HANDOFF.md`;
-* avoid files owned by another active task;
-* do not alter shared contracts without documenting the change;
-* keep task scope and branch ownership clear.
+* verify no unrelated local modifications exist.
 
 After completing meaningful work, update `AI_HANDOFF.md` with:
 
