@@ -151,26 +151,54 @@ The proximity engine runs in the **backend** (Python).
 
 ### 2.2 Module Structure
 
+**Runtime files (deployed by updater)**:
 ```
 backend/services/proximity/
 ├── __init__.py
-├── engine.py           # Main evaluation loop, pair management
+├── engine.py           # Main evaluation loop, managed worker
+├── adsb_net_cache.py   # ADSBNet snapshot cache worker
 ├── normalize.py        # Aircraft normalization, deduplication, source merge
 ├── calc.py             # Haversine, bounding-box filter
 ├── state.py            # State machine, hysteresis, stale lifecycle
 ├── trend.py            # Movement trend analysis
-└── config.py           # Proximity configuration access
+└── config.py           # Code-defined defaults, config access
 
 backend/routes/
-└── proximity.py        # API: GET /api/proximity/status
+└── proximity.py        # API: config + status endpoints
 
 frontend/js/proximity/
 ├── proximity-controller.js  # Poll API, manage lifecycle
 ├── proximity-layer.js       # Leaflet objects (lines, rings, labels)
 └── proximity-panel.js       # Nearby-traffic panel
+
 frontend/css/
 └── proximity.css            # Proximity styles
+
+frontend/help/docs/          # Documentation (deployed)
 ```
+
+**Development-only files (NOT deployed)**:
+```
+tests/
+├── conftest.py
+├── requirements-dev.txt
+├── test_proximity_calc.py
+├── test_proximity_normalize.py
+├── test_proximity_stale.py
+├── test_proximity_config.py
+├── test_proximity_state.py
+├── test_proximity_trend.py
+├── test_proximity_engine.py
+├── test_proximity_source_switching.py
+├── test_proximity_hysteresis.py
+├── test_proximity_integration.py
+└── fixtures/
+
+.kiro/specs/                  # Feature specs
+pytest.ini                    # Test configuration
+```
+
+**Deployment verification**: Removing all development-only files must not prevent the feature from operating. The deployed runtime is complete using only `backend/` and `frontend/`.
 
 ### 2.3 Architecture Diagram
 
@@ -588,20 +616,27 @@ One critical pair involving Drone-B must not be hidden because Drone-A is curren
 
 ## 12. Configuration
 
-Add `proximity` section to `config/settings.json`:
+### Runtime Deployment Rule
 
-```json
-{
-  "proximity": {
-    "enabled": true,
+The Mini Tracker updater deploys only `backend/` and `frontend/`. All runtime files required for this feature must reside in those directories.
+
+Configuration defaults and backward-compatible handling are implemented **inside backend code** (in `backend/services/proximity/config.py`). The feature does NOT require the updater to distribute a modified `config/settings.json`.
+
+### Configuration Strategy
+
+```python
+# backend/services/proximity/config.py
+
+PROXIMITY_DEFAULTS = {
+    "enabled": True,
     "evaluation_radius_m": 10000,
     "thresholds": {
-      "monitor_entry_m": 3000,
-      "monitor_exit_m": 3300,
-      "caution_entry_m": 1500,
-      "caution_exit_m": 1800,
-      "warning_entry_m": 500,
-      "warning_exit_m": 700
+        "monitor_entry_m": 3000,
+        "monitor_exit_m": 3300,
+        "caution_entry_m": 1500,
+        "caution_exit_m": 1800,
+        "warning_entry_m": 500,
+        "warning_exit_m": 700,
     },
     "aircraft_source_stale_ms": 30000,
     "drone_stale_ms": 15000,
@@ -614,47 +649,59 @@ Add `proximity` section to `config/settings.json`:
     "movement_deadband_m": 50,
     "movement_history_window_s": 15,
     "source_precedence_tie_window_s": 3,
-    "pulse_on_warning": true
-  }
+    "pulse_on_warning": True,
 }
+
+def get_proximity_config():
+    """Returns merged config: settings.json values override code defaults."""
+    from config import SETTINGS
+    saved = SETTINGS.get("proximity", {})
+    merged = {**PROXIMITY_DEFAULTS, **saved}
+    # Deep-merge thresholds
+    merged["thresholds"] = {
+        **PROXIMITY_DEFAULTS["thresholds"],
+        **saved.get("thresholds", {})
+    }
+    return merged
 ```
 
-### ADSBNet Enable in Proximity Context
+### Behavior on Existing Installations
 
-**Unified authoritative setting**: This feature introduces `settings.traffic.adsb_net_enabled` as the single authoritative backend ADSBNet preference, shared by:
-- The proximity engine
-- The existing ADSBNet traffic display (frontend migrated to read/write this setting)
-- Future Meshtastic consumers
-- Diagnostics
+1. If `settings.json` has no `proximity` section → code defaults used, application starts normally
+2. If `settings.json` has a partial `proximity` section → missing keys filled from defaults
+3. The configuration API (`POST /api/proximity/config`) persists the section via `save_settings()`
+4. Existing unrelated settings values remain unchanged
+5. No manual file copy required after update
 
-**Migration from localStorage**:
-1. On first use after upgrade, if `settings.traffic.adsb_net_enabled` does not exist in `settings.json`:
-   - The frontend reads the existing `localStorage("adsbNetworkEnabled")` value
-   - POSTs it to the new backend setting endpoint
-   - The backend persists it to `settings.json`
-   - The frontend removes the localStorage key
-2. After migration, the backend setting is authoritative
-3. The frontend toggle reads/writes via API (`GET/POST /api/settings/traffic`)
-4. A user who previously disabled ADSBNet will NOT have it silently re-enabled
-5. New installations: ADSBNet defaults to **disabled** (conservative default for a field device)
+### ADSBNet Unified Setting
 
-**Runtime behavior**:
-- If `adsb_net_enabled` = false: proximity engine and frontend skip ADSBNet entirely
-- If `adsb_net_enabled` = true but Internet unavailable: ADSBNet becomes OFFLINE automatically, no config change
-- If Internet returns: ADSBNet resumes without restart
+The unified `traffic.adsb_net_enabled` setting follows the same pattern:
 
-This replaces the previous `proximity.adsb_net_enabled` field. The `proximity` config section does NOT contain an ADSBNet toggle.
+```python
+TRAFFIC_DEFAULTS = {
+    "remoteid_enabled": True,
+    "adsb_local_enabled": True,
+    "adsb_net_enabled": False,   # conservative default for new installs
+    "meshtastic_enabled": False,
+}
 
-### Default Handling
+def get_traffic_config():
+    from config import SETTINGS
+    return {**TRAFFIC_DEFAULTS, **SETTINGS.get("traffic", {})}
+```
 
-If `settings.json` has no `proximity` section, the engine uses the defaults above. No crash or error on first run.
+### What is NOT in `config/settings.json` at deploy time
+
+The updater does NOT deploy `config/settings.json`. The file remains on the device untouched. All new keys are optional and have code-defined defaults.
 
 ### API
 
 ```
-GET  /api/proximity/config    → returns proximity configuration
-POST /api/proximity/config    → updates and persists
-GET  /api/proximity/status    → returns current proximity results (the main polling endpoint)
+GET  /api/proximity/config    → returns merged proximity configuration
+POST /api/proximity/config    → validates, merges into SETTINGS["proximity"], calls save_settings()
+GET  /api/settings/traffic    → returns merged traffic configuration
+POST /api/settings/traffic    → validates, merges into SETTINGS["traffic"], calls save_settings()
+GET  /api/proximity/status    → returns current proximity results (main polling endpoint)
 ```
 
 ---

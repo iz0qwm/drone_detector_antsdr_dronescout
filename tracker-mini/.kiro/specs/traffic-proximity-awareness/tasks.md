@@ -160,39 +160,44 @@ python -m pytest tests -k performance --timeout=60 -v
 
 ## Task 5: Configuration and ADSBNet Setting Migration
 
-**Objective**: Add proximity configuration and unify ADSBNet preference as authoritative backend setting.
+**Objective**: Implement code-defined proximity defaults, ADSBNet unified setting, and configuration API.
 
 **Files affected**:
-- `config/settings.json` (add `proximity` section + `traffic.adsb_net_enabled`)
-- `backend/services/proximity/config.py` (new)
-- `backend/routes/proximity.py` (new, config endpoints)
+- `backend/services/proximity/config.py` (new — code-defined defaults + get/update logic)
+- `backend/routes/proximity.py` (new, config + status endpoints)
 - `backend/routes/settings.py` (extend: `GET/POST /api/settings/traffic`)
 - `frontend/js/dashboard.js` (migrate localStorage → backend setting on first load)
-- `frontend/js/air/air-network.js` (read enable from backend instead of localStorage)
+- `frontend/js/air/air-network.js` (read enable from backend API instead of localStorage)
 - `tests/test_proximity_config.py` (new)
 
 **Dependencies**: None (parallel with Tasks 2-4)
 
 **Work**:
-- Add `traffic.adsb_net_enabled` to `settings.json` (default: `false` for new installs)
-- Add `proximity` section with defaults (no `adsb_net_enabled` inside proximity)
-- Implement `get_proximity_config()` with fallback defaults
-- Implement `update_proximity_config(data)` with validation
-- Add `GET/POST /api/settings/traffic` for ADSBNet enable (shared setting)
+- Implement `PROXIMITY_DEFAULTS` dict in `backend/services/proximity/config.py`
+- Implement `get_proximity_config()` that merges `SETTINGS.get("proximity", {})` over defaults
+- Implement `TRAFFIC_DEFAULTS` with `adsb_net_enabled: False`
+- Implement `get_traffic_config()` that merges `SETTINGS.get("traffic", {})` over traffic defaults
+- Implement `update_proximity_config(data)` with validation, calls `save_settings()`
+- Add `GET/POST /api/settings/traffic` routes
 - Add `GET/POST /api/proximity/config` routes
-- Frontend migration: on load, if backend `traffic.adsb_net_enabled` not set AND localStorage exists → POST migration, remove localStorage key
-- Frontend ADSBNet toggle: read/write via API instead of localStorage
-- Validate: entry < exit thresholds, positive radii
+- Frontend migration logic in `dashboard.js`:
+  - On load: `GET /api/settings/traffic`
+  - If response lacks `adsb_net_enabled` AND localStorage has value → POST migration → remove localStorage key
+  - After: frontend toggle reads/writes via API
+- Validate: entry < exit thresholds, positive radii, reasonable ranges
+- Do NOT modify `config/settings.json` in the repository — defaults are code-only
+
+**Important deployment rule**: The updater deploys `backend/` and `frontend/` only. The config file on the device is never overwritten by updates. All new config keys must have code-defined defaults so the application starts immediately after update without manual config changes.
 
 **Tests**:
-- GET returns config (or defaults if missing)
-- POST updates and persists
+- `get_proximity_config()` returns defaults when SETTINGS has no proximity section
+- Partial section merges correctly (missing keys filled)
+- POST updates and persists via save_settings()
 - Invalid thresholds rejected
-- Missing proximity section → defaults
-- ADSBNet migration preserves user's previous choice
-- New install has ADSBNet disabled by default
+- ADSBNet migration preserves user's previous localStorage choice
+- New install (no localStorage, no traffic.adsb_net_enabled) → defaults to False
 
-**Completion criteria**: Single authoritative ADSBNet setting; proximity config accessible via API.
+**Completion criteria**: Feature starts on existing installations without config changes. Single authoritative ADSBNet setting. Configuration API functional.
 
 ---
 

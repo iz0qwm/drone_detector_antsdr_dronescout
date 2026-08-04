@@ -100,6 +100,23 @@ Every network-dependent feature must handle:
 - Local persistence where needed
 - Recovery after restart
 
+## Deployment Rule
+
+The Mini Tracker updater deploys only:
+```
+backend/
+frontend/
+```
+
+Therefore every file required for a feature to operate at runtime must be under `backend/` or `frontend/`. This includes:
+- Backend services, routes, config defaults
+- Frontend JS, CSS, HTML changes
+- Documentation under `frontend/help/docs/`
+
+Configuration defaults must be code-defined in backend Python (not in `config/settings.json`). The updater never overwrites the device's settings file. Missing config sections must be handled with code defaults so the app starts immediately after update.
+
+Development-only files (tests, specs, pytest.ini, requirements-dev.txt, .kiro/) may reside outside these directories.
+
 ## Documentation Updates
 
 - Follow `DOCUMENTATION.md` rules

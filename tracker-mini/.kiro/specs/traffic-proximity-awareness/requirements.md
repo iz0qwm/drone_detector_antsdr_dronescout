@@ -310,6 +310,15 @@ Measurable criteria:
 - Browser rendering latency increase imperceptible
 - API response time `/api/proximity/status` < 200ms at p95
 
+### NFR-07: Deployment Compatibility
+
+- All runtime files must reside under `backend/` or `frontend/`
+- The updater deploys only these directories; `config/settings.json` is never overwritten
+- Proximity defaults must be code-defined in `backend/services/proximity/config.py`
+- Existing installations with no `proximity` section in settings.json must start normally after update
+- No manual configuration file changes required post-update
+- Development-only files (tests, specs, pytest config) may reside outside `backend/` and `frontend/`
+
 ---
 
 ## Acceptance Criteria
