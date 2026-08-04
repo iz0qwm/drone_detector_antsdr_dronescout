@@ -1,423 +1,574 @@
 # MT-TRAFFIC-01 — Traffic Proximity Awareness
 
-## Implementation Tasks
+## Implementation Tasks (Revision 2)
 
 ---
 
-## Task 1: Test Fixtures and Synthetic Traffic
+## Task 1: Test Infrastructure and Fixtures
 
-**Objective**: Create test infrastructure for proximity calculations.
+**Objective**: Set up pytest and create synthetic traffic fixtures.
 
 **Files affected**:
-- `tests/test_proximity_calc.py` (new)
 - `tests/conftest.py` (new)
+- `tests/test_proximity_calc.py` (new)
 - `tests/fixtures/` (new directory)
+- `pytest.ini` or `pyproject.toml` (new, minimal config)
 
 **Dependencies**: None
 
 **Work**:
-- Set up `pytest` in the workspace with minimal configuration
-- Create synthetic aircraft and drone position fixtures
-- Create test scenarios: approaching, crossing, departing, stationary
-- Generate known-distance pairs for haversine validation
+- Install pytest as dev dependency (add `tests/requirements-dev.txt`)
+- Create pytest configuration
+- Create synthetic aircraft fixtures (ADSBRx format, ADSBNet format)
+- Create synthetic drone fixtures (DS110 format)
+- Create known-distance coordinate pairs for haversine validation
+- Create scenarios: approaching, crossing, departing, stationary, stale
+
+**Test commands**:
+```bash
+cd backend
+py -3 -m pytest tests/ -v
+```
 
 **Tests**:
 - Haversine returns correct distances for known coordinates
-- Fixture data is self-consistent
+- Fixtures are self-consistent
 
-**Completion criteria**: `pytest` runs successfully with passing distance calculation tests.
+**Completion criteria**: `pytest` runs successfully with basic tests passing.
 
 ---
 
 ## Task 2: Distance Calculation Module
 
-**Objective**: Implement the core haversine and pair-evaluation logic.
+**Objective**: Implement haversine and pair-evaluation logic.
 
 **Files affected**:
-- `frontend/js/proximity/proximity-calc.js` (new)
+- `backend/services/proximity/__init__.py` (new)
+- `backend/services/proximity/calc.py` (new)
+- `tests/test_proximity_calc.py` (extend)
 
-**Dependencies**: Task 1 (for validation reference)
+**Dependencies**: Task 1
 
 **Work**:
-- Implement `haversineMeters(lat1, lon1, lat2, lon2)`
-- Implement bounding-box pre-filter `isWithinRadius(droneLat, droneLon, acLat, acLon, radiusM)`
-- Implement `evaluatePairs(drones, aircraft, radiusM)` returning sorted distance pairs
-- Implement coordinate validation (`isValidPosition`)
-- Handle edge cases: lat=0/lon=0, NaN, null, undefined
+- Implement `haversine_meters(lat1, lon1, lat2, lon2)`
+- Implement bounding-box pre-filter `is_within_radius()`
+- Implement coordinate validation `is_valid_position(lat, lon, source_type)`
+  - Drones: reject (0.0, 0.0) as ODID sentinel
+  - Aircraft: accept (0.0, 0.0) (readsb omits fields for missing, doesn't use sentinel)
+- Implement `evaluate_pairs(drones, targets, radius_m)` returning distance pairs
 
 **Tests**:
-- Haversine accuracy (Rome→Milan ≈ 477km, known point pairs)
-- Pre-filter correctly includes/excludes
-- Invalid coordinates are skipped
+- Haversine accuracy (Rome→Milan ≈477km, short distances verified)
+- Pre-filter includes/excludes correctly
+- (0,0) rejected for drones, accepted for aircraft
+- Invalid coordinates (None, NaN, out-of-range) skipped
 - Empty inputs return empty results
 
-**Completion criteria**: All distance calculations produce correct results with known inputs.
+**Completion criteria**: Distance calculations correct for all validation cases.
 
 ---
 
-## Task 3: Track Validation and Stale Handling
+## Task 3: Aircraft Normalization and Source Merge
 
-**Objective**: Implement freshness checking for aircraft and drone tracks.
+**Objective**: Implement the normalized target model with source provenance and deduplication.
 
 **Files affected**:
-- `frontend/js/proximity/proximity-calc.js` (extend)
+- `backend/services/proximity/normalize.py` (new)
+- `tests/test_proximity_normalize.py` (new)
 
 **Dependencies**: Task 2
 
 **Work**:
-- Implement `isTrackFresh(track, type, config)` for aircraft and drone
-- Parse drone `last_seen` (ISO 8601) into epoch ms for comparison
-- Use aircraft `updatedAt` (already epoch ms) for freshness check
-- Implement implausible-jump detection (>50km between updates)
-- Track validation: reject lat=0/lon=0, NaN, out-of-range
+- Define `NormalizedTarget` dataclass
+- Implement `normalize_adsbrx_aircraft(aircraft_list)` → list of normalized targets
+- Implement `normalize_adsbnet_aircraft(aircraft_list)` → list of normalized targets
+- Implement `merge_targets(adsbrx_targets, adsbnet_targets)` with:
+  - ICAO-based deduplication
+  - Source precedence (fresh local > fresh net > stale local > stale net)
+  - Never replace newer position with older
+  - Preserve both source timestamps
+  - Track `primary_source` and `sources` list
+- Implement `SourceHealth` tracking
 
 **Tests**:
-- Fresh track accepted
-- Stale aircraft (>30s) detected
-- Stale drone (>15s) detected
-- Implausible jump flagged
-- Invalid coordinates rejected
+- ADSBRx-only normalization correct
+- ADSBNet-only normalization correct
+- Duplicate ICAO merged correctly (ADSBRx preferred when fresh)
+- Source timestamps preserved independently
+- Stale ADSBRx + fresh ADSBNet → ADSBNet primary
+- Fresh ADSBRx + stale ADSBNet → ADSBRx primary
+- Missing ICAO creates synthetic ID (no merge possible)
+- Callsign conflict → prefer ADSBRx
 
-**Completion criteria**: Stale and invalid tracks are correctly identified and excluded from active evaluation.
+**Completion criteria**: Normalized targets correctly represent merged state with provenance.
 
 ---
 
-## Task 4: Configuration
+## Task 4: Track Freshness and Stale Handling
 
-**Objective**: Add proximity configuration to the settings system.
+**Objective**: Implement per-source and per-target staleness detection.
+
+**Files affected**:
+- `backend/services/proximity/normalize.py` (extend)
+- `backend/services/proximity/state.py` (new, partial)
+- `tests/test_proximity_stale.py` (new)
+
+**Dependencies**: Task 3
+
+**Work**:
+- Implement source-track freshness check (per source, per target)
+- Implement normalized-target staleness (stale when ALL sources stale)
+- Implement target retention (keep stale target for `target_retention_ms`)
+- Implement drone freshness check (parse ISO 8601 `last_seen`)
+- Implement implausible-jump detection (>50km between updates)
+
+**Tests**:
+- Fresh ADSBRx track → target fresh
+- Stale ADSBRx + fresh ADSBNet → target fresh
+- Both sources stale → target stale
+- Stale target retained within retention window
+- Target removed after retention expires
+- Drone stale after 15s since `last_seen`
+- Implausible jump flagged
+
+**Completion criteria**: Staleness correctly determined per-source and per-target.
+
+---
+
+## Task 5: Configuration
+
+**Objective**: Add proximity configuration to settings system.
 
 **Files affected**:
 - `config/settings.json` (add `proximity` section)
-- `backend/routes/settings.py` (add proximity endpoints)
-- `frontend/js/proximity/proximity-state.js` (new, reads config)
+- `backend/services/proximity/config.py` (new)
+- `backend/routes/proximity.py` (new, config endpoints)
+- `tests/test_proximity_config.py` (new)
 
-**Dependencies**: None (can be done in parallel with Tasks 2-3)
+**Dependencies**: None (parallel with Tasks 2-4)
 
 **Work**:
-- Add default `proximity` object to `config/settings.json`
-- Add `GET /api/settings/proximity` route
-- Add `POST /api/settings/proximity` route with validation
-- Frontend config loader that falls back to defaults if API unreachable
-- Store proximity preferences in `localStorage` for UI toggles
+- Add default `proximity` section to `config/settings.json`
+- Implement `get_proximity_config()` with fallback defaults
+- Implement `update_proximity_config(data)` with validation
+- Add routes: `GET /api/proximity/config`, `POST /api/proximity/config`
+- Validate: entry < exit thresholds, positive radii, reasonable ranges
+- Respect existing patterns (`SETTINGS`, `save_settings()`)
 
 **Tests**:
-- GET returns current config
-- POST updates and persists config
-- Invalid thresholds rejected (entry must be < exit)
-- Missing config section returns defaults
+- GET returns current config (or defaults if section missing)
+- POST updates and persists
+- Invalid thresholds rejected
+- Missing section → defaults used (no crash)
+- `adsb_net_enabled` respects Internet availability at runtime
 
-**Completion criteria**: Proximity configuration is readable and writable through the API, persisted to settings.json.
+**Completion criteria**: Proximity configuration readable, writable, validated.
 
 ---
 
-## Task 5: Proximity State Machine
+## Task 6: Proximity State Machine
 
 **Objective**: Implement state classification with hysteresis.
 
 **Files affected**:
-- `frontend/js/proximity/proximity-state.js` (new)
+- `backend/services/proximity/state.py` (new/extend)
+- `tests/test_proximity_state.py` (new)
 
-**Dependencies**: Tasks 2, 3, 4
+**Dependencies**: Tasks 2, 4, 5
 
 **Work**:
-- Implement state enum: NORMAL, MONITOR, CAUTION, WARNING, STALE, UNKNOWN
-- Implement `classifyPair(distance, currentState, config)` with hysteresis
-- Maintain per-pair state: `{ pairId, state, enteredAt, distance, history[] }`
-- Implement state transitions with entry/exit thresholds
-- Handle stale transition: when either track goes stale, pair → STALE
-- Implement stale grace period (10s) before removal
-- Implement pair cleanup when tracks disappear
+- Define state enum: NORMAL, MONITOR, CAUTION, WARNING, STALE, UNKNOWN
+- Implement `ProximityPair` with: pair_id, drone_id, target_id, state, distance, history, entered_at
+- Implement `classify_pair(distance, current_state, config)` with hysteresis
+- Implement direct escalation (aircraft appears directly in WARNING range)
+- Implement stale transition (either track stale → pair STALE)
+- Implement pair cleanup (stale grace → removal)
+- Implement ranking: severity first, distance second, deterministic tie-break
 
 **Tests**:
 - NORMAL → MONITOR at entry threshold
-- MONITOR → NORMAL only at exit threshold (not at entry+1m)
-- State doesn't flicker when distance oscillates near boundary
-- Stale transition removes pair after grace
-- History buffer limited to 3 entries
+- MONITOR → NORMAL only at exit threshold (hysteresis)
+- Direct NORMAL → WARNING when aircraft appears close
+- Oscillation around boundary doesn't flicker (20 cycles at boundary ±10m)
+- Stale transition works
+- Pair removed after grace
+- Ranking: WARNING pairs before CAUTION before MONITOR
 
-**Completion criteria**: State machine correctly classifies pairs with hysteresis, handles stale gracefully.
+**Completion criteria**: State machine correctly classifies all pairs with hysteresis.
 
 ---
 
-## Task 6: Frontend Integration (Controller)
+## Task 7: Movement Trend Analysis
 
-**Objective**: Wire proximity calculation into the Dashboard lifecycle.
+**Objective**: Implement approaching/diverging determination.
+
+**Files affected**:
+- `backend/services/proximity/trend.py` (new)
+- `tests/test_proximity_trend.py` (new)
+
+**Dependencies**: Task 6
+
+**Work**:
+- Implement per-pair distance history (circular buffer, 4 entries)
+- Determine trend: APPROACHING, DIVERGING, STABLE, UNKNOWN
+- Require ≥3 samples spanning ≥10s
+- Apply 50m deadband
+- Handle implausible jump → UNKNOWN + reset history
+- Handle insufficient data → UNKNOWN
+
+**Tests**:
+- Consistent decrease → APPROACHING
+- Consistent increase → DIVERGING
+- Change within deadband → STABLE
+- Mixed directions → UNKNOWN
+- Only 2 samples → UNKNOWN
+- Jump in history → UNKNOWN + history reset
+- Buffer limited to 4 entries
+
+**Completion criteria**: Movement trend correctly determined when data quality allows.
+
+---
+
+## Task 8: Proximity Engine Integration
+
+**Objective**: Wire all components into the main evaluation loop.
+
+**Files affected**:
+- `backend/services/proximity/engine.py` (new)
+- `backend/routes/proximity.py` (extend with status endpoint)
+- `backend/app.py` (register blueprint, start engine timer)
+- `tests/test_proximity_engine.py` (new)
+
+**Dependencies**: Tasks 2-7
+
+**Work**:
+- Implement `ProximityEngine` class:
+  - Reads ADSBRx via `air_local.get_local_aircraft()` (wide bounds)
+  - Reads optional ADSBNet via `air_network.get_network_aircraft()` (if enabled + Internet)
+  - Reads drones via `ds110.get_aircraft()`
+  - Normalizes and merges aircraft
+  - Evaluates all pairs
+  - Manages state lifecycle
+  - Updates trend history
+  - Returns ranked results
+- Implement 5-second calculation timer (threading.Timer or loop in main tick)
+- Implement `GET /api/proximity/status` returning current results
+- Register `proximity_bp` in `app.py`
+- Start engine timer in `app.py` startup sequence
+
+**Tests**:
+- Engine produces correct results with ADSBRx + drones
+- Engine works without ADSBNet (disabled)
+- Engine works with ADSBNet enabled
+- Engine handles no drones gracefully
+- Engine handles no aircraft gracefully
+- Cycle completes within 100ms with 50 aircraft × 5 drones
+
+**Completion criteria**: Backend proximity engine runs autonomously, serves correct API responses.
+
+---
+
+## Task 9: Frontend Proximity Controller
+
+**Objective**: Poll backend API and manage frontend lifecycle.
 
 **Files affected**:
 - `frontend/js/proximity/proximity-controller.js` (new)
-- `frontend/js/dashboard.js` (add proximity initialization)
-- `frontend/index.html` (add script tags)
+- `frontend/js/dashboard.js` (add proximity init + pane)
+- `frontend/index.html` (add script tags + panel container)
 
-**Dependencies**: Tasks 2, 3, 4, 5
+**Dependencies**: Task 8
 
 **Work**:
 - Implement `PROXIMITY.start(map)` and `PROXIMITY.stop()`
-- Create 5-second timer that:
-  - Reads current drones from `DRONES.markers`
-  - Reads current aircraft from `markersByIcao` (via `window.AIR` access)
-  - Extracts position data from marker state
-  - Calls evaluation pipeline
-  - Updates layer and panel
-- Select reference drone (nearest to any aircraft)
-- Add `window.PROXIMITY` global
-- Add proximity start in `dashboard.js` after traffic modules start
-- Add script tags in `index.html` for new modules
 - Create `traffic-proximity` pane (z-index 670)
-- Respect `proximity.enabled` setting and localStorage toggle
+- Poll `GET /api/proximity/status` every 5s
+- Pass results to layer and panel modules
+- Respect `proximity.enabled` from settings
+- Add `window.PROXIMITY` global
+- Add script tags in `index.html`
+- Start proximity after traffic modules in `dashboard.js`
 
 **Tests**:
 - Controller starts/stops cleanly
-- Timer fires at configured interval
-- No errors when no drones are present
-- No errors when no aircraft are present
-- Controller reads markers without modifying them
+- Polling works at configured interval
+- No errors when API returns empty pairs
+- Pane created at correct z-index
 
-**Completion criteria**: Proximity evaluation runs in the Dashboard every 5 seconds without interfering with existing traffic.
+**Completion criteria**: Frontend polls backend and passes results to rendering.
 
 ---
 
-## Task 7: Map Rendering (Proximity Layer)
+## Task 10: Map Rendering (Proximity Layer)
 
-**Objective**: Draw proximity lines, labels, and rings on the map.
+**Objective**: Draw proximity lines, labels, and rings.
 
 **Files affected**:
 - `frontend/js/proximity/proximity-layer.js` (new)
 - `frontend/css/proximity.css` (new)
 
-**Dependencies**: Tasks 5, 6
+**Dependencies**: Task 9
 
 **Work**:
-- Implement distance line (dashed polyline) from reference drone to nearest proximity aircraft
-- Implement distance label (Leaflet tooltip or DivIcon at line midpoint)
-- Implement proximity ring (circle marker around aircraft marker)
-- Color-code by state (blue/orange/red/gray)
-- Implement object creation, update, and removal lifecycle
-- Implement stale visual (gray, dashed)
-- Implement subtle pulse CSS animation for WARNING state (configurable)
-- Limit: 1 distance line, up to 5 rings, 1 label
+- Implement distance line (1 line, highest-priority pair)
+  - Dashed (MONITOR, CAUTION), solid (WARNING), dotted (STALE)
+  - Colored by state
+- Implement distance label (DivIcon at midpoint)
+- Implement proximity rings on up to 5 aircraft
+  - Color + pattern matching state
+- Implement pulse CSS animation for WARNING (configurable)
+- Implement complete cleanup on each cycle (remove old, add new from API)
+- All objects in `traffic-proximity` pane
+- Accessibility: color + pattern + text label
 
 **Tests**:
-- Line appears when pair enters MONITOR
-- Line color changes on state transition
-- Line removed when pair returns to NORMAL
-- Ring appears on aircraft marker
-- All objects removed when drone disappears
-- Stale objects grayed out then removed
+- Line appears for WARNING pair
+- Line color/pattern changes on state change
+- All objects removed when no pairs in API response
+- Rings appear on correct aircraft positions
+- Pulse animation only on WARNING (if enabled)
 
-**Completion criteria**: Map correctly shows proximity visualization that updates and cleans up.
+**Completion criteria**: Map correctly visualizes proximity with accessible indicators.
 
 ---
 
-## Task 8: Nearby Traffic Panel
+## Task 11: Nearby Traffic Panel
 
-**Objective**: Display a compact aircraft-distance summary panel.
+**Objective**: Display compact proximity summary.
 
 **Files affected**:
 - `frontend/js/proximity/proximity-panel.js` (new)
 - `frontend/css/proximity.css` (extend)
-- `frontend/index.html` (add panel container div)
+- `frontend/index.html` (panel container already added in Task 9)
 
-**Dependencies**: Tasks 5, 6
+**Dependencies**: Task 9
 
 **Work**:
-- Create floating panel (bottom-right, semi-transparent)
-- Show reference drone identity (model or serial truncated)
-- List up to 5 nearest aircraft: callsign, distance (m or km), state badge, trend arrow
-- Show/hide based on: drone present AND at least 1 aircraft within evaluation radius
-- Panel updates every calculation cycle
-- Compact enough for Mini Tracker display (small screen)
-- Click on aircraft entry centers map on that aircraft
+- Floating panel, bottom-right, semi-transparent
+- Show up to `max_panel_entries` pairs from API response
+- Each entry: drone label → aircraft label, distance, state badge, trend label
+- Source label (RX/NET/RX+NET) visible but not prominent
+- Show/hide: visible when pairs exist, hidden otherwise
+- Compact for Mini Tracker display
+- No continuous error displayed when ADSBNet is offline
+- Click entry → center map on that aircraft
 
 **Tests**:
-- Panel appears when drone + aircraft are present
-- Panel disappears when no drone
-- List sorted by distance
-- Distance format switches to km at 1000m
-- Panel does not overlap critical UI elements
+- Panel appears when pairs exist
+- Panel hidden when no pairs
+- Entries sorted correctly (from API, pre-sorted)
+- Distance format: meters if <1000, km if ≥1000
+- Source labels shown correctly
 
-**Completion criteria**: Panel provides useful at-a-glance proximity information.
+**Completion criteria**: Panel provides clear at-a-glance proximity information.
 
 ---
 
-## Task 9: Hysteresis and Edge Cases
+## Task 12: Source Switching and Edge Cases
 
-**Objective**: Validate and harden state transitions under realistic conditions.
+**Objective**: Validate all source-transition scenarios.
 
 **Files affected**:
-- `frontend/js/proximity/proximity-state.js` (refine)
-- `tests/test_proximity_state.py` (new)
+- `tests/test_proximity_source_switching.py` (new)
+- `backend/services/proximity/engine.py` (bug fixes if needed)
 
-**Dependencies**: Tasks 5, 6, 7
+**Dependencies**: Tasks 3, 4, 8
 
 **Work**:
-- Test hysteresis with oscillating distances (boundary ± small delta)
-- Test rapid state escalation (NORMAL → WARNING in one step)
+- Test all 10 network-loss/source-switching scenarios from design §16
+- Verify pair identity preserved across source switches
+- Verify no duplicate targets after source transitions
+- Verify fresh ADSBRx never made stale by ADSBNet loss
+- Verify graceful degradation when Internet disappears
+- Verify ADSBNet recovery without restart
+- Verify ADSBRx restart handling
+
+**Tests (from requirements)**:
+1. ADSBRx-only offline operation
+2. ADSBNet disabled by user
+3. ADSBNet enabled but Internet unavailable
+4. ADSBNet provider failure
+5. Same aircraft from both sources
+6. Fresh ADSBRx + stale ADSBNet
+7. Stale ADSBRx + fresh ADSBNet
+8. Source switch without duplicate
+9. Internet loss during WARNING
+10. ADSBNet enabled during runtime
+11. ADSBNet disabled during runtime
+12. Multiple drones + multiple aircraft
+13. Network aircraft outside local reception
+14. Local receiver restart
+15. No aircraft from any source
+16. Invalid source timestamps
+17. Conflicting identifiers/callsigns
+18. Full offline (ADSBRx + Remote ID only)
+
+**Completion criteria**: All source transitions pass without false stale, duplicates, or lost pairs.
+
+---
+
+## Task 13: Hysteresis Hardening
+
+**Objective**: Validate state machine under realistic edge conditions.
+
+**Files affected**:
+- `tests/test_proximity_hysteresis.py` (new)
+- `backend/services/proximity/state.py` (fixes if needed)
+
+**Dependencies**: Tasks 6, 8
+
+**Work**:
+- Test 30-cycle oscillation at each threshold boundary (±10m, ±50m)
+- Test rapid escalation (NORMAL→WARNING in one step)
 - Test de-escalation path
-- Handle aircraft that appears directly in WARNING zone
-- Handle drone track loss during active WARNING
-- Handle configuration change while proximity is active
-- Verify no orphaned map objects after edge-case sequences
+- Test drone track loss during WARNING
+- Test config change mid-operation
+- Verify no orphaned state after edge-case sequences
 
 **Tests**:
-- 20-cycle oscillation around 3000m does not cause more than 1 state change
-- Direct NORMAL → WARNING works (aircraft appears close)
-- WARNING → removal works when drone disappears
-- Config change mid-operation applies cleanly
+- Oscillation produces max 1 state change
+- Direct WARNING entry works
+- Config update applies to next cycle cleanly
+- No orphaned pairs in engine state
 
-**Completion criteria**: No state flickering under realistic conditions; no orphaned map objects.
+**Completion criteria**: No flickering, no orphaned state under adversarial conditions.
 
 ---
 
-## Task 10: Movement Analysis
+## Task 14: Diagnostics and Logging
 
-**Objective**: Implement approaching/diverging determination.
-
-**Files affected**:
-- `frontend/js/proximity/proximity-calc.js` (extend)
-- `frontend/js/proximity/proximity-state.js` (extend)
-- `frontend/js/proximity/proximity-panel.js` (add arrow indicator)
-
-**Dependencies**: Tasks 5, 6, 8
-
-**Work**:
-- Maintain distance history per pair (last 3 values with timestamps)
-- Determine trend: approaching (↓), diverging (↑), stable/unknown (—)
-- Require ≥2 samples spanning >3 seconds
-- Reject if any implausible jump in history
-- Display trend arrow in nearby-traffic panel
-- Display trend arrow color: red=approaching, green=diverging, gray=unknown
-
-**Tests**:
-- Consistent decrease → approaching
-- Consistent increase → diverging
-- Mixed direction → unknown
-- Single sample → unknown
-- Implausible jump → unknown
-- History limited to 3 entries (no memory leak)
-
-**Completion criteria**: Movement analysis provides useful approaching/diverging indication when data quality allows.
-
----
-
-## Task 11: Diagnostics and Logging
-
-**Objective**: Add operational diagnostic information.
+**Objective**: Add operational diagnostics.
 
 **Files affected**:
-- `frontend/js/proximity/proximity-controller.js` (extend)
+- `backend/services/proximity/engine.py` (extend with logging)
+- `frontend/js/proximity/proximity-controller.js` (extend with console logging)
 
-**Dependencies**: Tasks 6, 7, 8
+**Dependencies**: Tasks 8, 9
 
 **Work**:
-- Log proximity state changes to console: `[PROXIMITY] DRONE_serial → AC_icao: MONITOR (1234m)`
-- Log stale transitions
-- Log configuration loads
-- Add proximity status to system diagnostic panel (optional: number of pairs evaluated, current state)
-- Log performance: calculation time per cycle (if > 20ms, warn)
+- Backend: log state transitions via `services.logger.log("PROXIMITY", ...)`
+- Backend: log cycle performance when > 50ms
+- Backend: log source health transitions
+- Frontend: console log `[PROXIMITY]` on state changes and errors
+- Include `calculation_time_ms` in API response for monitoring
+- No excessive logging in steady state (transitions only)
 
 **Tests**:
-- State change produces console log
-- No excessive logging in NORMAL state (log only transitions)
+- State change produces backend log entry
 - Performance warning fires when threshold exceeded
+- No log spam in normal operation
 
-**Completion criteria**: Developer and maintainer can observe proximity behavior from browser console.
+**Completion criteria**: Developers and maintainers can observe proximity behavior from logs.
 
 ---
 
-## Task 12: Documentation
+## Task 15: Documentation
 
 **Objective**: Update user and developer documentation.
 
 **Files affected**:
 - `frontend/help/docs/user/traffic-monitoring.md` (extend)
-- `frontend/help/docs/developer/services.md` (extend with proximity note)
-- `frontend/help/docs/developer/frontend.md` (extend with proximity modules)
+- `frontend/help/docs/developer/services.md` (extend)
+- `frontend/help/docs/developer/api.md` (extend)
 
-**Dependencies**: Tasks 6-11 complete
+**Dependencies**: Tasks 8-11 complete
 
 **Work**:
 - Add "Traffic Proximity Awareness" section to traffic-monitoring user doc
-- Describe what the operator sees and how to configure
+- Describe operator experience and configuration
 - Include informational/non-certified notice
-- Add proximity module description to developer frontend doc
-- Note that proximity is frontend-only, no backend computation
+- Add proximity engine description to developer services doc
+- Add proximity API to developer API doc
+- Follow `DOCUMENTATION.md` rules
 
-**Tests**: MkDocs build succeeds with new content.
+**Tests**: MkDocs build succeeds.
 
-**Completion criteria**: Documentation accurately describes the implemented feature.
+**Completion criteria**: Documentation accurately describes implemented feature.
 
 ---
 
-## Task 13: Simulated Integration Tests
+## Task 16: Simulated Integration Tests
 
-**Objective**: Validate complete proximity flow with synthetic data.
+**Objective**: End-to-end scenarios with synthetic data.
 
 **Files affected**:
 - `tests/test_proximity_integration.py` (new)
 - `tests/fixtures/scenarios/` (new)
 
-**Dependencies**: Tasks 1-11
+**Dependencies**: Tasks 1-14
 
 **Work**:
-- Create test scenarios with known outcomes:
-  - Aircraft approaching stationary drone at known speed
-  - Aircraft crossing at 1000m distance
-  - Drone disappearing mid-WARNING
-  - Multiple aircraft at various distances
-  - Noisy position data
-- Validate full pipeline: input → calculation → state → output
-- Validate cleanup after scenario end
+- Full pipeline scenarios with known outcomes
+- Verify: input → normalize → merge → evaluate → state → API response
+- Scenarios: approaching drone-aircraft, crossing, multiple drones, stale data
+- Verify cleanup leaves no orphaned state
+- Verify performance under load (50 aircraft × 5 drones)
 
 **Tests**:
-- Each scenario produces expected state sequence
+- Each scenario produces expected ranked pair list
 - No memory leaks (history buffers bounded)
-- Cleanup leaves no orphaned state
+- Cleanup complete after scenario end
+- Performance within 100ms
 
-**Completion criteria**: Integration tests pass for all defined scenarios.
+**Completion criteria**: Integration tests validate the complete pipeline.
 
 ---
 
-## Task 14: Raspberry Pi Validation
+## Task 17: Raspberry Pi Physical Validation
 
-**Objective**: Validate performance and behavior on physical hardware.
+**Objective**: Validate on real hardware.
 
 **Files affected**: None (read-only validation)
 
-**Dependencies**: Tasks 1-13
+**Dependencies**: Tasks 1-16
 
 **Work**:
-- Record stable starting commit
-- Deploy to staging installation
-- Run with real ADS-B traffic + DS110 (or simulator)
-- Measure CPU and memory impact
-- Verify Dashboard responsiveness
-- Verify stale cleanup
-- Verify no interference with existing layers
-- Verify panel readability on target display
-- Restore stable service
-- Record results in `AI_HANDOFF.md`
 
-**Tests**: Physical observation and measurement.
+### Offline Local Mode
+- Disconnect Internet (do not change ADSBNet config permanently)
+- Verify ADSBRx continues receiving
+- Verify proximity works with ADSBRx + Remote ID
+- Verify no repeated network errors disrupt Dashboard
 
-**Completion criteria**: Feature operates correctly on Raspberry Pi without degrading system performance.
+### Combined Mode
+- Enable ADSBNet, verify Internet available
+- Receive local and network aircraft
+- Verify deduplication (no duplicate markers or pairs)
+- Verify source provenance in panel
+
+### Network-Loss Mode
+- Start with ADSBNet operational
+- Remove Internet connectivity
+- Verify ADSBRx tracks remain active
+- Verify local proximity warnings continue
+- Restore Internet, verify ADSBNet recovers
+
+### Performance
+- 5-minute baseline (no proximity)
+- 5-minute feature-enabled (local-only: ~5 aircraft, 1 drone)
+- 5-minute feature-enabled (combined: ~20 aircraft, 2 drones)
+- Measure: backend CPU, browser responsiveness, API response time, memory
+
+Record results in `AI_HANDOFF.md`. Restore stable service after testing.
+
+**Completion criteria**: Feature operates correctly on Raspberry Pi in all modes without degrading performance.
 
 ---
 
-## Task 15: Final Review
+## Task 18: Final Review and Push
 
-**Objective**: Confirm feature completeness and push.
+**Objective**: Confirm feature completeness.
 
 **Files affected**:
 - `AI_HANDOFF.md` (update feature status)
 
-**Dependencies**: Tasks 1-14
+**Dependencies**: Tasks 1-17
 
 **Work**:
 - Review all code for consistency
 - Verify no orphaned TODO or debug code
-- Verify all acceptance criteria from requirements
-- Update feature status in AI_HANDOFF.md
-- Verify documentation
+- Verify all acceptance criteria met
+- Update AI_HANDOFF.md feature status
 - Final commit and push
 
 **Completion criteria**: Feature complete, tested, documented, pushed.
@@ -428,18 +579,21 @@
 
 | # | Task | Type | Dependencies |
 |---|------|------|-------------|
-| 1 | Test fixtures and synthetic traffic | Infrastructure | None |
+| 1 | Test infrastructure and fixtures | Infrastructure | None |
 | 2 | Distance calculation module | Core logic | 1 |
-| 3 | Track validation and stale handling | Core logic | 2 |
-| 4 | Configuration | Backend + Frontend | None |
-| 5 | Proximity state machine | Core logic | 2, 3, 4 |
-| 6 | Frontend integration (controller) | Integration | 2, 3, 4, 5 |
-| 7 | Map rendering (proximity layer) | Frontend | 5, 6 |
-| 8 | Nearby traffic panel | Frontend | 5, 6 |
-| 9 | Hysteresis and edge cases | Quality | 5, 6, 7 |
-| 10 | Movement analysis | Core logic | 5, 6, 8 |
-| 11 | Diagnostics and logging | Quality | 6, 7, 8 |
-| 12 | Documentation | Docs | 6-11 |
-| 13 | Simulated integration tests | Testing | 1-11 |
-| 14 | Raspberry Pi validation | Hardware | 1-13 |
-| 15 | Final review | Release | 1-14 |
+| 3 | Aircraft normalization and source merge | Core logic | 2 |
+| 4 | Track freshness and stale handling | Core logic | 3 |
+| 5 | Configuration | Backend | None (parallel) |
+| 6 | Proximity state machine | Core logic | 2, 4, 5 |
+| 7 | Movement trend analysis | Core logic | 6 |
+| 8 | Proximity engine integration | Backend | 2-7 |
+| 9 | Frontend proximity controller | Frontend | 8 |
+| 10 | Map rendering (proximity layer) | Frontend | 9 |
+| 11 | Nearby traffic panel | Frontend | 9 |
+| 12 | Source switching and edge cases | Testing | 3, 4, 8 |
+| 13 | Hysteresis hardening | Testing | 6, 8 |
+| 14 | Diagnostics and logging | Quality | 8, 9 |
+| 15 | Documentation | Docs | 8-11 |
+| 16 | Simulated integration tests | Testing | 1-14 |
+| 17 | Raspberry Pi physical validation | Hardware | 1-16 |
+| 18 | Final review and push | Release | 1-17 |

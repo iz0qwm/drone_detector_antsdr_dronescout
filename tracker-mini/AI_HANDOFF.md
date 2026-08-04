@@ -137,13 +137,25 @@ Only one major Feature Spec should be actively implemented at a time unless the 
 
 ### MT-TRAFFIC-01 — Traffic Proximity Awareness
 
-Status: **Specified** — awaiting review
+Status: **Specified (Revision 2)** — awaiting review
 Owner: Kiro
 Specification: `.kiro/specs/traffic-proximity-awareness/` (requirements.md, design.md, tasks.md)
 Working branch: Current repository branch (main)
 Starting commit: To be recorded at implementation start
 Latest commit: Not started
 Push status: Not started
+
+Key design decisions (Revision 2):
+- Authoritative proximity engine in backend (Python), not frontend
+- All valid drone-aircraft pairs evaluated (not single reference drone)
+- ADSBRx = primary local source, works offline
+- ADSBNet = optional enrichment, frontend preference respected
+- Normalized target model with source provenance and ICAO deduplication
+- OGN/FLARM deferred from MVP
+- Source health tracked separately from individual track freshness
+- Movement trend: ≥3 samples, 10-15s window, 50m deadband, text labels (not vertical arrows)
+- Backend exposes `GET /api/proximity/status` consumed by frontend
+- Accessibility: color + line pattern + text label (not color alone)
 
 Goal:
 
@@ -588,33 +600,33 @@ DSC integration test support: Not present
 ## Active Work Record
 
 ```text
-Task: Traffic Proximity Awareness — Feature Spec
+Task: Traffic Proximity Awareness — Feature Spec Revision 2
 Feature: MT-TRAFFIC-01
 Owner: Kiro
 Working branch: main
-Starting commit: ad28ed8
-Latest commit: Pending (spec creation)
+Starting commit: 4e968b0
+Latest commit: Pending (spec revision)
 Push status: Pending
 Specification: .kiro/specs/traffic-proximity-awareness/
-Status: Spec created, awaiting Raffaello review
+Status: Spec revised, awaiting Raffaello review
 Started: 2026-08-04
 Last updated: 2026-08-04
 
 Files modified:
-  .kiro/specs/traffic-proximity-awareness/requirements.md (created)
-  .kiro/specs/traffic-proximity-awareness/design.md (created)
-  .kiro/specs/traffic-proximity-awareness/tasks.md (created)
+  .kiro/specs/traffic-proximity-awareness/requirements.md (revised)
+  .kiro/specs/traffic-proximity-awareness/design.md (revised)
+  .kiro/specs/traffic-proximity-awareness/tasks.md (revised)
   AI_HANDOFF.md (updated)
 
 Services affected: None (spec only)
 Hardware affected: None
 Shared contracts affected: None
 
-Tests completed: None (spec only, no code changes)
+Tests completed: None (spec only)
 Physical tests completed: None
 Known issues: None
-Rollback reference: ad28ed8 (no production changes)
-Next action: Raffaello reviews spec, then implementation begins
+Rollback reference: 4e968b0
+Next action: Raffaello reviews revised spec, then implementation begins
 ```
 
 ---

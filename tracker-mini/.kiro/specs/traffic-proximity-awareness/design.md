@@ -1,266 +1,488 @@
 # MT-TRAFFIC-01 — Traffic Proximity Awareness
 
-## Technical Design
+## Technical Design (Revision 2)
 
 ---
 
-## Verified Current Traffic Architecture
+## 1. Verified Current Traffic Architecture
 
-### Aircraft Data Sources
+### 1.1 ADSBRx (Local ADS-B)
 
-| Source | Backend Service | API | Refresh | Fields |
-|--------|----------------|-----|---------|--------|
-| Local ADS-B | `services/air_local.py` | `GET /api/air/local?bounds` | 15s (frontend) | icao, callsign, lat, lon, altitude (meters, converted from ft), speed (m/s, converted from knots), heading, category, isHelicopter, source, updatedAt (ms epoch) |
-| Network ADS-B | `services/air_network.py` | `GET /api/air/network?bounds` | 15s (frontend) | Same structure; merged from SolarMonitor, OGN-ADSB, OpenSky |
+| Aspect | Detail |
+|--------|--------|
+| Decoder | `readsb-local.service` (systemd) |
+| Output | `/run/readsb/aircraft.json` |
+| Backend service | `services/air_local.py` |
+| API | `GET /api/air/local?minLat&maxLat&minLon&maxLon&showAll` |
+| Enable/disable | `POST /api/readsb/enable` → systemctl start/stop, persists `settings.traffic.adsb_local_enabled` |
+| Health | File exists AND mtime < 30s |
+| Frontend toggle | `adsbLocalEnabled` checkbox → API call |
+| Frontend label | "ADSB Rx" |
+| Refresh | 15s frontend polling |
 
-**Altitude reference**: Local ADS-B uses `alt_geom` or `alt_baro` from readsb (feet, converted to meters). Network sources vary: OpenSky returns geometric/barometric meters, SolarMonitor returns feet (converted). All are approximate MSL.
+**Aircraft fields from ADSBRx** (normalized in `air_local.py`):
 
-**Speed**: Converted to m/s from knots (ground speed).
-
-### Drone Data Sources
-
-| Source | Backend Service | API | Refresh | Fields |
-|--------|----------------|-----|---------|--------|
-| Remote ID (DS110) | `services/ds110.py` | `GET /api/remoteid/aircraft` | 5s (frontend) | serial, vendor, model, lat, lon, altitude (ODID geometric, meters above WGS84 ellipsoid), height (AGL, meters), speed (m/s from ODID), heading, operator_lat, operator_lon, last_seen (ISO UTC), source, id_type, ua_type |
-
-**Altitude reference**: ODID `altitude` = geometric altitude (WGS84 ellipsoid - 2000)/2. ODID `height` = height above takeoff. These are NOT the same reference as ADS-B barometric/geometric altitude.
-
-**Key differences**:
-- Aircraft `updatedAt` = millisecond epoch; Drone `last_seen` = ISO 8601 UTC string
-- Aircraft identified by `icao`; Drone identified by `serial`
-- Aircraft speed in m/s (from knots); Drone speed in m/s (from ODID encoding)
-- Aircraft altitude ≈ MSL; Drone altitude ≈ WGS84 ellipsoid (incompatible for comparison)
-
-### Frontend Traffic State
-
-| Module | Global | Markers | Timer |
-|--------|--------|---------|-------|
-| Aircraft | `window.AIR` | `markersByIcao` (Map) | 15s `setInterval` |
-| Drones | `window.DRONES` | `DRONES.markers` (object keyed by serial) | 5s `setInterval` |
-| OGN/FLARM | `window.GLIDER` | managed by `GLIDER_LAYER` | 10s `setInterval` |
-
-### Map Panes
-
-| Pane | z-index | Content |
-|------|---------|---------|
-| `traffic-air` | 650 | Aircraft markers and trails |
-| `traffic-glider` | 655 | OGN/FLARM markers |
-| `traffic-drone` | 660 | Drone markers |
-
-### Stale Handling (Current)
-
-- **Aircraft**: `MAX_MISSES = 2` cycles (30s), then grayscale + fade; removed after `STALE_GRACE_MS = 60000` (60s)
-- **Drones**: Removed immediately when not in the API response (no grace period)
-
-### Existing Helpers
-
-- No geographic distance utilities exist in the codebase
-- No proximity or spatial calculation modules exist
-- Haversine must be implemented
-
-### Configuration
-
-- `config/settings.json` via `backend/config.py` — `SETTINGS` dict, `save_settings()`
-- Frontend uses `localStorage` for display preferences
-- No existing `proximity` or `traffic_awareness` settings section
-
-### Tests
-
-- No automated test framework exists
-- No traffic simulation or mock facilities exist
-
----
-
-## Proposed Architecture
-
-### Design Decision: Frontend-Only Calculation
-
-**Recommendation**: Implement proximity calculations entirely in the frontend.
-
-**Rationale**:
-1. Both aircraft and drone state already exist in browser memory (markers)
-2. No new API needed — the frontend already has all required data
-3. Avoids adding threads or computation load to the Raspberry Pi backend
-4. Calculation is lightweight (haversine for ≤50 pairs at 5s cadence)
-5. Rendering updates are immediate without HTTP round-trip
-6. Configuration can use `localStorage` initially, `settings.json` later
-
-**Trade-off**: If a future feature needs proximity state on the backend (e.g., Meshtastic alerts), a backend module will be needed. The architecture should keep calculation logic in a reusable module.
-
-### Module Structure
-
-```
-frontend/js/proximity/
-├── proximity-calc.js      # Haversine, distance pairs, state machine
-├── proximity-state.js     # State management, thresholds, hysteresis
-├── proximity-layer.js     # Map objects (lines, labels, rings)
-├── proximity-panel.js     # Nearby-traffic panel UI
-└── proximity-controller.js # Init, timer, integration with AIR + DRONES
-```
-
-### Architecture Diagram
-
-```mermaid
-flowchart TD
-    subgraph Frontend["Browser (Frontend)"]
-        AIR["AIR module<br/>markersByIcao"]
-        DRONES["DRONES module<br/>DRONES.markers"]
-        
-        Controller["proximity-controller.js<br/>5s timer"]
-        Calc["proximity-calc.js<br/>haversine, pairs"]
-        State["proximity-state.js<br/>thresholds, hysteresis"]
-        Layer["proximity-layer.js<br/>lines, labels, rings"]
-        Panel["proximity-panel.js<br/>nearby list"]
-    end
-
-    subgraph Map["Leaflet Map"]
-        ProxPane["traffic-proximity pane<br/>z-index 670"]
-    end
-
-    AIR --> Controller
-    DRONES --> Controller
-    Controller --> Calc
-    Calc --> State
-    State --> Layer
-    State --> Panel
-    Layer --> ProxPane
-```
-
----
-
-## Distance Calculation
-
-### Haversine Formula
-
-```javascript
-function haversineMeters(lat1, lon1, lat2, lon2) {
-    const R = 6371000; // Earth radius in meters
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
+```python
+{
+    "icao": str,          # hex ICAO address
+    "callsign": str,      # flight ID or ICAO
+    "lat": float,         # WGS84 latitude
+    "lon": float,         # WGS84 longitude
+    "altitude": float,    # meters (converted from alt_geom or alt_baro feet)
+    "speed": float|None,  # m/s (converted from knots ground speed)
+    "heading": float,     # degrees track
+    "category": str|None, # ADSB category code (A1-A7, etc.)
+    "isHelicopter": bool, # category == "A7"
+    "source": "LOCAL_ADSB",
+    "updatedAt": int      # milliseconds epoch (time.time() * 1000)
 }
 ```
 
-### Pair Evaluation
+**Altitude reference**: `alt_geom` (geometric feet MSL) preferred, fallback `alt_baro` (barometric feet). Converted to meters. Approximate MSL.
 
-For each active drone:
-1. Filter aircraft within evaluation radius (default 10 km) using fast lat/lon bounding box pre-filter
-2. Calculate haversine distance for remaining candidates
-3. Sort by distance
-4. Apply state classification
+**Coordinate validation**: `lat is not None and lon is not None` (no explicit 0,0 rejection — readsb does not emit 0,0 for missing positions; it omits the fields entirely).
 
-### Pre-filter (fast reject)
+### 1.2 ADSBNet (Network ADS-B)
 
-At typical latitudes (40-50°N), 10km ≈ 0.09° latitude, ≈ 0.12° longitude. A bounding-box check avoids haversine for distant aircraft.
+| Aspect | Detail |
+|--------|--------|
+| Backend service | `services/air_network.py` |
+| Providers | SolarMonitor, OGN-derived ADSB, OpenSky |
+| API | `GET /api/air/network?minLat&maxLat&minLon&maxLon&showAll` |
+| Enable/disable | **Frontend-only**: `localStorage("adsbNetworkEnabled")` — if "false", frontend skips API call |
+| Backend enable | None — backend always serves if asked |
+| Internet check | `services/network.py: has_internet()` (TCP 8.8.8.8:53 timeout 2s) |
+| Provider failure | Each returns `[]` independently on timeout/error |
+| Merge | `merge_aircraft(*lists)` — dedup by ICAO, keep newest `updatedAt` |
+| Frontend label | "ADSB Net" |
+| Refresh | 15s frontend polling (same timer as ADSBRx) |
+
+**Aircraft fields from ADSBNet** (same structure as ADSBRx):
+
+```python
+{
+    "icao": str,
+    "callsign": str,
+    "lat": float,
+    "lon": float,
+    "altitude": float,    # meters (sources vary: OpenSky=geo meters, Solar=feet→m)
+    "speed": float|None,  # m/s (from knots)
+    "heading": float,
+    "category": str|None,
+    "isHelicopter": bool,
+    "source": "SOLARMONITOR_ADSB" | "OGN_ADSB" | "OPENSKY",
+    "updatedAt": int      # milliseconds epoch
+}
+```
+
+**Existing merge logic** (`merge_aircraft`): iterates all provider lists, deduplicates by `icao`, keeps entry with newest `updatedAt`. This means source provenance is lost after merge — only the winning source's `source` field survives.
+
+**Key finding**: ADSBNet has NO backend-side enable/disable. The preference lives entirely in the browser localStorage. The backend proximity engine cannot directly know whether the user wants ADSBNet — it must be told via configuration.
+
+### 1.3 Remote ID (Drones)
+
+| Aspect | Detail |
+|--------|--------|
+| Backend service | `services/ds110.py` |
+| Protocol | MAVLink (OPEN_DRONE_ID_MESSAGE_PACK + BAD_DATA decode) |
+| Serial | Configured in `settings.ds110.device` at `settings.ds110.baudrate` |
+| API | `GET /api/remoteid/aircraft` |
+| Enable/disable | `POST /api/ds110/enable` → start/stop worker thread |
+| Health | `is_alive()` — MAVLink heartbeat within 30s |
+| In-memory cache | `remoteid_aircraft` dict keyed by serial/operator_id |
+| Frontend label | "RID" |
+| Refresh | 5s frontend polling |
+
+**Drone fields**:
+
+```python
+{
+    "source": "RemoteID" | "DJI DroneID",
+    "serial": str|None,       # ODID Basic ID (primary identifier)
+    "vendor": str|None,       # identified from serial prefix
+    "model": str|None,        # identified from serial code
+    "lat": float|None,        # WGS84 latitude
+    "lon": float|None,        # WGS84 longitude
+    "altitude": float|None,   # meters (ODID geometric, WGS84 ellipsoid, (raw-2000)/2)
+    "height": float|None,     # meters AGL (ODID, (raw-2000)/2)
+    "speed": float|None,      # m/s (ODID encoding)
+    "heading": float|None,    # degrees (ODID direction)
+    "operator_lat": float|None,
+    "operator_lon": float|None,
+    "operator_altitude": float|None,
+    "operator_id": str|None,
+    "last_seen": str          # ISO 8601 UTC (datetime.now(timezone.utc).isoformat())
+}
+```
+
+**Coordinate validation**: `is_valid_position(lat, lon)` — rejects `(0.0, 0.0)` (ODID sentinel for no GPS fix), validates -90≤lat≤90, -180≤lon≤180.
+
+**Altitude reference**: ODID `altitude` = geometric altitude above WGS84 ellipsoid. NOT comparable to ADS-B barometric/MSL.
+
+### 1.4 OGN/FLARM (Deferred from MVP)
+
+| Aspect | Detail |
+|--------|--------|
+| Backend service | `services/ogn_network.py` |
+| Data source | `solarmonitor.kwos.org/api/ogn/traffic` (filtered: FLARM, SAFESKY, FREEFLIGHT, FANET) |
+| API | `GET /api/ogn/network?bounds` |
+| Enable/disable | Frontend-only: `localStorage("ognNetworkEnabled")` |
+| Requires Internet | Yes |
+| Separate from ADSBNet | Yes — different endpoint, different source filter, different frontend module |
+
+**Decision**: OGN/FLARM is deferred from the proximity MVP. The architecture supports adding it later as an additional source category.
 
 ---
 
-## State Model
+## 2. Proposed Architecture
+
+### 2.1 Authoritative Backend Proximity Engine
+
+The proximity engine runs in the **backend** (Python).
+
+**Rationale**:
+- Future Meshtastic alerts need proximity state from backend
+- Single source of truth for thresholds/stale/hysteresis (no JS/Python duplication)
+- Backend already has access to all traffic data
+- Normalizes and deduplicates before evaluation
+- API makes results available to any consumer
+
+**Trade-off**: Adds lightweight computation to the Flask process. Acceptable because calculation is O(n×m) with small n,m and completes in <100ms.
+
+### 2.2 Module Structure
+
+```
+backend/services/proximity/
+├── __init__.py
+├── engine.py           # Main evaluation loop, pair management
+├── normalize.py        # Aircraft normalization, deduplication, source merge
+├── calc.py             # Haversine, bounding-box filter
+├── state.py            # State machine, hysteresis, stale lifecycle
+├── trend.py            # Movement trend analysis
+└── config.py           # Proximity configuration access
+
+backend/routes/
+└── proximity.py        # API: GET /api/proximity/status
+
+frontend/js/proximity/
+├── proximity-controller.js  # Poll API, manage lifecycle
+├── proximity-layer.js       # Leaflet objects (lines, rings, labels)
+└── proximity-panel.js       # Nearby-traffic panel
+frontend/css/
+└── proximity.css            # Proximity styles
+```
+
+### 2.3 Architecture Diagram
+
+```mermaid
+flowchart TD
+    subgraph Backend["Backend (Python)"]
+        ADSBRxSvc["services/air_local.py"]
+        ADSBNetSvc["services/air_network.py"]
+        DS110["services/ds110.py"]
+        
+        Normalize["proximity/normalize.py<br/>Merge + Deduplicate"]
+        Engine["proximity/engine.py<br/>Evaluate pairs, manage state"]
+        Calc["proximity/calc.py<br/>Haversine"]
+        State["proximity/state.py<br/>Hysteresis, stale"]
+        Trend["proximity/trend.py<br/>Movement analysis"]
+        API["routes/proximity.py<br/>GET /api/proximity/status"]
+    end
+
+    subgraph Frontend["Browser"]
+        Controller["proximity-controller.js<br/>5s poll"]
+        Layer["proximity-layer.js<br/>Lines, rings"]
+        Panel["proximity-panel.js<br/>Nearby list"]
+    end
+
+    ADSBRxSvc --> Normalize
+    ADSBNetSvc --> Normalize
+    DS110 --> Engine
+    Normalize --> Engine
+    Calc --> Engine
+    State --> Engine
+    Trend --> Engine
+    Engine --> API
+    API --> Controller
+    Controller --> Layer
+    Controller --> Panel
+```
+
+### 2.4 Responsibility Split
+
+**Backend**:
+- Read ADSBRx tracks from `air_local.py` (call `get_local_aircraft` with wide bounds)
+- Read optional ADSBNet tracks from `air_network.py` (only if enabled in proximity config)
+- Read drone tracks from `ds110.py` (`get_aircraft()`)
+- Normalize fields and units
+- Deduplicate aircraft by ICAO
+- Preserve source provenance
+- Validate coordinates and timestamps
+- Evaluate all valid drone-aircraft pairs
+- Calculate horizontal distance (haversine)
+- Manage track freshness per-source and per-normalized-target
+- Manage hysteresis state
+- Calculate movement trend
+- Expose results via `GET /api/proximity/status`
+- Provide reusable internal interface for future Meshtastic alerts
+
+**Frontend**:
+- Poll `/api/proximity/status` every 5 seconds
+- Render nearby-traffic panel
+- Render distance lines, labels, proximity rings
+- Apply optional pulse animation
+- Clean up Leaflet objects
+- Show source provenance where appropriate
+- Do NOT independently calculate proximity states
+
+---
+
+## 3. Normalized Aircraft Model
+
+```python
+class NormalizedTarget:
+    track_id: str               # Primary: ICAO hex; fallback: synthetic ID
+    icao: str | None
+    callsign: str | None
+    latitude: float
+    longitude: float
+    altitude: float | None      # meters (informational only, not used for proximity)
+    altitude_reference: str     # "baro_msl" | "geo_msl" | "geo_wgs84" | "unknown"
+    ground_speed: float | None  # m/s
+    track_heading: float | None # degrees
+    updated_at: float           # seconds epoch (most recent from any source)
+    primary_source: str         # "ADSBRx" | "ADSBNet"
+    sources: list[str]          # ["ADSBRx"] or ["ADSBNet"] or ["ADSBRx", "ADSBNet"]
+    source_timestamps: dict     # {"ADSBRx": epoch, "ADSBNet": epoch}
+    is_helicopter: bool
+    category: str | None
+```
+
+### Source Provenance Labels (for UI)
+
+| Condition | Label |
+|-----------|-------|
+| Only ADSBRx provides data | `RX` |
+| Only ADSBNet provides data | `NET` |
+| Both provide data | `RX+NET` |
+
+---
+
+## 4. Source Precedence and Duplicate Handling
+
+### Deduplication Key
+
+Primary: **ICAO hex address** (case-insensitive).
+
+### Merge Policy
+
+1. If ADSBRx provides a fresh position for an ICAO → use ADSBRx position
+2. If ADSBRx position is stale but ADSBNet has a fresh position → use ADSBNet position
+3. Never replace a newer local position with an older network position
+4. Supplement missing fields from ADSBNet (callsign, category) when ADSBRx lacks them
+5. Maintain both source timestamps independently
+6. `primary_source` = whichever source provided the current position
+
+### Fallback Behavior
+
+| Condition | Behavior |
+|-----------|----------|
+| ICAO missing (some OpenSky edge cases) | Use synthetic ID, cannot merge with local |
+| Callsigns differ between sources | Prefer ADSBRx callsign if available |
+| One source has newer coordinates | Use newer coordinates, record both timestamps |
+| ADSBRx disappears, ADSBNet still has target | Target continues from ADSBNet, `primary_source` = "ADSBNet" |
+| ADSBNet disappears, ADSBRx still has target | Target continues from ADSBRx, `sources` updated |
+| Same target reappears from another source | Merge into existing normalized target, preserve history |
+
+### Transition Rules
+
+When a target switches primary source:
+- Preserve `track_id` (stable identity)
+- Preserve proximity-pair identity
+- Preserve distance history if position continuity is plausible (<5km jump)
+- Reset history if jump is implausible (>50km)
+
+---
+
+## 5. Source Health Model
+
+Separate from individual track freshness:
+
+```python
+class SourceHealth:
+    source: str         # "ADSBRx" | "ADSBNet"
+    state: str          # DISABLED | AVAILABLE | DEGRADED | OFFLINE | ERROR
+    last_successful: float | None  # epoch of last successful data retrieval
+    error: str | None
+```
+
+| Source | DISABLED | AVAILABLE | DEGRADED | OFFLINE |
+|--------|----------|-----------|----------|---------|
+| ADSBRx | `adsb_local_enabled` = false | File fresh | File exists but stale | File absent |
+| ADSBNet | `proximity.adsb_net_enabled` = false | ≥1 provider returned data | Some providers failed | All failed or no Internet |
+
+**Key rule**: Source health is reported for diagnostics. It does NOT affect the freshness of individual targets already received. A target received 5s ago from ADSBRx remains fresh even if the ADSBRx source transitions to OFFLINE one second later.
+
+---
+
+## 6. Stale Lifecycle
+
+### Timeouts (configurable)
+
+| Concept | Default | Purpose |
+|---------|---------|---------|
+| `aircraft_source_stale_ms` | 30000 | A single-source track is stale after this age |
+| `drone_stale_ms` | 15000 | A drone track is stale after this age |
+| `target_retention_ms` | 60000 | Normalized target removed from engine after this total staleness |
+| `pair_stale_grace_ms` | 10000 | Proximity graphics remain in STALE visual before removal |
+
+### Freshness Rules
+
+- A **source-track** is fresh if `now - source_timestamp < aircraft_source_stale_ms`
+- A **normalized target** is fresh if ANY contributing source-track is fresh
+- A **normalized target** becomes stale when ALL source-tracks are stale
+- A **proximity pair** becomes STALE when either the drone or target is stale
+- A stale normalized target is retained for `target_retention_ms` (supports source switching)
+- After retention expires, the target is removed and any associated pairs are dropped
+
+### Source-Switching Without Staleness
+
+```
+t=0s:   Aircraft ABC123 received from ADSBRx (fresh)
+t=10s:  Aircraft ABC123 received from ADSBNet (fresh) → sources=["ADSBRx","ADSBNet"]
+t=25s:  ADSBRx stops receiving ABC123 (ADSBRx source-track age=15s, still fresh)
+t=35s:  ADSBRx source-track stale (age=25s > 30s threshold)
+        BUT ADSBNet source-track was updated at t=28s → target still FRESH
+t=60s:  ADSBNet also stops → both stale → target STALE → pair STALE
+t=70s:  pair_stale_grace_ms expired → proximity graphics removed
+t=120s: target_retention_ms expired → target removed from engine
+```
+
+---
+
+## 7. Distance Calculation
+
+### Haversine
+
+```python
+import math
+
+def haversine_meters(lat1, lon1, lat2, lon2):
+    R = 6_371_000  # Earth radius meters
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = (math.sin(dlat / 2) ** 2 +
+         math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) *
+         math.sin(dlon / 2) ** 2)
+    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+```
+
+### Bounding-Box Pre-filter
+
+At 45°N latitude, 10km ≈ 0.09° lat, 0.13° lon. Quick reject before haversine.
+
+### Pair Evaluation (per cycle)
+
+For each active drone:
+1. Pre-filter aircraft outside bounding box
+2. Haversine for remaining candidates
+3. Classify each pair
+4. Rank: WARNING > CAUTION > MONITOR; ties by shortest distance
+
+---
+
+## 8. State Model
 
 ```mermaid
 stateDiagram-v2
     [*] --> NORMAL
-    NORMAL --> MONITOR : distance < 3000m
-    MONITOR --> CAUTION : distance < 1500m
-    CAUTION --> WARNING : distance < 1500m → < 500m
-    WARNING --> CAUTION : distance > 700m
-    CAUTION --> MONITOR : distance > 1800m
-    MONITOR --> NORMAL : distance > 3300m
+    NORMAL --> MONITOR : distance < entry_monitor
+    MONITOR --> CAUTION : distance < entry_caution
+    CAUTION --> WARNING : distance < entry_warning
+    WARNING --> CAUTION : distance > exit_warning
+    CAUTION --> MONITOR : distance > exit_caution
+    MONITOR --> NORMAL : distance > exit_monitor
     
     NORMAL --> STALE : track stale
     MONITOR --> STALE : track stale
     CAUTION --> STALE : track stale
     WARNING --> STALE : track stale
-    STALE --> [*] : track removed
+    STALE --> [*] : grace expired
 ```
 
-### Hysteresis
-
-Each state transition uses separate entry and exit thresholds:
-- Enter MONITOR: distance < 3000m
-- Exit MONITOR: distance > 3300m (10% hysteresis)
-- Same pattern for CAUTION and WARNING
-
-This prevents flickering when an aircraft hovers near a threshold boundary.
-
-### Stale Timeout
-
-When a track becomes stale:
-1. Pair state → STALE
-2. Proximity graphics switch to gray/dashed
-3. After 10s grace, proximity graphics are removed
-4. Pair is dropped from evaluation
+Direct escalation allowed: an aircraft appearing directly within WARNING range enters WARNING immediately.
 
 ---
 
-## Movement Analysis
+## 9. Movement Trend
 
-### Distance Trend
+### Model
 
-Maintain a short history (last 3 distance calculations, ~15s window):
+Maintain per-pair distance history: circular buffer of last 4 entries (covers ~20s at 5s intervals).
 
-```javascript
-{
-    pairId: "DRONE_serial:AC_icao",
-    history: [
-        { time: t1, distance: d1 },
-        { time: t2, distance: d2 },
-        { time: t3, distance: d3 }
-    ]
-}
+```python
+class TrendEntry:
+    timestamp: float   # epoch seconds
+    distance: float    # meters
+
+class TrendResult:
+    trend: str         # "APPROACHING" | "DIVERGING" | "STABLE" | "UNKNOWN"
+    rate: float | None # m/s (optional, for diagnostics)
 ```
 
-**Approaching**: if distance decreased consistently over at least 2 samples spanning > 3 seconds.
-**Diverging**: if distance increased consistently over at least 2 samples spanning > 3 seconds.
-**Stable/Unknown**: otherwise.
+### Determination Rules
 
-### Requirements for Movement Determination
+- Require ≥3 valid samples
+- Time span of samples must be ≥10 seconds
+- Deadband: 50m (changes within deadband = STABLE)
+- APPROACHING: distance decreased by > deadband consistently
+- DIVERGING: distance increased by > deadband consistently
+- STABLE: net change within deadband
+- UNKNOWN: insufficient samples, inconsistent direction, or history contains implausible jump
 
-- Minimum 2 history entries
-- Time span > 3 seconds between oldest and newest
-- Both entries must have valid coordinates
-- No implausible jump (> 50km) between consecutive entries
+### Display
 
-### Excluded from MVP
-
-- Closing speed (m/s rate of change)
-- CPA calculation
-- TCPA prediction
-
-These are prepared architecturally (the history buffer supports them) but not computed in the MVP.
+Use explicit text labels: `APR`, `DIV`, `STB`, `—` (for UNKNOWN).
+NOT vertical arrows (avoid confusion with climb/descent).
 
 ---
 
-## Altitude Handling
+## 10. Multiple-Drone Behavior
 
-### Analysis of References
+Evaluate **all valid drone-aircraft pairs** inside the evaluation radius.
 
-| Source | Altitude Field | Reference |
-|--------|---------------|-----------|
-| Local ADS-B | `altitude` | Barometric or geometric, ≈ MSL, feet→meters |
-| Network ADS-B (OpenSky) | `altitude` | Geometric meters MSL |
-| Network ADS-B (SolarMonitor) | `altitude` | feet→meters, baro or geo |
-| Remote ID (ODID) | `altitude` | Geometric WGS84 ellipsoid |
-| Remote ID (ODID) | `height` | AGL (above takeoff) |
+### Ranking and Display Limits
 
-**Conclusion**: Aircraft altitude ≈ MSL (mixed baro/geo). Drone altitude = WGS84 ellipsoid. The difference between MSL and WGS84 can be 20-50m in Italy. Combined with baro/geo mixing, **vertical separation cannot be reliably determined**.
+- Calculate all pairs
+- Rank: severity first (WARNING > CAUTION > MONITOR), then distance (shorter first)
+- Deterministic tie-breaking: drone serial alphabetical, then aircraft ICAO alphabetical
+- Panel: display top 5 pairs (across all drones)
+- Rings: display on up to 5 distinct aircraft
+- Distance line: draw ONE line for the highest-priority pair only
+- Show both drone and aircraft identifiers in every panel entry
 
-### MVP Decision
+### Why Not Single Reference Drone
 
-- **Do not display vertical separation warnings**
-- **Do display raw altitude values** in the nearby-traffic panel for informational awareness
-- **Prepare** the data structure to include vertical fields for future use
-- **Never** generate a proximity state escalation based on altitude alone
+One critical pair involving Drone-B must not be hidden because Drone-A is currently "nearest." Operational safety requires visibility of all WARNING/CAUTION pairs regardless of which drone is involved.
 
 ---
 
-## Configuration
+## 11. Coordinate Validation
 
-### Settings Location
+| Check | Behavior |
+|-------|----------|
+| lat or lon is None | Skip target |
+| lat or lon is not finite (NaN, Inf) | Skip target |
+| lat outside [-90, 90] | Skip target |
+| lon outside [-180, 180] | Skip target |
+| `(0.0, 0.0)` for drones | Reject (verified ODID sentinel for no GPS fix) |
+| `(0.0, 0.0)` for aircraft | Accept (readsb does not emit 0,0 as sentinel; it omits fields entirely. Network sources could theoretically have 0,0 for targets near Null Island) |
+
+**Note**: Aircraft `(0.0, 0.0)` is astronomically unlikely in operational use (Gulf of Guinea). If it becomes a problem, it can be filtered later. The DS110 0,0 rejection is verified as correct ODID behavior.
+
+---
+
+## 12. Configuration
 
 Add `proximity` section to `config/settings.json`:
 
@@ -268,6 +490,7 @@ Add `proximity` section to `config/settings.json`:
 {
   "proximity": {
     "enabled": true,
+    "adsb_net_enabled": true,
     "evaluation_radius_m": 10000,
     "thresholds": {
       "monitor_entry_m": 3000,
@@ -277,41 +500,83 @@ Add `proximity` section to `config/settings.json`:
       "warning_entry_m": 500,
       "warning_exit_m": 700
     },
-    "stale_timeout_aircraft_ms": 30000,
-    "stale_timeout_drone_ms": 15000,
-    "stale_grace_ms": 10000,
+    "aircraft_source_stale_ms": 30000,
+    "drone_stale_ms": 15000,
+    "target_retention_ms": 60000,
+    "pair_stale_grace_ms": 10000,
     "calculation_interval_ms": 5000,
-    "max_nearby_display": 5,
-    "show_approaching_diverging": true,
+    "max_panel_entries": 5,
+    "max_rendered_aircraft": 5,
+    "movement_deadband_m": 50,
+    "movement_history_window_s": 15,
     "pulse_on_warning": true
   }
 }
 ```
 
-### Frontend Access
+### ADSBNet Enable in Proximity Context
 
-Loaded via existing `GET /api/settings` (already used by `dashboard.js`). No new API endpoint needed for reading. A new `POST /api/settings/proximity` route will allow Dashboard configuration.
+- `proximity.adsb_net_enabled`: controls whether the proximity engine fetches ADSBNet data
+- This does NOT create a second ADSBNet toggle — it respects the concept that ADSBNet is optional
+- If Internet is unavailable, ADSBNet automatically becomes unavailable without changing the config
+- The existing frontend `localStorage("adsbNetworkEnabled")` controls the frontend traffic display independently
+
+### Default Handling
+
+If `settings.json` has no `proximity` section, the engine uses the defaults above. No crash or error on first run.
+
+### API
+
+```
+GET  /api/proximity/config    → returns proximity configuration
+POST /api/proximity/config    → updates and persists
+GET  /api/proximity/status    → returns current proximity results (the main polling endpoint)
+```
 
 ---
 
-## API Changes
+## 13. Proximity API Response
 
-### New Route
+`GET /api/proximity/status`:
 
-`backend/routes/settings.py` — add proximity settings endpoint:
-
+```json
+{
+  "enabled": true,
+  "source_health": {
+    "adsb_rx": {"state": "AVAILABLE", "last_successful": 1722783600.0},
+    "adsb_net": {"state": "AVAILABLE", "last_successful": 1722783598.0},
+    "remote_id": {"state": "AVAILABLE", "last_successful": 1722783602.0}
+  },
+  "drones_active": 2,
+  "targets_active": 8,
+  "pairs": [
+    {
+      "pair_id": "1581F4QW1234:3C6589",
+      "drone_id": "1581F4QW1234",
+      "drone_label": "DJI Avata",
+      "target_id": "3C6589",
+      "target_label": "POLI32",
+      "distance_m": 420,
+      "state": "WARNING",
+      "trend": "APR",
+      "drone_lat": 41.893, "drone_lon": 12.577,
+      "target_lat": 41.897, "target_lon": 12.580,
+      "target_altitude_m": 350,
+      "target_source": "RX",
+      "target_updated_ago_s": 3,
+      "drone_updated_ago_s": 2
+    }
+  ],
+  "calculation_time_ms": 12,
+  "last_calculated": 1722783605.0
+}
 ```
-GET  /api/settings/proximity    → returns proximity config
-POST /api/settings/proximity    → updates proximity config, calls save_settings()
-```
 
-### No New Traffic APIs
-
-Proximity calculation happens in the frontend using data already available from existing APIs.
+The `pairs` array is pre-ranked (severity, then distance). Frontend renders the first `max_panel_entries`.
 
 ---
 
-## Map Integration
+## 14. Map Integration
 
 ### New Pane
 
@@ -320,228 +585,170 @@ map.createPane("traffic-proximity");
 map.getPane("traffic-proximity").style.zIndex = 670;
 ```
 
-Z-index 670 places proximity graphics above all traffic layers but below UI overlays.
-
 ### Visual Elements
 
-| Element | When Shown | Style |
-|---------|-----------|-------|
-| Distance line | Reference drone → nearest proximity aircraft | Dashed, colored by state |
-| Distance label | On the line midpoint | Text with background |
-| Proximity ring | On aircraft marker | Colored circle border |
-| Approaching/diverging arrow | In nearby panel | ↓ (red) / ↑ (green) |
-| Pulse animation | WARNING state only | Subtle CSS pulse on ring (if enabled) |
+| Element | State | Color | Line Pattern | Text |
+|---------|-------|-------|-------------|------|
+| Distance line | MONITOR | #007AFF (blue) | Dashed | "MON" |
+| Distance line | CAUTION | #FF9500 (orange) | Dashed | "CTN" |
+| Distance line | WARNING | #FF3B30 (red) | Solid | "WRN" |
+| Distance line | STALE | #8E8E93 (gray) | Dotted | "STL" |
+| Proximity ring | Per state | Same as line | Same as line | — |
+| Distance label | At midpoint | — | — | "1.2 km" or "450 m" |
+| Pulse | WARNING only | — | — | CSS animation (if enabled) |
 
-### Colors
+### Accessibility
 
-| State | Line Color | Ring Color |
-|-------|-----------|-----------|
-| MONITOR | `#007AFF` (blue) | `#007AFF` |
-| CAUTION | `#FF9500` (orange) | `#FF9500` |
-| WARNING | `#FF3B30` (red) | `#FF3B30` |
-| STALE | `#8E8E93` (gray) | `#8E8E93` |
+Every state distinguishable by THREE channels:
+1. Color
+2. Line pattern (solid/dashed/dotted)
+3. Text label (MON/CTN/WRN/STL)
 
 ### Object Lifecycle
 
-```mermaid
-sequenceDiagram
-    participant Timer as Proximity Timer (5s)
-    participant Calc as proximity-calc
-    participant State as proximity-state
-    participant Layer as proximity-layer
-    participant Map as Leaflet Map
-
-    Timer->>Calc: evaluate pairs
-    Calc->>State: classify each pair
-    State->>Layer: state changes
-    
-    alt New proximity pair
-        Layer->>Map: create line + label + ring
-    else Updated pair
-        Layer->>Map: update position + color + label
-    else Pair exits proximity
-        Layer->>Map: remove line + label + ring
-    else Track stale
-        Layer->>Map: gray out, then remove after grace
-    end
-```
+- Created when pair enters non-NORMAL state (from API response)
+- Updated on each poll cycle
+- Removed when pair no longer in API response
+- Stale pairs shown grayed briefly, then removed by frontend after one cycle without the pair
 
 ---
 
-## Nearby Traffic Panel
-
-A compact floating panel (bottom-left or bottom-right of map) showing:
+## 15. Nearby Traffic Panel
 
 ```
-┌─────────────────────────────┐
-│ NEARBY TRAFFIC              │
-│ Ref: DJI Mavic 3 (1581F…)  │
-├─────────────────────────────┤
-│ ↓ ICA4B1A2E  450m  WARNING │
-│ ↑ POLI32     1.2km MONITOR │
-│   CC118      2.8km MONITOR │
-│   N/A        4.1km NORMAL  │
-└─────────────────────────────┘
+┌──────────────────────────────────┐
+│ NEARBY TRAFFIC                   │
+├──────────────────────────────────┤
+│ DJI Avata → POLI32   450m  WRN APR │
+│ DJI Avata → CC118    1.2km CTN DIV │
+│ Dronetag  → ICA4B1A  2.8km MON STB │
+└──────────────────────────────────┘
 ```
 
-- Shows when at least one drone is active AND at least one aircraft is within evaluation radius
-- Hidden when no drone is present
-- Maximum 5 entries
-- Updates every calculation cycle
+- Floating panel, bottom-right, semi-transparent background
+- Shows when ≥1 pair with non-NORMAL state exists
+- Hidden when no proximity pairs or no drones
+- Each entry: drone label → aircraft label, distance, state badge, trend
+- Source label (RX/NET/RX+NET) shown on hover or in expanded mode
+- Does NOT show continuous error when ADSBNet is disabled/offline
 
 ---
 
-## Logging
+## 16. Network Loss and Source Switching
 
-Use existing `console.log` / `console.warn` pattern with `[PROXIMITY]` prefix for frontend logging.
+### Verified Transitions
 
-No backend logging changes needed (no backend proximity computation).
+| # | Scenario | Engine Behavior |
+|---|----------|----------------|
+| 1 | Start offline, ADSBRx only | Engine uses ADSBRx tracks only. Full proximity. |
+| 2 | Internet becomes available, ADSBNet contributes | New targets merged, existing ADSBRx targets enriched. |
+| 3 | Internet disappears, ADSBRx remains | ADSBNet source-tracks age out. Targets with ADSBRx remain fresh. |
+| 4 | ADSBNet provider fails, Internet remains | That provider's tracks age out; other providers continue. |
+| 5 | Aircraft enters ADSBRx from ADSBNet-only | Merge: primary_source switches to ADSBRx. Pair identity preserved. |
+| 6 | Aircraft leaves ADSBRx, remains in ADSBNet | Merge: primary_source switches to ADSBNet. Pair preserved. |
+| 7 | ADSBNet manually disabled (config change) | Engine stops fetching ADSBNet. Existing net-only targets age out naturally. |
+| 8 | ADSBNet enabled but no Internet | Engine attempts fetch, gets empty results. Same as scenario 3. |
+| 9 | Same aircraft, different update ages | Use position from newer source. Preserve both timestamps. |
+| 10 | ADSBRx restarts | Existing targets from ADSBRx go stale. ADSBNet covers gap if available. |
+
+### Stability Rules
+
+- Source transitions preserve: track_id, pair_id, distance history (if <50km jump), hysteresis state
+- Reset history only on implausible position discontinuity
 
 ---
 
-## Error Handling
+## 17. Altitude Handling
+
+| Source | Field | Reference |
+|--------|-------|-----------|
+| ADSBRx | `altitude` | ~MSL (baro or geo, mixed) |
+| ADSBNet (OpenSky) | `altitude` | Geometric MSL meters |
+| ADSBNet (Solar) | `altitude` | Feet→meters (baro or geo) |
+| Remote ID | `altitude` | WGS84 ellipsoid |
+| Remote ID | `height` | AGL (above takeoff) |
+
+**MVP decision**: Do NOT compute or display vertical separation. Altitude values are included in the normalized model for informational display only. The panel MAY show raw altitude but MUST NOT show vertical separation or derive proximity states from altitude.
+
+---
+
+## 18. Performance
+
+### Expected Load
+
+- Drones: 1-5 (typical: 1-2)
+- Aircraft within 10km: 0-30
+- Pairs: 0-150
+- Haversine per cycle: 0-150 (negligible: <5ms)
+- Total cycle time target: <100ms
+
+### Optimization
+
+- Bounding-box pre-filter before haversine
+- Skip pairs where both positions unchanged since last cycle
+- Limit trend history to 4 entries per pair
+- API response pre-sorted (frontend does no sorting)
+
+### Performance Validation Criteria
+
+| Metric | Method | Acceptable |
+|--------|--------|-----------|
+| Backend CPU | 5-min `top` observation | Sustained increase < 5% |
+| API response time | Measure `calculation_time_ms` in response | p95 < 100ms |
+| Frontend rendering | Visual observation on RPi | No perceptible lag |
+| Memory | `ps` RSS before and after | Increase < 10MB |
+
+---
+
+## 19. Error Handling
 
 | Condition | Behavior |
 |-----------|----------|
-| No drones visible | Disable proximity, hide panel, remove graphics |
-| No aircraft visible | Show panel with "No aircraft in range" |
-| Invalid drone coordinates | Skip drone, log warning |
-| Invalid aircraft coordinates | Skip aircraft |
-| Position jump > 50km | Skip update, mark history uncertain |
+| No drones visible | Empty pairs, panel hidden |
+| No aircraft visible | Panel shows "No aircraft in range" |
+| ADSBRx service not running | Source health = DISABLED/OFFLINE, no ADSBRx tracks |
+| ADSBNet disabled | Source health = DISABLED, no ADSBNet tracks |
+| Internet unavailable | ADSBNet source health = OFFLINE, ADSBRx unaffected |
+| Invalid drone coordinates | Skip drone for this cycle |
+| Invalid aircraft coordinates | Skip target |
+| Position jump > 50km | Reset that target's trend history, mark uncertain |
 | Configuration missing | Use hardcoded defaults |
-| Settings API unreachable | Use last known or defaults |
+| Proximity API error | Frontend shows last known state, retries next cycle |
 
 ---
 
-## Performance Analysis
+## 20. Security and Privacy
 
-### Expected Load (typical operation)
-
-- Drones: 1-3 (usually 1 in range)
-- Aircraft within 10km: 0-15 (depends on location)
-- Pairs to evaluate: 1-45
-- Haversine calculations per cycle: 1-45
-- Cycle time: ~1ms for 45 haversine calls (negligible)
-
-### Optimization Strategy
-
-1. Bounding-box pre-filter eliminates distant aircraft without haversine
-2. Only recalculate when underlying data changes (check `updatedAt`)
-3. Limit history buffer to 3 entries per pair
-4. Debounce panel updates (no more than 1 DOM update per cycle)
-5. Use `requestAnimationFrame` for Leaflet layer updates
-
-### Raspberry Pi Constraints
-
-- Browser rendering is the bottleneck, not calculation
-- Limit to 1 distance line + 5 proximity rings maximum
-- Use lightweight Leaflet objects (circles, polylines) not complex SVGs
-- Avoid continuous animation; pulse only on WARNING state
-
----
-
-## Compatibility
-
-- Does not modify `air-layer.js`, `drone-layer.js`, or their data structures
-- Reads from existing marker collections (`markersByIcao`, `DRONES.markers`)
-- Does not modify marker popups (adds information via panel, not popup replacement)
-- Works alongside existing mission layers (different pane)
-- No conflict with dark-map overlay (proximity pane above it)
-
----
-
-## Migration
-
-No migration needed. Feature is purely additive:
-- New JS modules
-- New CSS
-- New settings section (added to existing settings.json)
-- New map pane
-- New settings route
-
-Disabling `proximity.enabled` removes all proximity behavior cleanly.
-
----
-
-## Test Strategy
-
-### Unit Tests (pytest + JS test runner)
-
-- Haversine accuracy against known distances
-- State transitions with hysteresis
-- Stale detection
-- Movement analysis (approaching/diverging)
-- Invalid data handling
-- Bounding-box pre-filter
-
-### Synthetic Traffic Tests
-
-- Python script generating mock aircraft + drone positions
-- Inject via local API or mock JSON files
-- Test scenarios: approaching, crossing, departing, stale
-
-### Frontend Integration Tests
-
-- Verify panel appears/disappears correctly
-- Verify map objects created/removed
-- Verify color changes at threshold boundaries
-
-### Physical Validation (separate task)
-
-- Deploy to Mini Tracker staging
-- Observe with real ADS-B + test Remote ID beacon
-- Measure CPU/RAM impact
-- Verify Dashboard responsiveness
-
----
-
-## Physical Validation Plan
-
-1. Record stable starting commit
-2. Deploy committed proximity feature to `/home/pi/tracker-mini-staging`
-3. Stop `tracker-mini.service`
-4. Start staging version
-5. Verify local ADS-B active (readsb output present)
-6. Place DS110 receiver in range of test drone (or use drone beacon simulator)
-7. Observe proximity calculations and map rendering
-8. Measure CPU with `htop`
-9. Verify stale cleanup when drone is powered off
-10. Verify no interference with existing traffic layers
-11. Stop staging, restore stable service
-12. Record results in `AI_HANDOFF.md`
-
----
-
-## Security and Privacy
-
-- No new external network requests
-- No new data sent to DSC or third parties
+- No new external network requests (uses existing traffic APIs internally)
+- No new data sent to DSC or third parties in MVP
 - Proximity state is ephemeral (in-memory only)
-- No PII exposed beyond what existing traffic markers already show
-- No new authentication requirements
+- No PII beyond what existing traffic already shows
+- No authentication changes
 
 ---
 
-## Risks
+## 21. Risks
 
 | Risk | Impact | Mitigation |
 |------|--------|-----------|
-| Drone update rate (5s) limits movement analysis accuracy | Approaching/diverging may be unreliable | Require ≥2 samples over >3s; show "unknown" when uncertain |
-| Aircraft altitude incompatible with drone altitude | Cannot determine vertical separation | Do not display vertical warnings in MVP |
-| Noisy GPS on drone causes false proximity changes | Flickering states | Hysteresis + minimum movement threshold |
-| Multiple drones create visual clutter | Map becomes confusing | Use only nearest drone as reference; limit to 1 line |
-| Raspberry Pi browser struggles with rendering | Dashboard lag | Limit visual elements; avoid continuous animation |
-| ADS-B position delayed by network source latency | Displayed distance is stale | Show updatedAt age in panel; mark if > 15s old |
+| Drone 5s update rate limits trend accuracy | Movement determination may be unreliable | Require ≥3 samples over ≥10s; show UNKNOWN when uncertain |
+| ADS-B vs ODID altitude incompatible | Cannot determine vertical separation | Do not display vertical warnings in MVP |
+| Noisy drone GPS causes state flickering | User confusion | Hysteresis + 50m deadband |
+| ADSBNet latency makes positions stale | Displayed proximity may be inaccurate | Show `target_updated_ago_s` in panel; mark if >15s |
+| Multiple drones × many aircraft = many pairs | Panel clutter | Limit to 5 panel entries and 5 rings; ranked |
+| Backend computation on Raspberry Pi | Performance degradation | <100ms cycle; skip unchanged pairs; pre-filter |
+| ADSBNet merge loses source provenance | Cannot show origin | Proximity engine maintains its own normalized targets with provenance |
 
 ---
 
-## Rejected Alternatives
+## 22. Rejected Alternatives
 
-| Alternative | Reason for Rejection |
-|-------------|---------------------|
-| Backend proximity calculation with new API | Adds Raspberry Pi CPU load, requires new endpoint, adds latency; frontend already has all data |
-| Calculate for ALL drone-aircraft pairs simultaneously | Visual clutter, performance cost, confusing UX with multiple lines |
-| Use drone height (AGL) for vertical comparison | AGL reference point unknown, incompatible with ADS-B MSL |
-| Implement full CPA/TCPA in MVP | Insufficient data quality (5s drone updates, noisy GPS); risk of misleading predictions |
-| Persistent proximity log | Adds storage writes; not needed for operational awareness; can be added later |
-| Sound alerts | May be disruptive in field operations; can be added in a future iteration |
+| Alternative | Reason |
+|-------------|--------|
+| Frontend-only calculation | Cannot support future Meshtastic alerts; duplicates logic |
+| Single reference drone | Hides critical pairs involving other drones |
+| OGN/FLARM in MVP | Adds Internet dependency and complex deduplication without offline benefit |
+| CPA/TCPA in MVP | 5s drone updates insufficient for reliable prediction |
+| Vertical separation | Altitude references incompatible between sources |
+| Sound alerts | May disrupt field operations; deferred |
+| Use existing merge_aircraft for dedup | Loses source provenance needed by proximity engine |

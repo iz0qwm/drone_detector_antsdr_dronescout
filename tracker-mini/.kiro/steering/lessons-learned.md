@@ -42,6 +42,24 @@ Project-specific patterns, preferences, and lessons learned over time.
 - The first `git push` (without explicit `origin main`) works but produces no visible success output due to terminal echo noise.
 - A subsequent `git push origin main` reports "Everything up-to-date" because the first push already succeeded.
 - To confirm push success, check `git log --oneline -1` and verify that `origin/main` points to the expected commit hash. Don't rely on push command output in this terminal.
+- UPDATE: `git push` does show full progress output when there are actual objects to push. The silent case only occurs when the push has already happened.
+
+## Traffic Data Field Differences
+
+Critical for any feature working with multiple traffic sources:
+
+- **Aircraft `updatedAt`** = millisecond epoch (number). **Drone `last_seen`** = ISO 8601 UTC string. Always convert before comparing.
+- **Aircraft altitude** ≈ MSL (barometric or geometric, mixed depending on source). **Drone altitude** = WGS84 ellipsoid (ODID encoding). These are NOT comparable — difference can be 20-50m in Italy.
+- **Aircraft speed** = m/s (converted from knots). **Drone speed** = m/s (from ODID). Units happen to match, but sources differ.
+- **Aircraft identifier** = `icao` (hex string). **Drone identifier** = `serial` (manufacturer string).
+- **Staleness**: Aircraft uses miss-counter + 60s grace in frontend. Drones are removed immediately when absent from API.
+
+## Frontend Traffic Module Access Pattern
+
+- Aircraft state lives in `markersByIcao` (Map) inside `air-layer.js` module scope — accessed via `window.AIR`
+- Drone state lives in `DRONES.markers` (plain object keyed by serial) — directly accessible
+- Both are module-scoped but exposed on `window` globals
+- Refresh cadences: Aircraft 15s, Drones 5s, OGN 10s — any cross-source feature must handle different update rates
 
 ## Onboarding Dependency
 
