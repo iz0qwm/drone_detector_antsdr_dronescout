@@ -235,6 +235,79 @@ flowchart TD
 - Show source provenance where appropriate
 - Do NOT independently calculate proximity states
 
+### 2.5 ADSBNet Snapshot Cache
+
+The proximity engine must NOT fetch Internet providers on every 5-second cycle.
+
+**Design**: A shared `ADSBNetCache` service performs provider retrieval at a separate interval:
+
+```python
+class ADSBNetCache:
+    refresh_interval_ms: int = 15000  # configurable, ≥ current frontend cadence
+    last_fetch_time: float
+    last_result: ProviderResult
+    fetch_in_progress: bool
+
+    def get_snapshot() -> ProviderResult:
+        """Returns last completed result (never blocks on network)."""
+
+    def _refresh():
+        """Called by the worker; fetches providers, stores result."""
+```
+
+**Cadence separation**:
+
+| Cadence | Value | Purpose |
+|---------|-------|---------|
+| ADSBNet provider refresh | 15s (configurable: `adsb_net_refresh_interval_ms`) | Actual Internet requests |
+| ADSBRx local read | Every proximity cycle (5s) | Local file read, no network |
+| Proximity calculation | 5s (`calculation_interval_ms`) | Evaluate pairs |
+| Frontend API poll | 5s | Display results |
+
+The proximity engine calls `adsb_net_cache.get_snapshot()` which returns immediately with the latest cached data. If a refresh is in progress, the previous valid snapshot is returned.
+
+### 2.6 Managed Proximity Worker Lifecycle
+
+The proximity engine runs as a managed background daemon thread, independent of browser connections (required for future Meshtastic consumers).
+
+```python
+class ProximityEngine:
+    _thread: threading.Thread | None
+    _stop_event: threading.Event
+    _snapshot: ProximitySnapshot  # thread-safe immutable result
+    _started: bool = False
+
+    def start(self):
+        """Idempotent start. No-op if already running."""
+        if self._started:
+            return
+        self._started = True
+        self._stop_event = threading.Event()
+        self._thread = threading.Thread(target=self._loop, daemon=True)
+        self._thread.start()
+
+    def stop(self):
+        """Clean shutdown. Signals thread and waits."""
+        self._stop_event.set()
+        if self._thread:
+            self._thread.join(timeout=5)
+        self._started = False
+
+    def _loop(self):
+        """Main worker loop."""
+        while not self._stop_event.is_set():
+            self._calculate_cycle()
+            self._stop_event.wait(timeout=self._interval_s)
+
+    def get_snapshot(self) -> ProximitySnapshot:
+        """Thread-safe read of latest results. Used by API route and future Meshtastic."""
+        return self._snapshot
+```
+
+**Duplicate prevention**: `start()` is idempotent. Flask debug reload with `use_reloader=True` may call startup twice — the `_started` flag prevents duplicate threads. In production (single-process `app.run`), this is not an issue.
+
+**Shutdown**: `stop()` uses `Event.set()` to interrupt the `wait()`, ensuring clean exit without hanging threads.
+
 ---
 
 ## 3. Normalized Aircraft Model
@@ -274,14 +347,16 @@ class NormalizedTarget:
 
 Primary: **ICAO hex address** (case-insensitive).
 
-### Merge Policy
+### Merge Policy (Timestamp-Aware)
 
-1. If ADSBRx provides a fresh position for an ICAO → use ADSBRx position
-2. If ADSBRx position is stale but ADSBNet has a fresh position → use ADSBNet position
-3. Never replace a newer local position with an older network position
-4. Supplement missing fields from ADSBNet (callsign, category) when ADSBRx lacks them
-5. Maintain both source timestamps independently
-6. `primary_source` = whichever source provided the current position
+1. Discard source positions that are stale (age > `aircraft_source_stale_ms`)
+2. Among remaining fresh positions, prefer the most recently updated one
+3. When ADSBRx and ADSBNet timestamps are within `source_precedence_tie_window_s` (default: 3s), prefer ADSBRx (local source advantage)
+4. Use the non-primary source to supplement missing non-position fields (callsign, category)
+5. Never replace a newer valid position with an older one
+6. Never allow a stale source to override a fresh source
+7. Maintain both source timestamps independently
+8. `primary_source` = whichever source provided the current position
 
 ### Fallback Behavior
 
@@ -309,19 +384,34 @@ When a target switches primary source:
 Separate from individual track freshness:
 
 ```python
+class ProviderResult:
+    provider: str           # "SolarMonitor" | "OGN_ADSB" | "OpenSky"
+    successful: bool        # True even if zero aircraft returned
+    aircraft: list          # May be empty on a successful fetch
+    fetch_timestamp: float  # epoch seconds
+    response_duration_ms: float
+    error: str | None       # None if successful
+
 class SourceHealth:
-    source: str         # "ADSBRx" | "ADSBNet"
+    source: str         # "ADSBRx" | "ADSBNet" | "RemoteID"
     state: str          # DISABLED | AVAILABLE | DEGRADED | OFFLINE | ERROR
     last_successful: float | None  # epoch of last successful data retrieval
     error: str | None
 ```
 
+**Provider health is based on execution result, not aircraft count.** A successful HTTP response with zero aircraft is `successful=True` (empty sky). A timeout or HTTP error is `successful=False` (provider failure).
+
 | Source | DISABLED | AVAILABLE | DEGRADED | OFFLINE |
 |--------|----------|-----------|----------|---------|
-| ADSBRx | `adsb_local_enabled` = false | File fresh | File exists but stale | File absent |
-| ADSBNet | `proximity.adsb_net_enabled` = false | ≥1 provider returned data | Some providers failed | All failed or no Internet |
+| ADSBRx | `settings.traffic.adsb_local_enabled` = false | File fresh | File exists but mtime > 30s | File absent |
+| ADSBNet | `settings.traffic.adsb_net_enabled` = false | ≥1 provider `successful=True` | Some providers failed | All failed or no Internet |
+| RemoteID | DS110 worker not running | `is_alive()` = True | Worker running, no heartbeat | Worker stopped |
 
-**Key rule**: Source health is reported for diagnostics. It does NOT affect the freshness of individual targets already received. A target received 5s ago from ADSBRx remains fresh even if the ADSBRx source transitions to OFFLINE one second later.
+**Key rules**:
+- Source health is reported for diagnostics. It does NOT affect freshness of targets already received.
+- A target received 5s ago from ADSBRx remains fresh even if ADSBRx transitions to OFFLINE.
+- An empty successful response does NOT degrade source health.
+- Source labels in the UI (`RX`, `NET`, `RX+NET`) represent currently accepted **fresh** contributors, not sources observed historically.
 
 ---
 
@@ -357,6 +447,16 @@ t=60s:  ADSBNet also stops → both stale → target STALE → pair STALE
 t=70s:  pair_stale_grace_ms expired → proximity graphics removed
 t=120s: target_retention_ms expired → target removed from engine
 ```
+
+### Stale Pair API Lifecycle
+
+The backend is authoritative for the stale grace period:
+
+1. Pair enters STALE state → backend keeps pair in `/api/proximity/status` with `"state": "STALE"`
+2. Frontend renders gray dotted representation
+3. After `pair_stale_grace_ms` expires → backend removes pair from the API snapshot
+4. Frontend removes Leaflet objects on the next poll (pair absent from response)
+5. Frontend does NOT independently invent a stale timeout — it trusts the API presence/absence
 
 ---
 
@@ -432,13 +532,17 @@ class TrendResult:
 
 ### Determination Rules
 
-- Require ≥3 valid samples
+- Require ≥3 valid samples (valid positions + timestamps)
 - Time span of samples must be ≥10 seconds
 - Deadband: 50m (changes within deadband = STABLE)
 - APPROACHING: distance decreased by > deadband consistently
 - DIVERGING: distance increased by > deadband consistently
 - STABLE: net change within deadband
 - UNKNOWN: insufficient samples, inconsistent direction, or history contains implausible jump
+- Speed and heading are NOT required for trend determination (trend is derived from successive distance values)
+- Speed and heading may be used for supplementary validation or diagnostics only
+- Missing speed or heading alone must NOT disable trend analysis
+- Reset history after: stale state, target identity discontinuity, or implausible jump (>50km)
 
 ### Display
 
@@ -490,7 +594,6 @@ Add `proximity` section to `config/settings.json`:
 {
   "proximity": {
     "enabled": true,
-    "adsb_net_enabled": true,
     "evaluation_radius_m": 10000,
     "thresholds": {
       "monitor_entry_m": 3000,
@@ -505,10 +608,12 @@ Add `proximity` section to `config/settings.json`:
     "target_retention_ms": 60000,
     "pair_stale_grace_ms": 10000,
     "calculation_interval_ms": 5000,
+    "adsb_net_refresh_interval_ms": 15000,
     "max_panel_entries": 5,
     "max_rendered_aircraft": 5,
     "movement_deadband_m": 50,
     "movement_history_window_s": 15,
+    "source_precedence_tie_window_s": 3,
     "pulse_on_warning": true
   }
 }
@@ -516,10 +621,29 @@ Add `proximity` section to `config/settings.json`:
 
 ### ADSBNet Enable in Proximity Context
 
-- `proximity.adsb_net_enabled`: controls whether the proximity engine fetches ADSBNet data
-- This does NOT create a second ADSBNet toggle — it respects the concept that ADSBNet is optional
-- If Internet is unavailable, ADSBNet automatically becomes unavailable without changing the config
-- The existing frontend `localStorage("adsbNetworkEnabled")` controls the frontend traffic display independently
+**Unified authoritative setting**: This feature introduces `settings.traffic.adsb_net_enabled` as the single authoritative backend ADSBNet preference, shared by:
+- The proximity engine
+- The existing ADSBNet traffic display (frontend migrated to read/write this setting)
+- Future Meshtastic consumers
+- Diagnostics
+
+**Migration from localStorage**:
+1. On first use after upgrade, if `settings.traffic.adsb_net_enabled` does not exist in `settings.json`:
+   - The frontend reads the existing `localStorage("adsbNetworkEnabled")` value
+   - POSTs it to the new backend setting endpoint
+   - The backend persists it to `settings.json`
+   - The frontend removes the localStorage key
+2. After migration, the backend setting is authoritative
+3. The frontend toggle reads/writes via API (`GET/POST /api/settings/traffic`)
+4. A user who previously disabled ADSBNet will NOT have it silently re-enabled
+5. New installations: ADSBNet defaults to **disabled** (conservative default for a field device)
+
+**Runtime behavior**:
+- If `adsb_net_enabled` = false: proximity engine and frontend skip ADSBNet entirely
+- If `adsb_net_enabled` = true but Internet unavailable: ADSBNet becomes OFFLINE automatically, no config change
+- If Internet returns: ADSBNet resumes without restart
+
+This replaces the previous `proximity.adsb_net_enabled` field. The `proximity` config section does NOT contain an ADSBNet toggle.
 
 ### Default Handling
 
@@ -574,6 +698,8 @@ GET  /api/proximity/status    → returns current proximity results (the main po
 
 The `pairs` array is pre-ranked (severity, then distance). Frontend renders the first `max_panel_entries`.
 
+**Non-blocking guarantee**: `GET /api/proximity/status` returns the latest completed engine snapshot immediately. It does NOT trigger network requests, provider fetches, or a new calculation cycle. Response time is deterministic and unaffected by Internet availability.
+
 ---
 
 ## 14. Map Integration
@@ -627,7 +753,9 @@ Every state distinguishable by THREE channels:
 
 - Floating panel, bottom-right, semi-transparent background
 - Shows when ≥1 pair with non-NORMAL state exists
-- Hidden when no proximity pairs or no drones
+- Hidden when no non-NORMAL proximity pairs exist (including when no drones or no aircraft)
+- Does NOT continuously display "No aircraft in range" on the operational map
+- Source problems shown in diagnostics/status panel, not in the proximity panel
 - Each entry: drone label → aircraft label, distance, state badge, trend
 - Source label (RX/NET/RX+NET) shown on hover or in expanded mode
 - Does NOT show continuous error when ADSBNet is disabled/offline
@@ -705,7 +833,7 @@ Every state distinguishable by THREE channels:
 | Condition | Behavior |
 |-----------|----------|
 | No drones visible | Empty pairs, panel hidden |
-| No aircraft visible | Panel shows "No aircraft in range" |
+| No aircraft visible | Empty pairs, panel hidden (source status in diagnostics) |
 | ADSBRx service not running | Source health = DISABLED/OFFLINE, no ADSBRx tracks |
 | ADSBNet disabled | Source health = DISABLED, no ADSBNet tracks |
 | Internet unavailable | ADSBNet source health = OFFLINE, ADSBRx unaffected |

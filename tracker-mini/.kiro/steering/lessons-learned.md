@@ -61,6 +61,14 @@ Critical for any feature working with multiple traffic sources:
 - Both are module-scoped but exposed on `window` globals
 - Refresh cadences: Aircraft 15s, Drones 5s, OGN 10s — any cross-source feature must handle different update rates
 
+## ADSBNet Enable/Disable Architecture Gap
+
+- ADSBNet has NO backend-side enable/disable setting. The enable preference lives **entirely** in browser `localStorage("adsbNetworkEnabled")`.
+- The backend (`air_network.py`) always serves data if the API is called — it doesn't check any preference.
+- This means any new backend feature that needs to know whether the user wants ADSBNet (like the proximity engine) must have its OWN configuration flag (e.g., `proximity.adsb_net_enabled`).
+- Do not assume the backend can read the frontend localStorage preference.
+- This pattern may apply to OGN as well (`localStorage("ognNetworkEnabled")` — same frontend-only toggle pattern).
+
 ## Onboarding Dependency
 
 - Physical device inspection requires SSH access that cannot be automated without stored credentials.

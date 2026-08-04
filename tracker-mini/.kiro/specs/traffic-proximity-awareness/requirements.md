@@ -92,11 +92,11 @@ Verified implementation:
 - Refresh: frontend polls every 15s (same timer as ADSBRx)
 
 Operational characteristics:
-- Optional, enabled by user preference (localStorage)
+- Optional, enabled by user preference (currently localStorage, migrating to authoritative backend setting `settings.traffic.adsb_net_enabled`)
 - Requires Internet connectivity
 - Fails gracefully (each provider independent, returns [] on error)
 - Must not be required for Traffic Proximity Awareness
-- Currently NO backend-side enable/disable setting exists — purely frontend preference
+- This feature introduces one authoritative backend ADSBNet setting shared by display, proximity engine, and future consumers
 
 ### Remote ID (Drones)
 
@@ -224,7 +224,7 @@ Compact panel listing up to 5 pairs ordered by severity then distance:
 - Movement trend indicator
 - Source label (RX / NET / RX+NET) when diagnostically useful
 
-Panel visible when ≥1 drone active AND ≥1 aircraft within evaluation radius.
+Panel visible when ≥1 pair with non-NORMAL state exists. Panel hidden otherwise (no "No aircraft in range" message on the operational map; source status belongs in diagnostics).
 
 ### FR-11: Movement Trend
 
@@ -233,6 +233,8 @@ Using ≥3 valid distance samples over 10-15s window:
 - DIVERGING: distance consistently increasing beyond deadband
 - STABLE: change within deadband
 - UNKNOWN: insufficient data or inconsistent
+
+Speed and heading are NOT required inputs — trend is derived from successive distance calculations using valid positions and timestamps. Missing speed or heading alone must NOT disable trend analysis.
 
 Display: explicit text labels or horizontal arrows (NOT vertical arrows that could be confused with climb/descent).
 
@@ -243,11 +245,12 @@ Only aircraft within configurable maximum radius (default: 10 km) from any activ
 ### FR-13: Invalid Data Handling
 
 - Missing lat/lon → skip target
-- `(0.0, 0.0)` → treat as invalid (verified: ODID sentinel for no GPS fix)
+- `(0.0, 0.0)` for drones → reject (verified: ODID sentinel for no GPS fix)
+- `(0.0, 0.0)` for aircraft → accept (readsb omits fields for missing, does not use 0,0 as sentinel; network sources theoretically possible near Null Island)
 - lat/lon outside ±90/±180 → skip target
 - Non-finite values → skip target
-- Missing speed/heading → disable movement analysis for that pair
-- Implausible position jump > 50km between updates → mark history uncertain
+- Missing speed/heading → does NOT disable movement trend (trend uses distance history, not velocity)
+- Implausible position jump > 50km between updates → reset trend history, mark uncertain
 
 ### FR-14: Network Loss Transitions
 
@@ -280,13 +283,15 @@ Feature fully operational with ADSBRx + Remote ID only (no Internet).
 
 - Proximity state is in-memory only; reset on backend restart
 - No persistent storage required
-- One additional lightweight computation cycle in the existing Flask process (no new threads)
+- One managed daemon thread for the proximity engine (follows existing Mini Tracker service pattern: DS110, Meshtastic, DSC heartbeat)
+- One managed daemon thread for the ADSBNet cache refresh (may be combined with the engine thread)
+- Engine runs independently of browser connections (required for future Meshtastic)
 
 ### NFR-04: Compatibility
 
 - Must not interfere with existing traffic layers or data structures
 - Must preserve existing marker popups
-- Must respect existing ADSBNet user preference (localStorage)
+- Must use the unified authoritative `settings.traffic.adsb_net_enabled` setting (migrated from localStorage)
 - Must work alongside mission layers and team markers
 
 ### NFR-05: Accessibility

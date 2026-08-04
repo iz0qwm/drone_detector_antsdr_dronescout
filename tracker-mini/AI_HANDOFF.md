@@ -137,7 +137,7 @@ Only one major Feature Spec should be actively implemented at a time unless the 
 
 ### MT-TRAFFIC-01 — Traffic Proximity Awareness
 
-Status: **Specified (Revision 2)** — awaiting review
+Status: **Specified (Revision 3 — Final)** — awaiting review
 Owner: Kiro
 Specification: `.kiro/specs/traffic-proximity-awareness/` (requirements.md, design.md, tasks.md)
 Working branch: Current repository branch (main)
@@ -145,17 +145,25 @@ Starting commit: To be recorded at implementation start
 Latest commit: Not started
 Push status: Not started
 
-Key design decisions (Revision 2):
+Key design decisions (Revision 3 — Final):
 - Authoritative proximity engine in backend (Python), not frontend
 - All valid drone-aircraft pairs evaluated (not single reference drone)
 - ADSBRx = primary local source, works offline
-- ADSBNet = optional enrichment, frontend preference respected
+- ADSBNet = optional enrichment; ONE unified authoritative backend setting (migrated from localStorage)
+- ADSBNet snapshot cache: network providers fetched at 15s interval, proximity engine reads cache (no blocking)
+- Managed daemon thread worker with idempotent start/stop (follows existing DS110/Meshtastic pattern)
 - Normalized target model with source provenance and ICAO deduplication
+- Timestamp-aware source precedence with configurable tie window (3s default, ADSBRx preferred on tie)
+- Provider health based on execution success, not aircraft count (empty sky ≠ failure)
 - OGN/FLARM deferred from MVP
 - Source health tracked separately from individual track freshness
-- Movement trend: ≥3 samples, 10-15s window, 50m deadband, text labels (not vertical arrows)
-- Backend exposes `GET /api/proximity/status` consumed by frontend
+- Movement trend: ≥3 samples, 10-15s window, 50m deadband, text labels (not vertical arrows); speed/heading NOT required
+- Backend exposes `GET /api/proximity/status` — fast, non-blocking, returns latest snapshot
+- Stale pairs remain in API during grace period, removed after expiry; frontend trusts API lifecycle
+- Panel hidden when no non-NORMAL pairs exist (no continuous "no aircraft" message)
 - Accessibility: color + line pattern + text label (not color alone)
+- Coordinate validation: (0,0) rejected for drones only (ODID sentinel), accepted for aircraft
+- Test framework: pytest at workspace root, platform-independent commands
 
 Goal:
 
@@ -600,15 +608,15 @@ DSC integration test support: Not present
 ## Active Work Record
 
 ```text
-Task: Traffic Proximity Awareness — Feature Spec Revision 2
+Task: Traffic Proximity Awareness — Feature Spec Revision 3 (Final)
 Feature: MT-TRAFFIC-01
 Owner: Kiro
 Working branch: main
-Starting commit: 4e968b0
-Latest commit: Pending (spec revision)
+Starting commit: 0e5879e
+Latest commit: Pending (spec final revision)
 Push status: Pending
 Specification: .kiro/specs/traffic-proximity-awareness/
-Status: Spec revised, awaiting Raffaello review
+Status: Spec finalized, awaiting Raffaello review
 Started: 2026-08-04
 Last updated: 2026-08-04
 
@@ -625,8 +633,8 @@ Shared contracts affected: None
 Tests completed: None (spec only)
 Physical tests completed: None
 Known issues: None
-Rollback reference: 4e968b0
-Next action: Raffaello reviews revised spec, then implementation begins
+Rollback reference: 0e5879e
+Next action: Raffaello reviews final spec, then implementation begins
 ```
 
 ---

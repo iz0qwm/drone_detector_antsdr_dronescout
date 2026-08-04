@@ -25,9 +25,32 @@
 - Create scenarios: approaching, crossing, departing, stationary, stale
 
 **Test commands**:
+
+Windows (development):
 ```bash
-cd backend
-py -3 -m pytest tests/ -v
+cd tracker-mini
+python -m pytest tests -v
+```
+
+Raspberry Pi (device):
+```bash
+cd /home/pi/tracker-mini
+python3 -m pytest tests -v
+```
+
+Proximity-only tests:
+```bash
+python -m pytest tests -k proximity -v
+```
+
+Integration tests:
+```bash
+python -m pytest tests/test_proximity_integration.py -v
+```
+
+Performance tests (optional, longer duration):
+```bash
+python -m pytest tests -k performance --timeout=60 -v
 ```
 
 **Tests**:
@@ -135,34 +158,41 @@ py -3 -m pytest tests/ -v
 
 ---
 
-## Task 5: Configuration
+## Task 5: Configuration and ADSBNet Setting Migration
 
-**Objective**: Add proximity configuration to settings system.
+**Objective**: Add proximity configuration and unify ADSBNet preference as authoritative backend setting.
 
 **Files affected**:
-- `config/settings.json` (add `proximity` section)
+- `config/settings.json` (add `proximity` section + `traffic.adsb_net_enabled`)
 - `backend/services/proximity/config.py` (new)
 - `backend/routes/proximity.py` (new, config endpoints)
+- `backend/routes/settings.py` (extend: `GET/POST /api/settings/traffic`)
+- `frontend/js/dashboard.js` (migrate localStorage → backend setting on first load)
+- `frontend/js/air/air-network.js` (read enable from backend instead of localStorage)
 - `tests/test_proximity_config.py` (new)
 
 **Dependencies**: None (parallel with Tasks 2-4)
 
 **Work**:
-- Add default `proximity` section to `config/settings.json`
+- Add `traffic.adsb_net_enabled` to `settings.json` (default: `false` for new installs)
+- Add `proximity` section with defaults (no `adsb_net_enabled` inside proximity)
 - Implement `get_proximity_config()` with fallback defaults
 - Implement `update_proximity_config(data)` with validation
-- Add routes: `GET /api/proximity/config`, `POST /api/proximity/config`
-- Validate: entry < exit thresholds, positive radii, reasonable ranges
-- Respect existing patterns (`SETTINGS`, `save_settings()`)
+- Add `GET/POST /api/settings/traffic` for ADSBNet enable (shared setting)
+- Add `GET/POST /api/proximity/config` routes
+- Frontend migration: on load, if backend `traffic.adsb_net_enabled` not set AND localStorage exists → POST migration, remove localStorage key
+- Frontend ADSBNet toggle: read/write via API instead of localStorage
+- Validate: entry < exit thresholds, positive radii
 
 **Tests**:
-- GET returns current config (or defaults if section missing)
+- GET returns config (or defaults if missing)
 - POST updates and persists
 - Invalid thresholds rejected
-- Missing section → defaults used (no crash)
-- `adsb_net_enabled` respects Internet availability at runtime
+- Missing proximity section → defaults
+- ADSBNet migration preserves user's previous choice
+- New install has ADSBNet disabled by default
 
-**Completion criteria**: Proximity configuration readable, writable, validated.
+**Completion criteria**: Single authoritative ADSBNet setting; proximity config accessible via API.
 
 ---
 
@@ -231,30 +261,39 @@ py -3 -m pytest tests/ -v
 
 ## Task 8: Proximity Engine Integration
 
-**Objective**: Wire all components into the main evaluation loop.
+**Objective**: Wire all components into a managed background worker with ADSBNet cache.
 
 **Files affected**:
 - `backend/services/proximity/engine.py` (new)
+- `backend/services/proximity/adsb_net_cache.py` (new)
 - `backend/routes/proximity.py` (extend with status endpoint)
-- `backend/app.py` (register blueprint, start engine timer)
+- `backend/app.py` (register blueprint, start engine)
 - `tests/test_proximity_engine.py` (new)
 
 **Dependencies**: Tasks 2-7
 
 **Work**:
-- Implement `ProximityEngine` class:
-  - Reads ADSBRx via `air_local.get_local_aircraft()` (wide bounds)
-  - Reads optional ADSBNet via `air_network.get_network_aircraft()` (if enabled + Internet)
-  - Reads drones via `ds110.get_aircraft()`
-  - Normalizes and merges aircraft
-  - Evaluates all pairs
-  - Manages state lifecycle
-  - Updates trend history
-  - Returns ranked results
-- Implement 5-second calculation timer (threading.Timer or loop in main tick)
-- Implement `GET /api/proximity/status` returning current results
+- Implement `ADSBNetCache`:
+  - Daemon thread performing provider fetch at `adsb_net_refresh_interval_ms` (default 15s)
+  - `get_snapshot()` returns last completed result immediately (never blocks)
+  - Stores `ProviderResult` per provider (successful bool, aircraft list, timestamp, error)
+  - Respects `settings.traffic.adsb_net_enabled` and Internet availability
+- Implement `ProximityEngine`:
+  - Managed daemon thread with `start()` / `stop()` / `_stop_event`
+  - Idempotent `start()` (prevents duplicate threads on Flask reload)
+  - `_loop()`: `Event.wait(interval)` pattern (interruptible, not recursive Timer)
+  - Reads ADSBRx from `air_local.get_local_aircraft()` (local file, every cycle)
+  - Reads ADSBNet from `adsb_net_cache.get_snapshot()` (cached, no network call)
+  - Reads drones from `ds110.get_aircraft()`
+  - Normalizes, merges, evaluates, manages state
+  - Stores thread-safe immutable `ProximitySnapshot`
+  - `get_snapshot()` for API route and future Meshtastic
+- Implement `GET /api/proximity/status`:
+  - Returns `engine.get_snapshot()` immediately
+  - Does NOT trigger network requests or new calculation
+  - Fast and deterministic even when Internet is unavailable
 - Register `proximity_bp` in `app.py`
-- Start engine timer in `app.py` startup sequence
+- Start engine and cache in `app.py` startup sequence (after existing services)
 
 **Tests**:
 - Engine produces correct results with ADSBRx + drones
@@ -263,8 +302,11 @@ py -3 -m pytest tests/ -v
 - Engine handles no drones gracefully
 - Engine handles no aircraft gracefully
 - Cycle completes within 100ms with 50 aircraft × 5 drones
+- API returns immediately even when Internet is unavailable
+- Duplicate `start()` calls produce no duplicate threads
+- `stop()` cleanly terminates the worker
 
-**Completion criteria**: Backend proximity engine runs autonomously, serves correct API responses.
+**Completion criteria**: Backend proximity engine runs autonomously as managed worker, serves fast API responses.
 
 ---
 
