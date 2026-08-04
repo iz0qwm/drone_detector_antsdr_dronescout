@@ -1,0 +1,3 @@
+# Development-only test dependencies.
+# Not required by the running Mini Tracker application.
+pytest>=7.0
