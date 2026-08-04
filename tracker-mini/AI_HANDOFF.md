@@ -608,33 +608,54 @@ DSC integration test support: Not present
 ## Active Work Record
 
 ```text
-Task: Traffic Proximity Awareness — Feature Spec Revision 3 (Final)
+Task: MT-TRAFFIC-01 Backend Milestone
 Feature: MT-TRAFFIC-01
 Owner: Kiro
 Working branch: main
-Starting commit: 0e5879e
-Latest commit: Pending (spec final revision)
+Starting commit: 2675723
+Latest commit: e285d96
 Push status: Pending
 Specification: .kiro/specs/traffic-proximity-awareness/
-Status: Spec finalized, awaiting Raffaello review
+Status: Backend milestone complete, 89 tests passing
 Started: 2026-08-04
 Last updated: 2026-08-04
 
-Files modified:
-  .kiro/specs/traffic-proximity-awareness/requirements.md (revised)
-  .kiro/specs/traffic-proximity-awareness/design.md (revised)
-  .kiro/specs/traffic-proximity-awareness/tasks.md (revised)
-  AI_HANDOFF.md (updated)
+Files created:
+  backend/services/proximity/__init__.py
+  backend/services/proximity/calc.py
+  backend/services/proximity/config.py
+  backend/services/proximity/normalize.py
+  backend/services/proximity/state.py
+  backend/services/proximity/trend.py
+  backend/services/proximity/engine.py
+  backend/routes/proximity.py
+  tests/conftest.py
+  tests/requirements-dev.txt
+  tests/test_proximity_calc.py
+  tests/test_proximity_normalize.py
+  tests/test_proximity_state.py
+  tests/test_proximity_trend.py
+  tests/test_proximity_engine.py
+  pytest.ini
+  .gitignore
 
-Services affected: None (spec only)
+Files modified: None (all new)
+
+Services affected: None yet (engine not wired into app.py — requires frontend integration)
 Hardware affected: None
-Shared contracts affected: None
+Shared contracts affected: New API routes (not yet registered)
 
-Tests completed: None (spec only)
-Physical tests completed: None
-Known issues: None
-Rollback reference: 0e5879e
-Next action: Raffaello reviews final spec, then implementation begins
+Tests completed: 89 tests, all passing (python -m pytest tests -v)
+Physical tests completed: None (backend milestone only)
+Known issues:
+  - Engine not yet started in app.py (intentional: needs frontend to be useful)
+  - proximity_bp not yet registered in app.py
+  - ADSBNet cache uses wide bounds which may be suboptimal on device
+Known limitations:
+  - Mocked tests only — no hardware validation
+  - No Flask integration test (route registration deferred to frontend milestone)
+Rollback reference: 2675723
+Next action: Frontend rendering milestone (proximity panel, map layer, app.py integration)
 ```
 
 ---
