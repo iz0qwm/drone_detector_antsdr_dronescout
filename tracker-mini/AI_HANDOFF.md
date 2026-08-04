@@ -40,7 +40,7 @@ Primary development agent: Kiro
 
 Kiro may:
 
-* inspect the entire repository;
+* inspect the entire Mini Tracker workspace under tracker-mini;
 * create and update Feature Specs;
 * modify backend and frontend code;
 * add and update tests;
@@ -93,7 +93,7 @@ Status: Planned
 
 The initial task is to inspect:
 
-* repository architecture;
+* Mini Tracker workspace architecture;
 * backend services;
 * frontend structure;
 * application startup;

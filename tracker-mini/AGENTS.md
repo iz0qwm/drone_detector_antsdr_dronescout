@@ -161,3 +161,55 @@ After completing meaningful work, update `AI_HANDOFF.md` with:
 * Do not weaken authentication or authorization checks.
 * Treat all external input, network data and imported files as untrusted.
 * Preserve existing privacy boundaries between public, operator and device data.
+
+## Workspace Scope
+
+These instructions apply exclusively to the Mini Tracker workspace located at:
+
+```text
+C:\sviluppo\Droni\drone_detector_antsdr_dronescout\tracker-mini
+```
+
+This directory is part of a larger Git repository that also contains other tracker systems and unrelated components.
+
+The current Kiro workspace root is `tracker-mini`.
+
+Kiro must:
+
+* inspect, search, modify, test and document only files contained inside the `tracker-mini` directory;
+* treat `tracker-mini` as the complete application workspace for the current development phase;
+* create all Kiro steering files and Feature Specs inside `tracker-mini/.kiro/`;
+* restrict Git diffs, staging and commits to files under `tracker-mini`;
+* report any dependency on files outside `tracker-mini` without opening or modifying those files.
+
+Kiro must not:
+
+* inspect parent directories;
+* inspect or modify sibling tracker implementations;
+* search the complete monorepository;
+* modify files outside `tracker-mini`;
+* create Kiro files in the parent repository root;
+* run repository-wide refactoring, formatting, testing or cleanup commands;
+* stage unrelated changes from other projects;
+* use `git add -A`, `git commit -a`, repository-wide search-and-replace or other commands that may include files outside the Mini Tracker workspace.
+
+Git metadata may indicate that `tracker-mini` belongs to a larger repository. This does not extend the permitted development scope.
+
+When running Git commands, restrict them to the current workspace whenever applicable, for example:
+
+```bash
+git status --short -- .
+git diff -- .
+git add -- .
+```
+
+Before every commit, verify that all staged files belong to `tracker-mini`.
+
+If a required dependency appears to exist outside the allowed workspace, stop that part of the task and report:
+
+* the required file or component;
+* why it appears necessary;
+* the expected integration;
+* the minimum access that would be required.
+
+Do not inspect the external component until Raffaello explicitly approves it.
