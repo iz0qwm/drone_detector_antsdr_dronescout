@@ -40,6 +40,8 @@ from routes.teams import teams_bp
 from services.meshtastic_service import start as start_meshtastic
 
 from config import SETTINGS
+from routes.proximity import proximity_bp
+from services.proximity.engine import engine as proximity_engine
 
 HELP_DIR = (
     Path(__file__).parent.parent
@@ -117,6 +119,16 @@ try:
 except Exception as e:
     print(f"LCD startup error: {e}")
 
+# Proximity Engine
+try:
+    from services.proximity.config import get_proximity_config
+    prox_config = get_proximity_config()
+    if prox_config.get("enabled", True):
+        print("Starting proximity engine...")
+        proximity_engine.start()
+except Exception as e:
+    print(f"Proximity engine startup error: {e}")
+
 
 app.register_blueprint(
     update_bp,
@@ -143,6 +155,7 @@ app.register_blueprint(readsb_bp)
 app.register_blueprint(meshtastic_bp)
 app.register_blueprint(teams_bp)
 app.register_blueprint(notifications_bp)
+app.register_blueprint(proximity_bp)
 
 
 @app.route("/")
