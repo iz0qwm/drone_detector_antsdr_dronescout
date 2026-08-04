@@ -389,6 +389,7 @@ async function loadNetworkStatus() {
 loadStatus();
 loadNetworkStatus();
 initTrafficSettings();
+migrateAdsbNetPreference();
 initMap();
 
 // Handle map source selection UI
@@ -1109,6 +1110,46 @@ function updateTrackerMarker(lat, lon, name) {
     `);
 }
 
+
+// ADSBNet preference migration: localStorage → backend authoritative setting
+async function migrateAdsbNetPreference() {
+    try {
+        const localPref = localStorage.getItem("adsbNetworkEnabled");
+        if (localPref === null) return; // No old preference to migrate
+
+        // Check if backend already has an explicit setting
+        const res = await fetch("/api/settings/traffic");
+        if (!res.ok) return;
+
+        const traffic = await res.json();
+
+        // If backend already has the key set explicitly (not just default),
+        // the migration already happened. Remove localStorage.
+        if (traffic._migrated_adsb_net) {
+            localStorage.removeItem("adsbNetworkEnabled");
+            return;
+        }
+
+        // Migrate: POST the old localStorage value to the backend
+        const enabled = localPref !== "false";
+        const postRes = await fetch("/api/settings/traffic", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                adsb_net_enabled: enabled,
+                _migrated_adsb_net: true
+            })
+        });
+
+        if (postRes.ok) {
+            localStorage.removeItem("adsbNetworkEnabled");
+            console.log("[MIGRATION] ADSBNet preference migrated to backend:", enabled);
+        }
+    } catch (err) {
+        // Migration failure is non-fatal; will retry next load
+        console.warn("[MIGRATION] ADSBNet migration failed:", err.message);
+    }
+}
 
 // Periodic refresh of status and network info every 5 seconds
 setInterval(async () => {

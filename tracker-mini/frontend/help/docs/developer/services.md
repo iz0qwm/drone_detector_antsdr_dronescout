@@ -70,6 +70,12 @@ flowchart TD
 | `layer_storage.py` | Mission layer file CRUD. |
 | `logger.py` | In-memory logs and standard output logging. |
 | `updater.py` | Update package validation, staging, test install, backup, restore and install request creation. |
+| `proximity/engine.py` | Traffic Proximity Awareness engine: managed background worker evaluating drone-aircraft pairs. |
+| `proximity/normalize.py` | Aircraft normalization, ADSBRx/ADSBNet deduplication and source provenance. |
+| `proximity/calc.py` | Haversine distance calculation and coordinate validation. |
+| `proximity/state.py` | Proximity state machine with hysteresis (MONITOR, CAUTION, WARNING, STALE). |
+| `proximity/trend.py` | Movement trend analysis (APPROACHING, DIVERGING, STABLE, UNKNOWN). |
+| `proximity/config.py` | Proximity configuration with code-defined defaults. |
 
 ---
 
@@ -130,6 +136,8 @@ Several services create background threads.
 | Meshtastic worker | `meshtastic_service.py` | `app.py` at startup when Meshtastic traffic is enabled, or `/api/meshtastic/enable` when the traffic configuration permits startup | Connects to the configured Meshtastic serial device, refreshes nodes and updates gateway position. |
 | LCD worker | `ui/lcd.py` | `app.py` at startup | Shows the boot screen, then refreshes the hardware status screen once per second. |
 | Map download worker | `routes/maps.py` and `map_downloader.py` | `/api/maps/download` | Downloads map tiles and writes an MBTiles file while updating in-memory job progress. |
+| Proximity engine | `proximity/engine.py` | `app.py` at startup when proximity is enabled | Evaluates drone-aircraft pairs every 5 seconds, exposes thread-safe snapshot for API and future Meshtastic. |
+| ADSBNet cache | `proximity/engine.py` | Proximity engine startup | Fetches network ADS-B providers at 15s intervals, stores snapshot for proximity engine (no network calls during API requests). |
 
 ```mermaid
 flowchart LR

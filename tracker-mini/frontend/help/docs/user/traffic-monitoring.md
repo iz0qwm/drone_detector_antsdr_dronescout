@@ -271,3 +271,86 @@ Recommended sequence:
 - The Dashboard refreshes traffic information periodically.
 
 ---
+
+## Traffic Proximity Awareness
+
+Mini Tracker provides **Traffic Proximity Awareness** to help the operator understand how close detected drones are to nearby aircraft.
+
+> **Traffic Proximity Awareness is informational only. It is not a certified collision-avoidance system and must not be used as the sole basis for separation decisions.**
+
+### What It Shows
+
+When one or more drones are detected and aircraft are present within the configured evaluation radius, Mini Tracker automatically calculates and displays horizontal proximity information:
+
+- A **distance line** from the most critical drone-aircraft pair
+- **Proximity rings** around up to five aircraft in proximity states
+- A **Nearby Traffic panel** listing the highest-severity drone-aircraft pairs
+
+### Proximity States
+
+| State | Meaning | Visual |
+|-------|---------|--------|
+| MONITOR (MON) | Aircraft within outer threshold | Blue dashed line |
+| CAUTION (CTN) | Aircraft within middle threshold | Orange dashed line |
+| WARNING (WRN) | Aircraft within inner threshold | Red solid line (with subtle pulse) |
+| STALE (STL) | Track data is outdated | Gray dotted line |
+
+Each state is shown with color, line pattern AND text label (not color alone) for readability in all conditions.
+
+### Nearby Traffic Panel
+
+A compact floating panel appears at the bottom-right of the map when proximity pairs exist. It shows:
+
+- Drone identifier → Aircraft callsign
+- Horizontal distance (meters or kilometers)
+- State badge (MON, CTN, WRN, STL)
+- Movement trend: APR (approaching), DIV (diverging), STB (stable), — (unknown)
+
+Clicking a panel entry centers the map on the relevant aircraft.
+
+The panel hides automatically when no drone-aircraft pairs are within proximity thresholds.
+
+### Movement Trend
+
+When sufficient position history is available (at least 10 seconds of observations), the system determines whether an aircraft is approaching, diverging, or maintaining stable distance from a drone.
+
+Movement labels: **APR** (approaching), **DIV** (diverging), **STB** (stable), **—** (insufficient data).
+
+### Offline Operation
+
+Traffic Proximity Awareness works fully offline using the local ADS-B receiver (ADSBRx) and Remote ID. Internet connectivity is not required.
+
+When Internet is available and ADSBNet is enabled, network aircraft data supplements the local picture. If Internet is lost, locally received aircraft continue to generate proximity calculations without interruption.
+
+### Configuration
+
+Default proximity thresholds are:
+
+| State | Entry Distance | Exit Distance |
+|-------|---------------|---------------|
+| MONITOR | 3000 m | 3300 m |
+| CAUTION | 1500 m | 1800 m |
+| WARNING | 500 m | 700 m |
+
+Exit thresholds are slightly larger than entry thresholds to prevent state flickering when an aircraft hovers near a boundary.
+
+Thresholds are configurable. They are operational parameters, not regulatory limits.
+
+### Limitations
+
+- Horizontal distance only — no vertical separation assessment
+- Altitude references between ADS-B and Remote ID are incompatible
+- Movement trend requires at least 10 seconds of position history
+- Update rate depends on traffic source refresh (approximately every 5 seconds)
+- Missing or stale position data is indicated rather than hidden
+
+---
+
+## Related Documentation
+
+- `product-overview.md`
+- `hardware/ads-b.md`
+- `hardware/remote-id.md`
+- `user/dashboard.md`
+- `user/maps.md`
+

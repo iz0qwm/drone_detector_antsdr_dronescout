@@ -962,3 +962,71 @@ Response fields: `success`, `package`, `backup`, `status`, or `error`.
 - `developer/frontend.md`
 - `developer/mission-storage.md`
 - `developer/coding-guidelines.md`
+
+---
+
+## Traffic Proximity Awareness
+
+### `GET /api/proximity/status`
+
+Returns the latest proximity engine snapshot. This endpoint is non-blocking and does not trigger network requests or calculation cycles.
+
+**Response:**
+
+```json
+{
+  "enabled": true,
+  "source_health": {
+    "adsb_rx": {"state": "AVAILABLE", "last_successful": 1722783600.0, "error": null},
+    "adsb_net": {"state": "DISABLED", "last_successful": null, "error": null},
+    "remote_id": {"state": "AVAILABLE", "last_successful": 1722783602.0, "error": null}
+  },
+  "drones_active": 1,
+  "targets_active": 5,
+  "pairs": [
+    {
+      "pair_id": "1581F4QW1234:3c6589",
+      "drone_id": "1581F4QW1234",
+      "drone_label": "DJI Avata",
+      "target_id": "3c6589",
+      "target_label": "DLH123",
+      "distance_m": 1200,
+      "state": "MONITOR",
+      "trend": "APR",
+      "drone_lat": 41.893,
+      "drone_lon": 12.577,
+      "target_lat": 41.903,
+      "target_lon": 12.580,
+      "target_altitude_m": 450,
+      "target_source": "RX",
+      "target_updated_ago_s": 3,
+      "drone_updated_ago_s": 2
+    }
+  ],
+  "calculation_time_ms": 8.5,
+  "last_calculated": 1722783605.0
+}
+```
+
+Pairs are pre-ranked by severity (WARNING > CAUTION > MONITOR > STALE) then distance.
+
+The engine runs as a managed backend worker and provides this state to API consumers and future Meshtastic integration.
+
+### `GET /api/proximity/config`
+
+Returns current proximity configuration merged with code-defined defaults.
+
+### `POST /api/proximity/config`
+
+Updates proximity configuration. Validates thresholds and persists via `save_settings()`.
+
+**Body:** JSON with any proximity configuration fields to update.
+
+### `GET /api/settings/traffic`
+
+Returns traffic source configuration including the authoritative `adsb_net_enabled` setting.
+
+### `POST /api/settings/traffic`
+
+Updates traffic source preferences. Used by the ADSBNet localStorage-to-backend migration.
+

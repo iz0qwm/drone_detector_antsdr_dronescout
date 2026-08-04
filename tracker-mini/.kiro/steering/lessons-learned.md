@@ -94,6 +94,15 @@ Critical for any feature working with multiple traffic sources:
 - Add `.gitignore` with `__pycache__/` and `*.pyc` BEFORE the first test run to avoid committing bytecode
 - The first test run without .gitignore will create cached files that need `git rm --cached` to fix
 
+## Performance Test Thresholds on Windows vs Raspberry Pi
+
+- Performance tests may pass or fail differently on Windows vs Raspberry Pi due to OS scheduling, mock overhead, and console logging
+- Windows development-machine results are NOT predictive of Raspberry Pi performance
+- Raspberry Pi performance is UNKNOWN until physical validation — do not assume it will be faster
+- Set test thresholds conservatively (200ms) to avoid false failures on the dev machine
+- The final acceptance threshold must be evaluated on the physical device with real traffic
+- No performance requirement should be weakened solely because Windows timing varies
+
 ## Onboarding Dependency
 
 - Physical device inspection requires SSH access that cannot be automated without stored credentials.

@@ -608,58 +608,71 @@ DSC integration test support: Not present
 ## Active Work Record
 
 ```text
-Task: MT-TRAFFIC-01 Frontend/Integration Milestone
+Task: MT-TRAFFIC-01 Local Hardening Pass
 Feature: MT-TRAFFIC-01
 Owner: Kiro
 Working branch: main
-Starting commit: 8372edb
-Latest commit: cfaafb5
+Starting commit: 0cb7af0
+Latest commit: Pending
 Push status: Pending
 Specification: .kiro/specs/traffic-proximity-awareness/
-Status: Frontend milestone complete, 89 tests passing, ready for physical validation
+Status: Local hardening complete, 106 tests passing, ready for physical validation
 Started: 2026-08-04
 Last updated: 2026-08-04
 
 Files created:
-  frontend/js/proximity/proximity-controller.js
-  frontend/js/proximity/proximity-layer.js
-  frontend/js/proximity/proximity-panel.js
-  frontend/css/proximity.css
+  tests/test_proximity_flask.py (17 Flask integration tests)
 
 Files modified:
-  backend/app.py (blueprint registration + engine startup)
-  frontend/index.html (CSS link, panel div, script tags)
-  frontend/js/dashboard.js (proximity start after traffic modules)
-  tests/test_proximity_engine.py (relaxed performance threshold to 200ms)
+  frontend/js/dashboard.js (ADSBNet localStorage→backend migration)
+  frontend/help/docs/user/traffic-monitoring.md (Traffic Proximity Awareness section)
+  frontend/help/docs/developer/services.md (proximity engine in service tables)
+  frontend/help/docs/developer/api.md (proximity API documentation)
+  tests/test_proximity_engine.py (performance threshold correction)
+  .kiro/steering/lessons-learned.md (performance test pattern)
 
-Application integration completed:
-  - proximity_bp registered in app.py
-  - proximity_engine.start() in app.py startup sequence
-  - GET /api/proximity/status reachable
-  - GET /api/proximity/config reachable
-  - POST /api/proximity/config reachable
+Application integration: Complete
+  - proximity_bp registered
+  - proximity_engine started in app.py
+  - All 3 proximity API routes reachable (verified by Flask integration tests)
 
-Frontend components implemented:
-  - proximity-controller.js: polls API every 5s, manages lifecycle
-  - proximity-layer.js: distance line, label, aircraft rings (up to 5)
-  - proximity-panel.js: Nearby Traffic panel (ranked pairs, click-to-center)
-  - proximity.css: panel styling, state colors, pulse animation
+Frontend: Complete
+  - proximity-controller.js polls /api/proximity/status every 5s
+  - proximity-layer.js renders distance line + rings
+  - proximity-panel.js shows Nearby Traffic panel
+  - ADSBNet migration logic in dashboard.js
 
-Services affected: Proximity engine starts as daemon thread in Flask process
-Hardware affected: None
-Shared contracts affected: New API routes active
+Tests: 106 total (89 unit + 17 Flask integration), all passing
+  - Command: python -m pytest tests -v
+  - Duration: 0.85s
+  - Failed: 0, Skipped: 0
 
-Tests completed: 89 passing (python -m pytest tests -v)
-Physical tests completed: None (local development only)
-Known issues:
-  - ADSBNet localStorage migration not yet implemented (deferred to operator use)
-  - Performance test threshold relaxed to 200ms (Windows overhead; RPi expected faster)
-  - MkDocs build not executed (help/site generation requires mkdocs installed)
-Known limitations:
-  - Mocked tests only — no physical validation
-  - Frontend rendering not testable without browser
-Rollback reference: 8372edb
-Next action: Physical Mini Tracker validation (requires Raffaello approval)
+Documentation: Updated
+  - user/traffic-monitoring.md: Traffic Proximity Awareness section added
+  - developer/services.md: proximity modules in service table
+  - developer/api.md: proximity API endpoints documented
+  - MkDocs build: NOT executed (mkdocs not installed; source updated, build pending)
+
+Performance statement (corrected):
+  - Windows development machine: test cycle ~132ms (variable, mock overhead)
+  - Raspberry Pi: UNKNOWN until physical validation
+  - Acceptance threshold: must be evaluated on physical device
+  - No performance requirement weakened without measured RPi evidence
+
+ADSBNet preference migration:
+  - Implemented in dashboard.js (migrateAdsbNetPreference function)
+  - Reads localStorage once on load, POSTs to backend, removes localStorage key
+  - Does not silently re-enable for users who disabled it
+  - Backend setting becomes authoritative after migration
+
+Runtime package verification:
+  - All runtime files under backend/ and frontend/
+  - No dependency on tests/, .kiro/, pytest.ini, or config/settings.json distribution
+  - Feature works after deploying only backend/ and frontend/
+
+Physical validation: PENDING (requires Raffaello approval)
+Rollback reference: 0cb7af0
+Next action: Physical Mini Tracker validation
 ```
 
 ---
