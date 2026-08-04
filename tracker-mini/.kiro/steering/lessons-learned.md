@@ -34,8 +34,9 @@ Project-specific patterns, preferences, and lessons learned over time.
 ## People
 
 - **Claudia** è l'operatrice che lavora su questo progetto con Kiro (utente della sessione).
-- **Raffaello** è il proprietario del prodotto Mini Tracker. Approva requisiti, design, merge e operazioni distruttive sul device fisico.
+- **Raffaello** è il proprietario del prodotto Mini Tracker. Approva requisiti, design, e operazioni distruttive sul device fisico.
 - Quando il codice dice "chiedi a Raffaello" si intende per decisioni di prodotto o accesso privilegiato al device. Il lavoro quotidiano di sviluppo è con Claudia.
+- **In autopilot mode**: non fermarsi tra milestone, non chiedere permesso per procedere, non aspettare review intermedi. Claudia ha il controllo e può interrompere quando vuole.
 
 ## Git Push Behavior in This Terminal
 
@@ -78,6 +79,20 @@ Critical for any feature working with multiple traffic sources:
 - Missing config sections must be handled gracefully (merged with defaults, no crash).
 - Tests, specs, pytest.ini, .kiro/ files are development-only and not deployed.
 - Before finishing any feature: mentally verify that removing everything outside `backend/` + `frontend/` would not break the running application.
+
+## Python Path for Tests
+
+- Tests live at workspace root: `tests/`
+- Backend code lives at: `backend/services/`, `backend/routes/`
+- The `tests/conftest.py` must add `backend/` to `sys.path` so pytest can import `services.*` and `routes.*`
+- Use `sys.path.insert(0, str(BACKEND_DIR))` in conftest.py
+- The canonical test command is `python -m pytest tests -v` (from workspace root)
+- Do NOT use `py -3` (Windows-specific); use `python` on dev, `python3` on RPi
+
+## .gitignore for __pycache__
+
+- Add `.gitignore` with `__pycache__/` and `*.pyc` BEFORE the first test run to avoid committing bytecode
+- The first test run without .gitignore will create cached files that need `git rm --cached` to fix
 
 ## Onboarding Dependency
 
