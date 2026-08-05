@@ -37,6 +37,6 @@ DRONES.stopDroneTraffic = function() {
     }
 
     if (DRONES.clearDroneLayer) {
-        DRONES.stopDroneTraffic();
+        DRONES.clearDroneLayer();
     }
 };

@@ -608,6 +608,98 @@ DSC integration test support: Not present
 ## Active Work Record
 
 ```text
+Task: Remote ID Map Visibility Fix
+Feature: Remote ID dashboard rendering
+Owner: Codex
+Working branch: main
+Starting commit: 0c59f29
+Latest commit: Pending
+Push status: Pending
+Status: Local fix complete, physical Mini Tracker validation pending
+Started: 2026-08-04
+Last updated: 2026-08-04
+
+Observed issue:
+  - Mini Tracker logs showed DS110 receiving Dronetag Beacon 1596A34EE1D16FD with valid coordinates.
+  - The drone was sent to DSC, proving backend decoding and DS110 ingestion were working.
+  - The marker did not appear on the Dashboard map.
+
+Root cause:
+  - Dashboard Remote ID polling could be blocked by browser-local `localStorage("droneNetworkEnabled") == "false"` even when the backend DS110 service was active.
+  - `initTrafficSettings()` updated the Remote ID checkbox from `/api/ds110/status`, but did not start drone map polling after discovering that DS110 was already enabled.
+  - `DRONES.stopDroneTraffic()` recursively called itself instead of clearing the drone layer.
+
+Files modified:
+  frontend/js/dashboard.js
+  frontend/js/drones/drone-controller.js
+  frontend/help/docs/developer/frontend.md
+
+Implementation:
+  - Remote ID map polling now starts from backend DS110 status (`/api/ds110/status`) during map initialization.
+  - When traffic settings load and DS110 is already enabled, drone polling is started if the map is ready.
+  - Removed dependence on stale browser-local `droneNetworkEnabled` for Remote ID display.
+  - Fixed `DRONES.stopDroneTraffic()` to clear the drone layer instead of recursing.
+  - Updated developer frontend documentation to describe Remote ID as backend-state driven.
+
+Tests/checks:
+  - Passed: `node --check frontend/js/dashboard.js`
+  - Passed: `node --check frontend/js/drones/drone-controller.js`
+
+Known limitations:
+  - Real marker display must be validated on the physical Mini Tracker with an active Remote ID source.
+  - Local workspace ZIP files (`tracker-mini.zip` removed, `mini-tracker.zip` added) appear user-managed and were not modified by this task.
+```
+
+```text
+Task: ADSBNet Multi-Provider Update
+Feature: Network ADS-B hardening
+Owner: Codex
+Working branch: main
+Starting commit: 0c59f29
+Latest commit: Pending
+Push status: Pending
+Status: Local implementation complete, physical Mini Tracker validation pending
+Started: 2026-08-04
+Last updated: 2026-08-04
+
+Files created:
+  tests/test_air_network.py
+
+Files modified:
+  backend/services/air_network.py
+  frontend/help/docs/hardware/ads-b.md
+  frontend/help/docs/developer/services.md
+  frontend/help/docs/developer/architecture.md
+  frontend/help/docs/developer/api.md
+
+Implementation:
+  - Added direct backend network ADS-B provider support for Airplanes.live and ADSB.lol.
+  - Uses provider point APIs directly from Mini Tracker backend; no browser proxy is required.
+  - Derives point-query center and radius from Dashboard map bounds, caps provider radius at 250 NM, then filters returned aircraft back to map bounds.
+  - Keeps provider failures isolated with per-provider error handling.
+  - Fetches active ADS-B network providers in parallel to avoid sequential provider delays.
+  - Normalizes readsb-compatible provider data into the existing Mini Tracker aircraft schema.
+  - Merges by ICAO and preserves combined source provenance in the `source` field.
+  - SolarMonitor ADS-B feed is intentionally paused and is not called by the active provider list.
+  - OGN-derived ADS-B and OpenSky remain active network ADS-B sources.
+
+Documentation:
+  - Updated ADS-B hardware documentation to list active network ADS-B providers.
+  - Updated developer services, architecture and API docs to reflect active source counts.
+  - Did not edit generated `frontend/help/site/`.
+
+Tests/checks:
+  - Passed: Python syntax compile for `backend/services/air_network.py` and `tests/test_air_network.py`
+    Command: bundled Python `-m py_compile backend/services/air_network.py tests/test_air_network.py`
+  - Not run: full pytest suite. Local `python` and `py` are unavailable in PATH; bundled Python does not have pytest; project `.venv` Python runs but does not have pytest installed.
+
+Known limitations:
+  - External provider reachability and real aircraft display must be validated on the physical Mini Tracker after deployment with Internet access.
+  - Network ADS-B provider rate limits and real response variability are not validated by local mocked tests.
+  - Existing `tracker-mini.zip` is locally modified by Raffaello and was not updated by this task.
+```
+
+```text
 Task: MT-TRAFFIC-01 Local Hardening Pass
 Feature: MT-TRAFFIC-01
 Owner: Kiro

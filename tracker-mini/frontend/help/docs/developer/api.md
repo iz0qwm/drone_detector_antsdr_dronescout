@@ -700,7 +700,7 @@ Response fields:
 | Field | Description |
 |----------|-------------|
 | `success` | Request result. |
-| `sources` | Counts by external source. |
+| `sources` | Counts by active external source (`airplanes_live`, `adsb_lol`, `ogn`, `opensky`). |
 | `aircraft` | Merged aircraft array. |
 
 ### `GET /api/ogn/network`

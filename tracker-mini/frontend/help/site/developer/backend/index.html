@@ -1960,17 +1960,23 @@
     Flask["Create Flask App"]
     Hotspot["Start Local Hotspot"]
     DS110["Start DS110 if Enabled"]
+    Mesh["Start Meshtastic if Enabled"]
+    Readsb["Start ADS-B Local if Enabled"]
     DSC["Start DSC Heartbeat"]
+    LCD["Start LCD Service"]
     Register["Register Blueprints"]
     Serve["Serve Dashboard and Help"]
 
     Start --&gt; Flask
     Flask --&gt; Hotspot
     Hotspot --&gt; DS110
-    DS110 --&gt; DSC
-    DSC --&gt; Register
+    DS110 --&gt; Mesh
+    Mesh --&gt; Readsb
+    Readsb --&gt; DSC
+    DSC --&gt; LCD
+    LCD --&gt; Register
     Register --&gt; Serve</code></pre>
-<p>Startup attempts are wrapped in <code>try</code> blocks and errors are printed. Startup failures for hotspot, DS110 or DSC heartbeat do not stop blueprint registration.</p>
+<p>Startup attempts are wrapped in <code>try</code> blocks and errors are printed. Startup failures for hotspot, traffic services, DSC heartbeat or LCD initialization do not stop blueprint registration.</p>
 <hr />
 <h2 id="blueprint-organization">Blueprint Organization</h2>
 <p>The backend uses route blueprints grouped by subsystem.</p>
@@ -2067,7 +2073,7 @@
     Config --&gt; Services
     Routes --&gt; Config
     Config --&gt; Settings</code></pre>
-<p>Routes that update DS110 or DSC settings mutate the shared <code>SETTINGS</code> object and then call <code>save_settings()</code>.</p>
+<p>Routes that update DS110, DSC or selected traffic settings mutate the shared <code>SETTINGS</code> object and then call <code>save_settings()</code>. The local ADS-B control route persists <code>SETTINGS["traffic"]["adsb_local_enabled"]</code>; backend startup reads the traffic flags before starting Remote ID, local ADS-B and Meshtastic services.</p>
 <hr />
 <h2 id="response-generation">Response Generation</h2>
 <p>The backend returns several response types.</p>

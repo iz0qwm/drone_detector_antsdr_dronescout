@@ -1096,6 +1096,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#python-runtime-and-gpio-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python Runtime And GPIO Access
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#hosted-services" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1825,6 +1836,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#python-runtime-and-gpio-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python Runtime And GPIO Access
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#hosted-services" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1985,6 +2007,7 @@
 <li>Communicate with the DS110 Remote ID receiver</li>
 <li>Track local ADS-B decoder state</li>
 <li>Communicate with the Meshtastic gateway when enabled</li>
+<li>Drive the local LCD status display when available</li>
 <li>Store configuration and map files</li>
 <li>Report system, network, hardware and service status</li>
 <li>Support update, backup and restore workflows</li>
@@ -2058,12 +2081,40 @@
 <td>Checks serial and network device paths such as <code>/dev/serial0</code>, <code>/dev/ttyACM*</code>, <code>/dev/ttyUSB*</code> and <code>/sys/class/net/wlan1</code>.</td>
 </tr>
 <tr>
+<td><strong>GPIO input</strong></td>
+<td>Uses <code>gpiozero</code> for local input hardware when the rotary encoder is available.</td>
+</tr>
+<tr>
+<td><strong>I²C display</strong></td>
+<td>Initializes the supported 20x4 LCD through the I²C interface when the display hardware and library are available.</td>
+</tr>
+<tr>
 <td><strong>System status</strong></td>
 <td>Reads CPU, RAM, disk usage, uptime and hostname for Dashboard status.</td>
 </tr>
 </tbody>
 </table>
 <p>These operating system interfaces are part of the Mini Tracker platform integration. Operators should normally verify their state from the Dashboard instead of using low-level operating system commands during field use.</p>
+<hr />
+<h2 id="python-runtime-and-gpio-access">Python Runtime And GPIO Access</h2>
+<p>Mini Tracker runs its backend inside a Python virtual environment.</p>
+<p>On the deployed Raspberry Pi, the virtual environment must be allowed to read Python packages installed by the operating system. The deployment virtual environment configuration file, <code>venv/pyvenv.cfg</code>, must contain:</p>
+<div class="highlight"><pre><span></span><code><span class="na">include-system-site-packages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+</code></pre></div>
+<p>This setting is required because <code>gpiozero</code> uses the <code>lgpio</code> pin factory on the Raspberry Pi hardware. In the Mini Tracker deployment environment, <code>lgpio</code> is provided by the Raspberry Pi / Debian operating system package and is available as:</p>
+<div class="highlight"><pre><span></span><code>/usr/lib/python3/dist-packages/lgpio.py
+</code></pre></div>
+<p><code>lgpio</code> is therefore a system dependency, not a normal Python package managed by the Mini Tracker <code>requirements.txt</code> file.</p>
+<p>If the virtual environment is created with <code>include-system-site-packages = false</code>, <code>gpiozero</code> cannot see the operating-system <code>lgpio</code> module. In that condition it may fall back to the experimental native pin factory, and GPIO access can fail with errors such as:</p>
+<div class="highlight"><pre><span></span><code>OSError: [Errno 22] Invalid argument
+</code></pre></div>
+<p>Maintainers can verify the active <code>gpiozero</code> pin factory from the Mini Tracker virtual environment with:</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from gpiozero import RotaryEncoder, Device; e=RotaryEncoder(5,6,max_steps=0); print(Device.pin_factory); e.close()&quot;</span>
+</code></pre></div>
+<p>The expected result must indicate:</p>
+<div class="highlight"><pre><span></span><code>gpiozero.pins.lgpio.LGPIOFactory
+</code></pre></div>
+<p>This confirms that <code>gpiozero</code> is using the Raspberry Pi <code>lgpio</code> backend instead of the native fallback.</p>
 <hr />
 <h2 id="hosted-services">Hosted Services</h2>
 <p>The Raspberry Pi hosts the Mini Tracker application and supporting service workflows.</p>
@@ -2106,6 +2157,10 @@
 <tr>
 <td><strong>Meshtastic integration</strong></td>
 <td>Connects to the configured Meshtastic serial gateway when enabled.</td>
+</tr>
+<tr>
+<td><strong>LCD status display</strong></td>
+<td>Shows a boot screen and then periodically refreshes a local hardware status screen.</td>
 </tr>
 <tr>
 <td><strong>Maps and storage</strong></td>
@@ -2164,6 +2219,14 @@
 <td>Supports the configured DS110 UART path <code>/dev/serial0</code> when the receiver is configured for UART operation.</td>
 </tr>
 <tr>
+<td><strong>GPIO input</strong></td>
+<td>Supports the rotary encoder input through <code>gpiozero</code> when the optional local control hardware is present.</td>
+</tr>
+<tr>
+<td><strong>I²C display</strong></td>
+<td>Supports the 20x4 PCF8574 LCD used for local Mini Tracker status feedback.</td>
+</tr>
+<tr>
 <td><strong>Local service interfaces</strong></td>
 <td>Reads GPS from <code>gpsd</code> and ADS-B decoder state from <code>/run/readsb/aircraft.json</code>.</td>
 </tr>
@@ -2216,7 +2279,10 @@
 <ul>
 <li>Starts the local Wi-Fi Access Point when it is not already active</li>
 <li>Starts the DS110 Remote ID receiver worker when Remote ID is enabled in settings</li>
+<li>Starts Meshtastic when Meshtastic traffic is enabled in settings</li>
+<li>Starts the local ADS-B receiver service when local ADS-B traffic is enabled in settings</li>
 <li>Starts the DSC heartbeat workflow</li>
+<li>Starts the LCD background service</li>
 <li>Registers the Dashboard and API routes</li>
 <li>Serves the Dashboard and Help pages locally</li>
 </ul>

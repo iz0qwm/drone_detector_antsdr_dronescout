@@ -2090,7 +2090,7 @@
 </table>
 <p>During import, the window shows progress messages while Mini Tracker connects to Drone Sky Check, downloads aeronautical areas and updates the mission.</p>
 <p>If the active mission already contains a Drone Sky Check zones layer, the existing layer is replaced by the new import. This prevents repeated imports from creating duplicate Drone Sky Check zone layers in the same mission.</p>
-<p>Drone Sky Check import requires Drone Sky Check availability. If the service is unavailable, the import action is disabled in the import window.</p>
+<p>Drone Sky Check import requires Internet connectivity and configured Drone Sky Check zone access. If the service is unavailable, the import action is disabled in the import window. If the backend cannot complete the request, Mini Tracker shows an import error instead of updating the mission layer.</p>
 <hr />
 <h2 id="drone-sky-check-layers">Drone Sky Check Layers</h2>
 <p>Imported Drone Sky Check zones are mission layers, but they behave differently from operator-created layers.</p>

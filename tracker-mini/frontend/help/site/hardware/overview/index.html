@@ -977,6 +977,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#lcd-status-display" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LCD Status Display
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#dashboard-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1891,6 +1902,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#lcd-status-display" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LCD Status Display
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#dashboard-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1976,6 +1998,7 @@
     ADSB["ADS-B Reception"]
     RID["Remote ID Reception"]
     Mesh["Meshtastic Gateway"]
+    LCD["LCD Status Display"]
 
     Dash["Dashboard"]
     Operator["Operator"]
@@ -1987,6 +2010,7 @@
     ADSB --&gt; Compute
     RID --&gt; Compute
     Mesh --&gt; Compute
+    Compute --&gt; LCD
 
     Compute --&gt; Dash
 
@@ -2029,6 +2053,10 @@
 <tr>
 <td><strong>Meshtastic Gateway</strong></td>
 <td>Supports team awareness and operator positioning.</td>
+</tr>
+<tr>
+<td><strong>LCD Status Display</strong></td>
+<td>Provides local boot and subsystem status information on the Mini Tracker unit.</td>
 </tr>
 <tr>
 <td><strong>Dashboard Integration</strong></td>
@@ -2082,6 +2110,11 @@
 <p>The Meshtastic subsystem supports team awareness and operator positioning.</p>
 <p>When configured and available, Meshtastic information can help Mini Tracker display mission operator positions and node status as part of the operational picture.</p>
 <p>Meshtastic performance depends on gateway state, antenna placement, configured nodes and local radio conditions.</p>
+<hr />
+<h2 id="lcd-status-display">LCD Status Display</h2>
+<p>The LCD status display provides local visual feedback on the Mini Tracker unit.</p>
+<p>The current implementation supports a 20x4 I²C character display. During application startup, Mini Tracker shows a boot screen and then switches to a status screen that is refreshed by the backend LCD service.</p>
+<p>The status screen currently shows fields for local ADS-B, Remote ID, Meshtastic, IP and Access Point information. It is a local hardware status aid and does not replace the Dashboard.</p>
 <hr />
 <h2 id="dashboard-integration">Dashboard Integration</h2>
 <p>The Dashboard is not a hardware subsystem.</p>

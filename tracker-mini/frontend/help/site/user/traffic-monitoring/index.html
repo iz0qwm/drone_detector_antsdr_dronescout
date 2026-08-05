@@ -782,6 +782,111 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#traffic-proximity-awareness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traffic Proximity Awareness
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Traffic Proximity Awareness">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-it-shows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What It Shows
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proximity-states" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Proximity States
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nearby-traffic-panel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nearby Traffic Panel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#movement-trend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Movement Trend
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#offline-operation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Offline Operation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limitations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1913,6 +2018,111 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#traffic-proximity-awareness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traffic Proximity Awareness
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Traffic Proximity Awareness">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-it-shows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What It Shows
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proximity-states" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Proximity States
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nearby-traffic-panel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nearby Traffic Panel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#movement-trend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Movement Trend
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#offline-operation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Offline Operation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limitations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2143,6 +2353,7 @@
 <h2 id="operational-notes">Operational Notes</h2>
 <ul>
 <li>Local ADS-B requires the local receiver and decoder to be active.</li>
+<li>The ADS-B Local control starts or stops the local receiver service on Mini Tracker.</li>
 <li>Network ADS-B and OGN / FLARM information require Internet connectivity.</li>
 <li>Remote ID visibility depends on receiver state, radio range and supported transmitted data.</li>
 <li>Meshtastic visibility depends on gateway state, node availability and position data.</li>
@@ -2151,6 +2362,114 @@
 <li>The Dashboard refreshes traffic information periodically.</li>
 </ul>
 <hr />
+<h2 id="traffic-proximity-awareness">Traffic Proximity Awareness</h2>
+<p>Mini Tracker provides <strong>Traffic Proximity Awareness</strong> to help the operator understand how close detected drones are to nearby aircraft.</p>
+<blockquote>
+<p><strong>Traffic Proximity Awareness is informational only. It is not a certified collision-avoidance system and must not be used as the sole basis for separation decisions.</strong></p>
+</blockquote>
+<h3 id="what-it-shows">What It Shows</h3>
+<p>When one or more drones are detected and aircraft are present within the configured evaluation radius, Mini Tracker automatically calculates and displays horizontal proximity information:</p>
+<ul>
+<li>A <strong>distance line</strong> from the most critical drone-aircraft pair</li>
+<li><strong>Proximity rings</strong> around up to five aircraft in proximity states</li>
+<li>A <strong>Nearby Traffic panel</strong> listing the highest-severity drone-aircraft pairs</li>
+</ul>
+<h3 id="proximity-states">Proximity States</h3>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Meaning</th>
+<th>Visual</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MONITOR (MON)</td>
+<td>Aircraft within outer threshold</td>
+<td>Blue dashed line</td>
+</tr>
+<tr>
+<td>CAUTION (CTN)</td>
+<td>Aircraft within middle threshold</td>
+<td>Orange dashed line</td>
+</tr>
+<tr>
+<td>WARNING (WRN)</td>
+<td>Aircraft within inner threshold</td>
+<td>Red solid line (with subtle pulse)</td>
+</tr>
+<tr>
+<td>STALE (STL)</td>
+<td>Track data is outdated</td>
+<td>Gray dotted line</td>
+</tr>
+</tbody>
+</table>
+<p>Each state is shown with color, line pattern AND text label (not color alone) for readability in all conditions.</p>
+<h3 id="nearby-traffic-panel">Nearby Traffic Panel</h3>
+<p>A compact floating panel appears at the bottom-right of the map when proximity pairs exist. It shows:</p>
+<ul>
+<li>Drone identifier → Aircraft callsign</li>
+<li>Horizontal distance (meters or kilometers)</li>
+<li>State badge (MON, CTN, WRN, STL)</li>
+<li>Movement trend: APR (approaching), DIV (diverging), STB (stable), — (unknown)</li>
+</ul>
+<p>Clicking a panel entry centers the map on the relevant aircraft.</p>
+<p>The panel hides automatically when no drone-aircraft pairs are within proximity thresholds.</p>
+<h3 id="movement-trend">Movement Trend</h3>
+<p>When sufficient position history is available (at least 10 seconds of observations), the system determines whether an aircraft is approaching, diverging, or maintaining stable distance from a drone.</p>
+<p>Movement labels: <strong>APR</strong> (approaching), <strong>DIV</strong> (diverging), <strong>STB</strong> (stable), <strong>—</strong> (insufficient data).</p>
+<h3 id="offline-operation">Offline Operation</h3>
+<p>Traffic Proximity Awareness works fully offline using the local ADS-B receiver (ADSBRx) and Remote ID. Internet connectivity is not required.</p>
+<p>When Internet is available and ADSBNet is enabled, network aircraft data supplements the local picture. If Internet is lost, locally received aircraft continue to generate proximity calculations without interruption.</p>
+<h3 id="configuration">Configuration</h3>
+<p>Default proximity thresholds are:</p>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Entry Distance</th>
+<th>Exit Distance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MONITOR</td>
+<td>3000 m</td>
+<td>3300 m</td>
+</tr>
+<tr>
+<td>CAUTION</td>
+<td>1500 m</td>
+<td>1800 m</td>
+</tr>
+<tr>
+<td>WARNING</td>
+<td>500 m</td>
+<td>700 m</td>
+</tr>
+</tbody>
+</table>
+<p>Exit thresholds are slightly larger than entry thresholds to prevent state flickering when an aircraft hovers near a boundary.</p>
+<p>Thresholds are configurable. They are operational parameters, not regulatory limits.</p>
+<h3 id="limitations">Limitations</h3>
+<ul>
+<li>Horizontal distance only — no vertical separation assessment</li>
+<li>Altitude references between ADS-B and Remote ID are incompatible</li>
+<li>Movement trend requires at least 10 seconds of position history</li>
+<li>Update rate depends on traffic source refresh (approximately every 5 seconds)</li>
+<li>Missing or stale position data is indicated rather than hidden</li>
+</ul>
+<hr />
+<h2 id="related-documentation">Related Documentation</h2>
+<ul>
+<li><code>product-overview.md</code></li>
+<li><code>hardware/ads-b.md</code></li>
+<li><code>hardware/remote-id.md</code></li>
+<li><code>user/dashboard.md</code></li>
+<li><code>user/maps.md</code></li>
+</ul>
 
 
 

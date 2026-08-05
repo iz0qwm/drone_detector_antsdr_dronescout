@@ -222,7 +222,7 @@ Traffic modules poll backend APIs and update map layers.
 | OGN / FLARM | `glider/glider-index.js`, `glider-data.js`, `glider-layer.js` | 10 seconds |
 | Meshtastic operators | `meshtastic/meshtastic-controller.js`, `meshtastic-network.js`, `meshtastic-layer.js` | 5 seconds |
 
-Traffic source controls in the System panel affect frontend display behavior and, for some sources, backend service state. The local ADS-B checkbox reads `/api/readsb/status` and sends changes to `/api/readsb/enable`; it does not use browser `localStorage` for its enabled state.
+Traffic source controls in the System panel affect frontend display behavior and, for some sources, backend service state. The local ADS-B checkbox reads `/api/readsb/status` and sends changes to `/api/readsb/enable`; it does not use browser `localStorage` for its enabled state. The Remote ID checkbox reads `/api/ds110/status`, sends changes to `/api/ds110/enable` and starts or stops Remote ID map polling from the backend service state.
 
 ---
 
@@ -254,11 +254,10 @@ Confirmed keys include:
 - `darkMapEnabled`
 - `adsbNetworkEnabled`
 - `ognNetworkEnabled`
-- `droneNetworkEnabled`
 
 These values are client-side preferences. They are separate from backend runtime configuration in `config/settings.json`.
 
-Local ADS-B service state is intentionally not listed as a browser-local preference. It is controlled through the backend readsb API and persisted in `SETTINGS["traffic"]["adsb_local_enabled"]`.
+Local ADS-B service state is intentionally not listed as a browser-local preference. It is controlled through the backend readsb API and persisted in `SETTINGS["traffic"]["adsb_local_enabled"]`. Remote ID display follows the backend DS110 service state instead of a browser-local preference.
 
 ---
 

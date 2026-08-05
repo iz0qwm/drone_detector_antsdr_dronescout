@@ -1949,7 +1949,7 @@
 </tr>
 <tr>
 <td><code>air_network.py</code></td>
-<td>Network ADS-B fetch and merge from SolarMonitor, OGN-derived ADS-B and OpenSky.</td>
+<td>Network ADS-B fetch and merge from Airplanes.live, ADSB.lol, OGN-derived ADS-B and OpenSky.</td>
 </tr>
 <tr>
 <td><code>ogn_network.py</code></td>
@@ -1958,6 +1958,10 @@
 <tr>
 <td><code>meshtastic_service.py</code></td>
 <td>Meshtastic serial gateway worker and node cache.</td>
+</tr>
+<tr>
+<td><code>ui/lcd.py</code></td>
+<td>20x4 I²C LCD service, boot screen and periodically refreshed hardware status screen.</td>
 </tr>
 <tr>
 <td><code>teams.py</code></td>
@@ -2006,6 +2010,30 @@
 <tr>
 <td><code>updater.py</code></td>
 <td>Update package validation, staging, test install, backup, restore and install request creation.</td>
+</tr>
+<tr>
+<td><code>proximity/engine.py</code></td>
+<td>Traffic Proximity Awareness engine: managed background worker evaluating drone-aircraft pairs.</td>
+</tr>
+<tr>
+<td><code>proximity/normalize.py</code></td>
+<td>Aircraft normalization, ADSBRx/ADSBNet deduplication and source provenance.</td>
+</tr>
+<tr>
+<td><code>proximity/calc.py</code></td>
+<td>Haversine distance calculation and coordinate validation.</td>
+</tr>
+<tr>
+<td><code>proximity/state.py</code></td>
+<td>Proximity state machine with hysteresis (MONITOR, CAUTION, WARNING, STALE).</td>
+</tr>
+<tr>
+<td><code>proximity/trend.py</code></td>
+<td>Movement trend analysis (APPROACHING, DIVERGING, STABLE, UNKNOWN).</td>
+</tr>
+<tr>
+<td><code>proximity/config.py</code></td>
+<td>Proximity configuration with code-defined defaults.</td>
 </tr>
 </tbody>
 </table>
@@ -2076,14 +2104,32 @@
 <tr>
 <td>Meshtastic worker</td>
 <td><code>meshtastic_service.py</code></td>
-<td><code>/api/meshtastic/enable</code></td>
+<td><code>app.py</code> at startup when Meshtastic traffic is enabled, or <code>/api/meshtastic/enable</code> when the traffic configuration permits startup</td>
 <td>Connects to the configured Meshtastic serial device, refreshes nodes and updates gateway position.</td>
+</tr>
+<tr>
+<td>LCD worker</td>
+<td><code>ui/lcd.py</code></td>
+<td><code>app.py</code> at startup</td>
+<td>Shows the boot screen, then refreshes the hardware status screen once per second.</td>
 </tr>
 <tr>
 <td>Map download worker</td>
 <td><code>routes/maps.py</code> and <code>map_downloader.py</code></td>
 <td><code>/api/maps/download</code></td>
 <td>Downloads map tiles and writes an MBTiles file while updating in-memory job progress.</td>
+</tr>
+<tr>
+<td>Proximity engine</td>
+<td><code>proximity/engine.py</code></td>
+<td><code>app.py</code> at startup when proximity is enabled</td>
+<td>Evaluates drone-aircraft pairs every 5 seconds, exposes thread-safe snapshot for API and future Meshtastic.</td>
+</tr>
+<tr>
+<td>ADSBNet cache</td>
+<td><code>proximity/engine.py</code></td>
+<td>Proximity engine startup</td>
+<td>Fetches network ADS-B providers at 15s intervals, stores snapshot for proximity engine (no network calls during API requests).</td>
 </tr>
 </tbody>
 </table>
@@ -2093,11 +2139,13 @@
     DS110["DS110 Thread"]
     DSC["DSC Heartbeat Thread"]
     Mesh["Meshtastic Thread"]
+    LCD["LCD Thread"]
     Download["Map Download Thread"]
 
     Flask --&gt; DS110
     Flask --&gt; DSC
     Flask --&gt; Mesh
+    Flask --&gt; LCD
     Flask --&gt; Download</code></pre>
 <p>Workers use module-level flags and variables for state.</p>
 <hr />
@@ -2118,6 +2166,10 @@
 <tr>
 <td><code>meshtastic_service.py</code></td>
 <td><code>meshtastic_nodes</code>, <code>running</code>, <code>thread</code>, <code>interface</code>, packet timing and last sent position.</td>
+</tr>
+<tr>
+<td><code>ui/lcd.py</code></td>
+<td>LCD availability, page state, thread state and display status fields.</td>
 </tr>
 <tr>
 <td><code>notification_service.py</code></td>
@@ -2149,6 +2201,7 @@
 <ul>
 <li>Workers are daemon threads.</li>
 <li>DS110 and Meshtastic workers use module-level <code>running</code> flags.</li>
+<li>The LCD service owns its display refresh loop and updates its own screen state independently of Dashboard polling.</li>
 <li>Map downloads use a thread per requested download job.</li>
 <li>Download job state is protected by a <code>threading.Lock</code>.</li>
 <li>Logs and most other in-memory state are module-level structures.</li>
@@ -2190,6 +2243,11 @@
 <td>System power and restart</td>
 <td><code>system.py</code></td>
 <td>Uses <code>sudo systemctl restart tracker-mini.service</code>, <code>sudo /usr/sbin/reboot</code> and <code>sudo /usr/sbin/shutdown -h now</code>.</td>
+</tr>
+<tr>
+<td>LCD display</td>
+<td><code>ui/lcd.py</code></td>
+<td>Uses RPLCD <code>CharLCD</code> over I²C with PCF8574, address <code>0x27</code>, port <code>1</code>, 20 columns and 4 rows.</td>
 </tr>
 <tr>
 <td>Wi-Fi Client presence</td>
@@ -2241,6 +2299,10 @@
 <tr>
 <td>ADS-B Receiver</td>
 <td><code>readsb-local.service</code> and <code>/run/readsb/aircraft.json</code>.</td>
+</tr>
+<tr>
+<td>20x4 I²C LCD</td>
+<td>PCF8574 I²C character display initialized by <code>ui/lcd.py</code> when available.</td>
 </tr>
 <tr>
 <td>Network Interfaces</td>

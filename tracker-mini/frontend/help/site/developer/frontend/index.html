@@ -2202,7 +2202,7 @@
 </tr>
 </tbody>
 </table>
-<p>Traffic source controls in the System panel affect frontend display behavior and, for some sources, backend service state.</p>
+<p>Traffic source controls in the System panel affect frontend display behavior and, for some sources, backend service state. The local ADS-B checkbox reads <code>/api/readsb/status</code> and sends changes to <code>/api/readsb/enable</code>; it does not use browser <code>localStorage</code> for its enabled state. The Remote ID checkbox reads <code>/api/ds110/status</code>, sends changes to <code>/api/ds110/enable</code> and starts or stops Remote ID map polling from the backend service state.</p>
 <hr />
 <h2 id="polling-model">Polling Model</h2>
 <p>The frontend uses repeated HTTP polling.</p>
@@ -2226,9 +2226,9 @@
 <li><code>darkMapEnabled</code></li>
 <li><code>adsbNetworkEnabled</code></li>
 <li><code>ognNetworkEnabled</code></li>
-<li><code>droneNetworkEnabled</code></li>
 </ul>
 <p>These values are client-side preferences. They are separate from backend runtime configuration in <code>config/settings.json</code>.</p>
+<p>Local ADS-B service state is intentionally not listed as a browser-local preference. It is controlled through the backend readsb API and persisted in <code>SETTINGS["traffic"]["adsb_local_enabled"]</code>. Remote ID display follows the backend DS110 service state instead of a browser-local preference.</p>
 <hr />
 <h2 id="backend-api-interaction">Backend API Interaction</h2>
 <p>Frontend modules use <code>fetch()</code> to call backend APIs.</p>

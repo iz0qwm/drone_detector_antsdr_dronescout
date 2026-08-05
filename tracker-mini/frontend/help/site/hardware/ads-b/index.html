@@ -2025,7 +2025,7 @@
     Readsb["readsb-local.service"]
     Json["/run/readsb/aircraft.json"]
 
-    NetworkSources["Network Traffic Sources&lt;br/&gt;SolarMonitor, OGN, OpenSky"]
+    NetworkSources["Network Traffic Sources&lt;br/&gt;Airplanes.live, ADSB.lol, OGN, OpenSky"]
 
     Backend["Mini Tracker Backend&lt;br/&gt;ADS-B services and APIs"]
     Dashboard["Dashboard&lt;br/&gt;Aircraft traffic layer"]
@@ -2093,11 +2093,13 @@
 <p>Mini Tracker can also request aircraft traffic from network sources when Internet connectivity is available.</p>
 <p>The current implementation uses:</p>
 <ul>
-<li>SolarMonitor ADS-B aircraft data</li>
-<li>SolarMonitor OGN traffic filtered to ADS-B objects</li>
+<li>Airplanes.live point aircraft data</li>
+<li>ADSB.lol point aircraft data</li>
+<li>OGN traffic filtered to ADS-B objects</li>
 <li>OpenSky aircraft state data</li>
 </ul>
 <p>Network ADS-B requests are limited to the current map bounds. The backend filters stale, out-of-bounds and high-altitude traffic before returning aircraft to the Dashboard.</p>
+<p>The previous SolarMonitor ADS-B aircraft feed is not part of the active provider list. It is kept out of the request cycle while the network ADS-B path uses the remaining active providers.</p>
 <p>Network ADS-B is operationally useful when Internet access is available. It does not replace the local receiver because it depends on external connectivity and external source availability.</p>
 <hr />
 <h2 id="local-and-network-traffic-relationship">Local and Network Traffic Relationship</h2>
@@ -2154,7 +2156,7 @@
 </tr>
 </tbody>
 </table>
-<p>The Dashboard stores the network ADS-B display preference in browser local storage. Local ADS-B state is read from the backend and changing the local ADS-B checkbox sends a request to start or stop the readsb service.</p>
+<p>The Dashboard stores the network ADS-B display preference in browser local storage. Local ADS-B state is read from the backend and changing the local ADS-B checkbox sends a request to start or stop the readsb service. The local ADS-B enabled state is persisted in the Mini Tracker traffic configuration and applied during backend startup.</p>
 <p>The aircraft layer refreshes periodically and uses the current map bounds when requesting traffic. Moving or zooming the map changes the area used for ADS-B traffic requests.</p>
 <hr />
 <h2 id="aircraft-visualization">Aircraft Visualization</h2>

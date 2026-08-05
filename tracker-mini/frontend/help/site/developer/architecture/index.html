@@ -2199,7 +2199,9 @@
     subgraph External["External Services"]
         MapsOnline["Online Map Tiles"]
         Thunderforest["Thunderforest Downloads"]
-        SolarMonitor["SolarMonitor"]
+        AirplanesLive["Airplanes.live"]
+        AdsbLol["ADSB.lol"]
+        SolarMonitor["SolarMonitor OGN"]
         OpenSky["OpenSky"]
         DSC["DSC Cloud Endpoints"]
     end
@@ -2219,6 +2221,8 @@
 
     Dashboard --&gt; MapsOnline
     Services --&gt; Thunderforest
+    Services --&gt; AirplanesLive
+    Services --&gt; AdsbLol
     Services --&gt; SolarMonitor
     Services --&gt; OpenSky
     Services --&gt; DSC</code></pre>
@@ -2293,7 +2297,10 @@
 <ul>
 <li>Start the local Wi-Fi Access Point</li>
 <li>Start the DS110 Remote ID worker when Remote ID is enabled in settings</li>
+<li>Start the Meshtastic worker when Meshtastic traffic is enabled in settings</li>
+<li>Start the local ADS-B receiver service when local ADS-B traffic is enabled in settings</li>
 <li>Start the DSC heartbeat worker</li>
+<li>Start the LCD background service</li>
 <li>Register all API route blueprints</li>
 <li>Serve the Dashboard at <code>/</code></li>
 <li>Serve Help pages under <code>/help/</code></li>
@@ -2304,7 +2311,10 @@
 
     Hotspot["start_hotspot()"]
     DS110["start_ds110()"]
+    Mesh["start_meshtastic()"]
+    Readsb["start_readsb()"]
     Heartbeat["start_dsc_heartbeat()"]
+    LCD["lcd.start()"]
 
     Static["Static Dashboard"]
     Help["Generated Help Site"]
@@ -2312,7 +2322,10 @@
 
     App --&gt; Hotspot
     App --&gt; DS110
+    App --&gt; Mesh
+    App --&gt; Readsb
     App --&gt; Heartbeat
+    App --&gt; LCD
     App --&gt; Static
     App --&gt; Help
     App --&gt; Blueprints</code></pre>
@@ -2504,6 +2517,7 @@
     DSC["dsc_heartbeat.py&lt;br/&gt;threaded worker"]
     Maps["map_downloader.py&lt;br/&gt;download worker threads"]
     Mesh["meshtastic_service.py&lt;br/&gt;threaded worker"]
+    LCD["ui/lcd.py&lt;br/&gt;threaded worker"]
     Notifications["notification_service.py"]
     Logs["logger.py&lt;br/&gt;in-memory deque"]
 
@@ -2512,6 +2526,7 @@
     App --&gt; DSC
     App --&gt; Maps
     App --&gt; Mesh
+    App --&gt; LCD
     App --&gt; Notifications
     App --&gt; Logs
 
@@ -2569,6 +2584,10 @@
 <td><code>meshtastic_service.py</code> connects to the configured serial device with <code>SerialInterface</code>.</td>
 </tr>
 <tr>
+<td><strong>20x4 I²C LCD</strong></td>
+<td><code>services/ui/lcd.py</code> initializes a 20x4 PCF8574 display at I²C address <code>0x27</code> when the RPLCD library and hardware are available.</td>
+</tr>
+<tr>
 <td><strong>Operating system status and control</strong></td>
 <td><code>system.py</code> uses <code>psutil</code> and hostname information and executes privileged restart, reboot and shutdown commands when requested.</td>
 </tr>
@@ -2582,7 +2601,7 @@
 
     subgraph Sources["Sources"]
         LocalADSB["Local ADS-B&lt;br/&gt;readsb aircraft.json"]
-        NetworkADSB["Network ADS-B&lt;br/&gt;SolarMonitor, OGN, OpenSky"]
+        NetworkADSB["Network ADS-B&lt;br/&gt;Airplanes.live, ADSB.lol, OGN, OpenSky"]
         RID["Remote ID&lt;br/&gt;DS110"]
         OGN["OGN / FLARM&lt;br/&gt;SolarMonitor"]
         Mesh["Meshtastic Nodes"]
@@ -2647,6 +2666,7 @@
     Routes --&gt; ConfigPy
     ConfigPy --&gt; SettingsFile</code></pre>
 <p>Because the settings object is loaded into process memory, developers should treat direct file edits and runtime settings updates carefully.</p>
+<p>At startup, <code>backend/app.py</code> reads <code>SETTINGS["traffic"]</code> to decide whether to start selected traffic services. Confirmed startup flags include <code>remoteid_enabled</code>, <code>adsb_local_enabled</code> and <code>meshtastic_enabled</code>. Local ADS-B enable changes are persisted by the readsb service route through <code>save_settings()</code>.</p>
 <hr />
 <h2 id="maps-subsystem">Maps Subsystem</h2>
 <p>The maps subsystem supports offline map tiles, map management and map downloads.</p>
@@ -2758,7 +2778,7 @@
 <td><strong>Network ADS-B</strong></td>
 <td><code>air_network.py</code></td>
 <td><code>frontend/js/air/*</code></td>
-<td>Uses SolarMonitor, OGN-derived ADS-B and OpenSky; merges by ICAO.</td>
+<td>Uses Airplanes.live, ADSB.lol, OGN-derived ADS-B and OpenSky; merges by ICAO.</td>
 </tr>
 <tr>
 <td><strong>OGN / FLARM</strong></td>
@@ -2792,7 +2812,7 @@
 </tr>
 </tbody>
 </table>
-<p>Traffic source enablement is split between backend service state and frontend display preferences. Some display choices are stored in browser <code>localStorage</code>.</p>
+<p>Traffic source enablement is split between backend service state and frontend display preferences. Local ADS-B service control is read from the backend and persisted through the traffic configuration. Network ADS-B and OGN display choices remain browser-local preferences.</p>
 <hr />
 <h2 id="hardware-abstraction">Hardware Abstraction</h2>
 <p><code>hardware.py</code> aggregates hardware state for the Dashboard.</p>
@@ -2998,7 +3018,7 @@
 <tr>
 <td><strong>Network ADS-B</strong></td>
 <td>Outbound HTTP fetch</td>
-<td><code>air_network.py</code> fetches SolarMonitor, OGN-derived ADS-B and OpenSky data.</td>
+<td><code>air_network.py</code> fetches Airplanes.live, ADSB.lol, OGN-derived ADS-B and OpenSky data.</td>
 </tr>
 <tr>
 <td><strong>OGN / FLARM</strong></td>

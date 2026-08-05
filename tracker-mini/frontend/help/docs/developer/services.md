@@ -54,7 +54,7 @@ flowchart TD
 | `ds110.py` | DS110 Remote ID worker, MAVLink reading, Remote ID decoding and in-memory aircraft cache. |
 | `readsb.py` | Local ADS-B receiver service control through `systemctl`. |
 | `air_local.py` | Local ADS-B aircraft normalization from `/run/readsb/aircraft.json`. |
-| `air_network.py` | Network ADS-B fetch and merge from SolarMonitor, OGN-derived ADS-B and OpenSky. |
+| `air_network.py` | Network ADS-B fetch and merge from Airplanes.live, ADSB.lol, OGN-derived ADS-B and OpenSky. |
 | `ogn_network.py` | OGN / FLARM traffic fetch and filtering. |
 | `meshtastic_service.py` | Meshtastic serial gateway worker and node cache. |
 | `ui/lcd.py` | 20x4 I²C LCD service, boot screen and periodically refreshed hardware status screen. |

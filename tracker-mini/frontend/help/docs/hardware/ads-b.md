@@ -43,7 +43,7 @@ flowchart TD
     Readsb["readsb-local.service"]
     Json["/run/readsb/aircraft.json"]
 
-    NetworkSources["Network Traffic Sources<br/>SolarMonitor, OGN, OpenSky"]
+    NetworkSources["Network Traffic Sources<br/>Airplanes.live, ADSB.lol, OGN, OpenSky"]
 
     Backend["Mini Tracker Backend<br/>ADS-B services and APIs"]
     Dashboard["Dashboard<br/>Aircraft traffic layer"]
@@ -105,11 +105,14 @@ Mini Tracker can also request aircraft traffic from network sources when Interne
 
 The current implementation uses:
 
-- SolarMonitor ADS-B aircraft data
-- SolarMonitor OGN traffic filtered to ADS-B objects
+- Airplanes.live point aircraft data
+- ADSB.lol point aircraft data
+- OGN traffic filtered to ADS-B objects
 - OpenSky aircraft state data
 
 Network ADS-B requests are limited to the current map bounds. The backend filters stale, out-of-bounds and high-altitude traffic before returning aircraft to the Dashboard.
+
+The previous SolarMonitor ADS-B aircraft feed is not part of the active provider list. It is kept out of the request cycle while the network ADS-B path uses the remaining active providers.
 
 Network ADS-B is operationally useful when Internet access is available. It does not replace the local receiver because it depends on external connectivity and external source availability.
 

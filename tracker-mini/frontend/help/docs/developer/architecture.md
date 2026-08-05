@@ -53,7 +53,9 @@ flowchart TD
     subgraph External["External Services"]
         MapsOnline["Online Map Tiles"]
         Thunderforest["Thunderforest Downloads"]
-        SolarMonitor["SolarMonitor"]
+        AirplanesLive["Airplanes.live"]
+        AdsbLol["ADSB.lol"]
+        SolarMonitor["SolarMonitor OGN"]
         OpenSky["OpenSky"]
         DSC["DSC Cloud Endpoints"]
     end
@@ -73,6 +75,8 @@ flowchart TD
 
     Dashboard --> MapsOnline
     Services --> Thunderforest
+    Services --> AirplanesLive
+    Services --> AdsbLol
     Services --> SolarMonitor
     Services --> OpenSky
     Services --> DSC
@@ -371,7 +375,7 @@ flowchart LR
 
     subgraph Sources["Sources"]
         LocalADSB["Local ADS-B<br/>readsb aircraft.json"]
-        NetworkADSB["Network ADS-B<br/>SolarMonitor, OGN, OpenSky"]
+        NetworkADSB["Network ADS-B<br/>Airplanes.live, ADSB.lol, OGN, OpenSky"]
         RID["Remote ID<br/>DS110"]
         OGN["OGN / FLARM<br/>SolarMonitor"]
         Mesh["Meshtastic Nodes"]
@@ -538,7 +542,7 @@ Mini Tracker displays several categories of traffic and operational position dat
 | Source | Backend Service | Frontend Module | Notes |
 |----------|----------------|-----------------|-------|
 | **Local ADS-B** | `air_local.py` | `frontend/js/air/*` | Reads `/run/readsb/aircraft.json`; filters by map bounds and altitude rules. |
-| **Network ADS-B** | `air_network.py` | `frontend/js/air/*` | Uses SolarMonitor, OGN-derived ADS-B and OpenSky; merges by ICAO. |
+| **Network ADS-B** | `air_network.py` | `frontend/js/air/*` | Uses Airplanes.live, ADSB.lol, OGN-derived ADS-B and OpenSky; merges by ICAO. |
 | **OGN / FLARM** | `ogn_network.py` | `frontend/js/glider/*` | Reads SolarMonitor OGN traffic and keeps supported sources. |
 | **Remote ID** | `ds110.py` and `remoteid.py` | `frontend/js/drones/*` | Reads DS110 MAVLink stream and exposes detected aircraft. |
 | **Meshtastic operators** | `meshtastic_service.py` and `teams.py` | `frontend/js/meshtastic/*` | Uses Meshtastic node data matched to mission operators. |
@@ -691,7 +695,7 @@ Mini Tracker integrates with local devices and external services.
 | **ADS-B local** | Local file and system service | `readsb.py` controls `readsb-local.service`; `air_local.py` reads decoder JSON. |
 | **Remote ID** | Serial or UART device | `ds110.py` uses pymavlink to read DS110 data and decode supported messages. |
 | **GPS** | Local gpsd service | `gps.py` reads gpsd packet and SKY data. |
-| **Network ADS-B** | Outbound HTTP fetch | `air_network.py` fetches SolarMonitor, OGN-derived ADS-B and OpenSky data. |
+| **Network ADS-B** | Outbound HTTP fetch | `air_network.py` fetches Airplanes.live, ADSB.lol, OGN-derived ADS-B and OpenSky data. |
 | **OGN / FLARM** | Outbound HTTP fetch | `ogn_network.py` fetches SolarMonitor OGN traffic. |
 | **Thunderforest** | Outbound HTTP tile download | `map_downloader.py` downloads tiles into MBTiles files. |
 | **OpenTopoMap** | Browser HTTP tile request | `dashboard.js` uses online map tiles when selected or when automatic mode detects Internet. |

@@ -2092,6 +2092,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#post-apimissionsmission_idimport-dsc-zones" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/missions/&lt;mission_id&gt;/import-dsc-zones
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2669,6 +2680,78 @@
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#traffic-proximity-awareness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traffic Proximity Awareness
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Traffic Proximity Awareness">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apiproximitystatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/proximity/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiproximityconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/proximity/config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiproximityconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/proximity/config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apisettingstraffic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/settings/traffic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apisettingstraffic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/settings/traffic
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -3389,6 +3472,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#post-apimissionsmission_idimport-dsc-zones" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/missions/&lt;mission_id&gt;/import-dsc-zones
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3966,6 +4060,78 @@
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#traffic-proximity-awareness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traffic Proximity Awareness
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Traffic Proximity Awareness">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apiproximitystatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/proximity/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiproximityconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/proximity/config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiproximityconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/proximity/config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apisettingstraffic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/settings/traffic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apisettingstraffic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/settings/traffic
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -4754,6 +4920,42 @@
 <h3 id="delete-apimissionsmission_idlayerslayer_id"><code>DELETE /api/missions/&lt;mission_id&gt;/layers/&lt;layer_id&gt;</code></h3>
 <p>Deletes a layer.</p>
 <p>Response fields: <code>success</code>.</p>
+<h3 id="post-apimissionsmission_idimport-dsc-zones"><code>POST /api/missions/&lt;mission_id&gt;/import-dsc-zones</code></h3>
+<p>Imports Drone Sky Check zones as a mission layer.</p>
+<p>Request JSON:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bbox</code></td>
+<td>Yes</td>
+<td>Bounding box as <code>[minLat, minLon, maxLat, maxLon]</code>.</td>
+</tr>
+<tr>
+<td><code>simplify</code></td>
+<td>No</td>
+<td>Whether to request simplified geometry; defaults to true.</td>
+</tr>
+<tr>
+<td><code>limit</code></td>
+<td>No</td>
+<td>Maximum number of zones requested; defaults to 500.</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td>No</td>
+<td>Optional zone type filter.</td>
+</tr>
+</tbody>
+</table>
+<p>Response fields: <code>success</code>, <code>layer</code> when successful, or <code>success: false</code> and <code>message</code>.</p>
+<p>Invalid mission IDs return HTTP 404. Invalid bounding boxes return HTTP 400. If a DSC zones layer already exists in the mission, the backend replaces it before saving the new layer.</p>
 <hr />
 <h2 id="teams-api">Teams API</h2>
 <h3 id="get-apiteams"><code>GET /api/teams</code></h3>
@@ -5015,7 +5217,7 @@
 </tr>
 <tr>
 <td><code>sources</code></td>
-<td>Counts by external source.</td>
+<td>Counts by active external source (<code>airplanes_live</code>, <code>adsb_lol</code>, <code>ogn</code>, <code>opensky</code>).</td>
 </tr>
 <tr>
 <td><code>aircraft</code></td>
@@ -5082,6 +5284,7 @@
 </tbody>
 </table>
 <p>Response fields: <code>success</code>, <code>enabled</code>.</p>
+<p>The route also persists <code>SETTINGS["traffic"]["adsb_local_enabled"]</code> so backend startup can apply the selected local ADS-B state.</p>
 <h3 id="get-apimeshtasticnodes"><code>GET /api/meshtastic/nodes</code></h3>
 <p>Returns Meshtastic nodes.</p>
 <p>Response fields: <code>ok</code>, <code>nodes</code>, <code>alive</code>.</p>
@@ -5111,6 +5314,7 @@
 </tbody>
 </table>
 <p>Response fields: <code>success</code>, <code>enabled</code>.</p>
+<p>The service start path still checks the persistent traffic configuration. If Meshtastic traffic is disabled in settings, the worker does not connect to the serial gateway.</p>
 <h3 id="post-apimeshtasticnodesreset"><code>POST /api/meshtastic/nodes/reset</code></h3>
 <p>Requests a complete Meshtastic radio NodeDB reset and clears the Mini Tracker node cache.</p>
 <p>Request parameters: none.</p>
@@ -5241,6 +5445,55 @@
 <li><code>developer/mission-storage.md</code></li>
 <li><code>developer/coding-guidelines.md</code></li>
 </ul>
+<hr />
+<h2 id="traffic-proximity-awareness">Traffic Proximity Awareness</h2>
+<h3 id="get-apiproximitystatus"><code>GET /api/proximity/status</code></h3>
+<p>Returns the latest proximity engine snapshot. This endpoint is non-blocking and does not trigger network requests or calculation cycles.</p>
+<p><strong>Response:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;source_health&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;adsb_rx&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AVAILABLE&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;last_successful&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1722783600.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;adsb_net&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DISABLED&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;last_successful&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;remote_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AVAILABLE&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;last_successful&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1722783602.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;drones_active&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;targets_active&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pairs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;pair_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1581F4QW1234:3c6589&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;drone_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1581F4QW1234&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;drone_label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DJI Avata&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;target_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;3c6589&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;target_label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DLH123&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;distance_m&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1200</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MONITOR&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;trend&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;APR&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;drone_lat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">41.893</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;drone_lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">12.577</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;target_lat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">41.903</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;target_lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">12.580</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;target_altitude_m&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">450</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;target_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RX&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;target_updated_ago_s&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;drone_updated_ago_s&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;calculation_time_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">8.5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;last_calculated&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1722783605.0</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Pairs are pre-ranked by severity (WARNING &gt; CAUTION &gt; MONITOR &gt; STALE) then distance.</p>
+<p>The engine runs as a managed backend worker and provides this state to API consumers and future Meshtastic integration.</p>
+<h3 id="get-apiproximityconfig"><code>GET /api/proximity/config</code></h3>
+<p>Returns current proximity configuration merged with code-defined defaults.</p>
+<h3 id="post-apiproximityconfig"><code>POST /api/proximity/config</code></h3>
+<p>Updates proximity configuration. Validates thresholds and persists via <code>save_settings()</code>.</p>
+<p><strong>Body:</strong> JSON with any proximity configuration fields to update.</p>
+<h3 id="get-apisettingstraffic"><code>GET /api/settings/traffic</code></h3>
+<p>Returns traffic source configuration including the authoritative <code>adsb_net_enabled</code> setting.</p>
+<h3 id="post-apisettingstraffic"><code>POST /api/settings/traffic</code></h3>
+<p>Updates traffic source preferences. Used by the ADSBNet localStorage-to-backend migration.</p>
 
 
 

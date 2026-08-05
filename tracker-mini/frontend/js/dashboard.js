@@ -280,14 +280,26 @@ async function initMap() {
 
         if (
             window.DRONES &&
-            DRONES.startDroneTraffic &&
-            localStorage.getItem(
-                "droneNetworkEnabled"
-            ) !== "false"
+            DRONES.startDroneTraffic
         ) {
-            DRONES.startDroneTraffic(
-                map
-            );
+            try {
+                const res =
+                    await fetch("/api/ds110/status");
+
+                const data =
+                    await res.json();
+
+                if (data.enabled === true) {
+                    DRONES.startDroneTraffic(
+                        map
+                    );
+                }
+            } catch (err) {
+                console.error(
+                    "DS110 status error",
+                    err
+                );
+            }
         }
 
         if (
@@ -864,6 +876,16 @@ async function initTrafficSettings() {
 
             droneCheckbox.checked =
                 data.enabled === true;
+
+            if (
+                droneCheckbox.checked &&
+                window.DRONES &&
+                window.airNodeMap
+            ) {
+                DRONES.startDroneTraffic(
+                    window.airNodeMap
+                );
+            }
 
         } catch (err) {
 

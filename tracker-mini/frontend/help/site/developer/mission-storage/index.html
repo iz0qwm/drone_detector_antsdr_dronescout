@@ -1556,6 +1556,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#drone-sky-check-zone-imports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Drone Sky Check Zone Imports
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#teams" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1851,6 +1862,17 @@
     <span class="md-ellipsis">
       
         GeoJSON Imports
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#drone-sky-check-zone-imports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Drone Sky Check Zone Imports
       
     </span>
   </a>
@@ -2168,6 +2190,30 @@
 <li><code>geojson</code> containing the uploaded content</li>
 </ul>
 <p>The current implementation confirms layer import. It does not implement a complete mission export workflow.</p>
+<h2 id="drone-sky-check-zone-imports">Drone Sky Check Zone Imports</h2>
+<p>The backend supports importing Drone Sky Check aeronautical zones into the selected mission.</p>
+<p>The route <code>/api/missions/&lt;mission_id&gt;/import-dsc-zones</code> accepts a JSON request with:</p>
+<ul>
+<li><code>bbox</code> as <code>[minLat, minLon, maxLat, maxLon]</code></li>
+<li><code>simplify</code></li>
+<li><code>limit</code></li>
+<li>optional <code>type</code></li>
+</ul>
+<p>The backend downloads zones through <code>services/dsc_client.py</code> and saves the result as a layer with:</p>
+<ul>
+<li><code>name: "Drone Sky Check zones"</code></li>
+<li><code>type: "geojson"</code></li>
+<li><code>geometry: "feature_collection"</code></li>
+<li><code>visible: true</code></li>
+<li><code>locked: true</code></li>
+<li><code>properties.source: "dsc"</code></li>
+<li><code>properties.readonly: true</code></li>
+<li><code>properties.dataset: "zones"</code></li>
+<li><code>properties.metadata.source: "dsc_zones"</code></li>
+<li><code>geojson</code> containing the downloaded FeatureCollection</li>
+</ul>
+<p>Before saving a new DSC zones layer, the backend deletes any existing layer in the same mission with <code>properties.source: "dsc"</code> and <code>properties.dataset: "zones"</code>. This keeps one current DSC zones layer per mission.</p>
+<p>The frontend treats DSC zone layers as non-editable geometry. The mission list disables shape editing for these layers, the properties dialog disables labels and measurements, and the map renderer applies DSC-specific styling and popups based on feature properties.</p>
 <hr />
 <h2 id="teams">Teams</h2>
 <p>Mission team configuration is stored in <code>teams.json</code> inside the current mission directory.</p>
