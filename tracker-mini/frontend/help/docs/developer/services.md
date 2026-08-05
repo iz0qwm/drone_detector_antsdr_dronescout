@@ -51,7 +51,7 @@ flowchart TD
 | `services.py` | Aggregated service status for Dashboard indicators. |
 | `hardware.py` | Aggregated hardware state based on device paths, service state and receiver activity. |
 | `gps.py` | GPS status and SKY data through `gpsd`. |
-| `ds110.py` | DS110 Remote ID worker, MAVLink reading, Remote ID decoding and in-memory aircraft cache. |
+| `ds110.py` | DS110 Remote ID worker, MAVLink reading, Remote ID decoding, freshness metadata and in-memory aircraft cache. |
 | `readsb.py` | Local ADS-B receiver service control through `systemctl`. |
 | `air_local.py` | Local ADS-B aircraft normalization from `/run/readsb/aircraft.json`. |
 | `air_network.py` | Network ADS-B fetch and merge from Airplanes.live, ADSB.lol, OGN-derived ADS-B and OpenSky. |
@@ -166,7 +166,7 @@ Some services keep live state in memory.
 
 | Module | Runtime State |
 |----------|---------------|
-| `ds110.py` | `remoteid_aircraft`, `running`, `thread`, `last_heartbeat`, `last_serial`. |
+| `ds110.py` | `remoteid_aircraft`, `running`, `thread`, `last_heartbeat`, `last_serial` and computed Remote ID freshness metadata returned by the API. |
 | `meshtastic_service.py` | `meshtastic_nodes`, `running`, `thread`, `interface`, packet timing and last sent position. |
 | `ui/lcd.py` | LCD availability, page state, thread state and display status fields. |
 | `notification_service.py` | `notifications`, an in-memory list of notification records and send status. |

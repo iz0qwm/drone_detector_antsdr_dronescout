@@ -433,6 +433,8 @@ Before testing a staging version:
 
 Development-machine tests do not prove correct hardware operation.
 
+Application-level checks after development can only be validated by Raffaello after deploying the tested version to the Raspberry Pi Mini Tracker.
+
 Mocked tests must be reported as mocked tests.
 
 Physical validation must identify:
@@ -600,12 +602,145 @@ DSC integration test support: Not present
 * Operational warnings must avoid creating a false impression of certification.
 * DSC operational areas must remain clearly distinct from official airspace data.
 * No automated tests exist — all validation is manual.
+* Post-development application controls can only be proven by Raffaello after deployment on the Raspberry Pi Mini Tracker.
 * Application logs are in-memory only (lost on restart).
 * Flash storage is the single point of persistence (power loss risk).
 
 ---
 
 ## Active Work Record
+
+```text
+Task: Meshtastic Enable Persistence Fix
+Feature: Meshtastic operational control
+Owner: Codex
+Working branch: main
+Starting commit: Pending due local repository safe-directory restriction
+Latest commit: Pending
+Push status: Pending
+Status: Local implementation complete, Raspberry deployment validation pending
+Started: 2026-08-05
+Last updated: 2026-08-05
+
+Observed issue:
+  - After adding the proximity section to config/settings.json, Meshtastic appeared disabled at app.py startup.
+  - Enabling Meshtastic from the Dashboard checkbox did not start the connection to the local T-Beam.
+  - config/settings.json was valid JSON and the meshtastic section was still readable.
+  - Root cause found in the enable flow: /api/meshtastic/enable called meshtastic_service.start(), but start() refused to run while SETTINGS["traffic"]["meshtastic_enabled"] remained false.
+
+Files created:
+  tests/test_meshtastic_routes.py
+
+Files modified:
+  backend/routes/meshtastic.py
+  frontend/js/dashboard.js
+  frontend/help/docs/developer/api.md
+  AI_HANDOFF.md
+
+Implementation:
+  - /api/meshtastic/enable now persists SETTINGS["traffic"]["meshtastic_enabled"] before starting or stopping the Meshtastic worker.
+  - /api/meshtastic/status now returns both configured persistent state and current worker running state.
+  - Dashboard Meshtastic checkbox now starts or stops the frontend Meshtastic polling layer immediately after the backend enable request.
+  - Developer API documentation now describes the persistent Meshtastic enable behavior.
+  - AI_HANDOFF.md now explicitly states that post-development application-level controls can only be validated by Raffaello after deployment on the Raspberry Pi Mini Tracker.
+
+Tests/checks:
+  - Passed: PowerShell ConvertFrom-Json validation for config/settings.json.
+  - Passed: bundled Python -m json.tool config/settings.json.
+  - Passed: bundled Python -m py_compile backend/routes/meshtastic.py tests/test_meshtastic_routes.py.
+  - Passed: project .venv Python -m py_compile backend/routes/meshtastic.py tests/test_meshtastic_routes.py.
+  - Passed: node --check frontend/js/dashboard.js.
+  - Not run: tests/test_meshtastic_routes.py under pytest. The project .venv starts but does not have pytest installed, and the bundled Python does not have pytest or Flask installed.
+
+Known limitations:
+  - This local validation does not prove Meshtastic serial hardware operation.
+  - Raffaello must deploy to the Raspberry Pi Mini Tracker and test the Dashboard checkbox against the local T-Beam to validate the application behavior.
+  - If the T-Beam path differs on the deployed device, backend logs should show the configured device path used by meshtastic_service.
+```
+
+```text
+Task: Remote ID Stale Marker Lifecycle and Popup Details
+Feature: Remote ID dashboard usability
+Owner: Codex
+Working branch: main
+Starting commit: 0c59f29
+Latest commit: Pending
+Push status: Pending
+Status: Local implementation complete, physical Mini Tracker validation pending
+Started: 2026-08-05
+Last updated: 2026-08-05
+
+Observed issue:
+  - Remote ID drone markers could remain on the Dashboard map for minutes after packets stopped.
+  - The DS110 API returned all in-memory Remote ID aircraft without a map-facing freshness lifecycle.
+  - The drone marker popup showed only model, vendor, serial and source.
+
+Files created:
+  tests/test_remoteid_stale.py
+
+Files modified:
+  config/settings.json
+  backend/services/ds110.py
+  frontend/js/drones/drone-layer.js
+  frontend/help/docs/hardware/remote-id.md
+  frontend/help/docs/user/traffic-monitoring.md
+  frontend/help/docs/developer/api.md
+  frontend/help/docs/developer/frontend.md
+  frontend/help/docs/developer/services.md
+  AI_HANDOFF.md
+
+Implementation:
+  - Fixed `config/settings.json` JSON syntax by restoring the missing comma between `proximity` and `meshtastic`.
+  - Remote ID API responses now include computed freshness metadata: `updatedAt`, `age_ms` and `stale`.
+  - Remote ID tracks are considered stale using the existing proximity `drone_stale_ms` setting, defaulting to 15 seconds.
+  - Expired Remote ID tracks are removed from the DS110 in-memory cache after the stale threshold plus the retention grace window, defaulting to about 75 seconds total.
+  - Dashboard drone markers now fade and turn grayscale while stale, then disappear after the retention window.
+  - Drone popup details now include altitude, height, speed, heading and last packet age when available.
+
+Tests/checks:
+  - Passed: PowerShell `ConvertFrom-Json` validation for `config/settings.json`
+  - Passed: bundled Python `-m json.tool config/settings.json`
+  - Passed: `node --check frontend/js/drones/drone-layer.js`
+  - Passed: `node --check frontend/js/drones/drone-controller.js`
+  - Passed: `node --check frontend/js/drones/drone-network.js`
+  - Passed: bundled Python `-m py_compile backend/services/ds110.py tests/test_remoteid_stale.py`
+  - Passed: direct bundled-Python Remote ID freshness assertions for fresh, stale and expired tracks.
+  - Not run: pytest. System `python` is unavailable in PATH, bundled Python does not have pytest installed, and `.venv/Scripts/python.exe` failed with access denied in the sandbox.
+
+Known limitations:
+  - Raspberry Pi updater `test_import` must be rerun after deploying this corrected package.
+  - Remote ID stale/fade timing must be visually validated in the deployed Mini Tracker browser with a real DS110 source.
+  - Development-machine checks do not validate DS110 hardware reception.
+```
+
+```text
+Task: ADS-B Popup Source Label Cleanup
+Feature: ADS-B dashboard popup usability
+Owner: Codex
+Working branch: main
+Starting commit: 0c59f29
+Latest commit: Pending
+Push status: Pending
+Status: Local UI cleanup complete, physical Mini Tracker validation pending
+Started: 2026-08-05
+Last updated: 2026-08-05
+
+Files modified:
+  frontend/js/air/air-layer.js
+
+Implementation:
+  - Added frontend source-label normalization for ADS-B aircraft popups.
+  - Network ADS-B provider source combinations such as `AIRPLANES_LIVE+ADSB_LOL+OGN_ADSB+OPENSKY` now display as `Internet`.
+  - Local ADS-B displays as `RTL-SDR`.
+  - Mixed local/network provenance displays as `RTL-SDR + Internet`.
+  - Backend `source` values remain unchanged for diagnostics and merge/proximity logic.
+
+Tests/checks:
+  - Passed: `node --check frontend/js/air/air-layer.js`
+
+Known limitations:
+  - Visual popup result must be validated in the deployed Mini Tracker browser.
+```
 
 ```text
 Task: Remote ID Map Visibility Fix

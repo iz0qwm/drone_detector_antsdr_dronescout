@@ -78,7 +78,7 @@ Frontend logic is split by subsystem.
 | `maps_manager.js` | Map list, storage display, provider settings, download preview and download polling. |
 | `updater.js` | Update upload, verification, install request and current version display. |
 | `air/` | ADS-B network/local polling and aircraft marker layer. |
-| `drones/` | Remote ID polling and drone marker layer. |
+| `drones/` | Remote ID polling, drone marker layer, stale marker fade and popup details. |
 | `glider/` | OGN / FLARM polling, icons and marker layer. |
 | `meshtastic/` | Team/operator polling and operator marker layer. |
 | `missions/` | Mission APIs, planning modal, drawing, layer rendering, layer properties, toolbar, teams view and notification message actions. |
@@ -95,7 +95,7 @@ The current frontend uses global namespaces.
 |----------|---------|
 | `window.airNodeMap` | Shared Leaflet map instance. |
 | `window.AIR` | ADS-B polling and marker behavior. |
-| `window.DRONES` | Remote ID polling and marker behavior. |
+| `window.DRONES` | Remote ID polling, marker freshness behavior and popup details. |
 | `window.GLIDER` | OGN / FLARM start and stop facade. |
 | `window.GLIDER_DATA` | OGN / FLARM polling. |
 | `window.GLIDER_LAYER` | OGN / FLARM marker layer. |
@@ -223,6 +223,8 @@ Traffic modules poll backend APIs and update map layers.
 | Meshtastic operators | `meshtastic/meshtastic-controller.js`, `meshtastic-network.js`, `meshtastic-layer.js` | 5 seconds |
 
 Traffic source controls in the System panel affect frontend display behavior and, for some sources, backend service state. The local ADS-B checkbox reads `/api/readsb/status` and sends changes to `/api/readsb/enable`; it does not use browser `localStorage` for its enabled state. The Remote ID checkbox reads `/api/ds110/status`, sends changes to `/api/ds110/enable` and starts or stops Remote ID map polling from the backend service state.
+
+Remote ID markers are rendered from `/api/remoteid/aircraft`. When the backend marks a track as stale, the drone marker is faded and grayed on the map. Tracks that exceed the retention window are removed from the layer. Drone popups show available identification, source, altitude, height, speed, heading and last packet age.
 
 ---
 

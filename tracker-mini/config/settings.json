@@ -15,19 +15,56 @@
   "dsc": {
     "node_id": "dsc-node02",
     "node_name": "DSC Node 02",
-    "position_source": "gps",
-    "lat": 41.893399,
-    "lon": 12.577479,
+    "position_source": "manual",
+    "lat": 41.649495,
+    "lon": 12.433519,
     "sync_enabled": true
   },
+  "dsc_zones": {
+    "enabled": true,
+    "api_key": "dsc_9s8K1X5v2n3Y43ZaBcDsrXQPx5BP4Fge",
+    "zones_url": "https://zones-32dg4v266a-uc.a.run.app/",
+    "zones_max_age_days": 3
+  },
   "traffic": {
-    "remoteid_enabled": true,
-    "meshtastic_enabled": false
+	"remoteid_enabled": true,
+	"adsb_local_enabled": true,
+	"adsb_net_enabled": true,
+	"meshtastic_enabled": false
+  },
+  "proximity": {
+	"enabled": true,
+	"evaluation_radius_m": 10000,
+
+	"thresholds": {
+	  "monitor_entry_m": 3000,
+	  "monitor_exit_m": 3300,
+	  "caution_entry_m": 1500,
+	  "caution_exit_m": 1800,
+	  "warning_entry_m": 500,
+	  "warning_exit_m": 700
+	},
+
+	"aircraft_source_stale_ms": 30000,
+	"drone_stale_ms": 15000,
+	"target_retention_ms": 60000,
+	"pair_stale_grace_ms": 10000,
+
+	"calculation_interval_ms": 5000,
+	"adsb_net_refresh_interval_ms": 15000,
+
+	"max_panel_entries": 5,
+	"max_rendered_aircraft": 5,
+
+	"movement_deadband_m": 50,
+	"movement_history_window_s": 15,
+	"source_precedence_tie_window_s": 3,
+
+	"pulse_on_warning": true
   },
   "meshtastic": {
-    "enabled": true,
-    "device": "/dev/serial/by-id/usb-Espressif_Systems_LilyGo_TBeam-S3-Core_48CA435BFC80-if00",
-    "node_id": "!435bfc80",
-    "node_name": "dsc-node02"
+	"device": "/dev/serial/by-id/usb-Espressif_Systems_LilyGo_TBeam-S3-Core_48CA435BFC80-if00",
+	"node_id": "!435bfc80",
+	"node_name": "dsc-node02"
   }
 }

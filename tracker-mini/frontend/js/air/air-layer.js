@@ -339,6 +339,46 @@ function createMarker(ac) {
 
 function getSourceLabel(source) {
 
+  const tokens =
+    String(source || "")
+      .split("+")
+      .map(s => s.trim())
+      .filter(Boolean);
+
+  if (!tokens.length) {
+    return "Unknown";
+  }
+
+  const onlineSources = new Set([
+    "AIRPLANES_LIVE",
+    "ADSB_LOL",
+    "OGN",
+    "OGN_ADSB",
+    "OPENSKY",
+    "SOLARMONITOR",
+    "SOLARMONITOR_ADSB"
+  ]);
+
+  const hasLocal =
+    tokens.includes("LOCAL_ADSB");
+
+  const hasOnline =
+    tokens.some(token =>
+      onlineSources.has(token)
+    );
+
+  if (hasLocal && hasOnline) {
+    return "RTL-SDR + Internet";
+  }
+
+  if (hasLocal) {
+    return "RTL-SDR";
+  }
+
+  if (hasOnline) {
+    return "Internet";
+  }
+
   switch (source) {
 
     case "LOCAL_ADSB":

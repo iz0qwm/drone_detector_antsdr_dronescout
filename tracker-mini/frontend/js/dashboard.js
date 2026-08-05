@@ -991,6 +991,25 @@ async function initTrafficSettings() {
                     }
                 );
 
+                if (meshtasticCheckbox.checked) {
+
+                    if (
+                        window.MESHTASTIC &&
+                        window.airNodeMap
+                    ) {
+                        MESHTASTIC.start(
+                            window.airNodeMap
+                        );
+                    }
+
+                } else {
+
+                    if (window.MESHTASTIC) {
+                        MESHTASTIC.stop();
+                    }
+
+                }
+
                 loadServices();
 
             }

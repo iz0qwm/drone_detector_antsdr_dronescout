@@ -25,6 +25,73 @@ ODID_MESSAGE_SIZE = 25
 ODID_ID_SIZE = 20
 DEBUG_DS110 = False
 last_heartbeat = 0
+REMOTEID_STALE_MS = 15000
+REMOTEID_RETENTION_GRACE_MS = 60000
+
+
+def _remoteid_stale_ms():
+    return (
+        SETTINGS
+        .get("proximity", {})
+        .get("drone_stale_ms", REMOTEID_STALE_MS)
+    )
+
+
+def _remoteid_retention_ms():
+    return (
+        _remoteid_stale_ms() +
+        SETTINGS
+        .get("proximity", {})
+        .get("target_retention_ms", REMOTEID_RETENTION_GRACE_MS)
+    )
+
+
+def _last_seen_timestamp(aircraft):
+    last_seen = aircraft.get("last_seen")
+
+    if not last_seen:
+        return None
+
+    try:
+        dt = datetime.fromisoformat(
+            last_seen.replace("Z", "+00:00")
+        )
+
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+
+        return dt.timestamp()
+    except Exception:
+        return None
+
+
+def _annotate_freshness(aircraft, now=None):
+    now = now if now is not None else time.time()
+    copy = dict(aircraft)
+    seen_ts = _last_seen_timestamp(copy)
+
+    if seen_ts is None:
+        copy["updatedAt"] = None
+        copy["age_ms"] = None
+        copy["stale"] = False
+        return copy
+
+    age_ms = max(0, int((now - seen_ts) * 1000))
+    copy["updatedAt"] = int(seen_ts * 1000)
+    copy["age_ms"] = age_ms
+    copy["stale"] = age_ms > _remoteid_stale_ms()
+    return copy
+
+
+def _is_expired(aircraft, now=None):
+    now = now if now is not None else time.time()
+    seen_ts = _last_seen_timestamp(aircraft)
+
+    if seen_ts is None:
+        return False
+
+    age_ms = (now - seen_ts) * 1000
+    return age_ms > _remoteid_retention_ms()
 
 def is_valid_position(lat, lon):
     if lat is None or lon is None:
@@ -143,13 +210,24 @@ def decode_odid_pack(payload, size):
 def get_aircraft():
 
     result = []
+    expired_keys = []
+    now = time.time()
 
-    for aircraft in remoteid_aircraft.values():
+    for key, aircraft in list(remoteid_aircraft.items()):
 
         if not aircraft.get("serial"):
             continue
 
-        result.append(aircraft)
+        if _is_expired(aircraft, now):
+            expired_keys.append(key)
+            continue
+
+        result.append(
+            _annotate_freshness(aircraft, now)
+        )
+
+    for key in expired_keys:
+        remoteid_aircraft.pop(key, None)
 
     return result
 

@@ -715,9 +715,11 @@ Object fields include `id`, `callsign`, `lat`, `lon`, `alt_m`, `heading`, `speed
 
 ### `GET /api/remoteid/aircraft`
 
-Returns Remote ID aircraft currently held in memory by the DS110 service.
+Returns Remote ID aircraft currently held in memory by the DS110 service and still inside the Remote ID retention window.
 
-Response format: array of aircraft objects. Fields may include `source`, `serial`, `vendor`, `model`, `id_type`, `ua_type`, `lat`, `lon`, `altitude`, `height`, `speed`, `heading`, `operator_lat`, `operator_lon`, `operator_altitude`, `operator_id` and `last_seen`.
+Response format: array of aircraft objects. Fields may include `source`, `serial`, `vendor`, `model`, `id_type`, `ua_type`, `lat`, `lon`, `altitude`, `height`, `speed`, `heading`, `operator_lat`, `operator_lon`, `operator_altitude`, `operator_id`, `last_seen`, `updatedAt`, `age_ms` and `stale`.
+
+`updatedAt` is the `last_seen` timestamp converted to epoch milliseconds. `age_ms` is the current age of the Remote ID track at response time. `stale` becomes true when the drone has exceeded the configured Remote ID freshness threshold, while the object remains available long enough for the frontend marker to fade before removal.
 
 ---
 
@@ -777,7 +779,9 @@ Response fields: `ok`, `nodes`, `alive`.
 
 Returns Meshtastic service status.
 
-Response fields: `ok`, `enabled`, `alive`, `nodes_count`.
+Response fields: `ok`, `configured`, `enabled`, `alive`, `nodes_count`.
+
+`configured` is the persistent `SETTINGS["traffic"]["meshtastic_enabled"]` value. `enabled` is the current worker running state.
 
 ### `GET /api/meshtastic/gateway`
 
@@ -787,7 +791,7 @@ Response fields: `ok`, `gateway`.
 
 ### `POST /api/meshtastic/enable`
 
-Starts or stops the Meshtastic worker.
+Updates the persistent Meshtastic traffic setting, then starts or stops the Meshtastic worker.
 
 Request JSON:
 
@@ -795,9 +799,9 @@ Request JSON:
 |----------|----------|-------------|
 | `enabled` | No | Boolean; defaults to true. |
 
-Response fields: `success`, `enabled`.
+Response fields: `success`, `configured`, `enabled`.
 
-The service start path still checks the persistent traffic configuration. If Meshtastic traffic is disabled in settings, the worker does not connect to the serial gateway.
+The route persists `SETTINGS["traffic"]["meshtastic_enabled"]` before starting the worker, so the service guard and backend startup use the same traffic configuration.
 
 ### `POST /api/meshtastic/nodes/reset`
 

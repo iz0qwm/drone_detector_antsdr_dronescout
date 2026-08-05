@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from config import SETTINGS, save_settings
 from services import meshtastic_service
 from services.logger import log
 from services import notification_service
@@ -21,9 +22,17 @@ def get_nodes():
 
 @meshtastic_bp.route("/status")
 def get_status():
+    configured = SETTINGS.get(
+        "traffic",
+        {}
+    ).get(
+        "meshtastic_enabled",
+        False
+    )
 
     return jsonify({
         "ok": True,
+        "configured": configured,
         "enabled": meshtastic_service.running,
         "alive": meshtastic_service.is_alive(),
         "nodes_count": len(
@@ -53,11 +62,20 @@ def enable_meshtastic():
         True
     )
 
+    SETTINGS.setdefault(
+        "traffic",
+        {}
+    )[
+        "meshtastic_enabled"
+    ] = bool(enabled)
+
+    save_settings()
+
     if enabled:
 
         log(
             "MESHTASTIC",
-            "Meshtastic receiver enabled"
+            "Meshtastic receiver enabled in settings"
         )
 
         meshtastic_service.start()
@@ -66,7 +84,7 @@ def enable_meshtastic():
 
         log(
             "MESHTASTIC",
-            "Meshtastic receiver disabled"
+            "Meshtastic receiver disabled in settings"
         )
 
         meshtastic_service.stop()
@@ -74,7 +92,8 @@ def enable_meshtastic():
 
     return jsonify({
         "success": True,
-        "enabled": enabled
+        "configured": bool(enabled),
+        "enabled": meshtastic_service.running
     })
 
 

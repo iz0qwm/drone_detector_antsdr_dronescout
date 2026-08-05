@@ -103,10 +103,17 @@ Drone markers may include:
 - Vendor
 - Serial number
 - Source
+- Altitude
+- Height
+- Speed
+- Heading
+- Last packet age
 
 Remote ID availability depends on the receiver state and on drones transmitting supported data in range.
 
 Mini Tracker also identifies some drone vendor and model information from received identifiers when available.
+
+When packets are no longer received for a Remote ID drone, the marker becomes stale, fades visually and is removed after the retention period. This helps prevent old drone positions from remaining on the map as if they were current.
 
 ---
 
