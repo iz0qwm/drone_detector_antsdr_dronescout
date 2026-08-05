@@ -178,10 +178,10 @@ Recommended sequence:
 | `user/traffic-monitoring.md` | Complete | User Guide | Describes traffic awareness and information fusion. |
 | `user/installation.md` | Complete | User Guide | Describes installation and preparation before first use. |
 | `user/first-start.md` | Complete | User Guide | Guides the first operational preparation workflow before deployment. |
-| `user/settings.md` | Planned | User Guide | Describes operator settings and configuration workflows. |
+| `user/settings.md` | Complete | User Guide | Describes operator settings and configuration workflows. |
 | `user/mission-planning.md` | Complete | User Guide | Describes mission creation, planning and map objects. |
 | `user/teams.md` | Complete | User Guide | Describes team awareness and coordination workflows. |
-| `user/troubleshooting.md` | Planned | User Guide | Provides operator-level troubleshooting procedures. |
+| `user/troubleshooting.md` | Complete | User Guide | Provides operator-level troubleshooting procedures. |
 | `hardware/overview.md` | Complete | Hardware Documentation | Introduces hardware components and integration scope. |
 | `hardware/power.md` | Complete | Hardware Documentation | Describes power inputs, distribution and field power considerations. |
 | `hardware/networking.md` | Complete | Hardware Documentation | Describes network interfaces and deployment connectivity options. |
@@ -203,6 +203,6 @@ Recommended sequence:
 | `developer/mission-storage.md` | Complete | Developer Documentation | Describes mission storage and mission data workflows. |
 | `developer/api.md` | Complete | Developer Documentation | Documents API surfaces and integration points. |
 | `developer/coding-guidelines.md` | Complete | Developer Documentation | Describes project coding style and contribution guidance. |
-| `user/faq.md` | Planned | Product Documentation | Answers common user and operator questions. |
+| `user/faq.md` | Complete | Product Documentation | Answers common user and operator questions. |
 | `release-notes.md` | Planned | Product Documentation | Tracks product changes across releases. |
-| `glossary.md` | Planned | Product Documentation | Defines product terminology and abbreviations. |
+| `glossary.md` | Complete | Product Documentation | Defines product terminology and abbreviations. |

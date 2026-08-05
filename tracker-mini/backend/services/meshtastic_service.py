@@ -93,6 +93,175 @@ def update_node_from_meshtastic(node_id, node):
     meshtastic_nodes[node_id] = existing
 
 
+def get_node_label(node_id):
+    node = meshtastic_nodes.get(node_id, {})
+    user = {}
+
+    try:
+        if interface and node_id in interface.nodes:
+            user = interface.nodes[node_id].get("user", {})
+    except Exception:
+        user = {}
+
+    return (
+        node.get("longName")
+        or user.get("longName")
+        or node.get("shortName")
+        or user.get("shortName")
+        or node_id
+    )
+
+
+def packet_text(packet):
+    decoded = packet.get("decoded", {})
+    text = decoded.get("text")
+
+    if text is None:
+        payload = decoded.get("payload")
+
+        if isinstance(payload, (bytes, bytearray)):
+            text = payload.decode(
+                "utf-8",
+                errors="ignore"
+            )
+        elif payload is not None:
+            text = str(payload)
+
+    if text is None:
+        return None
+
+    text = str(text).strip("\x00").strip()
+
+    return text or None
+
+
+def local_node_identifiers(active_interface=None):
+    identifiers = set()
+
+    configured_id = SETTINGS.get(
+        "meshtastic",
+        {}
+    ).get(
+        "node_id"
+    )
+
+    if configured_id:
+        identifiers.add(str(configured_id).lower())
+
+    local = getattr(
+        active_interface or interface,
+        "localNode",
+        None
+    )
+
+    node_num = getattr(
+        local,
+        "nodeNum",
+        None
+    )
+
+    if node_num is not None:
+        identifiers.add(str(node_num).lower())
+
+        try:
+            identifiers.add(
+                f"!{int(node_num):08x}".lower()
+            )
+        except Exception:
+            pass
+
+    return identifiers
+
+
+def is_local_packet_source(packet, active_interface=None):
+    from_values = [
+        packet.get("fromId"),
+        packet.get("from")
+    ]
+
+    local_ids = local_node_identifiers(
+        active_interface
+    )
+
+    for value in from_values:
+        if value is None:
+            continue
+
+        if str(value).lower() in local_ids:
+            return True
+
+    return False
+
+
+def packet_target_label(packet, active_interface=None):
+    to_id = (
+        packet.get("toId")
+        or packet.get("to")
+    )
+
+    if to_id is None:
+        return "Gateway", None
+
+    target_id = str(to_id)
+    target_key = target_id.lower()
+
+    if target_key in [
+        "^all",
+        "!ffffffff",
+        "4294967295"
+    ]:
+        return "All", target_id
+
+    if target_key in local_node_identifiers(
+        active_interface
+    ):
+        return "Gateway", target_id
+
+    return get_node_label(target_id), target_id
+
+
+def record_text_packet(packet, active_interface):
+    if is_local_packet_source(
+        packet,
+        active_interface
+    ):
+        return
+
+    text = packet_text(packet)
+
+    if not text:
+        return
+
+    from_id = packet.get("fromId")
+
+    if from_id:
+        source_label = get_node_label(from_id)
+    else:
+        source_label = "Operator"
+
+    target_label, target_node_id = packet_target_label(
+        packet,
+        active_interface
+    )
+
+    try:
+        from services import notification_service
+
+        notification_service.record_incoming_text(
+            source_node_id=from_id,
+            source_label=source_label,
+            target_node_id=target_node_id,
+            target_label=target_label,
+            text=text
+        )
+
+    except Exception as e:
+        log(
+            "MESHTASTIC",
+            f"Incoming message record error: {e}"
+        )
+
+
 def on_receive(packet, interface):
     global last_packet_time
 
@@ -118,6 +287,12 @@ def on_receive(packet, interface):
             log(
                 "MESHTASTIC",
                 f"Packet {portnum} from {from_id}"
+            )
+
+        if portnum == "TEXT_MESSAGE_APP":
+            record_text_packet(
+                packet,
+                interface
             )
 
         #log("MESHTASTIC", f"Packet from {from_id} type={portnum}")

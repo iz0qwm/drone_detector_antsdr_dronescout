@@ -126,7 +126,15 @@ Imported layers are treated like other mission objects for map visibility, delet
 
 Drone Sky Check import is available from the active mission menu by selecting **Import from Drone Sky Check**.
 
+![Drone Sky Check Import Action](../images/user/mission-planning/mission_planning_download_DSC_geozones.png)
+
+*Active mission menu with the Drone Sky Check import action.*
+
 The import window shows the Drone Sky Check availability state and a preview map. The preview map follows the main operational map when the import window opens. The operator can pan and zoom the preview map to choose the area to import.
+
+![Drone Sky Check Download Panel](../images/user/mission-planning/Geozone_DroneSkyCheck_download_panel.png)
+
+*Drone Sky Check import panel with preview map and import controls.*
 
 When the operator selects **Import**, Mini Tracker downloads Drone Sky Check aeronautical zones visible in the preview map and stores them as a mission layer named **Drone Sky Check zones**.
 
@@ -161,6 +169,10 @@ Imported Drone Sky Check zones are mission layers, but they behave differently f
 | Labels and measurements | Controlled from layer properties. | Disabled by default for imported zones. |
 
 Drone Sky Check zones use their own map styling. Selecting a zone on the map opens a popup with the zone name, type, lower limit and upper limit when those fields are present in the downloaded data.
+
+![Drone Sky Check Zones](../images/user/mission-planning/show_DSC_geozones.png)
+
+*Imported Drone Sky Check zones displayed as a mission layer on the map.*
 
 ---
 

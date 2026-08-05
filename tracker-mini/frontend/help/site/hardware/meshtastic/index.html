@@ -356,7 +356,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../glossary.md" class="md-nav__link">
+      <a href="../../glossary/" class="md-nav__link">
         
   
   
@@ -634,7 +634,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user/settings.md" class="md-nav__link">
+      <a href="../../user/settings/" class="md-nav__link">
         
   
   
@@ -662,7 +662,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user/troubleshooting.md" class="md-nav__link">
+      <a href="../../user/troubleshooting/" class="md-nav__link">
         
   
   
@@ -690,7 +690,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user/faq.md" class="md-nav__link">
+      <a href="../../user/faq/" class="md-nav__link">
         
   
   
@@ -2090,9 +2090,9 @@
 <p>Missing telemetry values should be treated as unavailable data, not necessarily as a system fault.</p>
 <hr />
 <h2 id="messages">Messages</h2>
-<p>The Meshtastic service recognizes incoming text-message packets at the receiver level and can send direct text messages to a Meshtastic node.</p>
+<p>The Meshtastic service recognizes incoming text-message packets and records them through the backend Notification Service.</p>
 <p>Operator-facing message workflows are handled through the Mission Teams panel and the backend Notification Service. The Notification Service records notification state and uses Meshtastic as the current transport for operator messages.</p>
-<p>The Teams panel supports sending a message to one operator or to all online configured operators.</p>
+<p>The Teams panel supports sending a message to one operator or to all online configured operators. Message entries identify whether the message was sent by the Mini Tracker gateway or received from an operator node, and they include the destination, delivery state and timestamp.</p>
 <hr />
 <h2 id="dashboard-integration">Dashboard Integration</h2>
 <p>Meshtastic is integrated into several Dashboard areas.</p>

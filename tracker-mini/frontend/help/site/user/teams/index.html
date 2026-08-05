@@ -14,7 +14,7 @@
         <link rel="prev" href="../mission-planning/">
       
       
-        <link rel="next" href="../../hardware/overview/">
+        <link rel="next" href="../settings/">
       
       
         
@@ -356,7 +356,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../glossary.md" class="md-nav__link">
+      <a href="../../glossary/" class="md-nav__link">
         
   
   
@@ -745,6 +745,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#operator-map-markers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operator Map Markers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#external-nodes-and-nodedb" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -837,7 +848,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../settings.md" class="md-nav__link">
+      <a href="../settings/" class="md-nav__link">
         
   
   
@@ -865,7 +876,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../troubleshooting.md" class="md-nav__link">
+      <a href="../troubleshooting/" class="md-nav__link">
         
   
   
@@ -893,7 +904,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../faq.md" class="md-nav__link">
+      <a href="../faq/" class="md-nav__link">
         
   
   
@@ -1803,6 +1814,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#operator-map-markers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operator Map Markers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#external-nodes-and-nodedb" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1914,6 +1936,8 @@
 <li>Messages</li>
 </ul>
 <p>Mission operators are stored with the active mission. When a Meshtastic node is received with a matching short name, Mini Tracker associates that node with the configured operator.</p>
+<p><img alt="Mission Team Gateway" src="../../images/user/teams/team_internal_node_informations.png" /></p>
+<p><em>Mission Team window with gateway status and Mission Operators controls.</em></p>
 <hr />
 <h2 id="gateway">Gateway</h2>
 <p>The Gateway section summarizes the Meshtastic gateway used by Mini Tracker.</p>
@@ -1988,6 +2012,8 @@
 </tbody>
 </table>
 <p>The operator can add, edit or delete mission operators from the Teams panel.</p>
+<p><img alt="Mission Operators" src="../../images/user/teams/teams_Mission_Operators.png" /></p>
+<p><em>Mission Operators section with an associated online Meshtastic node.</em></p>
 <hr />
 <h2 id="automatic-node-association">Automatic Node Association</h2>
 <p>Mini Tracker associates configured operators with Meshtastic nodes automatically.</p>
@@ -2033,6 +2059,14 @@
 </tbody>
 </table>
 <p>This distinction helps the operator understand which nodes belong to the mission team and which nodes are simply present in the radio NodeDB.</p>
+<p><img alt="External Nodes" src="../../images/user/teams/teams_nodi_esterni_alla_missione.png" /></p>
+<p><em>External Meshtastic nodes are listed separately from configured mission operators.</em></p>
+<hr />
+<h2 id="operator-map-markers">Operator Map Markers</h2>
+<p>When a configured mission operator has position data, Mini Tracker can display that operator on the Dashboard map.</p>
+<p>Selecting the operator marker shows the operator name, short name, node identifier, battery state, signal information and last seen time when these values are available.</p>
+<p><img alt="Operator On Map" src="../../images/user/teams/teams_operatore_su_mappa.png" /></p>
+<p><em>Mission operator marker and details on the operational map.</em></p>
 <hr />
 <h2 id="external-nodes-and-nodedb">External Nodes and NodeDB</h2>
 <p>External Nodes are shown separately from Mission Operators.</p>
@@ -2065,9 +2099,12 @@
 <li>Send a message to all online mission operators</li>
 <li>Use quick message templates</li>
 <li>Write a custom message</li>
-<li>Review recent notification entries shown in the Messages section</li>
+<li>Review recent incoming and outgoing notification entries shown in the Messages section</li>
 </ul>
 <p>Messages are sent through the Notification Service. The Notification Service records the notification state and uses Meshtastic as the current delivery transport for operator messages.</p>
+<p>Each message entry identifies the source, destination, delivery state, timestamp and text. Outgoing messages show the Mini Tracker gateway as the source and the operator as the destination. Incoming Meshtastic text messages from operator nodes are recorded as messages from the operator to the gateway.</p>
+<p><img alt="Messages Section" src="../../images/user/teams/teams_sezione_messaggi_inviati_ricevuti.png" /></p>
+<p><em>Messages section showing received and sent Meshtastic text messages with direction and status.</em></p>
 <hr />
 <h2 id="sending-a-message-to-one-operator">Sending a Message to One Operator</h2>
 <p>To send a message to a single operator:</p>
@@ -2079,6 +2116,8 @@
 <li>Select <strong>Send</strong>.</li>
 </ol>
 <p>The operator must have an associated Meshtastic node identifier for delivery to succeed.</p>
+<p><img alt="Message To Operator" src="../../images/user/teams/teams_message_to_operator1.png" /></p>
+<p><em>Direct message dialog for one configured mission operator.</em></p>
 <hr />
 <h2 id="sending-a-message-to-all-operators">Sending a Message to All Operators</h2>
 <p>To send a message to all online operators:</p>
@@ -2107,6 +2146,7 @@
 <li>Operators without current position data may still appear in the Teams panel but cannot be displayed as map markers.</li>
 <li>Message delivery depends on Meshtastic gateway state, node availability and radio conditions.</li>
 <li>Recent messages are stored in backend memory and are not persistent across backend restarts.</li>
+<li>Incoming messages are recorded only while the Meshtastic service is running and receiving text-message packets.</li>
 </ul>
 <hr />
 <h2 id="related-documentation">Related Documentation</h2>

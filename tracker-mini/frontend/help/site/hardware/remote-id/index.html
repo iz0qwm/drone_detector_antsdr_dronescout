@@ -356,7 +356,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../glossary.md" class="md-nav__link">
+      <a href="../../glossary/" class="md-nav__link">
         
   
   
@@ -634,7 +634,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user/settings.md" class="md-nav__link">
+      <a href="../../user/settings/" class="md-nav__link">
         
   
   
@@ -662,7 +662,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user/troubleshooting.md" class="md-nav__link">
+      <a href="../../user/troubleshooting/" class="md-nav__link">
         
   
   
@@ -690,7 +690,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user/faq.md" class="md-nav__link">
+      <a href="../../user/faq/" class="md-nav__link">
         
   
   
@@ -1910,6 +1910,7 @@
 <h2 id="dashboard-integration">Dashboard Integration</h2>
 <p>Remote ID is integrated into the Dashboard traffic view.</p>
 <p>The Dashboard can display Remote ID drones as map markers. Selecting a drone marker presents the available details for that object, including model, vendor, serial number and source where available.</p>
+<p>When Remote ID packets are no longer received for a detected drone, the Dashboard marks the track as stale, fades the marker and removes it after the retention window expires. This prevents old Remote ID tracks from remaining on the operational map indefinitely.</p>
 <p>The top status bar includes a RID indicator. The system status area also includes a Remote ID traffic source control labeled Remote ID (DS110).</p>
 <p>The hardware status view shows:</p>
 <ul>
@@ -1927,6 +1928,7 @@
 <li>Verify DS110 receiver connection</li>
 <li>Verify DS110 heartbeat activity</li>
 <li>Display detected drone markers on the map</li>
+<li>Fade and remove stale Remote ID markers when packets are no longer received</li>
 <li>Clear displayed Remote ID markers when the source is disabled</li>
 </ul>
 <p>Remote ID detections may also be sent to DSC services when synchronization is enabled and Internet connectivity is available.</p>

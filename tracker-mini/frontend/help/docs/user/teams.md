@@ -27,6 +27,10 @@ The Mission Team window shows:
 
 Mission operators are stored with the active mission. When a Meshtastic node is received with a matching short name, Mini Tracker associates that node with the configured operator.
 
+![Mission Team Gateway](../images/user/teams/team_internal_node_informations.png)
+
+*Mission Team window with gateway status and Mission Operators controls.*
+
 ---
 
 ## Gateway
@@ -63,6 +67,10 @@ Each operator has:
 | **Online state** | Whether the associated node is currently visible in the Meshtastic node cache. |
 
 The operator can add, edit or delete mission operators from the Teams panel.
+
+![Mission Operators](../images/user/teams/teams_Mission_Operators.png)
+
+*Mission Operators section with an associated online Meshtastic node.*
 
 ---
 
@@ -105,6 +113,22 @@ The Teams panel separates Meshtastic data into three operational groups.
 
 This distinction helps the operator understand which nodes belong to the mission team and which nodes are simply present in the radio NodeDB.
 
+![External Nodes](../images/user/teams/teams_nodi_esterni_alla_missione.png)
+
+*External Meshtastic nodes are listed separately from configured mission operators.*
+
+---
+
+## Operator Map Markers
+
+When a configured mission operator has position data, Mini Tracker can display that operator on the Dashboard map.
+
+Selecting the operator marker shows the operator name, short name, node identifier, battery state, signal information and last seen time when these values are available.
+
+![Operator On Map](../images/user/teams/teams_operatore_su_mappa.png)
+
+*Mission operator marker and details on the operational map.*
+
 ---
 
 ## External Nodes and NodeDB
@@ -132,9 +156,15 @@ The operator can:
 - Send a message to all online mission operators
 - Use quick message templates
 - Write a custom message
-- Review recent notification entries shown in the Messages section
+- Review recent incoming and outgoing notification entries shown in the Messages section
 
 Messages are sent through the Notification Service. The Notification Service records the notification state and uses Meshtastic as the current delivery transport for operator messages.
+
+Each message entry identifies the source, destination, delivery state, timestamp and text. Outgoing messages show the Mini Tracker gateway as the source and the operator as the destination. Incoming Meshtastic text messages from operator nodes are recorded as messages from the operator to the gateway.
+
+![Messages Section](../images/user/teams/teams_sezione_messaggi_inviati_ricevuti.png)
+
+*Messages section showing received and sent Meshtastic text messages with direction and status.*
 
 ---
 
@@ -149,6 +179,10 @@ To send a message to a single operator:
 5. Select **Send**.
 
 The operator must have an associated Meshtastic node identifier for delivery to succeed.
+
+![Message To Operator](../images/user/teams/teams_message_to_operator1.png)
+
+*Direct message dialog for one configured mission operator.*
 
 ---
 
@@ -183,6 +217,7 @@ Mini Tracker sends the message only to configured operators that are currently o
 - Operators without current position data may still appear in the Teams panel but cannot be displayed as map markers.
 - Message delivery depends on Meshtastic gateway state, node availability and radio conditions.
 - Recent messages are stored in backend memory and are not persistent across backend restarts.
+- Incoming messages are recorded only while the Meshtastic service is running and receiving text-message packets.
 
 ---
 

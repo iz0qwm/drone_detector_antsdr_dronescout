@@ -356,7 +356,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../glossary.md" class="md-nav__link">
+      <a href="../../glossary/" class="md-nav__link">
         
   
   
@@ -959,7 +959,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../settings.md" class="md-nav__link">
+      <a href="../settings/" class="md-nav__link">
         
   
   
@@ -987,7 +987,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../troubleshooting.md" class="md-nav__link">
+      <a href="../troubleshooting/" class="md-nav__link">
         
   
   
@@ -1015,7 +1015,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../faq.md" class="md-nav__link">
+      <a href="../faq/" class="md-nav__link">
         
   
   
@@ -2224,6 +2224,8 @@
 </ul>
 <p>Aircraft may be shown with callsign or identifier, ICAO identifier, source, altitude and speed when available.</p>
 <p>By default, aircraft traffic is filtered to focus on lower altitude traffic relevant to the local operating area. Helicopters are treated as operationally relevant even when altitude filtering is active.</p>
+<p><img alt="ADS-B Traffic" src="../../images/user/traffic-monitoring/traffico_ADS-B.png" /></p>
+<p><em>ADS-B aircraft displayed on the operational map with marker details.</em></p>
 <hr />
 <h3 id="remote-id">Remote ID</h3>
 <p>Remote ID contributes awareness of drones detected by the supported receiver.</p>
@@ -2233,9 +2235,15 @@
 <li>Vendor</li>
 <li>Serial number</li>
 <li>Source</li>
+<li>Altitude</li>
+<li>Height</li>
+<li>Speed</li>
+<li>Heading</li>
+<li>Last packet age</li>
 </ul>
 <p>Remote ID availability depends on the receiver state and on drones transmitting supported data in range.</p>
 <p>Mini Tracker also identifies some drone vendor and model information from received identifiers when available.</p>
+<p>When packets are no longer received for a Remote ID drone, the marker becomes stale, fades visually and is removed after the retention period. This helps prevent old drone positions from remaining on the map as if they were current.</p>
 <hr />
 <h3 id="ogn-flarm">OGN / FLARM</h3>
 <p>OGN / FLARM traffic provides awareness of gliders and related light aviation objects from supported OGN network sources.</p>
@@ -2374,6 +2382,8 @@
 <li><strong>Proximity rings</strong> around up to five aircraft in proximity states</li>
 <li>A <strong>Nearby Traffic panel</strong> listing the highest-severity drone-aircraft pairs</li>
 </ul>
+<p><img alt="Proximity Monitor" src="../../images/user/traffic-monitoring/proximity_mon_helicopter.png" /></p>
+<p><em>MON proximity state with a dashed distance line and Nearby Traffic panel entry.</em></p>
 <h3 id="proximity-states">Proximity States</h3>
 <table>
 <thead>
@@ -2407,6 +2417,10 @@
 </tbody>
 </table>
 <p>Each state is shown with color, line pattern AND text label (not color alone) for readability in all conditions.</p>
+<p><img alt="Proximity Caution Helicopter" src="../../images/user/traffic-monitoring/proximity_cau_helicopter.png" /></p>
+<p><em>CAUTION proximity state for a helicopter track near a detected drone.</em></p>
+<p><img alt="Proximity Caution Aircraft" src="../../images/user/traffic-monitoring/proximity_cau_airplane.png" /></p>
+<p><em>CAUTION proximity state for an aircraft track near a detected drone.</em></p>
 <h3 id="nearby-traffic-panel">Nearby Traffic Panel</h3>
 <p>A compact floating panel appears at the bottom-right of the map when proximity pairs exist. It shows:</p>
 <ul>

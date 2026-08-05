@@ -611,6 +611,104 @@ DSC integration test support: Not present
 ## Active Work Record
 
 ```text
+Task: User Manual Image Integration and Missing Page Completion
+Feature: Mini Tracker documentation
+Owner: Codex
+Working branch: main
+Starting commit: Pending due local repository safe-directory restriction
+Latest commit: Pending
+Push status: Pending
+Status: Local documentation update complete
+Started: 2026-08-06
+Last updated: 2026-08-06
+
+Observed issue:
+  - Several newly added screenshots under frontend/help/docs/images/ were not referenced by the manual.
+  - MkDocs navigation referenced user/settings.md, user/troubleshooting.md, user/faq.md and glossary.md, but those source files did not exist.
+
+Files created:
+  frontend/help/docs/user/settings.md
+  frontend/help/docs/user/troubleshooting.md
+  frontend/help/docs/user/faq.md
+  frontend/help/docs/glossary.md
+
+Files modified:
+  frontend/help/docs/index.md
+  frontend/help/docs/user/teams.md
+  frontend/help/docs/user/traffic-monitoring.md
+  frontend/help/docs/user/mission-planning.md
+  AI_HANDOFF.md
+
+Implementation:
+  - Added Teams screenshots for gateway status, mission operators, external nodes, operator map marker, direct message dialog and sent/received Messages section.
+  - Added Traffic Monitoring screenshots for ADS-B traffic and Traffic Proximity Awareness MON/CAUTION examples.
+  - Added Mission Planning screenshots for Drone Sky Check import action, import panel and imported zone display.
+  - Added a new Settings user-guide page covering system status, traffic source controls, hardware status, DS110 settings, network settings and system update workflow.
+  - Added operator-level Troubleshooting, FAQ and Glossary pages to satisfy existing MkDocs navigation entries.
+  - Updated documentation status entries for settings, troubleshooting, FAQ and glossary.
+
+Tests/checks:
+  - Passed: local image reference check across frontend/help/docs Markdown files.
+  - Passed: mkdocs build --strict --config-file frontend/help/mkdocs.yml using the project .venv after sandbox escalation. Build succeeded in 0.88s.
+  - Passed: git diff --check -- frontend/help/docs.
+  - Cleaned generated frontend/help/site changes after the build so only documentation sources remain modified.
+
+Known limitations:
+  - Documentation remains in English per DOCUMENTATION.md. Italian manual generation requires an approved documentation policy and structure change.
+  - Screenshot filenames added by the user were left unchanged, including Italian names and existing typos, to avoid moving user-managed files.
+```
+
+```text
+Task: Meshtastic Message Direction and Incoming Text Fix
+Feature: Meshtastic operational control
+Owner: Codex
+Working branch: main
+Starting commit: Pending due local repository safe-directory restriction
+Latest commit: Pending
+Push status: Pending
+Status: Local implementation complete, Raspberry deployment validation pending
+Started: 2026-08-05
+Last updated: 2026-08-05
+
+Observed issue:
+  - Direct Message from one operator card did not reach the configured operator, while Send message to all reached the only configured operator.
+  - Gateway-sent messages appeared in the Mission Teams Messages list as `tracker` plus text only, without clear source, destination or status.
+  - Meshtastic text messages sent by an operator to the Mini Tracker gateway were logged as packets but were not shown in the Messages list.
+
+Files created:
+  tests/test_meshtastic_messages.py
+  tests/test_notification_service.py
+
+Files modified:
+  backend/services/meshtastic_service.py
+  backend/services/notification_service.py
+  frontend/js/missions/mission-teams.js
+  frontend/help/docs/user/teams.md
+  frontend/help/docs/hardware/meshtastic.md
+  frontend/help/docs/developer/api.md
+  AI_HANDOFF.md
+
+Implementation:
+  - Incoming Meshtastic TEXT_MESSAGE_APP packets are now recorded through the Notification Service when they are not sent by the local gateway.
+  - Notification records now include direction, source node ID, target label and transport metadata while preserving existing basic fields.
+  - Outgoing operator messages now identify the source as Gateway and include the operator label when available.
+  - Send message to all now sends only to online operators with a Meshtastic nodeId, avoiding fallback to the mission operator numeric id.
+  - The Mission Teams Messages list now displays source -> destination, status, timestamp and message text.
+  - The single-operator Message button refreshes live team status before selecting the target nodeId.
+  - External node removal now uses the backend-provided nodeId instead of a missing node.id field.
+
+Tests/checks:
+  - Passed: bundled Python -m py_compile backend/services/meshtastic_service.py backend/services/notification_service.py tests/test_meshtastic_messages.py tests/test_notification_service.py.
+  - Passed: node --check frontend/js/missions/mission-teams.js.
+  - Passed: git diff --check -- .
+  - Not run: pytest tests/test_meshtastic_messages.py tests/test_notification_service.py tests/test_meshtastic_routes.py. System python is unavailable, bundled Python does not have pytest installed, and .venv/Scripts/python.exe fails with access denied in the sandbox.
+
+Known limitations:
+  - Local tests use mocked Meshtastic packet/interface behavior and do not prove delivery over the real radio.
+  - Raffaello must validate on the Raspberry Pi Mini Tracker with the connected T-Beam: direct operator message, send-to-all, operator-to-gateway inbound text, and message list labeling.
+```
+
+```text
 Task: Meshtastic Enable Persistence Fix
 Feature: Meshtastic operational control
 Owner: Codex

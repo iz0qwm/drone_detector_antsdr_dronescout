@@ -3,6 +3,36 @@ window.MISSION = window.MISSION || {};
 MISSION.teams = {};
 MISSION.teams.selectedOperator = null;
 MISSION.teams.messageTarget = "operator";
+MISSION.teams.currentStatus = null;
+
+MISSION.teams.escapeHtml = function (value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+
+};
+
+MISSION.teams.messageTitle = function (msg) {
+
+    const source =
+        msg.source || "-";
+
+    const target =
+        msg.target_label ||
+        msg.target ||
+        "-";
+
+    if (msg.direction === "incoming") {
+        return `${source} -> ${target}`;
+    }
+
+    return `${source} -> ${target}`;
+
+};
 
 MISSION.teams.open = async function () {
 
@@ -23,6 +53,8 @@ MISSION.teams.open = async function () {
 
         const data =
             await res.json();
+
+        MISSION.teams.currentStatus = data;
 
         const msgRes =
             await fetch(
@@ -196,6 +228,9 @@ MISSION.teams.open = async function () {
 
         data.external_nodes.forEach(node => {
 
+            const nodeId =
+                node.nodeId;
+
             html += `
                 <div class="team-card">
                     📡 <b>${node.name}</b>
@@ -204,14 +239,14 @@ MISSION.teams.open = async function () {
                     ${node.shortName ?? "-"}
                     <br>
                     Node:
-                    ${node.id ?? "-"}
+                    ${nodeId ?? "-"}
                     <br>
                     SNR:
                     ${node.snr ?? "-"} dB
                 </div>
                 <button
                     class="btn-delete-mission"
-                    onclick="MISSION.teams.removeExternalNode('${node.id}')">
+                    onclick="MISSION.teams.removeExternalNode('${nodeId}')">
 
                     Remove from radio
 
@@ -229,11 +264,38 @@ MISSION.teams.open = async function () {
         `;
 
         notifications.messages.forEach(msg => {
+
+            const title =
+                MISSION.teams.escapeHtml(
+                    MISSION.teams.messageTitle(msg)
+                );
+
+            const status =
+                MISSION.teams.escapeHtml(
+                    msg.status || "-"
+                );
+
+            const timestamp =
+                MISSION.teams.escapeHtml(
+                    msg.timestamp || "-"
+                );
+
+            const text =
+                MISSION.teams.escapeHtml(
+                    msg.text || ""
+                );
+
             html += `
                 <div class="team-card">
-                    <b>${msg.source ?? "-"}</b>
+                    <b>${title}</b>
                     <br>
-                    ${msg.text}
+                    Status:
+                    ${status}
+                    <br>
+                    Time:
+                    ${timestamp}
+                    <br>
+                    ${text}
                 </div>
             `;
         });
@@ -425,15 +487,34 @@ MISSION.teams.removeExternalNode = async function (nodeId) {
 
 MISSION.teams.sendMessage = async function (id) {
 
-    const team =
-        await MISSION.teams.loadConfig();
+    let status =
+        null;
+
+    try {
+        const res =
+            await fetch(
+                "/api/teams"
+            );
+
+        status =
+            await res.json();
+    }
+    catch(err) {
+        status =
+            MISSION.teams.currentStatus;
+    }
 
     const operator =
-        team.operators.find(
+        (status.operators || []).find(
             o => o.id === id
         );
 
     if (!operator) {
+        return;
+    }
+
+    if (!operator.nodeId) {
+        alert("Operator has no Meshtastic node");
         return;
     }
 

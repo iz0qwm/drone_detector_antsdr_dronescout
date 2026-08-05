@@ -356,7 +356,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../glossary.md" class="md-nav__link">
+      <a href="../../glossary/" class="md-nav__link">
         
   
   
@@ -634,7 +634,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user/settings.md" class="md-nav__link">
+      <a href="../../user/settings/" class="md-nav__link">
         
   
   
@@ -662,7 +662,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user/troubleshooting.md" class="md-nav__link">
+      <a href="../../user/troubleshooting/" class="md-nav__link">
         
   
   
@@ -690,7 +690,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user/faq.md" class="md-nav__link">
+      <a href="../../user/faq/" class="md-nav__link">
         
   
   
@@ -2023,7 +2023,7 @@
 </tr>
 <tr>
 <td><code>drones/</code></td>
-<td>Remote ID polling and drone marker layer.</td>
+<td>Remote ID polling, drone marker layer, stale marker fade and popup details.</td>
 </tr>
 <tr>
 <td><code>glider/</code></td>
@@ -2061,7 +2061,7 @@
 </tr>
 <tr>
 <td><code>window.DRONES</code></td>
-<td>Remote ID polling and marker behavior.</td>
+<td>Remote ID polling, marker freshness behavior and popup details.</td>
 </tr>
 <tr>
 <td><code>window.GLIDER</code></td>
@@ -2203,6 +2203,7 @@
 </tbody>
 </table>
 <p>Traffic source controls in the System panel affect frontend display behavior and, for some sources, backend service state. The local ADS-B checkbox reads <code>/api/readsb/status</code> and sends changes to <code>/api/readsb/enable</code>; it does not use browser <code>localStorage</code> for its enabled state. The Remote ID checkbox reads <code>/api/ds110/status</code>, sends changes to <code>/api/ds110/enable</code> and starts or stops Remote ID map polling from the backend service state.</p>
+<p>Remote ID markers are rendered from <code>/api/remoteid/aircraft</code>. When the backend marks a track as stale, the drone marker is faded and grayed on the map. Tracks that exceed the retention window are removed from the layer. Drone popups show available identification, source, altitude, height, speed, heading and last packet age.</p>
 <hr />
 <h2 id="polling-model">Polling Model</h2>
 <p>The frontend uses repeated HTTP polling.</p>

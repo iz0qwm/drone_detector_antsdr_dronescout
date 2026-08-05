@@ -356,7 +356,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../glossary.md" class="md-nav__link">
+      <a href="../../glossary/" class="md-nav__link">
         
   
   
@@ -634,7 +634,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user/settings.md" class="md-nav__link">
+      <a href="../../user/settings/" class="md-nav__link">
         
   
   
@@ -662,7 +662,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user/troubleshooting.md" class="md-nav__link">
+      <a href="../../user/troubleshooting/" class="md-nav__link">
         
   
   
@@ -690,7 +690,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user/faq.md" class="md-nav__link">
+      <a href="../../user/faq/" class="md-nav__link">
         
   
   
@@ -5051,6 +5051,7 @@
 </tbody>
 </table>
 <p>Notification entries include <code>id</code>, <code>timestamp</code>, <code>category</code>, <code>severity</code>, <code>source</code>, <code>target</code>, <code>target_node_id</code>, <code>text</code> and <code>status</code>. Failed send attempts may include <code>error</code>.</p>
+<p>Meshtastic notification entries may also include <code>source_node_id</code>, <code>target_label</code>, <code>direction</code> and <code>transport</code>. Outgoing operator messages use <code>direction: "outgoing"</code> and <code>source: "Gateway"</code>. Incoming Meshtastic text messages use <code>direction: "incoming"</code> and <code>status: "received"</code>.</p>
 <h3 id="delete-apinotifications"><code>DELETE /api/notifications</code></h3>
 <p>Clears in-memory notification messages.</p>
 <p>Request parameters: none.</p>
@@ -5231,8 +5232,9 @@
 <p>Response fields: <code>success</code>, <code>count</code>, <code>objects</code>.</p>
 <p>Object fields include <code>id</code>, <code>callsign</code>, <code>lat</code>, <code>lon</code>, <code>alt_m</code>, <code>heading</code>, <code>speed</code>, <code>source</code>, <code>last_seen</code> and <code>updatedAt</code>.</p>
 <h3 id="get-apiremoteidaircraft"><code>GET /api/remoteid/aircraft</code></h3>
-<p>Returns Remote ID aircraft currently held in memory by the DS110 service.</p>
-<p>Response format: array of aircraft objects. Fields may include <code>source</code>, <code>serial</code>, <code>vendor</code>, <code>model</code>, <code>id_type</code>, <code>ua_type</code>, <code>lat</code>, <code>lon</code>, <code>altitude</code>, <code>height</code>, <code>speed</code>, <code>heading</code>, <code>operator_lat</code>, <code>operator_lon</code>, <code>operator_altitude</code>, <code>operator_id</code> and <code>last_seen</code>.</p>
+<p>Returns Remote ID aircraft currently held in memory by the DS110 service and still inside the Remote ID retention window.</p>
+<p>Response format: array of aircraft objects. Fields may include <code>source</code>, <code>serial</code>, <code>vendor</code>, <code>model</code>, <code>id_type</code>, <code>ua_type</code>, <code>lat</code>, <code>lon</code>, <code>altitude</code>, <code>height</code>, <code>speed</code>, <code>heading</code>, <code>operator_lat</code>, <code>operator_lon</code>, <code>operator_altitude</code>, <code>operator_id</code>, <code>last_seen</code>, <code>updatedAt</code>, <code>age_ms</code> and <code>stale</code>.</p>
+<p><code>updatedAt</code> is the <code>last_seen</code> timestamp converted to epoch milliseconds. <code>age_ms</code> is the current age of the Remote ID track at response time. <code>stale</code> becomes true when the drone has exceeded the configured Remote ID freshness threshold, while the object remains available long enough for the frontend marker to fade before removal.</p>
 <hr />
 <h2 id="hardware-control-api">Hardware Control API</h2>
 <h3 id="get-apigpsstatus"><code>GET /api/gps/status</code></h3>
@@ -5290,12 +5292,13 @@
 <p>Response fields: <code>ok</code>, <code>nodes</code>, <code>alive</code>.</p>
 <h3 id="get-apimeshtasticstatus"><code>GET /api/meshtastic/status</code></h3>
 <p>Returns Meshtastic service status.</p>
-<p>Response fields: <code>ok</code>, <code>enabled</code>, <code>alive</code>, <code>nodes_count</code>.</p>
+<p>Response fields: <code>ok</code>, <code>configured</code>, <code>enabled</code>, <code>alive</code>, <code>nodes_count</code>.</p>
+<p><code>configured</code> is the persistent <code>SETTINGS["traffic"]["meshtastic_enabled"]</code> value. <code>enabled</code> is the current worker running state.</p>
 <h3 id="get-apimeshtasticgateway"><code>GET /api/meshtastic/gateway</code></h3>
 <p>Returns Meshtastic gateway information.</p>
 <p>Response fields: <code>ok</code>, <code>gateway</code>.</p>
 <h3 id="post-apimeshtasticenable"><code>POST /api/meshtastic/enable</code></h3>
-<p>Starts or stops the Meshtastic worker.</p>
+<p>Updates the persistent Meshtastic traffic setting, then starts or stops the Meshtastic worker.</p>
 <p>Request JSON:</p>
 <table>
 <thead>
@@ -5313,8 +5316,8 @@
 </tr>
 </tbody>
 </table>
-<p>Response fields: <code>success</code>, <code>enabled</code>.</p>
-<p>The service start path still checks the persistent traffic configuration. If Meshtastic traffic is disabled in settings, the worker does not connect to the serial gateway.</p>
+<p>Response fields: <code>success</code>, <code>configured</code>, <code>enabled</code>.</p>
+<p>The route persists <code>SETTINGS["traffic"]["meshtastic_enabled"]</code> before starting the worker, so the service guard and backend startup use the same traffic configuration.</p>
 <h3 id="post-apimeshtasticnodesreset"><code>POST /api/meshtastic/nodes/reset</code></h3>
 <p>Requests a complete Meshtastic radio NodeDB reset and clears the Mini Tracker node cache.</p>
 <p>Request parameters: none.</p>

@@ -620,6 +620,8 @@ Response fields:
 
 Notification entries include `id`, `timestamp`, `category`, `severity`, `source`, `target`, `target_node_id`, `text` and `status`. Failed send attempts may include `error`.
 
+Meshtastic notification entries may also include `source_node_id`, `target_label`, `direction` and `transport`. Outgoing operator messages use `direction: "outgoing"` and `source: "Gateway"`. Incoming Meshtastic text messages use `direction: "incoming"` and `status: "received"`.
+
 ### `DELETE /api/notifications`
 
 Clears in-memory notification messages.

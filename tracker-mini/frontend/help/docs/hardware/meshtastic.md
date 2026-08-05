@@ -139,11 +139,11 @@ Missing telemetry values should be treated as unavailable data, not necessarily 
 
 ## Messages
 
-The Meshtastic service recognizes incoming text-message packets at the receiver level and can send direct text messages to a Meshtastic node.
+The Meshtastic service recognizes incoming text-message packets and records them through the backend Notification Service.
 
 Operator-facing message workflows are handled through the Mission Teams panel and the backend Notification Service. The Notification Service records notification state and uses Meshtastic as the current transport for operator messages.
 
-The Teams panel supports sending a message to one operator or to all online configured operators.
+The Teams panel supports sending a message to one operator or to all online configured operators. Message entries identify whether the message was sent by the Mini Tracker gateway or received from an operator node, and they include the destination, delivery state and timestamp.
 
 ---
 

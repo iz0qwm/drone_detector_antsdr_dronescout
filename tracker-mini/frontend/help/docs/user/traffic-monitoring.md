@@ -91,6 +91,10 @@ Aircraft may be shown with callsign or identifier, ICAO identifier, source, alti
 
 By default, aircraft traffic is filtered to focus on lower altitude traffic relevant to the local operating area. Helicopters are treated as operationally relevant even when altitude filtering is active.
 
+![ADS-B Traffic](../images/user/traffic-monitoring/traffico_ADS-B.png)
+
+*ADS-B aircraft displayed on the operational map with marker details.*
+
 ---
 
 ### Remote ID
@@ -293,6 +297,10 @@ When one or more drones are detected and aircraft are present within the configu
 - **Proximity rings** around up to five aircraft in proximity states
 - A **Nearby Traffic panel** listing the highest-severity drone-aircraft pairs
 
+![Proximity Monitor](../images/user/traffic-monitoring/proximity_mon_helicopter.png)
+
+*MON proximity state with a dashed distance line and Nearby Traffic panel entry.*
+
 ### Proximity States
 
 | State | Meaning | Visual |
@@ -303,6 +311,14 @@ When one or more drones are detected and aircraft are present within the configu
 | STALE (STL) | Track data is outdated | Gray dotted line |
 
 Each state is shown with color, line pattern AND text label (not color alone) for readability in all conditions.
+
+![Proximity Caution Helicopter](../images/user/traffic-monitoring/proximity_cau_helicopter.png)
+
+*CAUTION proximity state for a helicopter track near a detected drone.*
+
+![Proximity Caution Aircraft](../images/user/traffic-monitoring/proximity_cau_airplane.png)
+
+*CAUTION proximity state for an aircraft track near a detected drone.*
 
 ### Nearby Traffic Panel
 
