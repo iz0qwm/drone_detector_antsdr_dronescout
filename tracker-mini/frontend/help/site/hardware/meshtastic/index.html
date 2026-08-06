@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
@@ -2067,6 +2067,8 @@
 <h2 id="team-awareness">Team Awareness</h2>
 <p>Meshtastic contributes team position awareness to the Dashboard.</p>
 <p>When operator nodes provide valid position information, Mini Tracker can display operator markers on the map. Selecting a marker shows available information such as operator name, short name, node identifier, battery, signal information, last seen time and position.</p>
+<p>Operator markers use Meshtastic last seen timing to avoid keeping stale positions on the map indefinitely. The configured stale and retention windows are intentionally wider than Remote ID timing because Meshtastic nodes may transmit position updates infrequently when the operator is stationary.</p>
+<p>Operator movement can be drawn as a green dotted trail. Operator trails use a longer history window and distance-based sampling because people move slowly and their path can be operationally useful during area search, recovery and field coordination tasks. Trail segments fade and are removed automatically as they age.</p>
 <p>This allows the operator to understand where team members are located in relation to the mission area and other operational layers.</p>
 <hr />
 <h2 id="position-sharing">Position Sharing</h2>

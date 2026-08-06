@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
@@ -632,6 +632,17 @@
     <span class="md-ellipsis">
       
         Map Sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#map-trail-preferences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Map Trail Preferences
       
     </span>
   </a>
@@ -1803,6 +1814,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#map-trail-preferences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Map Trail Preferences
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#automatic-map-selection" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2016,6 +2038,17 @@
 <p><img alt="Map Sources" src="../../images/user/maps/user_maps_map_sources.png" /></p>
 <p><em>Map source selector with online, automatic and offline map modes.</em></p>
 <hr />
+<h2 id="map-trail-preferences">Map Trail Preferences</h2>
+<p>The Maps panel includes local display controls for traffic and team movement trails.</p>
+<p>The operator can enable or disable trails and choose the displayed history window for:</p>
+<ul>
+<li>ADS-B aircraft and helicopters</li>
+<li>Remote ID drones</li>
+<li>Meshtastic operators</li>
+</ul>
+<p>These settings are stored in the browser local storage. Changing them affects only the current browser or tablet display and does not change Mini Tracker receiver state, backend configuration or the data collected by the system.</p>
+<p>The <strong>Clear Trails</strong> action removes currently displayed trails from the map without disabling future trail rendering.</p>
+<hr />
 <h2 id="automatic-map-selection">Automatic Map Selection</h2>
 <p>Automatic mode is intended for normal operation.</p>
 <p>When Automatic mode is selected, Mini Tracker checks network connectivity and applies the available map source:</p>
@@ -2181,8 +2214,9 @@
 <li>Offline maps remain available without Internet access when installed locally.</li>
 <li>Map downloads require Internet access and a configured Thunderforest API key.</li>
 <li>Download progress is tracked while the Mini Tracker backend process is running.</li>
-<li>Browser-local settings are used for map source selection and dark map mode.</li>
+<li>Browser-local settings are used for map source selection, dark map mode and map trail preferences.</li>
 <li>Dark Map applies a darker visual overlay to the map and does not change the installed map data.</li>
+<li>Map trail preferences affect visualization only and do not change traffic receiver operation.</li>
 </ul>
 <hr />
 

@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
@@ -2065,6 +2065,8 @@
 <h2 id="operator-map-markers">Operator Map Markers</h2>
 <p>When a configured mission operator has position data, Mini Tracker can display that operator on the Dashboard map.</p>
 <p>Selecting the operator marker shows the operator name, short name, node identifier, battery state, signal information and last seen time when these values are available.</p>
+<p>When an operator is no longer seen by the Meshtastic gateway, the marker becomes stale, fades visually and is removed after the configured retention period. The default retention period is intentionally long because Meshtastic position updates may be infrequent, especially when an operator is stationary.</p>
+<p>The Dashboard can also display a green dotted trail for operator movement. This trail is retained longer than aircraft and drone trails because people move slowly. During search activities it helps the team understand which paths have already been walked and where coverage gaps may remain.</p>
 <p><img alt="Operator On Map" src="../../images/user/teams/teams_operatore_su_mappa.png" /></p>
 <p><em>Mission operator marker and details on the operational map.</em></p>
 <hr />
@@ -2144,6 +2146,7 @@
 <li>Team configuration is scoped to the active mission.</li>
 <li>Operator association depends on Meshtastic node short names.</li>
 <li>Operators without current position data may still appear in the Teams panel but cannot be displayed as map markers.</li>
+<li>Operator markers use Meshtastic last seen timing for stale and removal behavior.</li>
 <li>Message delivery depends on Meshtastic gateway state, node availability and radio conditions.</li>
 <li>Recent messages are stored in backend memory and are not persistent across backend restarts.</li>
 <li>Incoming messages are recorded only while the Meshtastic service is running and receiving text-message packets.</li>

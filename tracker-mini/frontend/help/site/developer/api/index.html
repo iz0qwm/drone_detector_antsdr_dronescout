@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
@@ -4986,11 +4986,16 @@
 <td>Meshtastic nodes not matched to configured operators.</td>
 </tr>
 <tr>
+<td><code>operator_freshness</code></td>
+<td>Configured Meshtastic operator marker <code>stale_ms</code> and <code>retention_ms</code> values.</td>
+</tr>
+<tr>
 <td><code>messages</code></td>
 <td>Current implementation returns an empty array.</td>
 </tr>
 </tbody>
 </table>
+<p>Operator entries may include <code>last_seen</code>, <code>updatedAt</code>, <code>age_ms</code>, <code>stale</code>, <code>expired</code>, <code>stale_ms</code> and <code>retention_ms</code>. These fields support map marker fade and removal based on Meshtastic last seen timing.</p>
 <h3 id="get-apiteamsconfig"><code>GET /api/teams/config</code></h3>
 <p>Returns team configuration for the current mission.</p>
 <p>Response fields: <code>operators</code>.</p>
@@ -5233,8 +5238,8 @@
 <p>Object fields include <code>id</code>, <code>callsign</code>, <code>lat</code>, <code>lon</code>, <code>alt_m</code>, <code>heading</code>, <code>speed</code>, <code>source</code>, <code>last_seen</code> and <code>updatedAt</code>.</p>
 <h3 id="get-apiremoteidaircraft"><code>GET /api/remoteid/aircraft</code></h3>
 <p>Returns Remote ID aircraft currently held in memory by the DS110 service and still inside the Remote ID retention window.</p>
-<p>Response format: array of aircraft objects. Fields may include <code>source</code>, <code>serial</code>, <code>vendor</code>, <code>model</code>, <code>id_type</code>, <code>ua_type</code>, <code>lat</code>, <code>lon</code>, <code>altitude</code>, <code>height</code>, <code>speed</code>, <code>heading</code>, <code>operator_lat</code>, <code>operator_lon</code>, <code>operator_altitude</code>, <code>operator_id</code>, <code>last_seen</code>, <code>updatedAt</code>, <code>age_ms</code> and <code>stale</code>.</p>
-<p><code>updatedAt</code> is the <code>last_seen</code> timestamp converted to epoch milliseconds. <code>age_ms</code> is the current age of the Remote ID track at response time. <code>stale</code> becomes true when the drone has exceeded the configured Remote ID freshness threshold, while the object remains available long enough for the frontend marker to fade before removal.</p>
+<p>Response format: array of aircraft objects. Fields may include <code>source</code>, <code>serial</code>, <code>vendor</code>, <code>model</code>, <code>id_type</code>, <code>ua_type</code>, <code>lat</code>, <code>lon</code>, <code>altitude</code>, <code>height</code>, <code>speed</code>, <code>heading</code>, <code>operator_lat</code>, <code>operator_lon</code>, <code>operator_altitude</code>, <code>operator_id</code>, <code>last_seen</code>, <code>updatedAt</code>, <code>age_ms</code>, <code>stale</code>, <code>stale_ms</code> and <code>retention_ms</code>.</p>
+<p><code>updatedAt</code> is the <code>last_seen</code> timestamp converted to epoch milliseconds. <code>age_ms</code> is the current age of the Remote ID track at response time. <code>stale</code> becomes true when the drone has exceeded the configured Remote ID freshness threshold, while the object remains available long enough for the frontend marker to fade before removal. Remote ID marker lifecycle timing is configured through <code>SETTINGS["remoteid"]["marker_stale_ms"]</code> and <code>SETTINGS["remoteid"]["marker_retention_ms"]</code>.</p>
 <hr />
 <h2 id="hardware-control-api">Hardware Control API</h2>
 <h3 id="get-apigpsstatus"><code>GET /api/gps/status</code></h3>

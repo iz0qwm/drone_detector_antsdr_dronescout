@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
@@ -2243,7 +2243,8 @@
 </ul>
 <p>Remote ID availability depends on the receiver state and on drones transmitting supported data in range.</p>
 <p>Mini Tracker also identifies some drone vendor and model information from received identifiers when available.</p>
-<p>When packets are no longer received for a Remote ID drone, the marker becomes stale, fades visually and is removed after the retention period. This helps prevent old drone positions from remaining on the map as if they were current.</p>
+<p>When packets are no longer received for a Remote ID drone, the marker becomes stale, fades visually and is removed after the configured retention period. This helps prevent old drone positions from remaining on the map as if they were current while still allowing for drones that transmit less frequently.</p>
+<p>The Dashboard also keeps a longer blue dashed trail for Remote ID drones. This helps the operator understand recent drone movement patterns, including repeated passes, grid-like search coverage and perimeter checks.</p>
 <hr />
 <h3 id="ogn-flarm">OGN / FLARM</h3>
 <p>OGN / FLARM traffic provides awareness of gliders and related light aviation objects from supported OGN network sources.</p>
@@ -2266,6 +2267,7 @@
 </ul>
 <p>Meshtastic operators are part of team awareness rather than air traffic. They are displayed in the same operational map view because their position is relevant to mission coordination.</p>
 <p>Operator messaging is handled from the Teams workflow rather than from traffic map markers.</p>
+<p>Operator movement can also be shown as a green dotted trail. Operator trails use a longer time window than aircraft or drone trails because people move slowly and their path can help show which parts of a search area have already been covered.</p>
 <hr />
 <h2 id="traffic-visualization">Traffic Visualization</h2>
 <p>Traffic and operator information is displayed as independent operational overlays above the map.</p>
@@ -2281,6 +2283,35 @@
     Traffic --- View
     Team --- View</code></pre>
 <p>Changing the map source affects only the geographic base map. Traffic and team overlays remain operationally separate and continue to contribute to the same operational picture.</p>
+<p>Traffic trails are drawn with different colors and line patterns to keep movement history distinguishable:</p>
+<table>
+<thead>
+<tr>
+<th>Object Type</th>
+<th>Trail Style</th>
+<th>Operational Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ADS-B aircraft and helicopters</td>
+<td>Red short trail</td>
+<td>Shows recent fast-moving aircraft direction without leaving old tracks on the map.</td>
+</tr>
+<tr>
+<td>Remote ID drones</td>
+<td>Blue dashed trail</td>
+<td>Shows recent drone search passes, perimeter movement and coverage patterns.</td>
+</tr>
+<tr>
+<td>Meshtastic operators</td>
+<td>Green dotted trail</td>
+<td>Shows slow team movement and areas already walked during field activity.</td>
+</tr>
+</tbody>
+</table>
+<p>All trail types fade as they age and are removed automatically after their configured time window. Trails are sampled by movement distance so stationary or nearly stationary objects do not create dense stacks of repeated points.</p>
+<p>The displayed trail types and history windows can be changed from the Maps panel. These preferences are local to the browser display and do not change traffic receivers or backend data collection.</p>
 <hr />
 <h2 id="traffic-information">Traffic Information</h2>
 <p>Selecting a traffic marker displays the information available for that object.</p>
@@ -2364,7 +2395,7 @@
 <li>The ADS-B Local control starts or stops the local receiver service on Mini Tracker.</li>
 <li>Network ADS-B and OGN / FLARM information require Internet connectivity.</li>
 <li>Remote ID visibility depends on receiver state, radio range and supported transmitted data.</li>
-<li>Meshtastic visibility depends on gateway state, node availability and position data.</li>
+<li>Meshtastic visibility depends on gateway state, node availability, last seen timing and position data.</li>
 <li>Traffic visibility depends on the current map area.</li>
 <li>Traffic objects may disappear from the view when data becomes stale or when the source is no longer available.</li>
 <li>The Dashboard refreshes traffic information periodically.</li>
