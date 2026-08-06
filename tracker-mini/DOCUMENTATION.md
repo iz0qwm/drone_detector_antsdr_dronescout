@@ -9,20 +9,65 @@ Always read this document before creating or modifying any documentation.
 ---
 # Documentation Language
 
-All documentation must be written in **English**.
+Mini Tracker documentation is bilingual when the task explicitly requests localized documentation.
 
-This applies to:
+The default and canonical documentation language remains **English**.
 
-- new documentation;
-- updates to existing documentation;
-- code examples;
-- tables;
-- figure captions;
-- Mermaid diagrams.
+Italian documentation is allowed for operator-facing manuals, user guides, maintenance guides and other localized documentation when requested by Raffaello or when implementing the multilingual manual.
 
-When prompts or user requests are written in another language, the generated documentation must still be written entirely in English.
+Language rules:
 
-Only direct quotations, user interface labels, or proper names may remain in their original language when appropriate.
+- English source pages remain the canonical technical reference unless an approved specification says otherwise.
+- Italian source pages must be written in clear operational Italian, not as a literal word-for-word machine translation.
+- A localized page must preserve the meaning, safety warnings, operational limitations, procedure order, UI labels and verified implementation facts of the canonical page.
+- Code identifiers, API paths, configuration keys, filenames, commands, log labels and UI labels must remain exactly as implemented unless the UI itself is localized.
+- Mermaid diagrams may be localized when they are part of an Italian page, but node labels must preserve the same operational meaning.
+- Direct quotations, UI labels, protocol names, product names and proper names may remain in their original language when appropriate.
+
+When a user request is written in Italian, do not automatically translate all documentation work into Italian. Use Italian only when the requested artifact is explicitly an Italian/localized manual page or part of the multilingual documentation set.
+
+---
+
+# Multilingual Documentation with mkdocs-static-i18n
+
+Mini Tracker uses MkDocs Material for documentation and may use `mkdocs-static-i18n` for multilingual output.
+
+Preferred multilingual structure:
+
+```text
+frontend/help/docs/
+    index.md          # canonical/default English page
+    index.it.md       # Italian localized page
+
+    user/
+        dashboard.md
+        dashboard.it.md
+```
+
+Use the `mkdocs-static-i18n` **suffix** structure for localized pages unless Raffaello explicitly approves a different structure.
+
+For Italian localized pages:
+
+- create the Italian page next to the canonical page using the `.it.md` suffix;
+- keep the same directory location as the canonical page;
+- keep screenshots and shared image paths reusable whenever the UI image is still valid;
+- create localized screenshots only when the image itself is different or the Italian page needs a different visual reference;
+- do not delete, rename or replace the canonical English page;
+- do not create duplicate unsuffixed Italian pages;
+- do not move the documentation tree into language folders unless this is explicitly approved.
+
+`frontend/help/mkdocs.yml` may be updated to configure `mkdocs-static-i18n`, language metadata, navigation translations, search language settings and theme language settings.
+
+When configuring `mkdocs-static-i18n`:
+
+- keep English as the default/root language unless Raffaello explicitly requests Italian as the root language;
+- configure Italian as locale `it`;
+- prefer `fallback_to_default: true` during incremental translation so untranslated pages still resolve to the canonical English content;
+- localize navigation labels through the plugin configuration rather than by changing canonical file paths;
+- keep navigation paths relative to `frontend/help/docs/`;
+- do not add a dependency unless it is needed for the approved multilingual documentation workflow.
+
+Kiro and Codex must not compile the documentation with MkDocs unless Raffaello explicitly changes the current workflow. Raffaello manually runs MkDocs and verifies generated output.
 ---
 
 # Documentation Location
@@ -59,6 +104,7 @@ The documentation is organized as follows.
 docs/
 
 index.md
+index.it.md
 
 product-overview.md
 product-vision.md
@@ -76,6 +122,9 @@ user/
     settings.md
     troubleshooting.md
     faq.md
+    dashboard.it.md
+    maps.it.md
+    ...
 
 hardware/
     overview.md
@@ -121,6 +170,8 @@ The primary style references are:
 * docs/hardware/overview.md
 
 Maintain the same writing style, structure, terminology and formatting.
+
+For Italian localized pages, use the corresponding English canonical page as the structure and technical reference, then write natural Italian text with the same official product tone.
 
 ---
 
@@ -314,6 +365,8 @@ Do not create placeholder image references.
 
 Images should complement the text rather than replace it.
 
+Localized pages may reuse existing screenshots when the interface shown is unchanged. Use localized image filenames only when the image content is different for that language.
+
 ---
 
 # Updating index.md
@@ -342,13 +395,16 @@ for the newly created document.
 
 Do not modify the status of unrelated documents.
 
+When creating a localized `.it.md` page for an existing canonical page, update `docs/index.md` only if the Documentation Status table includes language-specific status. If the table tracks only canonical documents, do not mark unrelated entries complete only because a localized page was added.
+
 ---
 
 # Output
 
 When asked to generate documentation:
 
-* create only the requested Markdown file
+* create only the requested Markdown file or localized Markdown file
 * preserve the documentation structure
 * do not modify unrelated files unless explicitly requested
-* always update `docs/index.md` to reflect the completion status of the newly created document
+* update `docs/index.md` only when the status table actually tracks the created canonical or localized document
+* do not run MkDocs unless Raffaello explicitly changes the current manual-build workflow

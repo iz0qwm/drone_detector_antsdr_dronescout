@@ -543,7 +543,9 @@ Do not request sandbox escalation only to run a MkDocs build. Documentation vali
 
 Documentation must:
 
-* be written in English;
+* keep English as the canonical/default language;
+* allow Italian localized documentation when explicitly requested by Raffaello or when implementing the multilingual manual;
+* follow `DOCUMENTATION.md` for mkdocs-static-i18n structure and language rules;
 * reflect verified implementation;
 * preserve existing terminology;
 * update existing documents where possible;
@@ -567,6 +569,7 @@ The following decisions are currently approved:
 * Kiro must not attempt to install the software on the physical Mini Tracker.
 * Raffaello performs manual package installation and testing through the Mini Tracker System Update functionality.
 * Kiro and Codex must not compile documentation with MkDocs; Raffaello runs MkDocs manually when needed.
+* English remains the canonical documentation language, but Italian localized pages are allowed for the multilingual manual using `mkdocs-static-i18n` guidance in `DOCUMENTATION.md`.
 * Pushed history must never be rewritten.
 * Major features must use separate Feature Specs.
 * Features will be developed sequentially.
@@ -631,6 +634,44 @@ DSC integration test support: Not present
 ---
 
 ## Active Work Record
+
+```text
+Task: Multilingual Documentation Policy Update
+Feature: Documentation workflow and Italian manual support
+Owner: Codex
+Working branch: main
+Starting commit: Pending due local repository safe-directory restriction
+Latest commit: Pending
+Push status: Pending
+Status: Documentation policy updated
+Started: 2026-08-06
+Last updated: 2026-08-06
+
+Observed issue:
+  - DOCUMENTATION.md required all documentation to be written only in English.
+  - Raffaello wants Kiro to produce the Mini Tracker manual in Italian as part of a multilingual documentation workflow.
+  - The intended workflow may use mkdocs-static-i18n.
+
+Files modified:
+  DOCUMENTATION.md
+  AI_HANDOFF.md
+
+Implementation:
+  - Changed the documentation language policy from English-only to English canonical plus explicitly requested Italian localized documentation.
+  - Added mkdocs-static-i18n guidance using the suffix structure, for example index.it.md next to index.md.
+  - Documented that English remains the default/root canonical language unless Raffaello approves otherwise.
+  - Documented that Italian pages should preserve verified technical meaning, warnings, UI labels and operational procedure order.
+  - Confirmed that Kiro and Codex still must not run MkDocs; Raffaello runs MkDocs manually.
+
+Tests/checks:
+  - Passed: reviewed DOCUMENTATION.md language and mkdocs-static-i18n policy changes.
+  - Passed: reviewed AI_HANDOFF.md documentation workflow guidance.
+  - Passed: git diff --check -- DOCUMENTATION.md AI_HANDOFF.md.
+  - Not run: MkDocs build, by explicit Raffaello instruction.
+
+Known limitations:
+  - mkdocs-static-i18n package installation and generated-site verification remain Raffaello-managed/manual steps unless the workflow is explicitly changed.
+```
 
 ```text
 Task: Map Trail Display Preferences
