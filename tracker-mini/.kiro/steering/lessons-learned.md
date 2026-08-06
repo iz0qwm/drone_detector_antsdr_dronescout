@@ -103,6 +103,15 @@ Critical for any feature working with multiple traffic sources:
 - The final acceptance threshold must be evaluated on the physical device with real traffic
 - No performance requirement should be weakened solely because Windows timing varies
 
+## SSH from Windows to Mini Tracker
+
+- Use `echo y | plink -ssh -pw <password> pi@192.168.1.115 "<command>"` for non-interactive SSH from this machine
+- OpenSSH's `ssh` on Windows does NOT support piped passwords — it requires interactive TTY or key auth
+- `plink` needs `echo y |` prefix to accept the "Press Return to begin session" prompt
+- The stable installation at `/home/pi/tracker-mini/` is NOT a git repo — it's a direct file deploy (no `.git` directory)
+- The systemd service unit is at `/etc/systemd/system/tracker-mini.service` and uses venv at `/home/pi/tracker-mini/venv/bin`
+- No staging directory exists by default — must be created for validation
+
 ## Onboarding Dependency
 
 - Physical device inspection requires SSH access that cannot be automated without stored credentials.
