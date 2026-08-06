@@ -1,0 +1,2467 @@
+
+<!doctype html>
+<html lang="it" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Manuale del Mini Tracker">
+      
+      
+      
+      
+        <link rel="prev" href="../frontend/">
+      
+      
+        <link rel="next" href="../api/">
+      
+      
+        
+          <link rel="alternate" href="../../../developer/mission-storage/" hreflang="en">
+        
+          <link rel="alternate" href="./" hreflang="it">
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Mission Storage - Mini Tracker Help</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mission-storage" class="md-skip">
+          Vai al contenuto
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Intestazione">
+    <a href="../../" title="Mini Tracker Help" class="md-header__button md-logo" aria-label="Mini Tracker Help" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Mini Tracker Help
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Mission Storage
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Seleziona la lingua">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="../../../developer/mission-storage/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="it" class="md-select__link">
+              Italiano
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Cerca" placeholder="Cerca" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Cerca">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Cancella" aria-label="Cancella" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inizializza la ricerca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigazione" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../" title="Mini Tracker Help" class="md-nav__button md-logo" aria-label="Mini Tracker Help" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Mini Tracker Help
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Product
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Product
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../product-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../product-vision/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/first-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dashboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/maps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/traffic-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Traffic Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/mission-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mission Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/teams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Teams
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hardware
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Hardware
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/power/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Power
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Networking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/gps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GPS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/ads-b/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADS-B
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/remote-id/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote ID
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/meshtastic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Meshtastic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/raspberry-pi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Raspberry Pi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintenance
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Maintenance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/backup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/restore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Restore
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/update/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Update
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/diagnostics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/logs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Developer
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../repository/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../frontend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mission Storage
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mission Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Indice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Indice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#part-of-the-mini-tracker-developer-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part of the Mini Tracker Developer Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mission-subsystem-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mission Subsystem Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#storage-root" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Storage Root
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mission-file-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mission File Layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mission-index" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mission Index
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#current-mission" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current Mission
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mission-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mission Metadata
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#layers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#geojson-imports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GeoJSON Imports
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#drone-sky-check-zone-imports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Drone Sky Check Zone Imports
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teams" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Teams
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#crud-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CRUD Workflow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frontend-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frontend Interaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backend Interaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extensibility-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extensibility Considerations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../coding-guidelines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coding Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Indice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Indice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#part-of-the-mini-tracker-developer-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part of the Mini Tracker Developer Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mission-subsystem-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mission Subsystem Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#storage-root" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Storage Root
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mission-file-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mission File Layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mission-index" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mission Index
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#current-mission" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current Mission
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mission-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mission Metadata
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#layers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#geojson-imports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GeoJSON Imports
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#drone-sky-check-zone-imports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Drone Sky Check Zone Imports
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teams" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Teams
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#crud-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CRUD Workflow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frontend-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frontend Interaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backend Interaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extensibility-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extensibility Considerations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="mission-storage">Mission Storage</h1>
+<h3 id="part-of-the-mini-tracker-developer-documentation">Part of the Mini Tracker Developer Documentation</h3>
+<hr />
+<h2 id="purpose">Purpose</h2>
+<p>This document describes the Mini Tracker Mission subsystem.</p>
+<p>It explains mission storage layout, current mission state, mission index, layers, imports, teams, CRUD workflow, frontend interaction, backend interaction, file organization and extension considerations.</p>
+<p>For the broader application architecture, refer to <code>developer/architecture.md</code>.</p>
+<hr />
+<h2 id="mission-subsystem-overview">Mission Subsystem Overview</h2>
+<p>The Mission subsystem stores mission metadata and mission objects as local JSON files.</p>
+<p>It is implemented across:</p>
+<ul>
+<li><code>backend/services/mission_storage.py</code></li>
+<li><code>backend/services/missions.py</code></li>
+<li><code>backend/services/layer_storage.py</code></li>
+<li><code>backend/services/teams.py</code></li>
+<li><code>backend/routes/missions.py</code></li>
+<li><code>backend/routes/teams.py</code></li>
+<li><code>frontend/js/missions/</code></li>
+</ul>
+<p>The subsystem does not use a database server.</p>
+<hr />
+<h2 id="storage-root">Storage Root</h2>
+<p>Mission data is stored under:</p>
+<div class="highlight"><pre><span></span><code>/home/pi/tracker-mini/missions
+</code></pre></div>
+<p>This is an absolute deployment path used by the backend services.</p>
+<hr />
+<h2 id="mission-file-layout">Mission File Layout</h2>
+<pre class="mermaid"><code>flowchart TD
+
+    Root["/home/pi/tracker-mini/missions"]
+    Index["mission_index.json"]
+    Current["current_mission.json"]
+    MissionDir["mission_001/"]
+    MissionJson["mission.json"]
+    Layers["layers/"]
+    LayerFile["&lt;layer_id&gt;.json"]
+    Teams["teams.json"]
+
+    Root --&gt; Index
+    Root --&gt; Current
+    Root --&gt; MissionDir
+    MissionDir --&gt; MissionJson
+    MissionDir --&gt; Layers
+    Layers --&gt; LayerFile
+    MissionDir --&gt; Teams</code></pre>
+<table>
+<thead>
+<tr>
+<th>File or Directory</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mission_index.json</code></td>
+<td>Lists available missions for the Dashboard mission list.</td>
+</tr>
+<tr>
+<td><code>current_mission.json</code></td>
+<td>Stores the currently selected mission ID.</td>
+</tr>
+<tr>
+<td><code>&lt;mission_id&gt;/mission.json</code></td>
+<td>Stores mission metadata.</td>
+</tr>
+<tr>
+<td><code>&lt;mission_id&gt;/layers/</code></td>
+<td>Stores mission layer JSON files.</td>
+</tr>
+<tr>
+<td><code>&lt;mission_id&gt;/layers/&lt;layer_id&gt;.json</code></td>
+<td>Stores one mission object or imported layer.</td>
+</tr>
+<tr>
+<td><code>&lt;mission_id&gt;/teams.json</code></td>
+<td>Stores configured mission operators for the selected mission.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="mission-index">Mission Index</h2>
+<p><code>mission_storage.py</code> manages the mission index.</p>
+<p>The index is a JSON array. Each entry contains the mission summary used by the Dashboard list:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>Mission identifier such as <code>mission_001</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>Mission name.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Mission description.</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>Mission status, currently created with <code>Planning</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>New mission IDs are generated by reading existing IDs and incrementing the largest numeric suffix.</p>
+<hr />
+<h2 id="current-mission">Current Mission</h2>
+<p>The current mission is stored in <code>current_mission.json</code>.</p>
+<p>The file contains:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;mission_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mission_001&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><code>get_current_mission_id()</code> returns the selected mission ID. <code>set_current_mission_id()</code> writes the current mission pointer.</p>
+<p>When a selected mission is deleted, the current mission pointer is cleared by writing <code>null</code> as the mission ID.</p>
+<hr />
+<h2 id="mission-metadata">Mission Metadata</h2>
+<p>Each mission directory contains <code>mission.json</code>.</p>
+<p>Confirmed mission fields include:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>Mission identifier.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>Mission name.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Mission description.</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>Mission status.</td>
+</tr>
+<tr>
+<td><code>created</code></td>
+<td>UTC ISO timestamp created by the backend.</td>
+</tr>
+</tbody>
+</table>
+<p>Mission update operations may change name, description and status.</p>
+<hr />
+<h2 id="layers">Layers</h2>
+<p>Mission layers are stored as individual JSON files under <code>&lt;mission_id&gt;/layers/</code>.</p>
+<p>Layer records are created or updated through <code>layer_storage.py</code>.</p>
+<p>Confirmed layer fields include:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>Layer ID. Generated with <code>uuid.uuid4().hex</code> when missing.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>Layer display name.</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td>Layer category or type.</td>
+</tr>
+<tr>
+<td><code>geometry</code></td>
+<td>Geometry type summary.</td>
+</tr>
+<tr>
+<td><code>visible</code></td>
+<td>Visibility flag stored in the layer.</td>
+</tr>
+<tr>
+<td><code>locked</code></td>
+<td>Lock flag stored in the layer.</td>
+</tr>
+<tr>
+<td><code>style</code></td>
+<td>Leaflet style data.</td>
+</tr>
+<tr>
+<td><code>properties</code></td>
+<td>Layer metadata.</td>
+</tr>
+<tr>
+<td><code>geojson</code></td>
+<td>GeoJSON geometry or feature data.</td>
+</tr>
+</tbody>
+</table>
+<p>The frontend renders layer geometry using Leaflet. Circle geometry is represented with GeoJSON plus <code>properties.leafletType</code> and <code>properties.radius</code>.</p>
+<hr />
+<h2 id="geojson-imports">GeoJSON Imports</h2>
+<p>The backend supports GeoJSON layer import.</p>
+<p>The route <code>/api/missions/import-geojson</code> accepts:</p>
+<ul>
+<li><code>mission_id</code> form field</li>
+<li>Uploaded file</li>
+</ul>
+<p>The backend reads the uploaded file as JSON and saves it as a layer with:</p>
+<ul>
+<li><code>type: "geojson"</code></li>
+<li><code>geometry: "feature_collection"</code></li>
+<li><code>visible: true</code></li>
+<li><code>locked: false</code></li>
+<li><code>properties.source: "import"</code></li>
+<li><code>properties.filename</code></li>
+<li><code>geojson</code> containing the uploaded content</li>
+</ul>
+<p>The current implementation confirms layer import. It does not implement a complete mission export workflow.</p>
+<h2 id="drone-sky-check-zone-imports">Drone Sky Check Zone Imports</h2>
+<p>The backend supports importing Drone Sky Check aeronautical zones into the selected mission.</p>
+<p>The route <code>/api/missions/&lt;mission_id&gt;/import-dsc-zones</code> accepts a JSON request with:</p>
+<ul>
+<li><code>bbox</code> as <code>[minLat, minLon, maxLat, maxLon]</code></li>
+<li><code>simplify</code></li>
+<li><code>limit</code></li>
+<li>optional <code>type</code></li>
+</ul>
+<p>The backend downloads zones through <code>services/dsc_client.py</code> and saves the result as a layer with:</p>
+<ul>
+<li><code>name: "Drone Sky Check zones"</code></li>
+<li><code>type: "geojson"</code></li>
+<li><code>geometry: "feature_collection"</code></li>
+<li><code>visible: true</code></li>
+<li><code>locked: true</code></li>
+<li><code>properties.source: "dsc"</code></li>
+<li><code>properties.readonly: true</code></li>
+<li><code>properties.dataset: "zones"</code></li>
+<li><code>properties.metadata.source: "dsc_zones"</code></li>
+<li><code>geojson</code> containing the downloaded FeatureCollection</li>
+</ul>
+<p>Before saving a new DSC zones layer, the backend deletes any existing layer in the same mission with <code>properties.source: "dsc"</code> and <code>properties.dataset: "zones"</code>. This keeps one current DSC zones layer per mission.</p>
+<p>The frontend treats DSC zone layers as non-editable geometry. The mission list disables shape editing for these layers, the properties dialog disables labels and measurements, and the map renderer applies DSC-specific styling and popups based on feature properties.</p>
+<hr />
+<h2 id="teams">Teams</h2>
+<p>Mission team configuration is stored in <code>teams.json</code> inside the current mission directory.</p>
+<p>If the team file does not exist, <code>teams.py</code> creates:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;operators&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Operator entries contain:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>Local operator ID.</td>
+</tr>
+<tr>
+<td><code>longName</code></td>
+<td>Operator long name.</td>
+</tr>
+<tr>
+<td><code>shortName</code></td>
+<td>Operator short name used for Meshtastic matching.</td>
+</tr>
+<tr>
+<td><code>nodeId</code></td>
+<td>Matched Meshtastic node ID.</td>
+</tr>
+<tr>
+<td><code>lastSeen</code></td>
+<td>Last match timestamp.</td>
+</tr>
+<tr>
+<td><code>online</code></td>
+<td>Current online state.</td>
+</tr>
+</tbody>
+</table>
+<p>Team status is built by combining configured operators with Meshtastic nodes. The matching key is the operator <code>shortName</code> and the Meshtastic node short name. When a match is found, the operator entry is updated with the Meshtastic <code>nodeId</code>, <code>lastSeen</code> and <code>online</code> state.</p>
+<p>Nodes that match the local Meshtastic gateway are reported separately as gateway data. Nodes that do not match configured operators are reported as external nodes.</p>
+<hr />
+<h2 id="crud-workflow">CRUD Workflow</h2>
+<p>Mission CRUD is implemented in <code>services/missions.py</code> and exposed through <code>routes/missions.py</code>.</p>
+<pre class="mermaid"><code>flowchart TD
+
+    UI["Mission UI"]
+    Routes["routes/missions.py"]
+    Missions["services/missions.py"]
+    MissionStorage["mission_storage.py"]
+    LayerStorage["layer_storage.py"]
+    Files["Mission Files"]
+
+    UI --&gt; Routes
+    Routes --&gt; Missions
+    Missions --&gt; MissionStorage
+    Missions --&gt; LayerStorage
+    MissionStorage --&gt; Files
+    LayerStorage --&gt; Files
+    Files --&gt; UI</code></pre>
+<p>Supported backend workflows include:</p>
+<ul>
+<li>List missions</li>
+<li>Create mission</li>
+<li>Read mission</li>
+<li>Update mission</li>
+<li>Select current mission</li>
+<li>Delete mission</li>
+<li>Import GeoJSON layer</li>
+<li>List layers</li>
+<li>Read layer</li>
+<li>Create layer</li>
+<li>Update layer</li>
+<li>Delete layer</li>
+</ul>
+<hr />
+<h2 id="frontend-interaction">Frontend Interaction</h2>
+<p>Frontend mission code is organized under <code>frontend/js/missions/</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mission-network.js</code></td>
+<td>API wrapper for mission and layer endpoints.</td>
+</tr>
+<tr>
+<td><code>mission-controller.js</code></td>
+<td>Modal and mission workflow entry points.</td>
+</tr>
+<tr>
+<td><code>mission-planning.js</code></td>
+<td>Mission list, selected mission, layer list and mission actions.</td>
+</tr>
+<tr>
+<td><code>mission-draw.js</code></td>
+<td>Leaflet-Geoman drawing and editing session state.</td>
+</tr>
+<tr>
+<td><code>mission-layer-properties.js</code></td>
+<td>Layer metadata and save behavior.</td>
+</tr>
+<tr>
+<td><code>mission-layer.js</code></td>
+<td>Leaflet rendering of saved layers.</td>
+</tr>
+<tr>
+<td><code>mission-teams.js</code></td>
+<td>Mission team and gateway UI.</td>
+</tr>
+<tr>
+<td><code>mission-toolbar.js</code></td>
+<td>Drawing toolbar state and controls.</td>
+</tr>
+</tbody>
+</table>
+<p>The frontend is responsible for interactive geometry creation. The backend stores the resulting JSON.</p>
+<hr />
+<h2 id="backend-interaction">Backend Interaction</h2>
+<p>Backend mission routes return simple JSON structures.</p>
+<p>Typical responses include:</p>
+<ul>
+<li>Mission arrays for mission list</li>
+<li>Mission objects for mission detail</li>
+<li><code>{ "success": true, "mission": ... }</code> for mission creation or update</li>
+<li>Layer arrays for mission layers</li>
+<li><code>{ "success": true, "layer": ... }</code> for layer creation or update</li>
+<li><code>{ "success": false, "message": ... }</code> for selected errors</li>
+</ul>
+<p>Detailed endpoint behavior is documented in <code>developer/api.md</code>.</p>
+<hr />
+<h2 id="extensibility-considerations">Extensibility Considerations</h2>
+<p>The Mission subsystem is file-based and easy to inspect.</p>
+<p>Future additions should preserve:</p>
+<ul>
+<li>One mission directory per mission</li>
+<li>One JSON file per layer</li>
+<li>A small index file for mission list summaries</li>
+<li>A separate current mission pointer</li>
+<li>Team configuration scoped to the current mission directory</li>
+</ul>
+<p>When adding new layer fields, keep existing frontend rendering behavior in mind. When adding new mission-level metadata, update both <code>mission.json</code> and <code>mission_index.json</code> if the Dashboard list needs the value.</p>
+<hr />
+<h2 id="related-documentation">Related Documentation</h2>
+<ul>
+<li><code>developer/architecture.md</code></li>
+<li><code>developer/frontend.md</code></li>
+<li><code>developer/backend.md</code></li>
+<li><code>developer/services.md</code></li>
+<li><code>developer/api.md</code></li>
+<li><code>user/dashboard.md</code></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiato", "clipboard.copy": "Copia", "search.result.more.one": "1 altro in questa pagina", "search.result.more.other": "# altri in questa pagina", "search.result.none": "Nessun documento trovato", "search.result.one": "1 documento trovato", "search.result.other": "# documenti trovati", "search.result.placeholder": "Scrivi per iniziare a cercare", "search.result.term.missing": "Non presente", "select.version": "Seleziona la versione"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../../javascripts/mermaid.min.js"></script>
+      
+        <script src="../../../javascripts/mermaid-init.js"></script>
+      
+    
+  </body>
+</html>

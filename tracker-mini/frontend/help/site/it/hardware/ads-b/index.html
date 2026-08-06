@@ -1,0 +1,2442 @@
+
+<!doctype html>
+<html lang="it" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Manuale del Mini Tracker">
+      
+      
+      
+      
+        <link rel="prev" href="../gps/">
+      
+      
+        <link rel="next" href="../remote-id/">
+      
+      
+        
+          <link rel="alternate" href="../../../hardware/ads-b/" hreflang="en">
+        
+          <link rel="alternate" href="./" hreflang="it">
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>ADS-B - Mini Tracker Help</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ads-b" class="md-skip">
+          Vai al contenuto
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Intestazione">
+    <a href="../../" title="Mini Tracker Help" class="md-header__button md-logo" aria-label="Mini Tracker Help" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Mini Tracker Help
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ADS-B
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Seleziona la lingua">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="../../../hardware/ads-b/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="it" class="md-select__link">
+              Italiano
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Cerca" placeholder="Cerca" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Cerca">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Cancella" aria-label="Cancella" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inizializza la ricerca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigazione" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../" title="Mini Tracker Help" class="md-nav__button md-logo" aria-label="Mini Tracker Help" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Mini Tracker Help
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Product
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Product
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../product-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../product-vision/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/first-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dashboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/maps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/traffic-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Traffic Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/mission-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mission Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/teams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Teams
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hardware
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Hardware
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../power/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Power
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Networking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GPS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADS-B
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADS-B
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Indice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Indice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#part-of-the-mini-tracker-hardware-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part of the Mini Tracker Hardware Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operational-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operational Role
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ads-b-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ADS-B Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#local-ads-b-reception" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local ADS-B Reception
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#readsb-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        readsb Integration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-ads-b-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Network ADS-B Sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#local-and-network-traffic-relationship" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local and Network Traffic Relationship
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dashboard-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dashboard Integration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aircraft-visualization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Aircraft Visualization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#local-receiver-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local Receiver Monitoring
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hardware-status-indicators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hardware Status Indicators
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operational-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operational Considerations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#field-deployment-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Field Deployment Considerations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#maintenance-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Maintenance Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relationship-with-other-hardware-subsystems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relationship with Other Hardware Subsystems
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../remote-id/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote ID
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../meshtastic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Meshtastic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../raspberry-pi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Raspberry Pi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintenance
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Maintenance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/backup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/restore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Restore
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/update/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Update
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/diagnostics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/logs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Developer
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/repository/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/frontend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/mission-storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mission Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/coding-guidelines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coding Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Indice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Indice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#part-of-the-mini-tracker-hardware-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part of the Mini Tracker Hardware Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operational-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operational Role
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ads-b-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ADS-B Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#local-ads-b-reception" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local ADS-B Reception
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#readsb-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        readsb Integration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-ads-b-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Network ADS-B Sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#local-and-network-traffic-relationship" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local and Network Traffic Relationship
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dashboard-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dashboard Integration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aircraft-visualization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Aircraft Visualization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#local-receiver-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local Receiver Monitoring
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hardware-status-indicators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hardware Status Indicators
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operational-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operational Considerations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#field-deployment-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Field Deployment Considerations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#maintenance-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Maintenance Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relationship-with-other-hardware-subsystems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relationship with Other Hardware Subsystems
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="ads-b">ADS-B</h1>
+<h3 id="part-of-the-mini-tracker-hardware-documentation">Part of the Mini Tracker Hardware Documentation</h3>
+<hr />
+<h2 id="purpose">Purpose</h2>
+<p>This document describes the ADS-B subsystem as part of the Mini Tracker hardware platform.</p>
+<p>The ADS-B subsystem contributes aircraft awareness to the Mini Tracker operational picture. It is documented here from the perspective of field deployment, integration, monitoring and maintenance.</p>
+<p>This document is not an ADS-B tutorial and does not describe ADS-B receiver technology in general. It describes the ADS-B functions that are implemented and exposed by Mini Tracker.</p>
+<hr />
+<h2 id="operational-role">Operational Role</h2>
+<p>The ADS-B subsystem supports awareness of aircraft visible to Mini Tracker.</p>
+<p>Mini Tracker can use two ADS-B traffic paths:</p>
+<table>
+<thead>
+<tr>
+<th>Traffic Path</th>
+<th>Operational Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Local ADS-B</strong></td>
+<td>Uses the local receiver and decoder output available on the Mini Tracker node.</td>
+</tr>
+<tr>
+<td><strong>Network ADS-B</strong></td>
+<td>Uses Internet-reachable traffic sources when network connectivity is available.</td>
+</tr>
+</tbody>
+</table>
+<p>The Dashboard presents both paths as part of the same aircraft traffic layer. This allows the operator to use local reception in the field while also using network traffic sources when Internet access is available.</p>
+<p>ADS-B visibility depends on receiver state, antenna placement, decoder state, map area, local radio conditions, Internet availability for network sources and aircraft transmitting usable data.</p>
+<hr />
+<h2 id="ads-b-architecture">ADS-B Architecture</h2>
+<p>The ADS-B subsystem connects receiver, decoder, backend services and Dashboard visualization.</p>
+<pre class="mermaid"><code>flowchart TD
+
+    Aircraft["Aircraft&lt;br/&gt;ADS-B transmissions"]
+    Receiver["Local ADS-B Receiver&lt;br/&gt;RTL-SDR path"]
+    Readsb["readsb-local.service"]
+    Json["/run/readsb/aircraft.json"]
+
+    NetworkSources["Network Traffic Sources&lt;br/&gt;Airplanes.live, ADSB.lol, OGN, OpenSky"]
+
+    Backend["Mini Tracker Backend&lt;br/&gt;ADS-B services and APIs"]
+    Dashboard["Dashboard&lt;br/&gt;Aircraft traffic layer"]
+    Operator["Operator"]
+
+    Aircraft --&gt; Receiver
+    Receiver --&gt; Readsb
+    Readsb --&gt; Json
+    Json --&gt; Backend
+
+    NetworkSources --&gt; Backend
+
+    Backend --&gt; Dashboard
+    Dashboard --&gt; Operator</code></pre>
+<p>The local and network paths are separate sources before they reach the Dashboard. The Dashboard combines them into one aircraft layer so the operator can monitor aircraft without switching map views.</p>
+<hr />
+<h2 id="local-ads-b-reception">Local ADS-B Reception</h2>
+<p>Mini Tracker exposes local ADS-B reception through the Dashboard as <strong>ADS-B Local (RTL-SDR)</strong>.</p>
+<p>The project implementation confirms the local path through:</p>
+<ul>
+<li>the <code>readsb-local.service</code> system service</li>
+<li>the readsb aircraft output file at <code>/run/readsb/aircraft.json</code></li>
+<li>the backend local aircraft API</li>
+<li>the Dashboard local ADS-B traffic toggle</li>
+</ul>
+<p>The backend reads the local readsb output file and converts aircraft records into Dashboard traffic objects. Aircraft are included only when they have usable position data and are inside the current map bounds.</p>
+<p>By default, non-helicopter aircraft above 1000 meters are filtered from the local traffic view. The Dashboard includes a <strong>Show all aircraft over 1000m</strong> option for operators who need to display higher aircraft.</p>
+<hr />
+<h2 id="readsb-integration">readsb Integration</h2>
+<p>Mini Tracker uses readsb as the local ADS-B decoder integration point.</p>
+<p>The backend monitors and controls the local decoder through the <code>readsb-local.service</code> system service:</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Mini Tracker Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Status check</strong></td>
+<td>The backend checks whether <code>readsb-local.service</code> is active.</td>
+</tr>
+<tr>
+<td><strong>Enable local ADS-B</strong></td>
+<td>The backend starts <code>readsb-local.service</code>.</td>
+</tr>
+<tr>
+<td><strong>Disable local ADS-B</strong></td>
+<td>The backend stops <code>readsb-local.service</code>.</td>
+</tr>
+<tr>
+<td><strong>Aircraft data</strong></td>
+<td>The backend reads <code>/run/readsb/aircraft.json</code>.</td>
+</tr>
+<tr>
+<td><strong>Freshness check</strong></td>
+<td>Local ADS-B is considered alive when the readsb output file was updated recently.</td>
+</tr>
+</tbody>
+</table>
+<p>Mini Tracker does not expose lower-level receiver telemetry in the current implementation. Operational monitoring is based on service state and the presence and freshness of the readsb aircraft output file.</p>
+<hr />
+<h2 id="network-ads-b-sources">Network ADS-B Sources</h2>
+<p>Mini Tracker can also request aircraft traffic from network sources when Internet connectivity is available.</p>
+<p>The current implementation uses:</p>
+<ul>
+<li>Airplanes.live point aircraft data</li>
+<li>ADSB.lol point aircraft data</li>
+<li>OGN traffic filtered to ADS-B objects</li>
+<li>OpenSky aircraft state data</li>
+</ul>
+<p>Network ADS-B requests are limited to the current map bounds. The backend filters stale, out-of-bounds and high-altitude traffic before returning aircraft to the Dashboard.</p>
+<p>The previous SolarMonitor ADS-B aircraft feed is not part of the active provider list. It is kept out of the request cycle while the network ADS-B path uses the remaining active providers.</p>
+<p>Network ADS-B is operationally useful when Internet access is available. It does not replace the local receiver because it depends on external connectivity and external source availability.</p>
+<hr />
+<h2 id="local-and-network-traffic-relationship">Local and Network Traffic Relationship</h2>
+<p>Local ADS-B and network ADS-B are independent inputs to the Mini Tracker aircraft layer.</p>
+<pre class="mermaid"><code>flowchart LR
+
+    Local["Local ADS-B&lt;br/&gt;readsb output"]
+    Network["Network ADS-B&lt;br/&gt;Internet sources"]
+    Backend["Backend&lt;br/&gt;traffic APIs"]
+    Layer["Dashboard&lt;br/&gt;aircraft layer"]
+
+    Local --&gt; Backend
+    Network --&gt; Backend
+    Backend --&gt; Layer</code></pre>
+<p>The Dashboard requests network aircraft and local aircraft during each aircraft update cycle, then renders the combined result in the same map layer.</p>
+<p>The current frontend updates the aircraft layer by aircraft identifier. This allows aircraft from different sources to occupy the same operational layer instead of appearing in separate map tools.</p>
+<p>Operators should treat the two paths as complementary:</p>
+<ul>
+<li>Local ADS-B depends on the local receiver, antenna, decoder and Mini Tracker hardware state.</li>
+<li>Network ADS-B depends on Internet connectivity and external traffic source availability.</li>
+<li>Either path may show aircraft that the other path does not show.</li>
+</ul>
+<hr />
+<h2 id="dashboard-integration">Dashboard Integration</h2>
+<p>The Dashboard is the operator interface for ADS-B monitoring.</p>
+<p>Mini Tracker exposes ADS-B state through:</p>
+<table>
+<thead>
+<tr>
+<th>Dashboard Item</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ADSB Rx</strong></td>
+<td>Indicates whether local ADS-B data is currently alive.</td>
+</tr>
+<tr>
+<td><strong>ADSB Net</strong></td>
+<td>Indicates whether network ADS-B is available through Internet connectivity.</td>
+</tr>
+<tr>
+<td><strong>ADS-B Network</strong></td>
+<td>Enables or disables the network aircraft source in the browser.</td>
+</tr>
+<tr>
+<td><strong>ADS-B Local (RTL-SDR)</strong></td>
+<td>Enables or disables the local readsb receiver service.</td>
+</tr>
+<tr>
+<td><strong>Show all aircraft over 1000m</strong></td>
+<td>Allows higher non-helicopter aircraft to remain visible.</td>
+</tr>
+</tbody>
+</table>
+<p>The Dashboard stores the network ADS-B display preference in browser local storage. Local ADS-B state is read from the backend and changing the local ADS-B checkbox sends a request to start or stop the readsb service. The local ADS-B enabled state is persisted in the Mini Tracker traffic configuration and applied during backend startup.</p>
+<p>The aircraft layer refreshes periodically and uses the current map bounds when requesting traffic. Moving or zooming the map changes the area used for ADS-B traffic requests.</p>
+<hr />
+<h2 id="aircraft-visualization">Aircraft Visualization</h2>
+<p>ADS-B aircraft are displayed on the Dashboard map as aircraft markers.</p>
+<p>The current Dashboard implementation supports:</p>
+<ul>
+<li>aircraft markers on the traffic air map pane</li>
+<li>aircraft icons based on available category information</li>
+<li>a helicopter icon for aircraft identified as helicopters</li>
+<li>heading-based marker rotation</li>
+<li>short red aircraft trails with age-based fade and automatic removal</li>
+<li>popup details including callsign, ICAO identifier, source, altitude and speed</li>
+<li>stale marker fading before removal</li>
+</ul>
+<p>The visualization is intended for operational awareness. It should not be interpreted as a guarantee that every aircraft in the area is visible.</p>
+<hr />
+<h2 id="local-receiver-monitoring">Local Receiver Monitoring</h2>
+<p>Mini Tracker monitors local ADS-B using the readsb output file.</p>
+<p>The hardware status service reports:</p>
+<table>
+<thead>
+<tr>
+<th>Status Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ADS-B receiver</strong></td>
+<td>The readsb aircraft output file exists.</td>
+</tr>
+<tr>
+<td><strong>ADS-B decoder</strong></td>
+<td>The readsb aircraft output file was updated recently.</td>
+</tr>
+</tbody>
+</table>
+<p>The services status used by the Dashboard reports local ADS-B as available when the readsb aircraft output file exists and has recent activity.</p>
+<p>If the local receiver is enabled but the output file is missing or stale, Mini Tracker will not consider local ADS-B alive.</p>
+<hr />
+<h2 id="hardware-status-indicators">Hardware Status Indicators</h2>
+<p>ADS-B hardware state is visible through the Dashboard status indicators.</p>
+<table>
+<thead>
+<tr>
+<th>Indicator</th>
+<th>Green State</th>
+<th>Red State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ADSB Rx</strong></td>
+<td>Local ADS-B output is fresh and the local source is enabled.</td>
+<td>Local ADS-B output is missing, stale or disabled.</td>
+</tr>
+<tr>
+<td><strong>ADSB Net</strong></td>
+<td>Internet connectivity is available and the network ADS-B source is enabled.</td>
+<td>Internet connectivity is unavailable or the network source is disabled.</td>
+</tr>
+</tbody>
+</table>
+<p>These indicators summarize availability. They do not provide antenna signal quality, receiver gain or per-aircraft reception diagnostics.</p>
+<hr />
+<h2 id="operational-considerations">Operational Considerations</h2>
+<p>ADS-B operation should be verified before relying on the aircraft layer in the field.</p>
+<p>Operators and maintainers should consider:</p>
+<ul>
+<li>local ADS-B requires the receiver path, readsb service and antenna to be operational</li>
+<li>network ADS-B requires Internet connectivity</li>
+<li>the Dashboard filters traffic to the current map bounds</li>
+<li>non-helicopter aircraft above 1000 meters are hidden unless the high-altitude option is enabled</li>
+<li>aircraft without usable position data are not displayed</li>
+<li>stale aircraft can fade before being removed from the map</li>
+<li>aircraft trails fade and expire separately so old paths do not remain impressed on the map after the aircraft is gone</li>
+</ul>
+<p>Local reception can be useful when Internet connectivity is unavailable, but it still depends on the receiver and decoder running correctly on the Mini Tracker node.</p>
+<hr />
+<h2 id="field-deployment-considerations">Field Deployment Considerations</h2>
+<p>Before field deployment, verify the ADS-B subsystem from the Dashboard.</p>
+<p>Recommended checks:</p>
+<ol>
+<li>Confirm that Mini Tracker is powered and the Dashboard is reachable.</li>
+<li>Confirm that <strong>ADS-B Local (RTL-SDR)</strong> is enabled when local reception is required.</li>
+<li>Confirm that <strong>ADSB Rx</strong> becomes green when local readsb data is fresh.</li>
+<li>Confirm antenna placement and receiver connection if local ADS-B does not become available.</li>
+<li>Confirm Internet connectivity when <strong>ADS-B Network</strong> is required.</li>
+<li>Confirm that the map is centered and zoomed to the operational area.</li>
+<li>Enable <strong>Show all aircraft over 1000m</strong> only when higher aircraft are operationally relevant.</li>
+</ol>
+<p>The ADS-B subsystem should be checked together with networking, power and the computing platform because all three affect receiver operation and Dashboard visibility.</p>
+<hr />
+<h2 id="diagnostics">Diagnostics</h2>
+<p>ADS-B diagnostics should start from the Dashboard and then move toward hardware and service checks.</p>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely Area to Check</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ADSB Rx is red</strong></td>
+<td>Local ADS-B checkbox, readsb service state, receiver connection, readsb output freshness.</td>
+</tr>
+<tr>
+<td><strong>ADSB Net is red</strong></td>
+<td>Internet connectivity, network ADS-B checkbox, external source availability.</td>
+</tr>
+<tr>
+<td><strong>No local aircraft displayed</strong></td>
+<td>Map bounds, altitude filter, receiver state, antenna placement, readsb output file.</td>
+</tr>
+<tr>
+<td><strong>No network aircraft displayed</strong></td>
+<td>Internet connectivity, external source response, map bounds, altitude filter.</td>
+</tr>
+<tr>
+<td><strong>Aircraft disappear quickly</strong></td>
+<td>Feed freshness, update timing, stale marker behavior, source availability.</td>
+</tr>
+<tr>
+<td><strong>Only helicopters or low aircraft appear</strong></td>
+<td>High-altitude filtering may be active.</td>
+</tr>
+</tbody>
+</table>
+<p>The backend logs ADS-B source activity and readsb state changes. These logs can help maintainers distinguish between missing local decoder output, unavailable network sources and filtering by map bounds or altitude.</p>
+<hr />
+<h2 id="maintenance-notes">Maintenance Notes</h2>
+<p>ADS-B maintenance should focus on the integrated Mini Tracker path rather than on generic receiver tuning.</p>
+<p>Maintainers should verify:</p>
+<ul>
+<li>the local receiver path is physically connected</li>
+<li>the antenna is suitable for the deployment location</li>
+<li><code>readsb-local.service</code> can be started and stopped by Mini Tracker</li>
+<li><code>/run/readsb/aircraft.json</code> exists when the decoder is producing data</li>
+<li>the readsb output file is updated recently during local reception</li>
+<li>the Dashboard local ADS-B toggle matches the intended operating state</li>
+<li>Internet connectivity is available when network ADS-B is required</li>
+<li>power stability is sufficient for the computing platform and receiver</li>
+</ul>
+<p>If local ADS-B is not required for a deployment, it can be disabled from the Dashboard without disabling network ADS-B.</p>
+<hr />
+<h2 id="relationship-with-other-hardware-subsystems">Relationship with Other Hardware Subsystems</h2>
+<p>ADS-B depends on several other Mini Tracker subsystems.</p>
+<table>
+<thead>
+<tr>
+<th>Subsystem</th>
+<th>Relationship</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Power System</strong></td>
+<td>Provides stable power for the computing platform and local receiver path.</td>
+</tr>
+<tr>
+<td><strong>Computing Platform</strong></td>
+<td>Hosts readsb integration, backend services and Dashboard access.</td>
+</tr>
+<tr>
+<td><strong>Networking</strong></td>
+<td>Provides Dashboard access and Internet connectivity for network ADS-B sources.</td>
+</tr>
+<tr>
+<td><strong>GPS</strong></td>
+<td>Provides Mini Tracker node position context, independent from aircraft positions.</td>
+</tr>
+<tr>
+<td><strong>Dashboard</strong></td>
+<td>Presents ADS-B source state and aircraft visualization to the operator.</td>
+</tr>
+</tbody>
+</table>
+<p>ADS-B should be understood as one traffic source inside the Mini Tracker operational picture, alongside Remote ID, Meshtastic and other supported traffic or team awareness sources.</p>
+<hr />
+<h2 id="related-documentation">Related Documentation</h2>
+<ul>
+<li><code>hardware/overview.md</code></li>
+<li><code>hardware/networking.md</code></li>
+<li><code>hardware/power.md</code></li>
+<li><code>hardware/raspberry-pi.md</code></li>
+<li><code>user/dashboard.md</code></li>
+<li><code>user/traffic-monitoring.md</code></li>
+<li><code>developer/architecture.md</code></li>
+<li><code>developer/services.md</code></li>
+<li><code>developer/api.md</code></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiato", "clipboard.copy": "Copia", "search.result.more.one": "1 altro in questa pagina", "search.result.more.other": "# altri in questa pagina", "search.result.none": "Nessun documento trovato", "search.result.one": "1 documento trovato", "search.result.other": "# documenti trovati", "search.result.placeholder": "Scrivi per iniziare a cercare", "search.result.term.missing": "Non presente", "select.version": "Seleziona la versione"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../../javascripts/mermaid.min.js"></script>
+      
+        <script src="../../../javascripts/mermaid-init.js"></script>
+      
+    
+  </body>
+</html>

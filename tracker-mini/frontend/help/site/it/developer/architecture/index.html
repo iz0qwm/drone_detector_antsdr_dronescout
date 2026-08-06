@@ -1,0 +1,3160 @@
+
+<!doctype html>
+<html lang="it" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Manuale del Mini Tracker">
+      
+      
+      
+      
+        <link rel="prev" href="../../maintenance/logs/">
+      
+      
+        <link rel="next" href="../repository/">
+      
+      
+        
+          <link rel="alternate" href="../../../developer/architecture/" hreflang="en">
+        
+          <link rel="alternate" href="./" hreflang="it">
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Architecture - Mini Tracker Help</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#architecture" class="md-skip">
+          Vai al contenuto
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Intestazione">
+    <a href="../../" title="Mini Tracker Help" class="md-header__button md-logo" aria-label="Mini Tracker Help" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Mini Tracker Help
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Architecture
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Seleziona la lingua">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="../../../developer/architecture/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="it" class="md-select__link">
+              Italiano
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Cerca" placeholder="Cerca" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Cerca">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Cancella" aria-label="Cancella" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inizializza la ricerca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigazione" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../" title="Mini Tracker Help" class="md-nav__button md-logo" aria-label="Mini Tracker Help" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Mini Tracker Help
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Product
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Product
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../product-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../product-vision/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/first-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dashboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/maps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/traffic-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Traffic Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/mission-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mission Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/teams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Teams
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hardware
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Hardware
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/power/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Power
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Networking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/gps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GPS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/ads-b/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADS-B
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/remote-id/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote ID
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/meshtastic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Meshtastic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/raspberry-pi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Raspberry Pi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintenance
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Maintenance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/backup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/restore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Restore
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/update/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Update
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/diagnostics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/logs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Developer
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Indice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Indice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#part-of-the-mini-tracker-developer-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part of the Mini Tracker Developer Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architectural-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architectural Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#overall-system-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overall System Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#software-layer-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Software Layer Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backend Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#route-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Route Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frontend-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frontend Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dashboard-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dashboard Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-and-frontend-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backend and Frontend Interaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#service-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Service Interaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hardware-and-software-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hardware and Software Interaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Flow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Management
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#maps-subsystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Maps Subsystem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mission-subsystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mission Subsystem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#traffic-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traffic Sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hardware-abstraction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hardware Abstraction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#services-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Services Status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#update-subsystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Update Subsystem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#help-and-documentation-subsystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Help and Documentation Subsystem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logging
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#storage-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Storage Layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#external-integrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        External Integrations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#developer-reading-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Developer Reading Path
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../repository/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../frontend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mission-storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mission Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../coding-guidelines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coding Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Indice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Indice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#part-of-the-mini-tracker-developer-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part of the Mini Tracker Developer Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architectural-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architectural Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#overall-system-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overall System Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#software-layer-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Software Layer Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backend Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#route-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Route Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frontend-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frontend Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dashboard-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dashboard Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-and-frontend-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backend and Frontend Interaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#service-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Service Interaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hardware-and-software-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hardware and Software Interaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Flow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Management
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#maps-subsystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Maps Subsystem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mission-subsystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mission Subsystem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#traffic-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traffic Sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hardware-abstraction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hardware Abstraction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#services-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Services Status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#update-subsystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Update Subsystem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#help-and-documentation-subsystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Help and Documentation Subsystem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logging
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#storage-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Storage Layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#external-integrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        External Integrations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#developer-reading-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Developer Reading Path
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="architecture">Architecture</h1>
+<h3 id="part-of-the-mini-tracker-developer-documentation">Part of the Mini Tracker Developer Documentation</h3>
+<hr />
+<h2 id="purpose">Purpose</h2>
+<p>This document describes the Mini Tracker software architecture from a high-level developer perspective.</p>
+<p>It explains how the Dashboard, backend routes, service modules, local storage, operating system interfaces, hardware subsystems and external integrations work together inside the Mini Tracker application.</p>
+<p>This document is the primary architectural reference for the Developer Documentation. More detailed developer documents should build on the concepts introduced here.</p>
+<hr />
+<h2 id="architectural-overview">Architectural Overview</h2>
+<p>Mini Tracker is a local web application running on the Mini Tracker computing platform.</p>
+<p>The backend is a Flask application that serves the Dashboard, exposes JSON APIs and hosts local Help pages. The frontend is a static JavaScript Dashboard built around Leaflet, Leaflet-Geoman and modular browser scripts. The backend service modules read local files, manage operating system interfaces, communicate with hardware receivers and call external services when Internet connectivity is available.</p>
+<p>The architecture is organized around local operation. Internet connectivity improves maps, network traffic sources and DSC synchronization, but the Dashboard, offline maps and local subsystem status are served from the Mini Tracker node itself.</p>
+<hr />
+<h2 id="overall-system-architecture">Overall System Architecture</h2>
+<p>Mini Tracker combines a browser-based Dashboard with local backend services and hardware-facing integrations.</p>
+<pre class="mermaid"><code>flowchart TD
+
+    Operator["Operator Browser"]
+
+    subgraph MiniTracker["Mini Tracker Node"]
+        Dashboard["Static Dashboard&lt;br/&gt;HTML, CSS, JavaScript"]
+        Flask["Flask Backend&lt;br/&gt;app.py"]
+        Routes["Route Blueprints"]
+        Services["Service Modules"]
+        Storage["Local Storage&lt;br/&gt;config, maps, missions, updater"]
+        OS["Operating System Interfaces"]
+    end
+
+    subgraph Hardware["Hardware and Local Services"]
+        GPSD["gpsd"]
+        DS110["DS110 Remote ID Receiver"]
+        READSB["readsb-local.service"]
+        Mesh["Meshtastic Serial Gateway"]
+        Network["Ethernet and Wi-Fi Interfaces"]
+    end
+
+    subgraph External["External Services"]
+        MapsOnline["Online Map Tiles"]
+        Thunderforest["Thunderforest Downloads"]
+        AirplanesLive["Airplanes.live"]
+        AdsbLol["ADSB.lol"]
+        SolarMonitor["SolarMonitor OGN"]
+        OpenSky["OpenSky"]
+        DSC["DSC Cloud Endpoints"]
+    end
+
+    Operator --&gt; Dashboard
+    Dashboard --&gt; Flask
+    Flask --&gt; Routes
+    Routes --&gt; Services
+    Services --&gt; Storage
+    Services --&gt; OS
+
+    OS --&gt; Network
+    Services --&gt; GPSD
+    Services --&gt; DS110
+    Services --&gt; READSB
+    Services --&gt; Mesh
+
+    Dashboard --&gt; MapsOnline
+    Services --&gt; Thunderforest
+    Services --&gt; AirplanesLive
+    Services --&gt; AdsbLol
+    Services --&gt; SolarMonitor
+    Services --&gt; OpenSky
+    Services --&gt; DSC</code></pre>
+<p>The Dashboard communicates with the backend using HTTP requests to local API endpoints. The backend does not use a database server. Persistent application data is stored in JSON files, MBTiles files and update package directories.</p>
+<hr />
+<h2 id="software-layer-architecture">Software Layer Architecture</h2>
+<p>The implementation is organized into a small number of practical software layers.</p>
+<pre class="mermaid"><code>flowchart TD
+
+    UI["Dashboard UI&lt;br/&gt;frontend/index.html"]
+    FrontendModules["Frontend Modules&lt;br/&gt;frontend/js"]
+    Routes["Flask Routes&lt;br/&gt;backend/routes"]
+    Services["Backend Services&lt;br/&gt;backend/services"]
+    Storage["Local Files&lt;br/&gt;config, maps, missions, updater"]
+    OS["Operating System&lt;br/&gt;nmcli, systemctl, gpsd, device paths"]
+    Hardware["Hardware Subsystems"]
+
+    UI --&gt; FrontendModules
+    FrontendModules --&gt; Routes
+    Routes --&gt; Services
+    Services --&gt; Storage
+    Services --&gt; OS
+    OS --&gt; Hardware
+    Services --&gt; Hardware</code></pre>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Repository Area</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dashboard shell</strong></td>
+<td><code>frontend/index.html</code></td>
+<td>Defines the main map, drawer panels, modals and loaded scripts.</td>
+</tr>
+<tr>
+<td><strong>Frontend modules</strong></td>
+<td><code>frontend/js/</code></td>
+<td>Poll APIs, update Leaflet layers, manage Dashboard panels and handle user actions.</td>
+</tr>
+<tr>
+<td><strong>Route layer</strong></td>
+<td><code>backend/routes/</code></td>
+<td>Exposes HTTP API endpoints and delegates work to service modules.</td>
+</tr>
+<tr>
+<td><strong>Service layer</strong></td>
+<td><code>backend/services/</code></td>
+<td>Implements system status, hardware access, traffic ingestion, maps, missions, updates and integrations.</td>
+</tr>
+<tr>
+<td><strong>Configuration and storage</strong></td>
+<td><code>config/</code>, <code>maps/</code>, <code>/home/pi/tracker-mini/missions</code>, <code>/home/pi/tracker-mini-updater</code></td>
+<td>Stores runtime settings, map data, mission data and update state.</td>
+</tr>
+<tr>
+<td><strong>Operating system and hardware</strong></td>
+<td>Linux interfaces and connected devices</td>
+<td>Provides network interfaces, serial devices, gpsd, readsb and system service control.</td>
+</tr>
+</tbody>
+</table>
+<p>The route layer is intentionally thin. Most implementation behavior belongs to service modules or frontend modules.</p>
+<hr />
+<h2 id="backend-architecture">Backend Architecture</h2>
+<p>The backend entry point is <code>backend/app.py</code>.</p>
+<p>It creates a Flask application with the frontend directory as its static folder, registers route blueprints and serves the local Help site from <code>frontend/help/site/</code>.</p>
+<p>During startup, the backend attempts to:</p>
+<ul>
+<li>Start the local Wi-Fi Access Point</li>
+<li>Start the DS110 Remote ID worker when Remote ID is enabled in settings</li>
+<li>Start the Meshtastic worker when Meshtastic traffic is enabled in settings</li>
+<li>Start the local ADS-B receiver service when local ADS-B traffic is enabled in settings</li>
+<li>Start the DSC heartbeat worker</li>
+<li>Start the LCD background service</li>
+<li>Register all API route blueprints</li>
+<li>Serve the Dashboard at <code>/</code></li>
+<li>Serve Help pages under <code>/help/</code></li>
+</ul>
+<pre class="mermaid"><code>flowchart TD
+
+    App["backend/app.py"]
+
+    Hotspot["start_hotspot()"]
+    DS110["start_ds110()"]
+    Mesh["start_meshtastic()"]
+    Readsb["start_readsb()"]
+    Heartbeat["start_dsc_heartbeat()"]
+    LCD["lcd.start()"]
+
+    Static["Static Dashboard"]
+    Help["Generated Help Site"]
+    Blueprints["Registered Blueprints"]
+
+    App --&gt; Hotspot
+    App --&gt; DS110
+    App --&gt; Mesh
+    App --&gt; Readsb
+    App --&gt; Heartbeat
+    App --&gt; LCD
+    App --&gt; Static
+    App --&gt; Help
+    App --&gt; Blueprints</code></pre>
+<p>The Flask app runs on <code>0.0.0.0</code> port <code>5000</code> when launched directly.</p>
+<hr />
+<h2 id="route-architecture">Route Architecture</h2>
+<p>Route modules expose JSON APIs for the Dashboard.</p>
+<table>
+<thead>
+<tr>
+<th>Route Module</th>
+<th>Main Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>status.py</code></td>
+<td>System status, application restart, Raspberry Pi reboot and Raspberry Pi shutdown.</td>
+</tr>
+<tr>
+<td><code>network.py</code></td>
+<td>Network status.</td>
+</tr>
+<tr>
+<td><code>network_manager.py</code></td>
+<td>Wi-Fi scan/connect/disconnect, Access Point control and User LAN configuration.</td>
+</tr>
+<tr>
+<td><code>settings.py</code></td>
+<td>General settings, DS110 settings and serial port listing.</td>
+</tr>
+<tr>
+<td><code>maps.py</code></td>
+<td>Offline tile serving, map listing, map metadata, map downloads and provider settings.</td>
+</tr>
+<tr>
+<td><code>missions.py</code></td>
+<td>Mission CRUD, current mission selection, mission layers and GeoJSON import.</td>
+</tr>
+<tr>
+<td><code>teams.py</code></td>
+<td>Mission team configuration and Meshtastic-backed team status.</td>
+</tr>
+<tr>
+<td><code>notifications.py</code></td>
+<td>Notification listing, clearing and operator message delivery.</td>
+</tr>
+<tr>
+<td><code>services.py</code></td>
+<td>Aggregated service status for Dashboard indicators.</td>
+</tr>
+<tr>
+<td><code>hardware.py</code></td>
+<td>Aggregated hardware status.</td>
+</tr>
+<tr>
+<td><code>remoteid.py</code></td>
+<td>Remote ID aircraft list.</td>
+</tr>
+<tr>
+<td><code>ds110.py</code></td>
+<td>Remote ID service enable state.</td>
+</tr>
+<tr>
+<td><code>readsb.py</code></td>
+<td>Local ADS-B receiver service control.</td>
+</tr>
+<tr>
+<td><code>gps.py</code></td>
+<td>GPS status.</td>
+</tr>
+<tr>
+<td><code>air_local.py</code></td>
+<td>Local ADS-B aircraft from readsb output.</td>
+</tr>
+<tr>
+<td><code>air_network.py</code></td>
+<td>Network ADS-B aircraft from external sources.</td>
+</tr>
+<tr>
+<td><code>ogn_network.py</code></td>
+<td>OGN / FLARM traffic from external source data.</td>
+</tr>
+<tr>
+<td><code>meshtastic.py</code></td>
+<td>Meshtastic nodes, gateway state and enable control.</td>
+</tr>
+<tr>
+<td><code>dsc.py</code></td>
+<td>DSC settings.</td>
+</tr>
+<tr>
+<td><code>logs.py</code></td>
+<td>In-memory application logs.</td>
+</tr>
+<tr>
+<td><code>update.py</code></td>
+<td>Update package upload, validation, backup, test install and install request creation.</td>
+</tr>
+</tbody>
+</table>
+<p>Routes generally parse request data, call a service function and return JSON. Storage, device access and external requests are handled in services.</p>
+<hr />
+<h2 id="frontend-architecture">Frontend Architecture</h2>
+<p>The frontend is a static browser application.</p>
+<p>The main page is <code>frontend/index.html</code>. It loads Leaflet, Leaflet-Geoman, a rotated marker plugin, CSS files and JavaScript modules. There is no frontend build step in the current repository.</p>
+<p>The Dashboard is composed of:</p>
+<ul>
+<li>A top status bar</li>
+<li>A full-page Leaflet map</li>
+<li>A side drawer with Network, Maps, System, DSC and Missions panels</li>
+<li>Modal dialogs for map downloads, mission planning, teams, logs and updates</li>
+<li>A mission drawing toolbar</li>
+<li>Traffic layers for ADS-B, Remote ID, OGN / FLARM and Meshtastic operators</li>
+</ul>
+<pre class="mermaid"><code>flowchart TD
+
+    Index["frontend/index.html"]
+    Dashboard["dashboard.js"]
+    Drawer["drawer.js"]
+    Maps["maps_manager.js"]
+    Update["updater.js"]
+    Traffic["Traffic Modules"]
+    Mission["Mission Modules"]
+
+    Index --&gt; Dashboard
+    Index --&gt; Drawer
+    Index --&gt; Maps
+    Index --&gt; Update
+    Index --&gt; Traffic
+    Index --&gt; Mission
+
+    Traffic --&gt; Air["air/*"]
+    Traffic --&gt; Drones["drones/*"]
+    Traffic --&gt; Glider["glider/*"]
+    Traffic --&gt; Mesh["meshtastic/*"]
+
+    Mission --&gt; MissionNetwork["mission-network.js"]
+    Mission --&gt; MissionPlanning["mission-planning.js"]
+    Mission --&gt; MissionDraw["mission-draw.js"]
+    Mission --&gt; MissionLayer["mission-layer.js"]
+    Mission --&gt; MissionTeams["mission-teams.js"]</code></pre>
+<p>Frontend modules share state through browser globals such as <code>window.airNodeMap</code>, <code>window.AIR</code>, <code>window.DRONES</code>, <code>window.GLIDER</code>, <code>window.MESHTASTIC</code> and <code>window.MISSION</code>.</p>
+<hr />
+<h2 id="dashboard-architecture">Dashboard Architecture</h2>
+<p><code>dashboard.js</code> initializes the main operational Dashboard.</p>
+<p>It is responsible for:</p>
+<ul>
+<li>Loading system status from <code>/api/status</code></li>
+<li>Loading network status from <code>/api/network</code></li>
+<li>Initializing the Leaflet map from <code>/api/settings</code></li>
+<li>Selecting online or offline map tiles</li>
+<li>Creating Leaflet panes for traffic layers</li>
+<li>Starting traffic modules when enabled</li>
+<li>Updating status indicators from <code>/api/services</code></li>
+<li>Handling DSC position marker display</li>
+<li>Refreshing system, service and network status every five seconds</li>
+</ul>
+<p>The Dashboard uses browser <code>localStorage</code> for several client-side display preferences, including map source selection and traffic source toggles.</p>
+<hr />
+<h2 id="backend-and-frontend-interaction">Backend and Frontend Interaction</h2>
+<p>The Dashboard communicates with the backend using local HTTP requests.</p>
+<pre class="mermaid"><code>sequenceDiagram
+    participant Browser as Dashboard Browser
+    participant Flask as Flask Backend
+    participant Route as Route Blueprint
+    participant Service as Service Module
+    participant Store as Local Storage or Device
+
+    Browser-&gt;&gt;Flask: GET /api/status
+    Flask-&gt;&gt;Route: status route
+    Route-&gt;&gt;Service: get_system_status()
+    Service-&gt;&gt;Store: read system metrics
+    Store--&gt;&gt;Service: status data
+    Service--&gt;&gt;Route: dict
+    Route--&gt;&gt;Flask: JSON response
+    Flask--&gt;&gt;Browser: status JSON
+    Browser-&gt;&gt;Browser: update Dashboard panel</code></pre>
+<p>This request pattern is repeated across the project. The frontend performs polling for live operational views rather than maintaining a persistent WebSocket connection.</p>
+<hr />
+<h2 id="service-interaction">Service Interaction</h2>
+<p>Service modules are not isolated microservices. They are Python modules loaded into the Flask process. Some services start background threads for long-running or periodic work.</p>
+<pre class="mermaid"><code>flowchart TD
+
+    App["Flask Process"]
+
+    Network["network_manager.py"]
+    DS110["ds110.py&lt;br/&gt;threaded worker"]
+    DSC["dsc_heartbeat.py&lt;br/&gt;threaded worker"]
+    Maps["map_downloader.py&lt;br/&gt;download worker threads"]
+    Mesh["meshtastic_service.py&lt;br/&gt;threaded worker"]
+    LCD["ui/lcd.py&lt;br/&gt;threaded worker"]
+    Notifications["notification_service.py"]
+    Logs["logger.py&lt;br/&gt;in-memory deque"]
+
+    App --&gt; Network
+    App --&gt; DS110
+    App --&gt; DSC
+    App --&gt; Maps
+    App --&gt; Mesh
+    App --&gt; LCD
+    App --&gt; Notifications
+    App --&gt; Logs
+
+    DS110 --&gt; DSCBridge["dsc_bridge.py"]
+    Mesh --&gt; GPS["gps.py"]
+    Notifications --&gt; Mesh
+    DSC --&gt; GPS
+    DSCBridge --&gt; GPS</code></pre>
+<p>The current implementation uses in-memory state for some live services:</p>
+<ul>
+<li>Remote ID aircraft in <code>ds110.py</code></li>
+<li>Meshtastic nodes in <code>meshtastic_service.py</code></li>
+<li>Notification messages in <code>notification_service.py</code></li>
+<li>Map download job state in <code>map_downloader.py</code></li>
+<li>Application logs in <code>logger.py</code></li>
+</ul>
+<p>These in-memory structures are reset when the backend process restarts.</p>
+<hr />
+<h2 id="hardware-and-software-interaction">Hardware and Software Interaction</h2>
+<p>Mini Tracker interacts with hardware through operating system interfaces and local service outputs.</p>
+<table>
+<thead>
+<tr>
+<th>Hardware or Local Service</th>
+<th>Software Integration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ethernet</strong></td>
+<td><code>network.py</code> and <code>network_manager.py</code> read and configure <code>eth0</code>.</td>
+</tr>
+<tr>
+<td><strong>Wi-Fi Access Point</strong></td>
+<td><code>network_manager.py</code> starts hotspot mode on <code>wlan0</code> using <code>nmcli</code>.</td>
+</tr>
+<tr>
+<td><strong>Wi-Fi Client</strong></td>
+<td><code>network.py</code>, <code>network_manager.py</code> and <code>hardware.py</code> use <code>wlan1</code> when present.</td>
+</tr>
+<tr>
+<td><strong>GPS</strong></td>
+<td><code>gps.py</code> reads <code>gpsd</code> and connects to <code>127.0.0.1:2947</code> for SKY data.</td>
+</tr>
+<tr>
+<td><strong>DS110 Remote ID receiver</strong></td>
+<td><code>ds110.py</code> connects to the configured serial or UART device using pymavlink.</td>
+</tr>
+<tr>
+<td><strong>ADS-B receiver / decoder</strong></td>
+<td><code>readsb.py</code> controls <code>readsb-local.service</code>; <code>air_local.py</code> reads <code>/run/readsb/aircraft.json</code>.</td>
+</tr>
+<tr>
+<td><strong>Meshtastic gateway</strong></td>
+<td><code>meshtastic_service.py</code> connects to the configured serial device with <code>SerialInterface</code>.</td>
+</tr>
+<tr>
+<td><strong>20x4 I²C LCD</strong></td>
+<td><code>services/ui/lcd.py</code> initializes a 20x4 PCF8574 display at I²C address <code>0x27</code> when the RPLCD library and hardware are available.</td>
+</tr>
+<tr>
+<td><strong>Operating system status and control</strong></td>
+<td><code>system.py</code> uses <code>psutil</code> and hostname information and executes privileged restart, reboot and shutdown commands when requested.</td>
+</tr>
+</tbody>
+</table>
+<p>The hardware abstraction layer is pragmatic. It reports availability and state through file paths, service status, receiver heartbeats and recent decoder output rather than through a formal device model.</p>
+<hr />
+<h2 id="data-flow">Data Flow</h2>
+<p>Mini Tracker has several data flows. The main operational flow starts with local or external sources, passes through backend service normalization and ends as map markers or Dashboard status.</p>
+<pre class="mermaid"><code>flowchart LR
+
+    subgraph Sources["Sources"]
+        LocalADSB["Local ADS-B&lt;br/&gt;readsb aircraft.json"]
+        NetworkADSB["Network ADS-B&lt;br/&gt;Airplanes.live, ADSB.lol, OGN, OpenSky"]
+        RID["Remote ID&lt;br/&gt;DS110"]
+        OGN["OGN / FLARM&lt;br/&gt;SolarMonitor"]
+        Mesh["Meshtastic Nodes"]
+        GPS["GPSD"]
+        Maps["MBTiles"]
+    end
+
+    subgraph Backend["Backend Services"]
+        AirLocal["air_local.py"]
+        AirNetwork["air_network.py"]
+        DS110["ds110.py"]
+        OGNService["ogn_network.py"]
+        MeshService["meshtastic_service.py"]
+        GPSService["gps.py"]
+        MapService["maps.py"]
+    end
+
+    subgraph Frontend["Dashboard"]
+        AirLayer["ADS-B Layer"]
+        DroneLayer["Remote ID Layer"]
+        GliderLayer["OGN / FLARM Layer"]
+        TeamLayer["Meshtastic Operator Layer"]
+        TileLayer["Map Tile Layer"]
+        StatusPanels["Status Panels"]
+    end
+
+    LocalADSB --&gt; AirLocal --&gt; AirLayer
+    NetworkADSB --&gt; AirNetwork --&gt; AirLayer
+    RID --&gt; DS110 --&gt; DroneLayer
+    OGN --&gt; OGNService --&gt; GliderLayer
+    Mesh --&gt; MeshService --&gt; TeamLayer
+    GPS --&gt; GPSService --&gt; StatusPanels
+    Maps --&gt; MapService --&gt; TileLayer</code></pre>
+<p>The frontend performs periodic polling and maintains marker state in the browser.</p>
+<hr />
+<h2 id="configuration-management">Configuration Management</h2>
+<p>Runtime configuration is loaded from <code>config/settings.json</code> by <code>backend/config.py</code>.</p>
+<p>The settings object is read into memory at backend startup. Services import the shared <code>SETTINGS</code> object and <code>save_settings()</code> writes changes back to the JSON file.</p>
+<p>Current settings include:</p>
+<ul>
+<li>Admin LAN IP address</li>
+<li>Access Point SSID</li>
+<li>DS110 interface, device path and baud rate</li>
+<li>Default map position, zoom and base map</li>
+<li>DSC node identity, position source, position and synchronization flag</li>
+<li>Traffic-related flags</li>
+<li>Meshtastic enabled state, device path, node ID and node name</li>
+</ul>
+<p>Additional map provider configuration is stored in <code>config/map_provider.json</code>.</p>
+<pre class="mermaid"><code>flowchart TD
+
+    SettingsFile["config/settings.json"]
+    ConfigPy["backend/config.py"]
+    Services["Service Modules"]
+    Routes["Settings Routes"]
+    Dashboard["Dashboard Controls"]
+
+    SettingsFile --&gt; ConfigPy
+    ConfigPy --&gt; Services
+    ConfigPy --&gt; Routes
+    Dashboard --&gt; Routes
+    Routes --&gt; ConfigPy
+    ConfigPy --&gt; SettingsFile</code></pre>
+<p>Because the settings object is loaded into process memory, developers should treat direct file edits and runtime settings updates carefully.</p>
+<p>At startup, <code>backend/app.py</code> reads <code>SETTINGS["traffic"]</code> to decide whether to start selected traffic services. Confirmed startup flags include <code>remoteid_enabled</code>, <code>adsb_local_enabled</code> and <code>meshtastic_enabled</code>. Local ADS-B enable changes are persisted by the readsb service route through <code>save_settings()</code>.</p>
+<hr />
+<h2 id="maps-subsystem">Maps Subsystem</h2>
+<p>The maps subsystem supports offline map tiles, map management and map downloads.</p>
+<p>Offline map files are stored in the <code>maps/</code> directory as MBTiles files. Map metadata and active state are stored in <code>maps/maps_catalog.json</code>. The configured base map comes from <code>SETTINGS["map"]["base_map"]</code>.</p>
+<p><code>maps.py</code> provides:</p>
+<ul>
+<li>MBTiles tile lookup for <code>/tiles/&lt;z&gt;/&lt;x&gt;/&lt;y&gt;.png</code></li>
+<li>Map listing</li>
+<li>Map storage reporting</li>
+<li>Map deletion</li>
+<li>Active map state updates</li>
+<li>Description updates</li>
+<li>Map provider settings</li>
+</ul>
+<p><code>map_downloader.py</code> provides:</p>
+<ul>
+<li>Tile count calculation from center, radius and zoom range</li>
+<li>Thunderforest tile URL construction from provider settings</li>
+<li>MBTiles creation</li>
+<li>Background download jobs</li>
+<li>In-memory download progress tracking</li>
+</ul>
+<p>The Dashboard chooses the tile source in <code>dashboard.js</code>. Automatic mode uses online OpenTopoMap tiles when Internet is available and local <code>/tiles/...</code> when Internet is unavailable.</p>
+<hr />
+<h2 id="mission-subsystem">Mission Subsystem</h2>
+<p>The mission subsystem stores missions and mission objects as files.</p>
+<p>Mission storage is located under <code>/home/pi/tracker-mini/missions</code>.</p>
+<table>
+<thead>
+<tr>
+<th>File or Directory</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mission_index.json</code></td>
+<td>Lists available missions.</td>
+</tr>
+<tr>
+<td><code>current_mission.json</code></td>
+<td>Stores the selected mission ID.</td>
+</tr>
+<tr>
+<td><code>&lt;mission_id&gt;/mission.json</code></td>
+<td>Stores mission metadata.</td>
+</tr>
+<tr>
+<td><code>&lt;mission_id&gt;/layers/*.json</code></td>
+<td>Stores mission layers and geometries.</td>
+</tr>
+<tr>
+<td><code>&lt;mission_id&gt;/teams.json</code></td>
+<td>Stores configured mission operators.</td>
+</tr>
+</tbody>
+</table>
+<p>The backend provides mission and layer CRUD APIs. The frontend mission modules provide the planning workflow:</p>
+<ul>
+<li><code>mission-network.js</code> wraps mission API calls</li>
+<li><code>mission-controller.js</code> opens and closes mission modals</li>
+<li><code>mission-planning.js</code> lists missions and layers</li>
+<li><code>mission-draw.js</code> uses Leaflet-Geoman to create or edit geometry</li>
+<li><code>mission-layer-properties.js</code> combines geometry, styling and metadata before save</li>
+<li><code>mission-layer.js</code> renders saved layers on the map</li>
+<li><code>mission-teams.js</code> displays team and gateway status</li>
+</ul>
+<pre class="mermaid"><code>flowchart TD
+
+    Planning["Mission Planning UI"]
+    Draw["Leaflet-Geoman Drawing"]
+    API["Mission API"]
+    MissionService["missions.py"]
+    LayerStorage["layer_storage.py"]
+    Files["Mission Files"]
+    Map["Dashboard Map"]
+
+    Planning --&gt; Draw
+    Draw --&gt; Planning
+    Planning --&gt; API
+    API --&gt; MissionService
+    MissionService --&gt; LayerStorage
+    MissionService --&gt; Files
+    LayerStorage --&gt; Files
+    Files --&gt; API
+    API --&gt; Planning
+    Planning --&gt; Map</code></pre>
+<p>Mission export and import buttons are present in the Dashboard markup, but the current implementation confirms GeoJSON layer import and does not implement a complete mission export workflow.</p>
+<hr />
+<h2 id="traffic-sources">Traffic Sources</h2>
+<p>Mini Tracker displays several categories of traffic and operational position data.</p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Backend Service</th>
+<th>Frontend Module</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Local ADS-B</strong></td>
+<td><code>air_local.py</code></td>
+<td><code>frontend/js/air/*</code></td>
+<td>Reads <code>/run/readsb/aircraft.json</code>; filters by map bounds and altitude rules.</td>
+</tr>
+<tr>
+<td><strong>Network ADS-B</strong></td>
+<td><code>air_network.py</code></td>
+<td><code>frontend/js/air/*</code></td>
+<td>Uses Airplanes.live, ADSB.lol, OGN-derived ADS-B and OpenSky; merges by ICAO.</td>
+</tr>
+<tr>
+<td><strong>OGN / FLARM</strong></td>
+<td><code>ogn_network.py</code></td>
+<td><code>frontend/js/glider/*</code></td>
+<td>Reads SolarMonitor OGN traffic and keeps supported sources.</td>
+</tr>
+<tr>
+<td><strong>Remote ID</strong></td>
+<td><code>ds110.py</code> and <code>remoteid.py</code></td>
+<td><code>frontend/js/drones/*</code></td>
+<td>Reads DS110 MAVLink stream and exposes detected aircraft.</td>
+</tr>
+<tr>
+<td><strong>Meshtastic operators</strong></td>
+<td><code>meshtastic_service.py</code> and <code>teams.py</code></td>
+<td><code>frontend/js/meshtastic/*</code></td>
+<td>Uses Meshtastic node data matched to mission operators.</td>
+</tr>
+<tr>
+<td><strong>Operator notifications</strong></td>
+<td><code>notification_service.py</code></td>
+<td><code>frontend/js/missions/mission-teams.js</code></td>
+<td>Records notification state and sends operator messages through Meshtastic.</td>
+</tr>
+<tr>
+<td><strong>GPS node position</strong></td>
+<td><code>gps.py</code> and <code>dsc_settings.py</code></td>
+<td><code>dashboard.js</code>, <code>drawer.js</code></td>
+<td>Supports Dashboard status, DSC position mode and Meshtastic gateway position updates.</td>
+</tr>
+</tbody>
+</table>
+<p>Traffic source enablement is split between backend service state and frontend display preferences. Local ADS-B service control is read from the backend and persisted through the traffic configuration. Network ADS-B and OGN display choices remain browser-local preferences.</p>
+<hr />
+<h2 id="hardware-abstraction">Hardware Abstraction</h2>
+<p><code>hardware.py</code> aggregates hardware state for the Dashboard.</p>
+<p>It checks:</p>
+<ul>
+<li>Whether the Wi-Fi Client adapter path <code>/sys/class/net/wlan1</code> exists</li>
+<li>Whether the configured DS110 device path exists</li>
+<li>Whether the DS110 heartbeat is recent</li>
+<li>Whether Meshtastic is running and alive</li>
+<li>Whether <code>/run/readsb/aircraft.json</code> exists</li>
+<li>Whether the ADS-B decoder output file has been updated recently</li>
+</ul>
+<p>GPS status is fetched separately from <code>/api/gps/status</code> and combined with hardware status in the frontend hardware panel.</p>
+<p>This abstraction is intentionally status-oriented. It gives operators and developers a single Dashboard view of relevant subsystem state without hiding the fact that each subsystem has its own service and device path.</p>
+<hr />
+<h2 id="services-status">Services Status</h2>
+<p><code>services.py</code> aggregates service-level indicators for the top status bar and system panel.</p>
+<p>It reports:</p>
+<ul>
+<li>Internet availability</li>
+<li>Local ADS-B activity</li>
+<li>Network ADS-B availability based on Internet state</li>
+<li>Remote ID worker state</li>
+<li>Meshtastic worker and link state</li>
+<li>OGN availability based on Internet state</li>
+<li>DSC availability based on Internet state</li>
+</ul>
+<p>The Dashboard combines these backend values with user-selected frontend toggles when setting LED colors.</p>
+<hr />
+<h2 id="update-subsystem">Update Subsystem</h2>
+<p>The update subsystem is exposed through <code>/api/update</code>.</p>
+<p>It uses the following paths:</p>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/home/pi/tracker-mini-updater/uploads</code></td>
+<td>Uploaded ZIP packages.</td>
+</tr>
+<tr>
+<td><code>/home/pi/tracker-mini-updater/staging</code></td>
+<td>Extracted update package contents.</td>
+</tr>
+<tr>
+<td><code>/home/pi/tracker-mini-updater/test-install</code></td>
+<td>Test installation copy.</td>
+</tr>
+<tr>
+<td><code>/home/pi/tracker-mini-updater/backups</code></td>
+<td>Backend and frontend backup archives.</td>
+</tr>
+<tr>
+<td><code>/home/pi/tracker-mini-updater/current.json</code></td>
+<td>Current installed package metadata.</td>
+</tr>
+<tr>
+<td><code>/home/pi/tracker-mini-updater/install-request.json</code></td>
+<td>Pending install request.</td>
+</tr>
+<tr>
+<td><code>/home/pi/tracker-mini</code></td>
+<td>Live installation target.</td>
+</tr>
+</tbody>
+</table>
+<p>The backend supports upload, validation, package structure checks, Python syntax checks, test installation, backend import testing, backup creation, restore testing and install request creation.</p>
+<pre class="mermaid"><code>flowchart TD
+
+    Upload["Upload ZIP"]
+    Validate["Validate Package"]
+    Extract["Extract to Staging"]
+    Structure["Check Backend / Frontend Structure"]
+    Syntax["Compile Backend Python"]
+    TestInstall["Copy to Test Install"]
+    Import["Import Backend"]
+    Backup["Create Backup"]
+    Request["Create Install Request"]
+
+    Upload --&gt; Validate
+    Validate --&gt; Extract
+    Extract --&gt; Structure
+    Structure --&gt; Syntax
+    Syntax --&gt; TestInstall
+    TestInstall --&gt; Import
+    Import --&gt; Backup
+    Backup --&gt; Request</code></pre>
+<p>The current backend creates the install request file. The repository code does not include the external process that consumes the install request and applies the update.</p>
+<hr />
+<h2 id="help-and-documentation-subsystem">Help and Documentation Subsystem</h2>
+<p>Documentation source files live under <code>frontend/help/docs/</code>.</p>
+<p>The MkDocs configuration is <code>frontend/help/mkdocs.yml</code>, and generated Help output is served from <code>frontend/help/site/</code>. The backend serves the generated Help site under <code>/help/</code>.</p>
+<p>The application does not build documentation at runtime. Developers should edit files under <code>frontend/help/docs/</code> and regenerate the Help site through the documentation build process outside the running Flask route.</p>
+<hr />
+<h2 id="logging">Logging</h2>
+<p><code>logger.py</code> provides application logging through an in-memory deque.</p>
+<p>Each log entry includes:</p>
+<ul>
+<li>Time</li>
+<li>ISO timestamp</li>
+<li>Component</li>
+<li>Level</li>
+<li>Message</li>
+</ul>
+<p>Logs are also printed to standard output. The Dashboard reads logs through <code>/api/logs</code> and clears them through <code>/api/logs/clear</code>.</p>
+<p>Because logs are stored in process memory, they are not persistent across backend restarts.</p>
+<hr />
+<h2 id="storage-layout">Storage Layout</h2>
+<p>Mini Tracker uses local files and directories for persistence.</p>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Stored Data</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>config/settings.json</code></td>
+<td>Main runtime settings.</td>
+</tr>
+<tr>
+<td><code>config/map_provider.json</code></td>
+<td>Map provider and API key settings.</td>
+</tr>
+<tr>
+<td><code>maps/*.mbtiles</code></td>
+<td>Offline map tile databases.</td>
+</tr>
+<tr>
+<td><code>maps/maps_catalog.json</code></td>
+<td>Map metadata and active state.</td>
+</tr>
+<tr>
+<td><code>/home/pi/tracker-mini/missions</code></td>
+<td>Mission index, current mission, mission files, layer files and team files.</td>
+</tr>
+<tr>
+<td><code>/home/pi/tracker-mini-updater</code></td>
+<td>Update uploads, staging, test installs, backups and install request state.</td>
+</tr>
+<tr>
+<td><code>frontend/help/docs</code></td>
+<td>Documentation source.</td>
+</tr>
+<tr>
+<td><code>frontend/help/site</code></td>
+<td>Generated Help site served by Flask.</td>
+</tr>
+<tr>
+<td><code>/run/readsb/aircraft.json</code></td>
+<td>Local ADS-B decoder output consumed by Mini Tracker.</td>
+</tr>
+</tbody>
+</table>
+<p>There is no project-level relational application database in the current implementation. MBTiles uses SQLite internally for map tiles, but application state is primarily JSON files and in-memory runtime state.</p>
+<hr />
+<h2 id="external-integrations">External Integrations</h2>
+<p>Mini Tracker integrates with local devices and external services.</p>
+<table>
+<thead>
+<tr>
+<th>Integration</th>
+<th>Direction</th>
+<th>Implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>DSC heartbeat</strong></td>
+<td>Outbound HTTP</td>
+<td><code>dsc_heartbeat.py</code> posts tracker position and capabilities when sync and Internet are available.</td>
+</tr>
+<tr>
+<td><strong>DSC traffic ingest</strong></td>
+<td>Outbound HTTP</td>
+<td><code>dsc_bridge.py</code> posts detected Remote ID drones when sync and Internet are available.</td>
+</tr>
+<tr>
+<td><strong>Meshtastic</strong></td>
+<td>Serial device</td>
+<td><code>meshtastic_service.py</code> uses <code>SerialInterface</code> and stores node data in memory.</td>
+</tr>
+<tr>
+<td><strong>ADS-B local</strong></td>
+<td>Local file and system service</td>
+<td><code>readsb.py</code> controls <code>readsb-local.service</code>; <code>air_local.py</code> reads decoder JSON.</td>
+</tr>
+<tr>
+<td><strong>Remote ID</strong></td>
+<td>Serial or UART device</td>
+<td><code>ds110.py</code> uses pymavlink to read DS110 data and decode supported messages.</td>
+</tr>
+<tr>
+<td><strong>GPS</strong></td>
+<td>Local gpsd service</td>
+<td><code>gps.py</code> reads gpsd packet and SKY data.</td>
+</tr>
+<tr>
+<td><strong>Network ADS-B</strong></td>
+<td>Outbound HTTP fetch</td>
+<td><code>air_network.py</code> fetches Airplanes.live, ADSB.lol, OGN-derived ADS-B and OpenSky data.</td>
+</tr>
+<tr>
+<td><strong>OGN / FLARM</strong></td>
+<td>Outbound HTTP fetch</td>
+<td><code>ogn_network.py</code> fetches SolarMonitor OGN traffic.</td>
+</tr>
+<tr>
+<td><strong>Thunderforest</strong></td>
+<td>Outbound HTTP tile download</td>
+<td><code>map_downloader.py</code> downloads tiles into MBTiles files.</td>
+</tr>
+<tr>
+<td><strong>OpenTopoMap</strong></td>
+<td>Browser HTTP tile request</td>
+<td><code>dashboard.js</code> uses online map tiles when selected or when automatic mode detects Internet.</td>
+</tr>
+</tbody>
+</table>
+<p>External network integrations depend on Internet availability. Local Dashboard access and local file-based functions remain separate from those external dependencies.</p>
+<hr />
+<h2 id="developer-reading-path">Developer Reading Path</h2>
+<p>New developers should read the implementation in this order:</p>
+<ol>
+<li><code>backend/app.py</code></li>
+<li><code>backend/config.py</code></li>
+<li><code>backend/routes/</code></li>
+<li><code>backend/services/</code></li>
+<li><code>frontend/index.html</code></li>
+<li><code>frontend/js/dashboard.js</code></li>
+<li><code>frontend/js/drawer.js</code></li>
+<li><code>frontend/js/air/</code>, <code>frontend/js/drones/</code>, <code>frontend/js/glider/</code>, <code>frontend/js/meshtastic/</code></li>
+<li><code>frontend/js/missions/</code></li>
+<li><code>frontend/js/maps_manager.js</code></li>
+<li><code>frontend/js/updater.js</code></li>
+</ol>
+<p>This sequence follows the runtime flow from application startup to API registration, service implementation and Dashboard behavior.</p>
+<hr />
+<h2 id="related-documentation">Related Documentation</h2>
+<ul>
+<li><code>product-overview.md</code></li>
+<li><code>product-vision.md</code></li>
+<li><code>hardware/overview.md</code></li>
+<li><code>hardware/raspberry-pi.md</code></li>
+<li><code>hardware/networking.md</code></li>
+<li><code>user/dashboard.md</code></li>
+<li><code>user/maps.md</code></li>
+<li><code>user/traffic-monitoring.md</code></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiato", "clipboard.copy": "Copia", "search.result.more.one": "1 altro in questa pagina", "search.result.more.other": "# altri in questa pagina", "search.result.none": "Nessun documento trovato", "search.result.one": "1 documento trovato", "search.result.other": "# documenti trovati", "search.result.placeholder": "Scrivi per iniziare a cercare", "search.result.term.missing": "Non presente", "select.version": "Seleziona la versione"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../../javascripts/mermaid.min.js"></script>
+      
+        <script src="../../../javascripts/mermaid-init.js"></script>
+      
+    
+  </body>
+</html>

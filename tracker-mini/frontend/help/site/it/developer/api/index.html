@@ -1,0 +1,5595 @@
+
+<!doctype html>
+<html lang="it" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Manuale del Mini Tracker">
+      
+      
+      
+      
+        <link rel="prev" href="../mission-storage/">
+      
+      
+        <link rel="next" href="../coding-guidelines/">
+      
+      
+        
+          <link rel="alternate" href="../../../developer/api/" hreflang="en">
+        
+          <link rel="alternate" href="./" hreflang="it">
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>API - Mini Tracker Help</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#api" class="md-skip">
+          Vai al contenuto
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Intestazione">
+    <a href="../../" title="Mini Tracker Help" class="md-header__button md-logo" aria-label="Mini Tracker Help" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Mini Tracker Help
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              API
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Seleziona la lingua">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="../../../developer/api/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="it" class="md-select__link">
+              Italiano
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Cerca" placeholder="Cerca" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Cerca">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Cancella" aria-label="Cancella" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inizializza la ricerca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigazione" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../" title="Mini Tracker Help" class="md-nav__button md-logo" aria-label="Mini Tracker Help" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Mini Tracker Help
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Product
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Product
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../product-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../product-vision/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/first-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dashboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/maps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/traffic-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Traffic Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/mission-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mission Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/teams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Teams
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hardware
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Hardware
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/power/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Power
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Networking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/gps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GPS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/ads-b/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADS-B
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/remote-id/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote ID
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/meshtastic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Meshtastic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/raspberry-pi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Raspberry Pi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintenance
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Maintenance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/backup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/restore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Restore
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/update/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Update
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/diagnostics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/logs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Developer
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../repository/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../frontend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mission-storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mission Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Indice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Indice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#part-of-the-mini-tracker-developer-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part of the Mini Tracker Developer Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#system-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Status
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="System Status">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apistatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apisystemrestart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/system/restart
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apisystemreboot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/system/reboot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apisystemshutdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/system/shutdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiservices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/services
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apihardware" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/hardware
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Network API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Network API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apinetwork" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/network
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiconnections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/connections
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiwifi-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/wifi-scan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiwificonnect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/wifi/connect
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiwifidisconnect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/wifi/disconnect
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiapstart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/ap/start
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiapstop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/ap/stop
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiapstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/ap/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apilanconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/lan/config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apilanconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/lan/config
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#settings-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Settings API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Settings API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apisettings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apids110settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/ds110/settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apids110settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/ds110/settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiserialports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/serial/ports
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apidscsettings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/dsc/settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apidscsettings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/dsc/settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#maps-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Maps API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Maps API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-tileszxypng" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /tiles/&lt;z&gt;/&lt;x&gt;/&lt;y&gt;.png
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/maps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimapsstorage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/maps/storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-apimapsmap_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /api/maps/&lt;map_name&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimapsupdate-description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/maps/update-description
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimapsdownloads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/maps/downloads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimapsdownload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/maps/download
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimapsdownload-statusjob_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/maps/download-status/&lt;job_id&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimapsprovider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/maps/provider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimapsprovider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/maps/provider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimapsset-active" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/maps/set-active
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mission-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mission API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Mission API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apimissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/missions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimissionscreate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/missions/create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimissionsmission_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/missions/&lt;mission_id&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#put-apimissionsmission_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PUT /api/missions/&lt;mission_id&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-apimissionsmission_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /api/missions/&lt;mission_id&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimissionscurrent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/missions/current
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimissionsselect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/missions/select
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimissionsimport-geojson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/missions/import-geojson
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimissionsmission_idlayers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/missions/&lt;mission_id&gt;/layers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimissionsmission_idlayerslayer_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/missions/&lt;mission_id&gt;/layers/&lt;layer_id&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimissionsmission_idlayers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/missions/&lt;mission_id&gt;/layers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#put-apimissionsmission_idlayerslayer_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PUT /api/missions/&lt;mission_id&gt;/layers/&lt;layer_id&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-apimissionsmission_idlayerslayer_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /api/missions/&lt;mission_id&gt;/layers/&lt;layer_id&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimissionsmission_idimport-dsc-zones" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/missions/&lt;mission_id&gt;/import-dsc-zones
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teams-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Teams API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Teams API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apiteams" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/teams
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiteamsconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/teams/config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiteamsoperator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/teams/operator
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#put-apiteamsoperatoroperator_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PUT /api/teams/operator/&lt;operator_id&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-apiteamsoperatoroperator_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /api/teams/operator/&lt;operator_id&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notifications-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notifications API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Notifications API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apinotifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/notifications
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-apinotifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /api/notifications
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apinotificationsoperator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/notifications/operator
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apinotificationsall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/notifications/all
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#traffic-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traffic API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Traffic API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apiairlocal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/air/local
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiairnetwork" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/air/network
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiognnetwork" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/ogn/network
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiremoteidaircraft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/remoteid/aircraft
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hardware-control-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hardware Control API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Hardware Control API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apigpsstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/gps/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apids110status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/ds110/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apids110enable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/ds110/enable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apireadsbstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/readsb/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apireadsbenable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/readsb/enable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimeshtasticnodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/meshtastic/nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimeshtasticstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/meshtastic/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimeshtasticgateway" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/meshtastic/gateway
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimeshtasticenable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/meshtastic/enable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimeshtasticnodesreset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/meshtastic/nodes/reset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-apimeshtasticnodesnode_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /api/meshtastic/nodes/&lt;node_id&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logs-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logs API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Logs API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apilogs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/logs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apilogsclear" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/logs/clear
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#update-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Update API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Update API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apiupdatestatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/update/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdateupload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiupdatebackups" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/update/backups
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiupdatepackagefilename" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/update/package/&lt;filename&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiupdatepackages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/update/packages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdatebackup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/backup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdateextractfilename" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/extract/&lt;filename&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdatetestbackend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/test/backend
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdatetestfilename" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/test/&lt;filename&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdatetest-install" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/test-install
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdatetest-import" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/test-import
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiupdatecurrent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/update/current
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdaterestorebackup_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/restore/&lt;backup_name&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdaterestore-testbackup_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/restore-test/&lt;backup_name&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdatepre-installfilename" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/pre-install/&lt;filename&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdaterequest-installfilename" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/request-install/&lt;filename&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#traffic-proximity-awareness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traffic Proximity Awareness
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Traffic Proximity Awareness">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apiproximitystatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/proximity/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiproximityconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/proximity/config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiproximityconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/proximity/config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apisettingstraffic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/settings/traffic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apisettingstraffic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/settings/traffic
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../coding-guidelines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coding Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Indice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Indice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#part-of-the-mini-tracker-developer-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part of the Mini Tracker Developer Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#system-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Status
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="System Status">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apistatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apisystemrestart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/system/restart
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apisystemreboot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/system/reboot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apisystemshutdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/system/shutdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiservices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/services
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apihardware" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/hardware
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Network API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Network API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apinetwork" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/network
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiconnections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/connections
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiwifi-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/wifi-scan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiwificonnect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/wifi/connect
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiwifidisconnect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/wifi/disconnect
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiapstart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/ap/start
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiapstop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/ap/stop
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiapstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/ap/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apilanconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/lan/config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apilanconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/lan/config
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#settings-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Settings API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Settings API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apisettings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apids110settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/ds110/settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apids110settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/ds110/settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiserialports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/serial/ports
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apidscsettings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/dsc/settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apidscsettings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/dsc/settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#maps-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Maps API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Maps API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-tileszxypng" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /tiles/&lt;z&gt;/&lt;x&gt;/&lt;y&gt;.png
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/maps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimapsstorage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/maps/storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-apimapsmap_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /api/maps/&lt;map_name&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimapsupdate-description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/maps/update-description
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimapsdownloads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/maps/downloads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimapsdownload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/maps/download
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimapsdownload-statusjob_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/maps/download-status/&lt;job_id&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimapsprovider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/maps/provider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimapsprovider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/maps/provider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimapsset-active" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/maps/set-active
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mission-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mission API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Mission API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apimissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/missions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimissionscreate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/missions/create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimissionsmission_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/missions/&lt;mission_id&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#put-apimissionsmission_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PUT /api/missions/&lt;mission_id&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-apimissionsmission_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /api/missions/&lt;mission_id&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimissionscurrent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/missions/current
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimissionsselect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/missions/select
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimissionsimport-geojson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/missions/import-geojson
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimissionsmission_idlayers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/missions/&lt;mission_id&gt;/layers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimissionsmission_idlayerslayer_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/missions/&lt;mission_id&gt;/layers/&lt;layer_id&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimissionsmission_idlayers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/missions/&lt;mission_id&gt;/layers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#put-apimissionsmission_idlayerslayer_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PUT /api/missions/&lt;mission_id&gt;/layers/&lt;layer_id&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-apimissionsmission_idlayerslayer_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /api/missions/&lt;mission_id&gt;/layers/&lt;layer_id&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimissionsmission_idimport-dsc-zones" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/missions/&lt;mission_id&gt;/import-dsc-zones
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teams-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Teams API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Teams API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apiteams" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/teams
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiteamsconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/teams/config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiteamsoperator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/teams/operator
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#put-apiteamsoperatoroperator_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PUT /api/teams/operator/&lt;operator_id&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-apiteamsoperatoroperator_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /api/teams/operator/&lt;operator_id&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notifications-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notifications API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Notifications API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apinotifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/notifications
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-apinotifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /api/notifications
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apinotificationsoperator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/notifications/operator
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apinotificationsall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/notifications/all
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#traffic-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traffic API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Traffic API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apiairlocal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/air/local
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiairnetwork" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/air/network
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiognnetwork" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/ogn/network
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiremoteidaircraft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/remoteid/aircraft
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hardware-control-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hardware Control API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Hardware Control API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apigpsstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/gps/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apids110status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/ds110/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apids110enable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/ds110/enable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apireadsbstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/readsb/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apireadsbenable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/readsb/enable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimeshtasticnodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/meshtastic/nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimeshtasticstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/meshtastic/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apimeshtasticgateway" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/meshtastic/gateway
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimeshtasticenable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/meshtastic/enable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apimeshtasticnodesreset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/meshtastic/nodes/reset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-apimeshtasticnodesnode_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /api/meshtastic/nodes/&lt;node_id&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logs-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logs API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Logs API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apilogs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/logs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apilogsclear" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/logs/clear
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#update-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Update API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Update API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apiupdatestatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/update/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdateupload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiupdatebackups" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/update/backups
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiupdatepackagefilename" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/update/package/&lt;filename&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiupdatepackages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/update/packages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdatebackup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/backup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdateextractfilename" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/extract/&lt;filename&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdatetestbackend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/test/backend
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdatetestfilename" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/test/&lt;filename&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdatetest-install" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/test-install
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdatetest-import" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/test-import
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiupdatecurrent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/update/current
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdaterestorebackup_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/restore/&lt;backup_name&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdaterestore-testbackup_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/restore-test/&lt;backup_name&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdatepre-installfilename" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/pre-install/&lt;filename&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiupdaterequest-installfilename" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/update/request-install/&lt;filename&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#traffic-proximity-awareness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traffic Proximity Awareness
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Traffic Proximity Awareness">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apiproximitystatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/proximity/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiproximityconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/proximity/config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiproximityconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/proximity/config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apisettingstraffic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /api/settings/traffic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apisettingstraffic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /api/settings/traffic
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="api">API</h1>
+<h3 id="part-of-the-mini-tracker-developer-documentation">Part of the Mini Tracker Developer Documentation</h3>
+<hr />
+<h2 id="purpose">Purpose</h2>
+<p>This document provides a developer-oriented reference for the REST API exposed by Mini Tracker.</p>
+<p>It groups endpoints by subsystem and documents method, purpose, request parameters and response format.</p>
+<p>For the overall request flow and software architecture, refer to <code>developer/architecture.md</code>.</p>
+<hr />
+<h2 id="api-model">API Model</h2>
+<p>Mini Tracker exposes local HTTP endpoints from the Flask backend.</p>
+<p>Most API endpoints return JSON. The offline tile endpoint returns PNG tile bytes. Dashboard frontend modules call these APIs using <code>fetch()</code>.</p>
+<p>There is no shared authentication, version prefix or global error schema in the current implementation.</p>
+<hr />
+<h2 id="system-status">System Status</h2>
+<h3 id="get-apistatus"><code>GET /api/status</code></h3>
+<p>Returns basic host status.</p>
+<p>Request parameters: none.</p>
+<p>Response fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hostname</code></td>
+<td>Hostname from the operating system.</td>
+</tr>
+<tr>
+<td><code>cpu</code></td>
+<td>CPU percent from psutil.</td>
+</tr>
+<tr>
+<td><code>ram</code></td>
+<td>RAM usage percent.</td>
+</tr>
+<tr>
+<td><code>disk</code></td>
+<td>Root filesystem usage percent.</td>
+</tr>
+<tr>
+<td><code>uptime</code></td>
+<td>Boot time from psutil.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="post-apisystemrestart"><code>POST /api/system/restart</code></h3>
+<p>Restarts the Mini Tracker application service.</p>
+<p>Request parameters: none.</p>
+<p>Response fields: <code>success</code>.</p>
+<p>The backend executes <code>sudo systemctl restart tracker-mini.service</code>.</p>
+<h3 id="post-apisystemreboot"><code>POST /api/system/reboot</code></h3>
+<p>Requests an operating system reboot.</p>
+<p>Request parameters: none.</p>
+<p>Response fields: <code>success</code>.</p>
+<p>The backend executes <code>sudo /usr/sbin/reboot</code>.</p>
+<h3 id="post-apisystemshutdown"><code>POST /api/system/shutdown</code></h3>
+<p>Requests operating system shutdown.</p>
+<p>Request parameters: none.</p>
+<p>Response fields: <code>success</code>.</p>
+<p>The backend executes <code>sudo /usr/sbin/shutdown -h now</code>.</p>
+<h3 id="get-apiservices"><code>GET /api/services</code></h3>
+<p>Returns aggregated service indicator state for the Dashboard.</p>
+<p>Request parameters: none.</p>
+<p>Response fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>internet</code></td>
+<td>Internet connectivity state.</td>
+</tr>
+<tr>
+<td><code>ads_local</code></td>
+<td>Local ADS-B decoder freshness state.</td>
+</tr>
+<tr>
+<td><code>ads_network</code></td>
+<td>Network ADS-B availability based on Internet state.</td>
+</tr>
+<tr>
+<td><code>remote_id</code></td>
+<td>DS110 worker running state.</td>
+</tr>
+<tr>
+<td><code>meshtastic_enabled</code></td>
+<td>Meshtastic worker running state.</td>
+</tr>
+<tr>
+<td><code>meshtastic_alive</code></td>
+<td>Recent Meshtastic packet state.</td>
+</tr>
+<tr>
+<td><code>ogn</code></td>
+<td>OGN availability based on Internet state.</td>
+</tr>
+<tr>
+<td><code>dsc</code></td>
+<td>DSC availability based on Internet state.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="get-apihardware"><code>GET /api/hardware</code></h3>
+<p>Returns aggregated hardware status.</p>
+<p>Request parameters: none.</p>
+<p>Response fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>wifi_client</code></td>
+<td>Whether <code>/sys/class/net/wlan1</code> exists.</td>
+</tr>
+<tr>
+<td><code>ds110</code></td>
+<td>Whether the configured DS110 device path exists.</td>
+</tr>
+<tr>
+<td><code>ds110_alive</code></td>
+<td>Whether DS110 heartbeat is recent.</td>
+</tr>
+<tr>
+<td><code>meshtastic</code></td>
+<td>Meshtastic worker running state.</td>
+</tr>
+<tr>
+<td><code>meshtastic_alive</code></td>
+<td>Recent Meshtastic packet state.</td>
+</tr>
+<tr>
+<td><code>adsb_receiver</code></td>
+<td>Whether <code>/run/readsb/aircraft.json</code> exists.</td>
+</tr>
+<tr>
+<td><code>adsb_decoder</code></td>
+<td>Whether the ADS-B decoder output is recent.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="network-api">Network API</h2>
+<h3 id="get-apinetwork"><code>GET /api/network</code></h3>
+<p>Returns network status.</p>
+<p>Request parameters: none.</p>
+<p>Response fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>admin_lan</code></td>
+<td>Object with <code>connected</code> and fixed <code>ip</code>.</td>
+</tr>
+<tr>
+<td><code>user_lan</code></td>
+<td>Object with <code>connected</code> and optional <code>ip</code>.</td>
+</tr>
+<tr>
+<td><code>wifi_ap</code></td>
+<td>Object with <code>connected</code>, <code>ip</code>, <code>ssid</code> and <code>ap_mode</code>.</td>
+</tr>
+<tr>
+<td><code>wifi_client</code></td>
+<td>Object with <code>connected</code>, <code>ip</code> and <code>ssid</code>.</td>
+</tr>
+<tr>
+<td><code>wifi</code></td>
+<td>Compatibility object for current frontend behavior.</td>
+</tr>
+<tr>
+<td><code>internet</code></td>
+<td>Internet connectivity state.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="get-apiconnections"><code>GET /api/connections</code></h3>
+<p>Returns NetworkManager connections.</p>
+<p>Request parameters: none.</p>
+<p>Response format: array of connection objects with <code>name</code>, <code>type</code> and <code>device</code>, or an object with <code>error</code>.</p>
+<h3 id="get-apiwifi-scan"><code>GET /api/wifi-scan</code></h3>
+<p>Scans Wi-Fi networks on the Wi-Fi Client interface.</p>
+<p>Request parameters: none.</p>
+<p>Response format: array of networks.</p>
+<p>Network fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ssid</code></td>
+<td>Network SSID.</td>
+</tr>
+<tr>
+<td><code>signal</code></td>
+<td>Signal level as an integer.</td>
+</tr>
+<tr>
+<td><code>security</code></td>
+<td>Security string from <code>nmcli</code>.</td>
+</tr>
+<tr>
+<td><code>saved</code></td>
+<td>Whether a saved connection exists.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="post-apiwificonnect"><code>POST /api/wifi/connect</code></h3>
+<p>Connects the Wi-Fi Client interface to a network.</p>
+<p>Request JSON:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ssid</code></td>
+<td>Yes</td>
+<td>Network SSID.</td>
+</tr>
+<tr>
+<td><code>password</code></td>
+<td>No</td>
+<td>Network password.</td>
+</tr>
+</tbody>
+</table>
+<p>Response fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>success</code></td>
+<td>Operation result.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td><code>nmcli</code> result or error message.</td>
+</tr>
+</tbody>
+</table>
+<p>If <code>ssid</code> is missing, the route returns HTTP 400.</p>
+<h3 id="post-apiwifidisconnect"><code>POST /api/wifi/disconnect</code></h3>
+<p>Disconnects the Wi-Fi Client interface.</p>
+<p>Request parameters: none.</p>
+<p>Response fields: <code>success</code>, <code>message</code>.</p>
+<h3 id="post-apiapstart"><code>POST /api/ap/start</code></h3>
+<p>Starts the Access Point.</p>
+<p>Request parameters: none.</p>
+<p>Response fields: <code>success</code>, <code>message</code>.</p>
+<h3 id="post-apiapstop"><code>POST /api/ap/stop</code></h3>
+<p>Stops the Access Point.</p>
+<p>Request parameters: none.</p>
+<p>Response fields: <code>success</code>, <code>message</code>.</p>
+<h3 id="get-apiapstatus"><code>GET /api/ap/status</code></h3>
+<p>Returns Access Point status.</p>
+<p>Response fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>active</code></td>
+<td>Whether the Access Point connection is active.</td>
+</tr>
+<tr>
+<td><code>ssid</code></td>
+<td>Active SSID or <code>null</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="get-apilanconfig"><code>GET /api/lan/config</code></h3>
+<p>Returns User LAN configuration.</p>
+<p>Response fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>success</code></td>
+<td>Whether the configuration was read.</td>
+</tr>
+<tr>
+<td><code>ip</code></td>
+<td>User LAN IP if configured.</td>
+</tr>
+<tr>
+<td><code>mask</code></td>
+<td>Subnet mask.</td>
+</tr>
+<tr>
+<td><code>gateway</code></td>
+<td>Gateway value.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td>Error message when unsuccessful.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="post-apilanconfig"><code>POST /api/lan/config</code></h3>
+<p>Updates User LAN configuration.</p>
+<p>Request JSON:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ip</code></td>
+<td>Yes</td>
+<td>User LAN IP address.</td>
+</tr>
+<tr>
+<td><code>mask</code></td>
+<td>Yes</td>
+<td>Subnet mask.</td>
+</tr>
+<tr>
+<td><code>gateway</code></td>
+<td>No</td>
+<td>Gateway address.</td>
+</tr>
+</tbody>
+</table>
+<p>Response fields: <code>success</code>, <code>message</code>.</p>
+<hr />
+<h2 id="settings-api">Settings API</h2>
+<h3 id="get-apisettings"><code>GET /api/settings</code></h3>
+<p>Returns Dashboard settings.</p>
+<p>Response fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>map</code></td>
+<td>Map configuration object from settings.</td>
+</tr>
+<tr>
+<td><code>ap_ssid</code></td>
+<td>Access Point SSID.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="get-apids110settings"><code>GET /api/ds110/settings</code></h3>
+<p>Returns DS110 configuration.</p>
+<p>Response fields: <code>interface</code>, <code>device</code>, <code>baudrate</code>.</p>
+<h3 id="post-apids110settings"><code>POST /api/ds110/settings</code></h3>
+<p>Updates DS110 configuration.</p>
+<p>Request JSON:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>interface</code></td>
+<td>No</td>
+<td><code>usb</code> or <code>uart</code>; defaults to <code>usb</code>.</td>
+</tr>
+<tr>
+<td><code>device</code></td>
+<td>No</td>
+<td>Device path; defaults to <code>/dev/ttyACM0</code>.</td>
+</tr>
+<tr>
+<td><code>baudrate</code></td>
+<td>No</td>
+<td>Baud rate; defaults to <code>115200</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Response fields: <code>success</code>.</p>
+<h3 id="get-apiserialports"><code>GET /api/serial/ports</code></h3>
+<p>Lists detected serial paths and current DS110 device.</p>
+<p>Response fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>current</code></td>
+<td>Current configured DS110 device path.</td>
+</tr>
+<tr>
+<td><code>ports</code></td>
+<td>Sorted list of detected and configured serial paths.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="get-apidscsettings"><code>GET /api/dsc/settings</code></h3>
+<p>Returns DSC settings.</p>
+<p>Response format: DSC settings object from <code>SETTINGS["dsc"]</code>.</p>
+<h3 id="post-apidscsettings"><code>POST /api/dsc/settings</code></h3>
+<p>Updates DSC settings.</p>
+<p>Request JSON:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>node_name</code></td>
+<td>No</td>
+<td>DSC node display name.</td>
+</tr>
+<tr>
+<td><code>position_source</code></td>
+<td>No</td>
+<td><code>manual</code> or <code>gps</code>.</td>
+</tr>
+<tr>
+<td><code>lat</code></td>
+<td>No</td>
+<td>Manual latitude.</td>
+</tr>
+<tr>
+<td><code>lon</code></td>
+<td>No</td>
+<td>Manual longitude.</td>
+</tr>
+<tr>
+<td><code>sync_enabled</code></td>
+<td>No</td>
+<td>DSC synchronization flag.</td>
+</tr>
+</tbody>
+</table>
+<p>Response format: updated DSC settings object.</p>
+<hr />
+<h2 id="maps-api">Maps API</h2>
+<h3 id="get-tileszxypng"><code>GET /tiles/&lt;z&gt;/&lt;x&gt;/&lt;y&gt;.png</code></h3>
+<p>Returns an offline map tile.</p>
+<p>Path parameters:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>z</code></td>
+<td>Zoom level.</td>
+</tr>
+<tr>
+<td><code>x</code></td>
+<td>Tile column.</td>
+</tr>
+<tr>
+<td><code>y</code></td>
+<td>Tile row.</td>
+</tr>
+</tbody>
+</table>
+<p>Response: PNG tile bytes, or HTTP 404 when no tile is found.</p>
+<h3 id="get-apimaps"><code>GET /api/maps</code></h3>
+<p>Returns installed maps.</p>
+<p>Response format: array of map objects.</p>
+<p>Returned fields include <code>name</code>, <code>description</code>, <code>created</code>, <code>source</code>, <code>center_lat</code>, <code>center_lon</code>, <code>radius_km</code>, <code>min_zoom</code>, <code>max_zoom</code>, <code>size_mb</code>, <code>active</code> and <code>protected</code>.</p>
+<h3 id="get-apimapsstorage"><code>GET /api/maps/storage</code></h3>
+<p>Returns map storage usage for the maps directory.</p>
+<p>Response fields: <code>total_gb</code>, <code>used_gb</code>, <code>free_gb</code>.</p>
+<h3 id="delete-apimapsmap_name"><code>DELETE /api/maps/&lt;map_name&gt;</code></h3>
+<p>Deletes a map file unless it is the protected base map.</p>
+<p>Path parameters: <code>map_name</code>.</p>
+<p>Response fields: <code>success</code>, <code>message</code>.</p>
+<h3 id="post-apimapsupdate-description"><code>POST /api/maps/update-description</code></h3>
+<p>Updates map description metadata.</p>
+<p>Request JSON:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Yes</td>
+<td>Map filename.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>No</td>
+<td>Description text.</td>
+</tr>
+</tbody>
+</table>
+<p>Response fields: <code>success</code>.</p>
+<h3 id="get-apimapsdownloads"><code>GET /api/maps/downloads</code></h3>
+<p>Returns in-memory map download jobs.</p>
+<p>Response format: object keyed by job ID. Job fields include <code>status</code>, <code>progress</code>, <code>current_tile</code>, <code>total_tiles</code>, <code>message</code>, <code>created</code> and optionally <code>result</code>.</p>
+<h3 id="post-apimapsdownload"><code>POST /api/maps/download</code></h3>
+<p>Starts a map download job.</p>
+<p>Request JSON:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lat</code></td>
+<td>Yes</td>
+<td>Download center latitude.</td>
+</tr>
+<tr>
+<td><code>lon</code></td>
+<td>Yes</td>
+<td>Download center longitude.</td>
+</tr>
+<tr>
+<td><code>radius</code></td>
+<td>Yes</td>
+<td>Radius in kilometers.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>No</td>
+<td>Map description and filename basis.</td>
+</tr>
+</tbody>
+</table>
+<p>Response fields: <code>success</code>, <code>job_id</code>.</p>
+<h3 id="get-apimapsdownload-statusjob_id"><code>GET /api/maps/download-status/&lt;job_id&gt;</code></h3>
+<p>Returns a map download job.</p>
+<p>Path parameters: <code>job_id</code>.</p>
+<p>Response format: job object, or <code>{}</code> when not found.</p>
+<h3 id="get-apimapsprovider"><code>GET /api/maps/provider</code></h3>
+<p>Returns map provider status.</p>
+<p>Response fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>provider</code></td>
+<td>Provider name, defaulting to <code>thunderforest</code>.</td>
+</tr>
+<tr>
+<td><code>configured</code></td>
+<td>Whether an API key is present.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="post-apimapsprovider"><code>POST /api/maps/provider</code></h3>
+<p>Updates map provider settings.</p>
+<p>Request JSON:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>provider</code></td>
+<td>No</td>
+<td>Provider name; defaults to <code>thunderforest</code>.</td>
+</tr>
+<tr>
+<td><code>api_key</code></td>
+<td>No</td>
+<td>Provider API key.</td>
+</tr>
+</tbody>
+</table>
+<p>Response fields: <code>success</code>.</p>
+<h3 id="post-apimapsset-active"><code>POST /api/maps/set-active</code></h3>
+<p>Updates a map active flag.</p>
+<p>Request JSON:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Yes</td>
+<td>Map filename.</td>
+</tr>
+<tr>
+<td><code>active</code></td>
+<td>Yes</td>
+<td>Boolean active state.</td>
+</tr>
+</tbody>
+</table>
+<p>Response fields: <code>success</code>.</p>
+<hr />
+<h2 id="mission-api">Mission API</h2>
+<h3 id="get-apimissions"><code>GET /api/missions</code></h3>
+<p>Returns the mission index array.</p>
+<p>Response fields per mission: <code>id</code>, <code>name</code>, <code>description</code>, <code>status</code>.</p>
+<h3 id="post-apimissionscreate"><code>POST /api/missions/create</code></h3>
+<p>Creates a mission.</p>
+<p>Request JSON:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Yes</td>
+<td>Mission name.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>No</td>
+<td>Mission description.</td>
+</tr>
+</tbody>
+</table>
+<p>Response fields: <code>success</code>, <code>mission</code>.</p>
+<p>Missing mission name returns HTTP 400.</p>
+<h3 id="get-apimissionsmission_id"><code>GET /api/missions/&lt;mission_id&gt;</code></h3>
+<p>Returns a mission.</p>
+<p>Path parameters: <code>mission_id</code>.</p>
+<p>Response format: mission object, or HTTP 404 with <code>success: false</code> and <code>message</code>.</p>
+<h3 id="put-apimissionsmission_id"><code>PUT /api/missions/&lt;mission_id&gt;</code></h3>
+<p>Updates a mission.</p>
+<p>Request JSON fields may include <code>name</code>, <code>description</code> and <code>status</code>.</p>
+<p>Response fields: <code>success</code>, <code>mission</code>.</p>
+<h3 id="delete-apimissionsmission_id"><code>DELETE /api/missions/&lt;mission_id&gt;</code></h3>
+<p>Deletes a mission directory and removes it from the index.</p>
+<p>Response fields: <code>success</code>.</p>
+<h3 id="get-apimissionscurrent"><code>GET /api/missions/current</code></h3>
+<p>Returns the currently selected mission object, or <code>null</code>.</p>
+<h3 id="post-apimissionsselect"><code>POST /api/missions/select</code></h3>
+<p>Selects the current mission.</p>
+<p>Request JSON:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mission_id</code></td>
+<td>Yes</td>
+<td>Mission ID to select.</td>
+</tr>
+</tbody>
+</table>
+<p>Response fields: <code>success</code>.</p>
+<h3 id="post-apimissionsimport-geojson"><code>POST /api/missions/import-geojson</code></h3>
+<p>Imports a GeoJSON file as a mission layer.</p>
+<p>Request form fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mission_id</code></td>
+<td>Yes</td>
+<td>Target mission ID.</td>
+</tr>
+<tr>
+<td><code>file</code></td>
+<td>Yes</td>
+<td>Uploaded <code>.geojson</code> or JSON file.</td>
+</tr>
+</tbody>
+</table>
+<p>Response fields: <code>success</code>, <code>layer</code>.</p>
+<p>Missing input or failed import returns HTTP 400.</p>
+<h3 id="get-apimissionsmission_idlayers"><code>GET /api/missions/&lt;mission_id&gt;/layers</code></h3>
+<p>Returns mission layers.</p>
+<p>Response format: array of layer objects, or HTTP 404 if the mission does not exist.</p>
+<h3 id="get-apimissionsmission_idlayerslayer_id"><code>GET /api/missions/&lt;mission_id&gt;/layers/&lt;layer_id&gt;</code></h3>
+<p>Returns one layer object, or HTTP 404 if missing.</p>
+<h3 id="post-apimissionsmission_idlayers"><code>POST /api/missions/&lt;mission_id&gt;/layers</code></h3>
+<p>Creates a layer.</p>
+<p>Request JSON fields may include <code>name</code>, <code>type</code>, <code>geometry</code>, <code>visible</code>, <code>locked</code>, <code>style</code>, <code>properties</code> and <code>geojson</code>.</p>
+<p>Response fields: <code>success</code>, <code>layer</code>.</p>
+<h3 id="put-apimissionsmission_idlayerslayer_id"><code>PUT /api/missions/&lt;mission_id&gt;/layers/&lt;layer_id&gt;</code></h3>
+<p>Updates an existing layer by merging request JSON into the stored layer.</p>
+<p>Response fields: <code>success</code>, <code>layer</code>.</p>
+<h3 id="delete-apimissionsmission_idlayerslayer_id"><code>DELETE /api/missions/&lt;mission_id&gt;/layers/&lt;layer_id&gt;</code></h3>
+<p>Deletes a layer.</p>
+<p>Response fields: <code>success</code>.</p>
+<h3 id="post-apimissionsmission_idimport-dsc-zones"><code>POST /api/missions/&lt;mission_id&gt;/import-dsc-zones</code></h3>
+<p>Imports Drone Sky Check zones as a mission layer.</p>
+<p>Request JSON:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bbox</code></td>
+<td>Yes</td>
+<td>Bounding box as <code>[minLat, minLon, maxLat, maxLon]</code>.</td>
+</tr>
+<tr>
+<td><code>simplify</code></td>
+<td>No</td>
+<td>Whether to request simplified geometry; defaults to true.</td>
+</tr>
+<tr>
+<td><code>limit</code></td>
+<td>No</td>
+<td>Maximum number of zones requested; defaults to 500.</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td>No</td>
+<td>Optional zone type filter.</td>
+</tr>
+</tbody>
+</table>
+<p>Response fields: <code>success</code>, <code>layer</code> when successful, or <code>success: false</code> and <code>message</code>.</p>
+<p>Invalid mission IDs return HTTP 404. Invalid bounding boxes return HTTP 400. If a DSC zones layer already exists in the mission, the backend replaces it before saving the new layer.</p>
+<hr />
+<h2 id="teams-api">Teams API</h2>
+<h3 id="get-apiteams"><code>GET /api/teams</code></h3>
+<p>Returns current mission team status with Meshtastic data.</p>
+<p>Response fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gateway</code></td>
+<td>Meshtastic gateway info.</td>
+</tr>
+<tr>
+<td><code>gateway_node</code></td>
+<td>Normalized gateway node if matched.</td>
+</tr>
+<tr>
+<td><code>operators</code></td>
+<td>Configured operators merged with matching nodes.</td>
+</tr>
+<tr>
+<td><code>external_nodes</code></td>
+<td>Meshtastic nodes not matched to configured operators.</td>
+</tr>
+<tr>
+<td><code>operator_freshness</code></td>
+<td>Configured Meshtastic operator marker <code>stale_ms</code> and <code>retention_ms</code> values.</td>
+</tr>
+<tr>
+<td><code>messages</code></td>
+<td>Current implementation returns an empty array.</td>
+</tr>
+</tbody>
+</table>
+<p>Operator entries may include <code>last_seen</code>, <code>updatedAt</code>, <code>age_ms</code>, <code>stale</code>, <code>expired</code>, <code>stale_ms</code> and <code>retention_ms</code>. These fields support map marker fade and removal based on Meshtastic last seen timing.</p>
+<h3 id="get-apiteamsconfig"><code>GET /api/teams/config</code></h3>
+<p>Returns team configuration for the current mission.</p>
+<p>Response fields: <code>operators</code>.</p>
+<h3 id="post-apiteamsoperator"><code>POST /api/teams/operator</code></h3>
+<p>Adds an operator to the current mission team.</p>
+<p>Request JSON:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>longName</code></td>
+<td>Yes</td>
+<td>Operator long name.</td>
+</tr>
+<tr>
+<td><code>shortName</code></td>
+<td>Yes</td>
+<td>Meshtastic short name used for matching.</td>
+</tr>
+</tbody>
+</table>
+<p>Response fields: <code>success</code>.</p>
+<h3 id="put-apiteamsoperatoroperator_id"><code>PUT /api/teams/operator/&lt;operator_id&gt;</code></h3>
+<p>Updates an operator.</p>
+<p>Request JSON fields: <code>longName</code>, <code>shortName</code>.</p>
+<p>Response fields: <code>success</code>.</p>
+<h3 id="delete-apiteamsoperatoroperator_id"><code>DELETE /api/teams/operator/&lt;operator_id&gt;</code></h3>
+<p>Deletes an operator.</p>
+<p>Response fields: <code>success</code>.</p>
+<hr />
+<h2 id="notifications-api">Notifications API</h2>
+<h3 id="get-apinotifications"><code>GET /api/notifications</code></h3>
+<p>Returns in-memory notification messages.</p>
+<p>Request parameters: none.</p>
+<p>Response fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ok</code></td>
+<td>Request result.</td>
+</tr>
+<tr>
+<td><code>messages</code></td>
+<td>Notification entries in reverse chronological order.</td>
+</tr>
+</tbody>
+</table>
+<p>Notification entries include <code>id</code>, <code>timestamp</code>, <code>category</code>, <code>severity</code>, <code>source</code>, <code>target</code>, <code>target_node_id</code>, <code>text</code> and <code>status</code>. Failed send attempts may include <code>error</code>.</p>
+<p>Meshtastic notification entries may also include <code>source_node_id</code>, <code>target_label</code>, <code>direction</code> and <code>transport</code>. Outgoing operator messages use <code>direction: "outgoing"</code> and <code>source: "Gateway"</code>. Incoming Meshtastic text messages use <code>direction: "incoming"</code> and <code>status: "received"</code>.</p>
+<h3 id="delete-apinotifications"><code>DELETE /api/notifications</code></h3>
+<p>Clears in-memory notification messages.</p>
+<p>Request parameters: none.</p>
+<p>Response fields: <code>ok</code>.</p>
+<h3 id="post-apinotificationsoperator"><code>POST /api/notifications/operator</code></h3>
+<p>Sends a notification message to one operator node through the Notification Service.</p>
+<p>Request JSON:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>node_id</code></td>
+<td>Yes</td>
+<td>Meshtastic node ID used as the delivery target.</td>
+</tr>
+<tr>
+<td><code>text</code></td>
+<td>Yes</td>
+<td>Message text.</td>
+</tr>
+<tr>
+<td><code>category</code></td>
+<td>No</td>
+<td>Notification category; defaults to <code>manual</code>.</td>
+</tr>
+<tr>
+<td><code>severity</code></td>
+<td>No</td>
+<td>Notification severity; defaults to <code>info</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Response fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ok</code></td>
+<td>True when the notification status is <code>sent</code>.</td>
+</tr>
+<tr>
+<td><code>notification</code></td>
+<td>Notification record with final status.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="post-apinotificationsall"><code>POST /api/notifications/all</code></h3>
+<p>Sends a notification message to all configured online operators with an associated node ID.</p>
+<p>Request JSON:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>text</code></td>
+<td>Yes</td>
+<td>Message text.</td>
+</tr>
+<tr>
+<td><code>category</code></td>
+<td>No</td>
+<td>Notification category; defaults to <code>manual</code>.</td>
+</tr>
+<tr>
+<td><code>severity</code></td>
+<td>No</td>
+<td>Notification severity; defaults to <code>info</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Response fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ok</code></td>
+<td>Request result.</td>
+</tr>
+<tr>
+<td><code>notifications</code></td>
+<td>Notification records created for the selected online operators.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="traffic-api">Traffic API</h2>
+<h3 id="get-apiairlocal"><code>GET /api/air/local</code></h3>
+<p>Returns local ADS-B aircraft from readsb output.</p>
+<p>Query parameters:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>minLat</code></td>
+<td>Yes</td>
+<td>Bounds minimum latitude.</td>
+</tr>
+<tr>
+<td><code>maxLat</code></td>
+<td>Yes</td>
+<td>Bounds maximum latitude.</td>
+</tr>
+<tr>
+<td><code>minLon</code></td>
+<td>Yes</td>
+<td>Bounds minimum longitude.</td>
+</tr>
+<tr>
+<td><code>maxLon</code></td>
+<td>Yes</td>
+<td>Bounds maximum longitude.</td>
+</tr>
+<tr>
+<td><code>showAll</code></td>
+<td>No</td>
+<td><code>"true"</code> disables the standard altitude filter.</td>
+</tr>
+</tbody>
+</table>
+<p>Response fields: <code>success</code>, <code>aircraft</code>.</p>
+<p>Aircraft fields include <code>icao</code>, <code>callsign</code>, <code>lat</code>, <code>lon</code>, <code>altitude</code>, <code>speed</code>, <code>heading</code>, <code>category</code>, <code>isHelicopter</code>, <code>source</code> and <code>updatedAt</code>.</p>
+<h3 id="get-apiairnetwork"><code>GET /api/air/network</code></h3>
+<p>Returns network ADS-B aircraft from external sources.</p>
+<p>Query parameters: same as <code>/api/air/local</code>.</p>
+<p>Response fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>success</code></td>
+<td>Request result.</td>
+</tr>
+<tr>
+<td><code>sources</code></td>
+<td>Counts by active external source (<code>airplanes_live</code>, <code>adsb_lol</code>, <code>ogn</code>, <code>opensky</code>).</td>
+</tr>
+<tr>
+<td><code>aircraft</code></td>
+<td>Merged aircraft array.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="get-apiognnetwork"><code>GET /api/ogn/network</code></h3>
+<p>Returns OGN / FLARM traffic.</p>
+<p>Query parameters: <code>minLat</code>, <code>maxLat</code>, <code>minLon</code>, <code>maxLon</code>.</p>
+<p>Response fields: <code>success</code>, <code>count</code>, <code>objects</code>.</p>
+<p>Object fields include <code>id</code>, <code>callsign</code>, <code>lat</code>, <code>lon</code>, <code>alt_m</code>, <code>heading</code>, <code>speed</code>, <code>source</code>, <code>last_seen</code> and <code>updatedAt</code>.</p>
+<h3 id="get-apiremoteidaircraft"><code>GET /api/remoteid/aircraft</code></h3>
+<p>Returns Remote ID aircraft currently held in memory by the DS110 service and still inside the Remote ID retention window.</p>
+<p>Response format: array of aircraft objects. Fields may include <code>source</code>, <code>serial</code>, <code>vendor</code>, <code>model</code>, <code>id_type</code>, <code>ua_type</code>, <code>lat</code>, <code>lon</code>, <code>altitude</code>, <code>height</code>, <code>speed</code>, <code>heading</code>, <code>operator_lat</code>, <code>operator_lon</code>, <code>operator_altitude</code>, <code>operator_id</code>, <code>last_seen</code>, <code>updatedAt</code>, <code>age_ms</code>, <code>stale</code>, <code>stale_ms</code> and <code>retention_ms</code>.</p>
+<p><code>updatedAt</code> is the <code>last_seen</code> timestamp converted to epoch milliseconds. <code>age_ms</code> is the current age of the Remote ID track at response time. <code>stale</code> becomes true when the drone has exceeded the configured Remote ID freshness threshold, while the object remains available long enough for the frontend marker to fade before removal. Remote ID marker lifecycle timing is configured through <code>SETTINGS["remoteid"]["marker_stale_ms"]</code> and <code>SETTINGS["remoteid"]["marker_retention_ms"]</code>.</p>
+<hr />
+<h2 id="hardware-control-api">Hardware Control API</h2>
+<h3 id="get-apigpsstatus"><code>GET /api/gps/status</code></h3>
+<p>Returns GPS state.</p>
+<p>Response fields include <code>available</code>, <code>fix</code>, <code>mode</code>, <code>lat</code>, <code>lon</code>, <code>alt</code>, <code>speed</code>, <code>track</code>, <code>satellites</code>, <code>hdop</code> and optionally <code>error</code>.</p>
+<h3 id="get-apids110status"><code>GET /api/ds110/status</code></h3>
+<p>Returns DS110 worker state.</p>
+<p>Response fields: <code>enabled</code>.</p>
+<h3 id="post-apids110enable"><code>POST /api/ds110/enable</code></h3>
+<p>Starts or stops the DS110 worker.</p>
+<p>Request JSON:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled</code></td>
+<td>No</td>
+<td>Boolean; defaults to true.</td>
+</tr>
+</tbody>
+</table>
+<p>Response fields: <code>success</code>, <code>enabled</code>.</p>
+<h3 id="get-apireadsbstatus"><code>GET /api/readsb/status</code></h3>
+<p>Returns whether <code>readsb-local.service</code> is active.</p>
+<p>Response fields: <code>success</code>, <code>enabled</code>.</p>
+<h3 id="post-apireadsbenable"><code>POST /api/readsb/enable</code></h3>
+<p>Starts or stops <code>readsb-local.service</code>.</p>
+<p>Request JSON:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled</code></td>
+<td>No</td>
+<td>Boolean; defaults to false when absent.</td>
+</tr>
+</tbody>
+</table>
+<p>Response fields: <code>success</code>, <code>enabled</code>.</p>
+<p>The route also persists <code>SETTINGS["traffic"]["adsb_local_enabled"]</code> so backend startup can apply the selected local ADS-B state.</p>
+<h3 id="get-apimeshtasticnodes"><code>GET /api/meshtastic/nodes</code></h3>
+<p>Returns Meshtastic nodes.</p>
+<p>Response fields: <code>ok</code>, <code>nodes</code>, <code>alive</code>.</p>
+<h3 id="get-apimeshtasticstatus"><code>GET /api/meshtastic/status</code></h3>
+<p>Returns Meshtastic service status.</p>
+<p>Response fields: <code>ok</code>, <code>configured</code>, <code>enabled</code>, <code>alive</code>, <code>nodes_count</code>.</p>
+<p><code>configured</code> is the persistent <code>SETTINGS["traffic"]["meshtastic_enabled"]</code> value. <code>enabled</code> is the current worker running state.</p>
+<h3 id="get-apimeshtasticgateway"><code>GET /api/meshtastic/gateway</code></h3>
+<p>Returns Meshtastic gateway information.</p>
+<p>Response fields: <code>ok</code>, <code>gateway</code>.</p>
+<h3 id="post-apimeshtasticenable"><code>POST /api/meshtastic/enable</code></h3>
+<p>Updates the persistent Meshtastic traffic setting, then starts or stops the Meshtastic worker.</p>
+<p>Request JSON:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled</code></td>
+<td>No</td>
+<td>Boolean; defaults to true.</td>
+</tr>
+</tbody>
+</table>
+<p>Response fields: <code>success</code>, <code>configured</code>, <code>enabled</code>.</p>
+<p>The route persists <code>SETTINGS["traffic"]["meshtastic_enabled"]</code> before starting the worker, so the service guard and backend startup use the same traffic configuration.</p>
+<h3 id="post-apimeshtasticnodesreset"><code>POST /api/meshtastic/nodes/reset</code></h3>
+<p>Requests a complete Meshtastic radio NodeDB reset and clears the Mini Tracker node cache.</p>
+<p>Request parameters: none.</p>
+<p>Response fields: <code>ok</code>, or <code>ok: false</code> and <code>error</code> with HTTP 500 when the radio interface is not connected or the reset fails.</p>
+<h3 id="delete-apimeshtasticnodesnode_id"><code>DELETE /api/meshtastic/nodes/&lt;node_id&gt;</code></h3>
+<p>Requests removal of one node from the Meshtastic radio NodeDB and removes it from the Mini Tracker node cache.</p>
+<p>Path parameters: <code>node_id</code>.</p>
+<p>Response fields: <code>ok</code>, or <code>ok: false</code> and <code>error</code> with HTTP 500 when the radio interface is not connected or removal fails.</p>
+<hr />
+<h2 id="logs-api">Logs API</h2>
+<h3 id="get-apilogs"><code>GET /api/logs</code></h3>
+<p>Returns in-memory logs.</p>
+<p>Response format: array of log entries.</p>
+<p>Log fields: <code>time</code>, <code>timestamp</code>, <code>component</code>, <code>level</code>, <code>message</code>.</p>
+<h3 id="post-apilogsclear"><code>POST /api/logs/clear</code></h3>
+<p>Clears in-memory logs.</p>
+<p>Response fields: <code>status</code>.</p>
+<hr />
+<h2 id="update-api">Update API</h2>
+<p>All update endpoints are registered under <code>/api/update</code>.</p>
+<h3 id="get-apiupdatestatus"><code>GET /api/update/status</code></h3>
+<p>Returns updater API status.</p>
+<p>Response fields: <code>service</code>, <code>status</code>.</p>
+<h3 id="post-apiupdateupload"><code>POST /api/update/upload</code></h3>
+<p>Uploads an update ZIP package.</p>
+<p>Request form fields: <code>file</code>.</p>
+<p>Response fields: <code>success</code>, <code>filename</code>, <code>size</code>, or <code>success: false</code> and <code>error</code>.</p>
+<h3 id="get-apiupdatebackups"><code>GET /api/update/backups</code></h3>
+<p>Lists backup directories.</p>
+<p>Response format: array of objects with <code>name</code>.</p>
+<h3 id="get-apiupdatepackagefilename"><code>GET /api/update/package/&lt;filename&gt;</code></h3>
+<p>Validates one uploaded package.</p>
+<p>Response fields: <code>success</code>, <code>filename</code>, <code>type</code>, <code>backend</code>, <code>frontend</code>, or <code>success: false</code> and <code>error</code>.</p>
+<h3 id="get-apiupdatepackages"><code>GET /api/update/packages</code></h3>
+<p>Lists uploaded ZIP packages.</p>
+<p>Response format: array of objects with <code>filename</code>, <code>size</code> and <code>type</code>.</p>
+<h3 id="post-apiupdatebackup"><code>POST /api/update/backup</code></h3>
+<p>Creates a backend and frontend backup.</p>
+<p>Response fields: <code>success</code>, <code>backup</code>.</p>
+<h3 id="post-apiupdateextractfilename"><code>POST /api/update/extract/&lt;filename&gt;</code></h3>
+<p>Extracts an uploaded package to staging.</p>
+<p>Response fields: <code>success</code>, <code>filename</code>, <code>contents</code>, or <code>success: false</code> and <code>error</code>.</p>
+<h3 id="post-apiupdatetestbackend"><code>POST /api/update/test/backend</code></h3>
+<p>Runs Python syntax checks on staged backend files.</p>
+<p>Response fields: <code>success</code>, <code>checked</code>, <code>errors</code>.</p>
+<h3 id="post-apiupdatetestfilename"><code>POST /api/update/test/&lt;filename&gt;</code></h3>
+<p>Runs package validation, extraction, structure checks and backend syntax checks when applicable.</p>
+<p>Response fields include <code>success</code>, <code>package</code>, <code>type</code>, <code>backend</code>, <code>frontend</code>, <code>checked_files</code>, or failure details with <code>stage</code>.</p>
+<h3 id="post-apiupdatetest-install"><code>POST /api/update/test-install</code></h3>
+<p>Copies staged backend and frontend into the test install directory.</p>
+<p>Response fields: <code>success</code>, <code>backend_files</code>, <code>frontend_files</code>, or <code>error</code>.</p>
+<h3 id="post-apiupdatetest-import"><code>POST /api/update/test-import</code></h3>
+<p>Tests importing the staged backend from the test install directory.</p>
+<p>Response fields: <code>success</code>, or <code>success: false</code> and <code>error</code>.</p>
+<h3 id="get-apiupdatecurrent"><code>GET /api/update/current</code></h3>
+<p>Returns current installed package metadata.</p>
+<p>Response fields include <code>installed_package</code>, <code>installed_at</code>, <code>backup</code>, <code>status</code> and optionally <code>rollback_reason</code>.</p>
+<h3 id="post-apiupdaterestorebackup_name"><code>POST /api/update/restore/&lt;backup_name&gt;</code></h3>
+<p>Restores a backup to the live tracker directory.</p>
+<p>Response fields: <code>success</code>, or <code>success: false</code> and <code>error</code>.</p>
+<h3 id="post-apiupdaterestore-testbackup_name"><code>POST /api/update/restore-test/&lt;backup_name&gt;</code></h3>
+<p>Restores a backup to the test install directory.</p>
+<p>Response fields: <code>success</code>, or <code>success: false</code> and <code>error</code>.</p>
+<h3 id="post-apiupdatepre-installfilename"><code>POST /api/update/pre-install/&lt;filename&gt;</code></h3>
+<p>Runs package test, test install, backend import test and backup creation.</p>
+<p>Response fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>success</code></td>
+<td>Result.</td>
+</tr>
+<tr>
+<td><code>ready</code></td>
+<td>Present when successful.</td>
+</tr>
+<tr>
+<td><code>backup</code></td>
+<td>Created backup name.</td>
+</tr>
+<tr>
+<td><code>steps</code></td>
+<td>Completed step list.</td>
+</tr>
+<tr>
+<td><code>stage</code></td>
+<td>Failure stage when unsuccessful.</td>
+</tr>
+<tr>
+<td><code>details</code></td>
+<td>Failure details when unsuccessful.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="post-apiupdaterequest-installfilename"><code>POST /api/update/request-install/&lt;filename&gt;</code></h3>
+<p>Creates an install request.</p>
+<p>Request JSON:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>backup</code></td>
+<td>No</td>
+<td>Backup name to associate with request.</td>
+</tr>
+</tbody>
+</table>
+<p>Response fields: <code>success</code>, <code>package</code>, <code>backup</code>, <code>status</code>, or <code>error</code>.</p>
+<hr />
+<h2 id="related-documentation">Related Documentation</h2>
+<ul>
+<li><code>developer/architecture.md</code></li>
+<li><code>developer/backend.md</code></li>
+<li><code>developer/services.md</code></li>
+<li><code>developer/frontend.md</code></li>
+<li><code>developer/mission-storage.md</code></li>
+<li><code>developer/coding-guidelines.md</code></li>
+</ul>
+<hr />
+<h2 id="traffic-proximity-awareness">Traffic Proximity Awareness</h2>
+<h3 id="get-apiproximitystatus"><code>GET /api/proximity/status</code></h3>
+<p>Returns the latest proximity engine snapshot. This endpoint is non-blocking and does not trigger network requests or calculation cycles.</p>
+<p><strong>Response:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;source_health&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;adsb_rx&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AVAILABLE&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;last_successful&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1722783600.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;adsb_net&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DISABLED&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;last_successful&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;remote_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AVAILABLE&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;last_successful&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1722783602.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;drones_active&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;targets_active&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pairs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;pair_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1581F4QW1234:3c6589&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;drone_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1581F4QW1234&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;drone_label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DJI Avata&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;target_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;3c6589&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;target_label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DLH123&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;distance_m&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1200</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MONITOR&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;trend&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;APR&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;drone_lat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">41.893</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;drone_lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">12.577</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;target_lat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">41.903</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;target_lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">12.580</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;target_altitude_m&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">450</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;target_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RX&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;target_updated_ago_s&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;drone_updated_ago_s&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;calculation_time_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">8.5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;last_calculated&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1722783605.0</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Pairs are pre-ranked by severity (WARNING &gt; CAUTION &gt; MONITOR &gt; STALE) then distance.</p>
+<p>The engine runs as a managed backend worker and provides this state to API consumers and future Meshtastic integration.</p>
+<h3 id="get-apiproximityconfig"><code>GET /api/proximity/config</code></h3>
+<p>Returns current proximity configuration merged with code-defined defaults.</p>
+<h3 id="post-apiproximityconfig"><code>POST /api/proximity/config</code></h3>
+<p>Updates proximity configuration. Validates thresholds and persists via <code>save_settings()</code>.</p>
+<p><strong>Body:</strong> JSON with any proximity configuration fields to update.</p>
+<h3 id="get-apisettingstraffic"><code>GET /api/settings/traffic</code></h3>
+<p>Returns traffic source configuration including the authoritative <code>adsb_net_enabled</code> setting.</p>
+<h3 id="post-apisettingstraffic"><code>POST /api/settings/traffic</code></h3>
+<p>Updates traffic source preferences. Used by the ADSBNet localStorage-to-backend migration.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiato", "clipboard.copy": "Copia", "search.result.more.one": "1 altro in questa pagina", "search.result.more.other": "# altri in questa pagina", "search.result.none": "Nessun documento trovato", "search.result.one": "1 documento trovato", "search.result.other": "# documenti trovati", "search.result.placeholder": "Scrivi per iniziare a cercare", "search.result.term.missing": "Non presente", "select.version": "Seleziona la versione"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../../javascripts/mermaid.min.js"></script>
+      
+        <script src="../../../javascripts/mermaid-init.js"></script>
+      
+    
+  </body>
+</html>

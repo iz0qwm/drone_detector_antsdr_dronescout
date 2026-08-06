@@ -1,0 +1,2500 @@
+
+<!doctype html>
+<html lang="it" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Manuale del Mini Tracker">
+      
+      
+      
+      
+        <link rel="prev" href="../meshtastic/">
+      
+      
+        <link rel="next" href="../../maintenance/backup/">
+      
+      
+        
+          <link rel="alternate" href="../../../hardware/raspberry-pi/" hreflang="en">
+        
+          <link rel="alternate" href="./" hreflang="it">
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Raspberry Pi - Mini Tracker Help</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#raspberry-pi" class="md-skip">
+          Vai al contenuto
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Intestazione">
+    <a href="../../" title="Mini Tracker Help" class="md-header__button md-logo" aria-label="Mini Tracker Help" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Mini Tracker Help
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Raspberry Pi
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Seleziona la lingua">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="../../../hardware/raspberry-pi/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="it" class="md-select__link">
+              Italiano
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Cerca" placeholder="Cerca" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Cerca">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Cancella" aria-label="Cancella" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inizializza la ricerca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigazione" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../" title="Mini Tracker Help" class="md-nav__button md-logo" aria-label="Mini Tracker Help" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Mini Tracker Help
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Product
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Product
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../product-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../product-vision/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/first-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dashboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/maps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/traffic-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Traffic Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/mission-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mission Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/teams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Teams
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user/faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hardware
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Hardware
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../power/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Power
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Networking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GPS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ads-b/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADS-B
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../remote-id/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote ID
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../meshtastic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Meshtastic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Raspberry Pi
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Raspberry Pi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Indice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Indice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#part-of-the-mini-tracker-hardware-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part of the Mini Tracker Hardware Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operational-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operational Role
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#computing-platform-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Computing Platform Role
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#platform-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Platform Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operating-system-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operating System Interaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#python-runtime-and-gpio-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python Runtime And GPIO Access
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hosted-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hosted Services
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dashboard-hosting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dashboard Hosting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hardware-interfaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hardware Interfaces
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#storage-and-boot-media" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Storage and Boot Media
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#communication-with-hardware-subsystems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Communication With Hardware Subsystems
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#startup-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Startup Considerations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shutdown-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shutdown Considerations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#maintenance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Maintenance Considerations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relationship-with-other-hardware-subsystems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relationship With Other Hardware Subsystems
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#platform-related-symptoms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Platform-Related Symptoms
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintenance
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Maintenance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/backup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/restore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Restore
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/update/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Update
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/diagnostics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../maintenance/logs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Developer
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/repository/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/frontend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/mission-storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mission Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/coding-guidelines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coding Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Indice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Indice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#part-of-the-mini-tracker-hardware-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part of the Mini Tracker Hardware Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operational-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operational Role
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#computing-platform-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Computing Platform Role
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#platform-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Platform Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operating-system-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operating System Interaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#python-runtime-and-gpio-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python Runtime And GPIO Access
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hosted-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hosted Services
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dashboard-hosting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dashboard Hosting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hardware-interfaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hardware Interfaces
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#storage-and-boot-media" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Storage and Boot Media
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#communication-with-hardware-subsystems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Communication With Hardware Subsystems
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#startup-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Startup Considerations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shutdown-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shutdown Considerations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#maintenance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Maintenance Considerations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relationship-with-other-hardware-subsystems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relationship With Other Hardware Subsystems
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#platform-related-symptoms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Platform-Related Symptoms
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="raspberry-pi">Raspberry Pi</h1>
+<h3 id="part-of-the-mini-tracker-hardware-documentation">Part of the Mini Tracker Hardware Documentation</h3>
+<hr />
+<h2 id="purpose">Purpose</h2>
+<p>This document describes the Raspberry Pi as the Mini Tracker Computing Platform.</p>
+<p>It explains how the Raspberry Pi hosts the local software services, operating system interfaces, Dashboard and hardware connections that allow Mini Tracker to operate as an integrated field node.</p>
+<p>This document is not a Raspberry Pi tutorial. It does not describe the Raspberry Pi as a standalone computer. It describes the role of the Raspberry Pi inside Mini Tracker.</p>
+<hr />
+<h2 id="operational-role">Operational Role</h2>
+<p>The Raspberry Pi provides the computing foundation for Mini Tracker.</p>
+<p>Inside Mini Tracker, the Raspberry Pi is responsible for running the local application, exposing the Dashboard, interacting with the operating system and coordinating the hardware subsystems that contribute to field awareness.</p>
+<p>The operator normally does not interact with the Raspberry Pi directly. The operational interface is the Dashboard. The Raspberry Pi is the internal platform that makes the Dashboard and subsystem integration available.</p>
+<hr />
+<h2 id="computing-platform-role">Computing Platform Role</h2>
+<p>The Raspberry Pi is considered the Computing Platform because it joins separate hardware functions into one operational Mini Tracker node.</p>
+<p>It hosts the services that:</p>
+<ul>
+<li>Serve the Dashboard and Help pages</li>
+<li>Start and monitor local network access</li>
+<li>Read GPS status through the local GPS service</li>
+<li>Communicate with the DS110 Remote ID receiver</li>
+<li>Track local ADS-B decoder state</li>
+<li>Communicate with the Meshtastic gateway when enabled</li>
+<li>Drive the local LCD status display when available</li>
+<li>Store configuration and map files</li>
+<li>Report system, network, hardware and service status</li>
+<li>Support update, backup and restore workflows</li>
+</ul>
+<p>Without the Computing Platform, the other hardware subsystems would remain separate receivers, adapters or power loads. The Raspberry Pi provides the local processing and integration layer that turns those subsystems into a single Mini Tracker device.</p>
+<hr />
+<h2 id="platform-architecture">Platform Architecture</h2>
+<p>Mini Tracker uses the Raspberry Pi as the local host for both operator access and subsystem integration.</p>
+<pre class="mermaid"><code>flowchart TD
+
+    Power["Power System"]
+    Pi["Raspberry Pi&lt;br/&gt;Computing Platform"]
+
+    OS["Operating System"]
+    App["Mini Tracker Application"]
+    Dashboard["Dashboard"]
+
+    Network["Networking Interfaces"]
+    GPS["GPS Service"]
+    RID["DS110 Remote ID Receiver"]
+    ADSB["ADS-B Decoder"]
+    Mesh["Meshtastic Gateway"]
+    Storage["Configuration and Map Storage"]
+
+    Power --&gt; Pi
+    Pi --&gt; OS
+    OS --&gt; App
+    App --&gt; Dashboard
+
+    Network --&gt; OS
+    GPS --&gt; App
+    RID --&gt; App
+    ADSB --&gt; App
+    Mesh --&gt; App
+    Storage --&gt; App</code></pre>
+<p>The Dashboard is presented to the operator through the services hosted on the Raspberry Pi.</p>
+<hr />
+<h2 id="operating-system-interaction">Operating System Interaction</h2>
+<p>Mini Tracker relies on the operating system for device access, networking, storage and service control.</p>
+<p>The current implementation interacts with the operating system through:</p>
+<table>
+<thead>
+<tr>
+<th>Operating System Area</th>
+<th>Mini Tracker Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Network interfaces</strong></td>
+<td>Reads <code>eth0</code>, <code>wlan0</code> and <code>wlan1</code> state and addresses.</td>
+</tr>
+<tr>
+<td><strong>NetworkManager</strong></td>
+<td>Uses <code>nmcli</code> to scan Wi-Fi networks, connect Wi-Fi Client mode, configure Ethernet and start the Access Point.</td>
+</tr>
+<tr>
+<td><strong>System services</strong></td>
+<td>Uses <code>systemctl</code> to start or stop the local ADS-B receiver service named <code>readsb-local.service</code> and to restart <code>tracker-mini.service</code>.</td>
+</tr>
+<tr>
+<td><strong>Power control</strong></td>
+<td>Uses operating system reboot and shutdown commands when requested from the Dashboard.</td>
+</tr>
+<tr>
+<td><strong>GPS service</strong></td>
+<td>Reads GPS data from <code>gpsd</code> on <code>127.0.0.1:2947</code>.</td>
+</tr>
+<tr>
+<td><strong>Device filesystem</strong></td>
+<td>Checks serial and network device paths such as <code>/dev/serial0</code>, <code>/dev/ttyACM*</code>, <code>/dev/ttyUSB*</code> and <code>/sys/class/net/wlan1</code>.</td>
+</tr>
+<tr>
+<td><strong>GPIO input</strong></td>
+<td>Uses <code>gpiozero</code> for local input hardware when the rotary encoder is available.</td>
+</tr>
+<tr>
+<td><strong>I²C display</strong></td>
+<td>Initializes the supported 20x4 LCD through the I²C interface when the display hardware and library are available.</td>
+</tr>
+<tr>
+<td><strong>System status</strong></td>
+<td>Reads CPU, RAM, disk usage, uptime and hostname for Dashboard status.</td>
+</tr>
+</tbody>
+</table>
+<p>These operating system interfaces are part of the Mini Tracker platform integration. Operators should normally verify their state from the Dashboard instead of using low-level operating system commands during field use.</p>
+<hr />
+<h2 id="python-runtime-and-gpio-access">Python Runtime And GPIO Access</h2>
+<p>Mini Tracker runs its backend inside a Python virtual environment.</p>
+<p>On the deployed Raspberry Pi, the virtual environment must be allowed to read Python packages installed by the operating system. The deployment virtual environment configuration file, <code>venv/pyvenv.cfg</code>, must contain:</p>
+<div class="highlight"><pre><span></span><code><span class="na">include-system-site-packages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+</code></pre></div>
+<p>This setting is required because <code>gpiozero</code> uses the <code>lgpio</code> pin factory on the Raspberry Pi hardware. In the Mini Tracker deployment environment, <code>lgpio</code> is provided by the Raspberry Pi / Debian operating system package and is available as:</p>
+<div class="highlight"><pre><span></span><code>/usr/lib/python3/dist-packages/lgpio.py
+</code></pre></div>
+<p><code>lgpio</code> is therefore a system dependency, not a normal Python package managed by the Mini Tracker <code>requirements.txt</code> file.</p>
+<p>If the virtual environment is created with <code>include-system-site-packages = false</code>, <code>gpiozero</code> cannot see the operating-system <code>lgpio</code> module. In that condition it may fall back to the experimental native pin factory, and GPIO access can fail with errors such as:</p>
+<div class="highlight"><pre><span></span><code>OSError: [Errno 22] Invalid argument
+</code></pre></div>
+<p>Maintainers can verify the active <code>gpiozero</code> pin factory from the Mini Tracker virtual environment with:</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from gpiozero import RotaryEncoder, Device; e=RotaryEncoder(5,6,max_steps=0); print(Device.pin_factory); e.close()&quot;</span>
+</code></pre></div>
+<p>The expected result must indicate:</p>
+<div class="highlight"><pre><span></span><code>gpiozero.pins.lgpio.LGPIOFactory
+</code></pre></div>
+<p>This confirms that <code>gpiozero</code> is using the Raspberry Pi <code>lgpio</code> backend instead of the native fallback.</p>
+<hr />
+<h2 id="hosted-services">Hosted Services</h2>
+<p>The Raspberry Pi hosts the Mini Tracker application and supporting service workflows.</p>
+<table>
+<thead>
+<tr>
+<th>Hosted Function</th>
+<th>Operational Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dashboard server</strong></td>
+<td>Serves the operator Dashboard on the local Mini Tracker node.</td>
+</tr>
+<tr>
+<td><strong>Help pages</strong></td>
+<td>Serves the generated Help documentation from the local application.</td>
+</tr>
+<tr>
+<td><strong>Network management</strong></td>
+<td>Starts the Access Point and manages Wi-Fi Client and User LAN settings.</td>
+</tr>
+<tr>
+<td><strong>Remote ID service</strong></td>
+<td>Starts the DS110 receiver worker when Remote ID is enabled.</td>
+</tr>
+<tr>
+<td><strong>DSC heartbeat</strong></td>
+<td>Sends tracker heartbeat information when DSC synchronization is enabled and Internet connectivity is available.</td>
+</tr>
+<tr>
+<td><strong>GPS status</strong></td>
+<td>Reads GPS fix, position, satellite and HDOP information from the local GPS service.</td>
+</tr>
+<tr>
+<td><strong>ADS-B local control</strong></td>
+<td>Controls the local ADS-B receiver service and monitors decoder output.</td>
+</tr>
+<tr>
+<td><strong>Meshtastic integration</strong></td>
+<td>Connects to the configured Meshtastic serial gateway when enabled.</td>
+</tr>
+<tr>
+<td><strong>LCD status display</strong></td>
+<td>Shows a boot screen and then periodically refreshes a local hardware status screen.</td>
+</tr>
+<tr>
+<td><strong>Maps and storage</strong></td>
+<td>Serves offline map tiles and reports map storage information.</td>
+</tr>
+<tr>
+<td><strong>Update workflow</strong></td>
+<td>Handles update package upload, validation, backup, test install and install request creation.</td>
+</tr>
+<tr>
+<td><strong>System power controls</strong></td>
+<td>Provides Dashboard actions to restart the application, reboot the Raspberry Pi or shut down the Raspberry Pi.</td>
+</tr>
+<tr>
+<td><strong>Logs</strong></td>
+<td>Provides application log access from the Dashboard.</td>
+</tr>
+</tbody>
+</table>
+<p>The application serves the Dashboard from the local frontend and listens on the Mini Tracker node so operator devices can access it through the configured network interfaces.</p>
+<hr />
+<h2 id="dashboard-hosting">Dashboard Hosting</h2>
+<p>The Raspberry Pi hosts the Mini Tracker Dashboard.</p>
+<p>The Dashboard is served by the local backend application and is the main interface for operators, maintainers and integrators. It presents map data, system status, network status, traffic source status, hardware status, mission workflows, logs and update controls.</p>
+<p>Mini Tracker also serves the generated Help documentation through the same local application. This allows operators to open product documentation from the device when the Dashboard is reachable.</p>
+<p>Dashboard access depends on the networking subsystem. Operators may reach it through Ethernet or through the built-in Wi-Fi Access Point, depending on the deployment scenario.</p>
+<hr />
+<h2 id="hardware-interfaces">Hardware Interfaces</h2>
+<p>The Raspberry Pi provides the hardware and operating system interfaces used by Mini Tracker.</p>
+<table>
+<thead>
+<tr>
+<th>Interface</th>
+<th>Mini Tracker Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ethernet</strong></td>
+<td>Uses <code>eth0</code> for Admin LAN access and optional User LAN configuration.</td>
+</tr>
+<tr>
+<td><strong>Wi-Fi Access Point</strong></td>
+<td>Uses <code>wlan0</code> for the built-in Access Point.</td>
+</tr>
+<tr>
+<td><strong>Wi-Fi Client</strong></td>
+<td>Uses <code>wlan1</code> when a Wi-Fi Client adapter is present.</td>
+</tr>
+<tr>
+<td><strong>USB / serial devices</strong></td>
+<td>Supports serial-connected devices exposed through <code>/dev/ttyACM*</code>, <code>/dev/ttyUSB*</code> and <code>/dev/serial/by-id/*</code>.</td>
+</tr>
+<tr>
+<td><strong>GPIO / UART serial</strong></td>
+<td>Supports the configured DS110 UART path <code>/dev/serial0</code> when the receiver is configured for UART operation.</td>
+</tr>
+<tr>
+<td><strong>GPIO input</strong></td>
+<td>Supports the rotary encoder input through <code>gpiozero</code> when the optional local control hardware is present.</td>
+</tr>
+<tr>
+<td><strong>I²C display</strong></td>
+<td>Supports the 20x4 PCF8574 LCD used for local Mini Tracker status feedback.</td>
+</tr>
+<tr>
+<td><strong>Local service interfaces</strong></td>
+<td>Reads GPS from <code>gpsd</code> and ADS-B decoder state from <code>/run/readsb/aircraft.json</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>The current DS110 configuration uses the UART device path <code>/dev/serial0</code> at 115200 baud. The Dashboard also supports selecting USB or UART mode and choosing an available serial device path for the DS110 receiver.</p>
+<p>The Meshtastic gateway is configured as a serial-connected device. The current settings identify it by a <code>/dev/serial/by-id/...</code> path.</p>
+<hr />
+<h2 id="storage-and-boot-media">Storage and Boot Media</h2>
+<p>The Raspberry Pi depends on local system storage for the operating system, the Mini Tracker application and operational data.</p>
+<p>The current implementation uses local filesystem paths for:</p>
+<ul>
+<li>Mini Tracker application files under <code>/home/pi/tracker-mini</code></li>
+<li>Update staging, uploads, backups and install requests under <code>/home/pi/tracker-mini-updater</code></li>
+<li>Configuration files under <code>config/</code></li>
+<li>Offline map files under <code>maps/</code></li>
+<li>Generated Help pages under <code>frontend/help/site/</code></li>
+</ul>
+<p>Mini Tracker reports disk usage for the root filesystem through the Dashboard system status. Map storage information is calculated from the local <code>maps/</code> directory.</p>
+<p>The implementation does not expose a separate data disk or removable map storage workflow. The boot and application storage should therefore be treated as critical system storage. Power loss, failed writes or a full filesystem can affect startup, configuration, maps, updates and Dashboard availability.</p>
+<hr />
+<h2 id="communication-with-hardware-subsystems">Communication With Hardware Subsystems</h2>
+<p>The Raspberry Pi communicates with the other Mini Tracker hardware subsystems through operating system interfaces and local services.</p>
+<pre class="mermaid"><code>flowchart TD
+
+    Pi["Raspberry Pi&lt;br/&gt;Computing Platform"]
+
+    Eth["Ethernet&lt;br/&gt;eth0"]
+    AP["Access Point&lt;br/&gt;wlan0"]
+    Client["Wi-Fi Client&lt;br/&gt;wlan1"]
+    GPSD["GPS Service&lt;br/&gt;gpsd"]
+    DS110["DS110 Receiver&lt;br/&gt;serial or UART"]
+    READSB["ADS-B Decoder&lt;br/&gt;readsb-local.service"]
+    Mesh["Meshtastic Gateway&lt;br/&gt;serial"]
+    Maps["Offline Maps&lt;br/&gt;MBTiles"]
+
+    Pi --&gt; Eth
+    Pi --&gt; AP
+    Pi --&gt; Client
+    Pi --&gt; GPSD
+    Pi --&gt; DS110
+    Pi --&gt; READSB
+    Pi --&gt; Mesh
+    Pi --&gt; Maps</code></pre>
+<p>The Computing Platform does not replace the hardware subsystems. It hosts the integration logic that reads their state, exposes operator controls and presents their data through the Dashboard.</p>
+<hr />
+<h2 id="startup-considerations">Startup Considerations</h2>
+<p>During application startup, Mini Tracker initializes several platform functions.</p>
+<p>The current implementation:</p>
+<ul>
+<li>Starts the local Wi-Fi Access Point when it is not already active</li>
+<li>Starts the DS110 Remote ID receiver worker when Remote ID is enabled in settings</li>
+<li>Starts Meshtastic when Meshtastic traffic is enabled in settings</li>
+<li>Starts the local ADS-B receiver service when local ADS-B traffic is enabled in settings</li>
+<li>Starts the DSC heartbeat workflow</li>
+<li>Starts the LCD background service</li>
+<li>Registers the Dashboard and API routes</li>
+<li>Serves the Dashboard and Help pages locally</li>
+</ul>
+<p>After startup, the operator should allow enough time for receiver services, GPS, network interfaces and Dashboard status indicators to settle before judging field readiness.</p>
+<p>Recommended checks:</p>
+<ol>
+<li>Confirm that the Dashboard is reachable.</li>
+<li>Check system status for hostname, CPU, RAM and disk usage.</li>
+<li>Verify network status for the intended access method.</li>
+<li>Verify GPS status if GPS position is required.</li>
+<li>Verify Remote ID, ADS-B and Meshtastic status according to the mission.</li>
+<li>Confirm offline maps or Internet connectivity according to the planned map source.</li>
+</ol>
+<p>Startup readiness should be assessed from the complete Dashboard state, not from a single indicator.</p>
+<hr />
+<h2 id="shutdown-considerations">Shutdown Considerations</h2>
+<p>Mini Tracker stores configuration, maps, logs, update packages and backup data on local storage.</p>
+<p>The operator should avoid removing power while Mini Tracker is writing data. This is especially important during:</p>
+<ul>
+<li>Map downloads</li>
+<li>Configuration changes</li>
+<li>System update package upload or validation</li>
+<li>Backup or restore activity</li>
+<li>Active log or service state changes</li>
+</ul>
+<p>The current Dashboard provides System Power controls for restarting the Mini Tracker application, rebooting the Raspberry Pi and shutting down the Raspberry Pi. These actions request privileged operating system operations and should be used only when the operator is ready for the Dashboard or the device to become temporarily unavailable.</p>
+<p>Power stability is part of platform reliability. Unexpected power loss can interrupt hosted services and may leave storage operations incomplete.</p>
+<p>The deployed operating system must allow the Mini Tracker backend service account to perform the confirmed privileged operations without an interactive password prompt. The current implementation uses <code>sudo</code> for NetworkManager operations, readsb service control, <code>tracker-mini.service</code> restart, reboot and shutdown.</p>
+<hr />
+<h2 id="maintenance-considerations">Maintenance Considerations</h2>
+<p>Maintainers should treat the Raspberry Pi as the Computing Platform, not as an isolated board.</p>
+<p>Useful maintenance checks include:</p>
+<ul>
+<li>Dashboard reachability</li>
+<li>Hostname, CPU, RAM and disk usage</li>
+<li>Root filesystem free space</li>
+<li>Map storage usage</li>
+<li>Ethernet and Wi-Fi interface state</li>
+<li>Access Point state</li>
+<li>Wi-Fi Client adapter detection</li>
+<li>Serial device availability for DS110 and Meshtastic</li>
+<li>GPS service availability</li>
+<li>ADS-B decoder state</li>
+<li>Application logs</li>
+<li>Update package, backup and restore state</li>
+</ul>
+<p>Most checks should begin in the Dashboard because it presents the integrated Mini Tracker state. Low-level operating system inspection is a maintenance activity and should be used when Dashboard status is insufficient to identify the cause of a problem.</p>
+<hr />
+<h2 id="relationship-with-other-hardware-subsystems">Relationship With Other Hardware Subsystems</h2>
+<p>The Raspberry Pi sits between the power, networking, positioning, receiver and operator interface subsystems.</p>
+<table>
+<thead>
+<tr>
+<th>Related Subsystem</th>
+<th>Relationship to the Raspberry Pi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Power System</strong></td>
+<td>Supplies regulated power required for the Computing Platform and connected peripherals.</td>
+</tr>
+<tr>
+<td><strong>Networking</strong></td>
+<td>Provides Ethernet, Access Point and Wi-Fi Client paths used to reach the Dashboard and external services.</td>
+</tr>
+<tr>
+<td><strong>GPS</strong></td>
+<td>Provides node position through the local GPS service.</td>
+</tr>
+<tr>
+<td><strong>ADS-B Reception</strong></td>
+<td>Provides local aircraft decoder output monitored by Mini Tracker.</td>
+</tr>
+<tr>
+<td><strong>Remote ID Reception</strong></td>
+<td>Provides drone detection data through the DS110 serial or UART connection.</td>
+</tr>
+<tr>
+<td><strong>Meshtastic Gateway</strong></td>
+<td>Provides team awareness through a serial-connected gateway.</td>
+</tr>
+<tr>
+<td><strong>Dashboard Integration</strong></td>
+<td>Presents the platform and subsystem state to the operator.</td>
+</tr>
+</tbody>
+</table>
+<p>The Raspberry Pi is therefore the integration point for Mini Tracker, but it is not the whole product. Field readiness depends on the Computing Platform and the connected hardware subsystems working together.</p>
+<hr />
+<h2 id="platform-related-symptoms">Platform-Related Symptoms</h2>
+<p>Computing Platform issues may appear as service, interface or Dashboard symptoms.</p>
+<p>Possible symptoms include:</p>
+<ul>
+<li>Dashboard unreachable</li>
+<li>Help pages unavailable</li>
+<li>High disk usage</li>
+<li>System status unavailable</li>
+<li>Access Point not active</li>
+<li>Wi-Fi Client adapter missing</li>
+<li>Serial device missing from DS110 settings</li>
+<li>Remote ID receiver connected but no heartbeat</li>
+<li>ADS-B decoder offline</li>
+<li>GPS service unavailable</li>
+<li>Meshtastic gateway missing or inactive</li>
+<li>Update or backup workflow failing</li>
+</ul>
+<p>These symptoms do not always indicate a Raspberry Pi hardware fault. They may result from power instability, storage pressure, missing peripherals, operating system service state, network configuration or subsystem-specific receiver issues.</p>
+<hr />
+<h2 id="related-documentation">Related Documentation</h2>
+<ul>
+<li><code>hardware/overview.md</code></li>
+<li><code>hardware/power.md</code></li>
+<li><code>hardware/networking.md</code></li>
+<li><code>hardware/gps.md</code></li>
+<li><code>hardware/ads-b.md</code></li>
+<li><code>hardware/remote-id.md</code></li>
+<li><code>hardware/meshtastic.md</code></li>
+<li><code>user/installation.md</code></li>
+<li><code>user/first-start.md</code></li>
+<li><code>user/dashboard.md</code></li>
+<li><code>user/maps.md</code></li>
+<li><code>user/traffic-monitoring.md</code></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiato", "clipboard.copy": "Copia", "search.result.more.one": "1 altro in questa pagina", "search.result.more.other": "# altri in questa pagina", "search.result.none": "Nessun documento trovato", "search.result.one": "1 documento trovato", "search.result.other": "# documenti trovati", "search.result.placeholder": "Scrivi per iniziare a cercare", "search.result.term.missing": "Non presente", "select.version": "Seleziona la versione"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../../javascripts/mermaid.min.js"></script>
+      
+        <script src="../../../javascripts/mermaid-init.js"></script>
+      
+    
+  </body>
+</html>

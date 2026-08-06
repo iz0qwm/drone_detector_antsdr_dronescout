@@ -1,3 +1,521 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+    <url>
+        <loc>None./</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="None"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/"/>
+    </url>
+    <url>
+        <loc>Noneglossary/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneglossary/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/glossary/"/>
+    </url>
+    <url>
+        <loc>Noneproduct-overview/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneproduct-overview/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/product-overview/"/>
+    </url>
+    <url>
+        <loc>Noneproduct-vision/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneproduct-vision/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/product-vision/"/>
+    </url>
+    <url>
+        <loc>Nonerelease-notes/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonerelease-notes/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/release-notes/"/>
+    </url>
+    <url>
+        <loc>Nonedeveloper/api/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonedeveloper/api/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/developer/api/"/>
+    </url>
+    <url>
+        <loc>Nonedeveloper/architecture/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonedeveloper/architecture/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/developer/architecture/"/>
+    </url>
+    <url>
+        <loc>Nonedeveloper/backend/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonedeveloper/backend/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/developer/backend/"/>
+    </url>
+    <url>
+        <loc>Nonedeveloper/coding-guidelines/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonedeveloper/coding-guidelines/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/developer/coding-guidelines/"/>
+    </url>
+    <url>
+        <loc>Nonedeveloper/frontend/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonedeveloper/frontend/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/developer/frontend/"/>
+    </url>
+    <url>
+        <loc>Nonedeveloper/mission-storage/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonedeveloper/mission-storage/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/developer/mission-storage/"/>
+    </url>
+    <url>
+        <loc>Nonedeveloper/repository/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonedeveloper/repository/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/developer/repository/"/>
+    </url>
+    <url>
+        <loc>Nonedeveloper/roadmap/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonedeveloper/roadmap/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/developer/roadmap/"/>
+    </url>
+    <url>
+        <loc>Nonedeveloper/services/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonedeveloper/services/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/developer/services/"/>
+    </url>
+    <url>
+        <loc>Nonehardware/ads-b/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehardware/ads-b/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/hardware/ads-b/"/>
+    </url>
+    <url>
+        <loc>Nonehardware/gps/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehardware/gps/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/hardware/gps/"/>
+    </url>
+    <url>
+        <loc>Nonehardware/meshtastic/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehardware/meshtastic/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/hardware/meshtastic/"/>
+    </url>
+    <url>
+        <loc>Nonehardware/networking/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehardware/networking/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/hardware/networking/"/>
+    </url>
+    <url>
+        <loc>Nonehardware/overview/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehardware/overview/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/hardware/overview/"/>
+    </url>
+    <url>
+        <loc>Nonehardware/power/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehardware/power/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/hardware/power/"/>
+    </url>
+    <url>
+        <loc>Nonehardware/raspberry-pi/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehardware/raspberry-pi/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/hardware/raspberry-pi/"/>
+    </url>
+    <url>
+        <loc>Nonehardware/remote-id/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehardware/remote-id/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/hardware/remote-id/"/>
+    </url>
+    <url>
+        <loc>Nonemaintenance/backup/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonemaintenance/backup/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/maintenance/backup/"/>
+    </url>
+    <url>
+        <loc>Nonemaintenance/diagnostics/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonemaintenance/diagnostics/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/maintenance/diagnostics/"/>
+    </url>
+    <url>
+        <loc>Nonemaintenance/logs/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonemaintenance/logs/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/maintenance/logs/"/>
+    </url>
+    <url>
+        <loc>Nonemaintenance/restore/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonemaintenance/restore/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/maintenance/restore/"/>
+    </url>
+    <url>
+        <loc>Nonemaintenance/update/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonemaintenance/update/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/maintenance/update/"/>
+    </url>
+    <url>
+        <loc>Noneuser/dashboard/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneuser/dashboard/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/user/dashboard/"/>
+    </url>
+    <url>
+        <loc>Noneuser/faq/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneuser/faq/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/user/faq/"/>
+    </url>
+    <url>
+        <loc>Noneuser/first-start/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneuser/first-start/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/user/first-start/"/>
+    </url>
+    <url>
+        <loc>Noneuser/installation/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneuser/installation/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/user/installation/"/>
+    </url>
+    <url>
+        <loc>Noneuser/maps/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneuser/maps/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/user/maps/"/>
+    </url>
+    <url>
+        <loc>Noneuser/mission-planning/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneuser/mission-planning/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/user/mission-planning/"/>
+    </url>
+    <url>
+        <loc>Noneuser/settings/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneuser/settings/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/user/settings/"/>
+    </url>
+    <url>
+        <loc>Noneuser/teams/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneuser/teams/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/user/teams/"/>
+    </url>
+    <url>
+        <loc>Noneuser/traffic-monitoring/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneuser/traffic-monitoring/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/user/traffic-monitoring/"/>
+    </url>
+    <url>
+        <loc>Noneuser/troubleshooting/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneuser/troubleshooting/"/>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/user/troubleshooting/"/>
+    </url>
+    <url>
+        <loc>Noneit/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="None"/>
+    </url>
+    <url>
+        <loc>Noneit/glossary/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/glossary/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneglossary/"/>
+    </url>
+    <url>
+        <loc>Noneit/product-overview/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/product-overview/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneproduct-overview/"/>
+    </url>
+    <url>
+        <loc>Noneit/product-vision/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/product-vision/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneproduct-vision/"/>
+    </url>
+    <url>
+        <loc>Noneit/release-notes/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/release-notes/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonerelease-notes/"/>
+    </url>
+    <url>
+        <loc>Noneit/developer/api/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/developer/api/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonedeveloper/api/"/>
+    </url>
+    <url>
+        <loc>Noneit/developer/architecture/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/developer/architecture/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonedeveloper/architecture/"/>
+    </url>
+    <url>
+        <loc>Noneit/developer/backend/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/developer/backend/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonedeveloper/backend/"/>
+    </url>
+    <url>
+        <loc>Noneit/developer/coding-guidelines/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/developer/coding-guidelines/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonedeveloper/coding-guidelines/"/>
+    </url>
+    <url>
+        <loc>Noneit/developer/frontend/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/developer/frontend/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonedeveloper/frontend/"/>
+    </url>
+    <url>
+        <loc>Noneit/developer/mission-storage/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/developer/mission-storage/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonedeveloper/mission-storage/"/>
+    </url>
+    <url>
+        <loc>Noneit/developer/repository/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/developer/repository/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonedeveloper/repository/"/>
+    </url>
+    <url>
+        <loc>Noneit/developer/roadmap/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/developer/roadmap/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonedeveloper/roadmap/"/>
+    </url>
+    <url>
+        <loc>Noneit/developer/services/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/developer/services/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonedeveloper/services/"/>
+    </url>
+    <url>
+        <loc>Noneit/hardware/ads-b/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/hardware/ads-b/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehardware/ads-b/"/>
+    </url>
+    <url>
+        <loc>Noneit/hardware/gps/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/hardware/gps/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehardware/gps/"/>
+    </url>
+    <url>
+        <loc>Noneit/hardware/meshtastic/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/hardware/meshtastic/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehardware/meshtastic/"/>
+    </url>
+    <url>
+        <loc>Noneit/hardware/networking/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/hardware/networking/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehardware/networking/"/>
+    </url>
+    <url>
+        <loc>Noneit/hardware/overview/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/hardware/overview/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehardware/overview/"/>
+    </url>
+    <url>
+        <loc>Noneit/hardware/power/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/hardware/power/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehardware/power/"/>
+    </url>
+    <url>
+        <loc>Noneit/hardware/raspberry-pi/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/hardware/raspberry-pi/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehardware/raspberry-pi/"/>
+    </url>
+    <url>
+        <loc>Noneit/hardware/remote-id/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/hardware/remote-id/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehardware/remote-id/"/>
+    </url>
+    <url>
+        <loc>Noneit/maintenance/backup/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/maintenance/backup/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonemaintenance/backup/"/>
+    </url>
+    <url>
+        <loc>Noneit/maintenance/diagnostics/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/maintenance/diagnostics/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonemaintenance/diagnostics/"/>
+    </url>
+    <url>
+        <loc>Noneit/maintenance/logs/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/maintenance/logs/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonemaintenance/logs/"/>
+    </url>
+    <url>
+        <loc>Noneit/maintenance/restore/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/maintenance/restore/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonemaintenance/restore/"/>
+    </url>
+    <url>
+        <loc>Noneit/maintenance/update/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/maintenance/update/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonemaintenance/update/"/>
+    </url>
+    <url>
+        <loc>Noneit/user/dashboard/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/user/dashboard/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneuser/dashboard/"/>
+    </url>
+    <url>
+        <loc>Noneit/user/faq/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/user/faq/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneuser/faq/"/>
+    </url>
+    <url>
+        <loc>Noneit/user/first-start/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/user/first-start/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneuser/first-start/"/>
+    </url>
+    <url>
+        <loc>Noneit/user/installation/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/user/installation/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneuser/installation/"/>
+    </url>
+    <url>
+        <loc>Noneit/user/maps/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/user/maps/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneuser/maps/"/>
+    </url>
+    <url>
+        <loc>Noneit/user/mission-planning/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/user/mission-planning/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneuser/mission-planning/"/>
+    </url>
+    <url>
+        <loc>Noneit/user/settings/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/user/settings/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneuser/settings/"/>
+    </url>
+    <url>
+        <loc>Noneit/user/teams/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/user/teams/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneuser/teams/"/>
+    </url>
+    <url>
+        <loc>Noneit/user/traffic-monitoring/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/user/traffic-monitoring/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneuser/traffic-monitoring/"/>
+    </url>
+    <url>
+        <loc>Noneit/user/troubleshooting/</loc>
+        <lastmod>2026-08-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="it" href="Noneit/user/troubleshooting/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneuser/troubleshooting/"/>
+    </url>
 </urlset>
