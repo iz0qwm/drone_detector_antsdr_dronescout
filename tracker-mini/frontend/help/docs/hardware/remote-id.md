@@ -90,7 +90,7 @@ Remote ID is integrated into the Dashboard traffic view.
 
 The Dashboard can display Remote ID drones as map markers. Selecting a drone marker presents the available details for that object, including model, vendor, serial number and source where available.
 
-When Remote ID packets are no longer received for a detected drone, the Dashboard marks the track as stale, fades the marker and removes it after the retention window expires. This prevents old Remote ID tracks from remaining on the operational map indefinitely.
+When Remote ID packets are no longer received for a detected drone, the Dashboard marks the track as stale, fades the marker and removes it after the configured retention window expires. This prevents old Remote ID tracks from remaining on the operational map indefinitely while allowing slower-transmitting devices to remain visible long enough for field use.
 
 The top status bar includes a RID indicator. The system status area also includes a Remote ID traffic source control labeled Remote ID (DS110).
 

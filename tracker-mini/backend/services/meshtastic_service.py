@@ -33,6 +33,19 @@ def now_iso():
     return datetime.now(timezone.utc).isoformat()
 
 
+def last_heard_iso(last_heard):
+    if last_heard is None:
+        return None
+
+    try:
+        return datetime.fromtimestamp(
+            float(last_heard),
+            tz=timezone.utc
+        ).isoformat()
+    except Exception:
+        return None
+
+
 def decode_position(position):
     if not position:
         return None, None, None
@@ -64,6 +77,12 @@ def update_node_from_meshtastic(node_id, node):
     hop_limit = node.get("hopLimit")
     via_mqtt = node.get("viaMqtt")
 
+    seen_at = (
+        last_heard_iso(last_heard)
+        or existing.get("last_seen")
+        or now_iso()
+    )
+
     existing.update({
         "id": node_id,
         "num": node.get("num"),
@@ -87,7 +106,7 @@ def update_node_from_meshtastic(node_id, node):
         "precisionBits": position.get("precisionBits"),
         "groundSpeed": position.get("groundSpeed"),
         "groundTrack": position.get("groundTrack"),
-        "last_seen": now_iso()
+        "last_seen": seen_at
     })
 
     meshtastic_nodes[node_id] = existing

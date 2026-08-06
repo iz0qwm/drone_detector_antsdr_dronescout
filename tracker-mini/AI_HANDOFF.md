@@ -611,6 +611,71 @@ DSC integration test support: Not present
 ## Active Work Record
 
 ```text
+Task: Remote ID and Meshtastic Marker Lifecycle Settings
+Feature: Traffic and team marker freshness
+Owner: Codex
+Working branch: main
+Starting commit: Pending due local repository safe-directory restriction
+Latest commit: Pending
+Push status: Pending
+Status: Local implementation complete, physical Mini Tracker validation pending
+Started: 2026-08-06
+Last updated: 2026-08-06
+
+Observed issue:
+  - Remote ID drone markers disappeared too quickly for DJI drones that transmit less frequently than Dronetag devices.
+  - Meshtastic operator markers did not use the same stale/fade/removal lifecycle as Remote ID drone markers.
+  - Meshtastic operator lastSeen was being updated by team refresh/binding rather than reflecting radio last seen timing.
+
+Files created:
+  tests/test_meshtastic_operator_freshness.py
+
+Files modified:
+  config/settings.json
+  backend/services/ds110.py
+  backend/services/meshtastic_service.py
+  backend/services/teams.py
+  frontend/js/drones/drone-layer.js
+  frontend/js/meshtastic/meshtastic-controller.js
+  frontend/js/meshtastic/meshtastic-layer.js
+  frontend/js/missions/mission-teams.js
+  tests/test_remoteid_stale.py
+  frontend/help/docs/developer/api.md
+  frontend/help/docs/hardware/remote-id.md
+  frontend/help/docs/hardware/meshtastic.md
+  frontend/help/docs/user/traffic-monitoring.md
+  frontend/help/docs/user/teams.md
+  frontend/help/docs/user/settings.md
+  AI_HANDOFF.md
+
+Implementation:
+  - Added Remote ID marker lifecycle settings under SETTINGS["remoteid"]: marker_stale_ms=45000 and marker_retention_ms=180000.
+  - DS110 Remote ID API freshness metadata now includes stale_ms and retention_ms for each returned drone.
+  - Remote ID frontend marker fade/removal now uses API-provided stale/retention values with conservative defaults matching settings.json.
+  - Added Meshtastic operator lifecycle settings under SETTINGS["meshtastic"]: operator_stale_ms=600000 and operator_retention_ms=1800000.
+  - Meshtastic node last_seen now derives from Meshtastic lastHeard when available, rather than being refreshed every polling cycle.
+  - /api/teams now annotates operators with updatedAt, age_ms, stale, expired, stale_ms and retention_ms, and includes operator_freshness settings.
+  - Meshtastic operator markers now fade to grayscale after stale_ms and disappear after retention_ms, using the same style pattern as Remote ID drone markers.
+  - Teams panel now displays radio last_seen when available.
+
+Tests/checks:
+  - Passed: bundled Python -m json.tool config/settings.json.
+  - Passed: bundled Python -m py_compile backend/services/ds110.py backend/services/meshtastic_service.py backend/services/teams.py tests/test_remoteid_stale.py tests/test_meshtastic_operator_freshness.py.
+  - Passed: node --check frontend/js/drones/drone-layer.js.
+  - Passed: node --check frontend/js/meshtastic/meshtastic-layer.js.
+  - Passed: node --check frontend/js/meshtastic/meshtastic-controller.js.
+  - Passed: node --check frontend/js/missions/mission-teams.js.
+  - Passed: frontend/help/docs image reference check.
+  - Passed: mkdocs build --strict --config-file frontend/help/mkdocs.yml using the project .venv after sandbox escalation.
+  - Passed: git diff --check -- .
+  - Not run: pytest tests/test_remoteid_stale.py tests/test_meshtastic_operator_freshness.py. Bundled Python does not have pytest installed; project .venv pytest remains unavailable in the sandbox due access denied.
+
+Known limitations:
+  - Local checks do not validate real DJI Remote ID transmission intervals or real Meshtastic radio timing.
+  - Raffaello must validate on the Mini Tracker hardware: DJI Remote ID marker fade/removal timing, Dronetag marker behavior, Meshtastic stationary-operator marker fade/removal, and operator last seen display.
+```
+
+```text
 Task: User Manual Image Integration and Missing Page Completion
 Feature: Mini Tracker documentation
 Owner: Codex

@@ -117,7 +117,7 @@ Remote ID availability depends on the receiver state and on drones transmitting 
 
 Mini Tracker also identifies some drone vendor and model information from received identifiers when available.
 
-When packets are no longer received for a Remote ID drone, the marker becomes stale, fades visually and is removed after the retention period. This helps prevent old drone positions from remaining on the map as if they were current.
+When packets are no longer received for a Remote ID drone, the marker becomes stale, fades visually and is removed after the configured retention period. This helps prevent old drone positions from remaining on the map as if they were current while still allowing for drones that transmit less frequently.
 
 ---
 
@@ -276,7 +276,7 @@ Recommended sequence:
 - The ADS-B Local control starts or stops the local receiver service on Mini Tracker.
 - Network ADS-B and OGN / FLARM information require Internet connectivity.
 - Remote ID visibility depends on receiver state, radio range and supported transmitted data.
-- Meshtastic visibility depends on gateway state, node availability and position data.
+- Meshtastic visibility depends on gateway state, node availability, last seen timing and position data.
 - Traffic visibility depends on the current map area.
 - Traffic objects may disappear from the view when data becomes stale or when the source is no longer available.
 - The Dashboard refreshes traffic information periodically.

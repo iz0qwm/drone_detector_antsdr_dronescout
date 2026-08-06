@@ -10,7 +10,8 @@ MESHTASTIC.refresh = async function() {
             await MESHTASTIC.fetchTeams();
 
         MESHTASTIC.updateOperatorsLayer(
-            data.operators || []
+            data.operators || [],
+            data.operator_freshness || {}
         );
 
     } catch(err) {

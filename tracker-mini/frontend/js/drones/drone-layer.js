@@ -1,8 +1,8 @@
 window.DRONES = window.DRONES || {};
 
 DRONES.markers = {};
-const DRONE_STALE_MS = 15000;
-const DRONE_RETENTION_MS = 75000;
+const DRONE_STALE_MS = 45000;
+const DRONE_RETENTION_MS = 180000;
 const DRONE_MIN_OPACITY = 0.25;
 
 
@@ -38,25 +38,41 @@ function getDroneAgeMs(drone) {
 
 
 function isDroneExpired(drone) {
-    return getDroneAgeMs(drone) > DRONE_RETENTION_MS;
+    const retentionMs =
+        Number.isFinite(drone.retention_ms)
+            ? drone.retention_ms
+            : DRONE_RETENTION_MS;
+
+    return getDroneAgeMs(drone) > retentionMs;
 }
 
 
 function computeDroneOpacity(drone) {
     const ageMs = getDroneAgeMs(drone);
+    const staleMs =
+        Number.isFinite(drone.stale_ms)
+            ? drone.stale_ms
+            : DRONE_STALE_MS;
+    const retentionMs =
+        Number.isFinite(drone.retention_ms)
+            ? drone.retention_ms
+            : DRONE_RETENTION_MS;
 
-    if (ageMs <= DRONE_STALE_MS) {
+    if (ageMs <= staleMs) {
         return 1;
     }
 
-    if (ageMs >= DRONE_RETENTION_MS) {
+    if (ageMs >= retentionMs) {
         return 0;
     }
 
     const fadeWindowMs =
-        DRONE_RETENTION_MS - DRONE_STALE_MS;
+        Math.max(
+            1,
+            retentionMs - staleMs
+        );
     const remainingMs =
-        DRONE_RETENTION_MS - ageMs;
+        retentionMs - ageMs;
     const ratio =
         remainingMs / fadeWindowMs;
 
@@ -73,9 +89,13 @@ function applyDroneMarkerStyle(marker, drone) {
     }
 
     const opacity = computeDroneOpacity(drone);
+    const staleMs =
+        Number.isFinite(drone.stale_ms)
+            ? drone.stale_ms
+            : DRONE_STALE_MS;
     const stale =
         drone.stale === true ||
-        getDroneAgeMs(drone) > DRONE_STALE_MS;
+        getDroneAgeMs(drone) > staleMs;
 
     el.style.opacity = opacity.toString();
     el.style.filter = stale ? "grayscale(1)" : "none";

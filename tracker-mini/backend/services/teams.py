@@ -1,9 +1,13 @@
-from datetime import datetime
+import time
+from datetime import datetime, timezone
 from services import meshtastic_service
 import json
 from pathlib import Path
 
-from config import BASE_DIR
+from config import BASE_DIR, SETTINGS
+
+MESHTASTIC_OPERATOR_STALE_MS = 600000
+MESHTASTIC_OPERATOR_RETENTION_MS = 1800000
 
 def node_name(node):
 
@@ -154,6 +158,92 @@ def normalize_node(node):
     }
 
 
+def _operator_stale_ms():
+
+    return (
+        SETTINGS
+        .get("meshtastic", {})
+        .get(
+            "operator_stale_ms",
+            MESHTASTIC_OPERATOR_STALE_MS
+        )
+    )
+
+
+def _operator_retention_ms():
+
+    return (
+        SETTINGS
+        .get("meshtastic", {})
+        .get(
+            "operator_retention_ms",
+            MESHTASTIC_OPERATOR_RETENTION_MS
+        )
+    )
+
+
+def _last_seen_timestamp(item):
+
+    last_seen = item.get("last_seen")
+
+    if not last_seen:
+        return None
+
+    try:
+        dt = datetime.fromisoformat(
+            last_seen.replace("Z", "+00:00")
+        )
+
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+
+        return dt.timestamp()
+    except Exception:
+        return None
+
+
+def annotate_operator_freshness(operator, now=None):
+
+    now = now if now is not None else time.time()
+    copy = dict(operator)
+    seen_ts = _last_seen_timestamp(copy)
+    stale_ms = _operator_stale_ms()
+    retention_ms = _operator_retention_ms()
+
+    copy["stale_ms"] = stale_ms
+    copy["retention_ms"] = retention_ms
+
+    if seen_ts is None:
+        copy["updatedAt"] = None
+        copy["age_ms"] = None
+        copy["stale"] = False
+        copy["expired"] = False
+        return copy
+
+    age_ms = max(
+        0,
+        int((now - seen_ts) * 1000)
+    )
+
+    copy["updatedAt"] = int(seen_ts * 1000)
+    copy["age_ms"] = age_ms
+    copy["stale"] = age_ms > stale_ms
+    copy["expired"] = age_ms > retention_ms
+
+    return copy
+
+
+def is_operator_expired(operator, now=None):
+
+    return annotate_operator_freshness(
+        operator,
+        now
+    ).get(
+        "expired",
+        False
+    )
+
+
 def is_gateway_node(node, gateway):
 
     gateway_num = gateway.get(
@@ -228,6 +318,13 @@ def get_team_status():
 
             merged.update(normalized)
 
+            merged = annotate_operator_freshness(
+                merged
+            )
+
+            if merged.get("expired"):
+                continue
+
             operators.append(
                 merged
             )
@@ -243,6 +340,10 @@ def get_team_status():
         "gateway_node": gateway_node,
         "operators": operators,
         "external_nodes": external_nodes,
+        "operator_freshness": {
+            "stale_ms": _operator_stale_ms(),
+            "retention_ms": _operator_retention_ms()
+        },
         "messages": []
     }
 
@@ -279,16 +380,19 @@ def bind_operator_node(operator, node):
 
         node_id = node.get("nodeId")
 
-        now = datetime.utcnow().isoformat()
+        seen_at = (
+            node.get("last_seen")
+            or datetime.now(timezone.utc).isoformat()
+        )
 
         if op.get("nodeId") != node_id:
 
             op["nodeId"] = node_id
             changed = True
 
-        if op.get("lastSeen") != now:
+        if op.get("lastSeen") != seen_at:
 
-            op["lastSeen"] = now
+            op["lastSeen"] = seen_at
             changed = True
 
         break
@@ -306,10 +410,18 @@ def refresh_operator_status():
     if not team["operators"]:
         return
 
-    alive_nodes = {
-        node["id"]
-        for node in meshtastic_service.get_nodes()
-    }
+    alive_nodes = set()
+
+    for node in meshtastic_service.get_nodes():
+
+        normalized = normalize_node(node)
+
+        if is_operator_expired(normalized):
+            continue
+
+        alive_nodes.add(
+            node["id"]
+        )
 
     changed = False
 

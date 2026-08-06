@@ -566,7 +566,10 @@ Response fields:
 | `gateway_node` | Normalized gateway node if matched. |
 | `operators` | Configured operators merged with matching nodes. |
 | `external_nodes` | Meshtastic nodes not matched to configured operators. |
+| `operator_freshness` | Configured Meshtastic operator marker `stale_ms` and `retention_ms` values. |
 | `messages` | Current implementation returns an empty array. |
+
+Operator entries may include `last_seen`, `updatedAt`, `age_ms`, `stale`, `expired`, `stale_ms` and `retention_ms`. These fields support map marker fade and removal based on Meshtastic last seen timing.
 
 ### `GET /api/teams/config`
 
@@ -719,9 +722,9 @@ Object fields include `id`, `callsign`, `lat`, `lon`, `alt_m`, `heading`, `speed
 
 Returns Remote ID aircraft currently held in memory by the DS110 service and still inside the Remote ID retention window.
 
-Response format: array of aircraft objects. Fields may include `source`, `serial`, `vendor`, `model`, `id_type`, `ua_type`, `lat`, `lon`, `altitude`, `height`, `speed`, `heading`, `operator_lat`, `operator_lon`, `operator_altitude`, `operator_id`, `last_seen`, `updatedAt`, `age_ms` and `stale`.
+Response format: array of aircraft objects. Fields may include `source`, `serial`, `vendor`, `model`, `id_type`, `ua_type`, `lat`, `lon`, `altitude`, `height`, `speed`, `heading`, `operator_lat`, `operator_lon`, `operator_altitude`, `operator_id`, `last_seen`, `updatedAt`, `age_ms`, `stale`, `stale_ms` and `retention_ms`.
 
-`updatedAt` is the `last_seen` timestamp converted to epoch milliseconds. `age_ms` is the current age of the Remote ID track at response time. `stale` becomes true when the drone has exceeded the configured Remote ID freshness threshold, while the object remains available long enough for the frontend marker to fade before removal.
+`updatedAt` is the `last_seen` timestamp converted to epoch milliseconds. `age_ms` is the current age of the Remote ID track at response time. `stale` becomes true when the drone has exceeded the configured Remote ID freshness threshold, while the object remains available long enough for the frontend marker to fade before removal. Remote ID marker lifecycle timing is configured through `SETTINGS["remoteid"]["marker_stale_ms"]` and `SETTINGS["remoteid"]["marker_retention_ms"]`.
 
 ---
 

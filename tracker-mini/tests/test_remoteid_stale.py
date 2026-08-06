@@ -19,6 +19,10 @@ def _load_ds110(monkeypatch):
 
     config = types.ModuleType("config")
     config.SETTINGS = {
+        "remoteid": {
+            "marker_stale_ms": 45000,
+            "marker_retention_ms": 180000,
+        },
         "proximity": {
             "drone_stale_ms": 15000,
             "target_retention_ms": 60000,
@@ -55,7 +59,7 @@ def test_get_aircraft_marks_stale_remoteid_tracks(monkeypatch):
         "serial": "stale",
         "lat": 41.1,
         "lon": 12.1,
-        "last_seen": _iso_timestamp(now - 20),
+        "last_seen": _iso_timestamp(now - 50),
     }
 
     aircraft = {
@@ -67,7 +71,9 @@ def test_get_aircraft_marks_stale_remoteid_tracks(monkeypatch):
     assert aircraft["fresh"]["age_ms"] == 5000
     assert aircraft["fresh"]["updatedAt"] == int((now - 5) * 1000)
     assert aircraft["stale"]["stale"] is True
-    assert aircraft["stale"]["age_ms"] == 20000
+    assert aircraft["stale"]["age_ms"] == 50000
+    assert aircraft["stale"]["stale_ms"] == 45000
+    assert aircraft["stale"]["retention_ms"] == 180000
 
 
 def test_get_aircraft_removes_expired_remoteid_tracks(monkeypatch):
@@ -79,7 +85,7 @@ def test_get_aircraft_removes_expired_remoteid_tracks(monkeypatch):
         "serial": "expired",
         "lat": 41.0,
         "lon": 12.0,
-        "last_seen": _iso_timestamp(now - 80),
+        "last_seen": _iso_timestamp(now - 181),
     }
 
     assert ds110.get_aircraft() == []

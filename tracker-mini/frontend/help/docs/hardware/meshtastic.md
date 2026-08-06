@@ -100,6 +100,8 @@ Meshtastic contributes team position awareness to the Dashboard.
 
 When operator nodes provide valid position information, Mini Tracker can display operator markers on the map. Selecting a marker shows available information such as operator name, short name, node identifier, battery, signal information, last seen time and position.
 
+Operator markers use Meshtastic last seen timing to avoid keeping stale positions on the map indefinitely. The configured stale and retention windows are intentionally wider than Remote ID timing because Meshtastic nodes may transmit position updates infrequently when the operator is stationary.
+
 This allows the operator to understand where team members are located in relation to the mission area and other operational layers.
 
 ---

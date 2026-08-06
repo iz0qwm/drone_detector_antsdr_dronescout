@@ -53,6 +53,8 @@ The traffic source controls allow the operator to enable or disable supported so
 
 Some controls affect backend receiver services, while others affect Dashboard visualization. Hardware must still be connected and working for a source to provide live data.
 
+Marker lifecycle timing is configured in `settings.json`. Remote ID drone markers use `remoteid.marker_stale_ms` and `remoteid.marker_retention_ms`. Meshtastic operator markers use `meshtastic.operator_stale_ms` and `meshtastic.operator_retention_ms`.
+
 ---
 
 ## Hardware Status

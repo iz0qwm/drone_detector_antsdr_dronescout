@@ -27,9 +27,19 @@ DEBUG_DS110 = False
 last_heartbeat = 0
 REMOTEID_STALE_MS = 15000
 REMOTEID_RETENTION_GRACE_MS = 60000
+REMOTEID_MARKER_STALE_MS = 45000
+REMOTEID_MARKER_RETENTION_MS = 180000
 
 
 def _remoteid_stale_ms():
+    remoteid = SETTINGS.get("remoteid", {})
+
+    if "marker_stale_ms" in remoteid:
+        return remoteid.get(
+            "marker_stale_ms",
+            REMOTEID_MARKER_STALE_MS
+        )
+
     return (
         SETTINGS
         .get("proximity", {})
@@ -38,6 +48,14 @@ def _remoteid_stale_ms():
 
 
 def _remoteid_retention_ms():
+    remoteid = SETTINGS.get("remoteid", {})
+
+    if "marker_retention_ms" in remoteid:
+        return remoteid.get(
+            "marker_retention_ms",
+            REMOTEID_MARKER_RETENTION_MS
+        )
+
     return (
         _remoteid_stale_ms() +
         SETTINGS
@@ -80,6 +98,8 @@ def _annotate_freshness(aircraft, now=None):
     copy["updatedAt"] = int(seen_ts * 1000)
     copy["age_ms"] = age_ms
     copy["stale"] = age_ms > _remoteid_stale_ms()
+    copy["stale_ms"] = _remoteid_stale_ms()
+    copy["retention_ms"] = _remoteid_retention_ms()
     return copy
 
 

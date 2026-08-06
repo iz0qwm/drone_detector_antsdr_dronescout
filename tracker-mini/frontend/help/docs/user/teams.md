@@ -125,6 +125,8 @@ When a configured mission operator has position data, Mini Tracker can display t
 
 Selecting the operator marker shows the operator name, short name, node identifier, battery state, signal information and last seen time when these values are available.
 
+When an operator is no longer seen by the Meshtastic gateway, the marker becomes stale, fades visually and is removed after the configured retention period. The default retention period is intentionally long because Meshtastic position updates may be infrequent, especially when an operator is stationary.
+
 ![Operator On Map](../images/user/teams/teams_operatore_su_mappa.png)
 
 *Mission operator marker and details on the operational map.*
@@ -215,6 +217,7 @@ Mini Tracker sends the message only to configured operators that are currently o
 - Team configuration is scoped to the active mission.
 - Operator association depends on Meshtastic node short names.
 - Operators without current position data may still appear in the Teams panel but cannot be displayed as map markers.
+- Operator markers use Meshtastic last seen timing for stale and removal behavior.
 - Message delivery depends on Meshtastic gateway state, node availability and radio conditions.
 - Recent messages are stored in backend memory and are not persistent across backend restarts.
 - Incoming messages are recorded only while the Meshtastic service is running and receiving text-message packets.

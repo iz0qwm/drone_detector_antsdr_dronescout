@@ -62,9 +62,15 @@
 
 	"pulse_on_warning": true
   },
+  "remoteid": {
+	"marker_stale_ms": 45000,
+	"marker_retention_ms": 180000
+  },
   "meshtastic": {
 	"device": "/dev/serial/by-id/usb-Espressif_Systems_LilyGo_TBeam-S3-Core_48CA435BFC80-if00",
 	"node_id": "!435bfc80",
-	"node_name": "dsc-node02"
+	"node_name": "dsc-node02",
+	"operator_stale_ms": 600000,
+	"operator_retention_ms": 1800000
   }
 }

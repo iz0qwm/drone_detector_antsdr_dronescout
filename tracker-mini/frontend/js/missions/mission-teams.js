@@ -177,7 +177,7 @@ MISSION.teams.open = async function () {
                             <br>
 
                             Last Seen:
-                            ${op.lastSeen ?? "-"}
+                            ${op.last_seen || op.lastSeen || "-"}
 
                             <br><br>
 
