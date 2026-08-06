@@ -86,6 +86,22 @@ The selected map source is stored locally by the browser.
 
 ---
 
+## Map Trail Preferences
+
+The Maps panel includes local display controls for traffic and team movement trails.
+
+The operator can enable or disable trails and choose the displayed history window for:
+
+- ADS-B aircraft and helicopters
+- Remote ID drones
+- Meshtastic operators
+
+These settings are stored in the browser local storage. Changing them affects only the current browser or tablet display and does not change Mini Tracker receiver state, backend configuration or the data collected by the system.
+
+The **Clear Trails** action removes currently displayed trails from the map without disabling future trail rendering.
+
+---
+
 ## Automatic Map Selection
 
 Automatic mode is intended for normal operation.
@@ -287,7 +303,8 @@ Recommended sequence:
 - Offline maps remain available without Internet access when installed locally.
 - Map downloads require Internet access and a configured Thunderforest API key.
 - Download progress is tracked while the Mini Tracker backend process is running.
-- Browser-local settings are used for map source selection and dark map mode.
+- Browser-local settings are used for map source selection, dark map mode and map trail preferences.
 - Dark Map applies a darker visual overlay to the map and does not change the installed map data.
+- Map trail preferences affect visualization only and do not change traffic receiver operation.
 
 ---

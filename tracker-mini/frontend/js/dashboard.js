@@ -404,6 +404,160 @@ initTrafficSettings();
 migrateAdsbNetPreference();
 initMap();
 
+function applyAllMapTrailSettings() {
+
+    if (
+        window.AIR &&
+        AIR.applyTrailSettings
+    ) {
+        AIR.applyTrailSettings();
+    }
+
+    if (
+        window.DRONES &&
+        DRONES.applyTrailSettings
+    ) {
+        DRONES.applyTrailSettings(
+            window.airNodeMap
+        );
+    }
+
+    if (
+        window.MESHTASTIC &&
+        MESHTASTIC.applyOperatorTrailSettings
+    ) {
+        MESHTASTIC.applyOperatorTrailSettings(
+            window.airNodeMap
+        );
+    }
+
+}
+
+
+function clearAllMapTrails() {
+
+    if (
+        window.AIR &&
+        AIR.clearTrails
+    ) {
+        AIR.clearTrails();
+    }
+
+    if (
+        window.DRONES &&
+        DRONES.clearTrails
+    ) {
+        DRONES.clearTrails(
+            window.airNodeMap
+        );
+    }
+
+    if (
+        window.MESHTASTIC &&
+        MESHTASTIC.clearOperatorTrails
+    ) {
+        MESHTASTIC.clearOperatorTrails(
+            window.airNodeMap
+        );
+    }
+
+}
+
+
+function initTrailControl(config) {
+
+    if (!window.TRACK_HISTORY) {
+        return;
+    }
+
+    const checkbox =
+        document.getElementById(
+            config.checkboxId
+        );
+    const select =
+        document.getElementById(
+            config.selectId
+        );
+
+    if (!checkbox || !select) {
+        return;
+    }
+
+    const settings =
+        window.TRACK_HISTORY.getCategorySettings(
+            config.category
+        );
+
+    checkbox.checked =
+        settings.enabled;
+    select.value =
+        String(settings.maxAgeMs);
+
+    const save = () => {
+        const maxAgeMs =
+            Number(select.value);
+
+        window.TRACK_HISTORY.saveCategorySettings(
+            config.category,
+            {
+                enabled: checkbox.checked,
+                maxAgeMs
+            }
+        );
+
+        applyAllMapTrailSettings();
+    };
+
+    checkbox.addEventListener(
+        "change",
+        save
+    );
+    select.addEventListener(
+        "change",
+        save
+    );
+
+}
+
+
+function initMapTrailSettings() {
+
+    [
+        {
+            category: "air",
+            checkboxId: "airTrailsEnabled",
+            selectId: "airTrailDuration"
+        },
+        {
+            category: "drone",
+            checkboxId: "droneTrailsEnabled",
+            selectId: "droneTrailDuration"
+        },
+        {
+            category: "operator",
+            checkboxId: "operatorTrailsEnabled",
+            selectId: "operatorTrailDuration"
+        }
+    ].forEach(
+        initTrailControl
+    );
+
+    const clearButton =
+        document.getElementById(
+            "clearMapTrails"
+        );
+
+    if (clearButton) {
+        clearButton.addEventListener(
+            "click",
+            clearAllMapTrails
+        );
+    }
+
+    applyAllMapTrailSettings();
+
+}
+
 // Handle map source selection UI
 document.addEventListener(
     "DOMContentLoaded",
@@ -464,6 +618,8 @@ document.addEventListener(
             );
 
         }
+
+        initMapTrailSettings();
 
     }
 );

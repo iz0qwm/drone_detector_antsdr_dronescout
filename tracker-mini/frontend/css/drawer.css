@@ -130,6 +130,26 @@ button {
     margin-top: 10px;
 }
 
+.trail-settings-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 110px;
+    gap: 8px;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.trail-settings-row label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.trail-duration-select {
+    margin-top: 0;
+    padding: 8px;
+}
+
 
 .modal {
     display: none;

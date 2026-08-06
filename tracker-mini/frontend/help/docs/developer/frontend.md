@@ -77,6 +77,7 @@ Frontend logic is split by subsystem.
 | `drawer.js` | Drawer interactions, network settings, hardware status, logs, DSC settings, DS110 settings, system power actions and update modal opening. |
 | `maps_manager.js` | Map list, storage display, provider settings, download preview and download polling. |
 | `updater.js` | Update upload, verification, install request and current version display. |
+| `traffic/` | Shared frontend utilities for traffic movement history and map trail rendering. |
 | `air/` | ADS-B network/local polling and aircraft marker layer. |
 | `drones/` | Remote ID polling, drone marker layer, stale marker fade and popup details. |
 | `glider/` | OGN / FLARM polling, icons and marker layer. |
@@ -94,6 +95,7 @@ The current frontend uses global namespaces.
 | Global | Purpose |
 |----------|---------|
 | `window.airNodeMap` | Shared Leaflet map instance. |
+| `window.TRACK_HISTORY` | Shared movement-history helper used by traffic and team trail layers. |
 | `window.AIR` | ADS-B polling and marker behavior. |
 | `window.DRONES` | Remote ID polling, marker freshness behavior and popup details. |
 | `window.GLIDER` | OGN / FLARM start and stop facade. |
@@ -226,6 +228,8 @@ Traffic source controls in the System panel affect frontend display behavior and
 
 Remote ID markers are rendered from `/api/remoteid/aircraft`. When the backend marks a track as stale, the drone marker is faded and grayed on the map. Tracks that exceed the retention window are removed from the layer. Drone popups show available identification, source, altitude, height, speed, heading and last packet age.
 
+ADS-B aircraft, Remote ID drones and Meshtastic operators use the shared `traffic/track-history.js` helper for map trails. The helper stores timestamped points per object, samples movement by minimum distance, renders line segments with age-based opacity and removes expired segments. Aircraft trails use a short red window, drone trails use a longer blue dashed window, and operator trails use the longest green dotted window.
+
 ---
 
 ## Polling Model
@@ -256,8 +260,16 @@ Confirmed keys include:
 - `darkMapEnabled`
 - `adsbNetworkEnabled`
 - `ognNetworkEnabled`
+- `mapTrails.air.enabled`
+- `mapTrails.air.durationMs`
+- `mapTrails.drone.enabled`
+- `mapTrails.drone.durationMs`
+- `mapTrails.operator.enabled`
+- `mapTrails.operator.durationMs`
 
 These values are client-side preferences. They are separate from backend runtime configuration in `config/settings.json`.
+
+Map trail preferences are controlled from the Maps panel. They enable or disable trail rendering and select the local history window for ADS-B aircraft, Remote ID drones and Meshtastic operators. They affect only the current browser display.
 
 Local ADS-B service state is intentionally not listed as a browser-local preference. It is controlled through the backend readsb API and persisted in `SETTINGS["traffic"]["adsb_local_enabled"]`. Remote ID display follows the backend DS110 service state instead of a browser-local preference.
 

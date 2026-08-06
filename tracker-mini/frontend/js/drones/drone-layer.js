@@ -4,6 +4,78 @@ DRONES.markers = {};
 const DRONE_STALE_MS = 45000;
 const DRONE_RETENTION_MS = 180000;
 const DRONE_MIN_OPACITY = 0.25;
+const DRONE_TRAIL_MAX_AGE_MS = 45 * 60 * 1000;
+const DRONE_TRAIL_MAX_POINTS = 600;
+const DRONE_TRAIL_MIN_DISTANCE_M = 20;
+
+DRONES.trails =
+    window.TRACK_HISTORY
+        ? window.TRACK_HISTORY.create({
+            ...window.TRACK_HISTORY.getCategorySettings(
+                "drone"
+            ),
+            maxAgeMs:
+                window.TRACK_HISTORY.getCategorySettings(
+                    "drone"
+                ).maxAgeMs ||
+                DRONE_TRAIL_MAX_AGE_MS,
+            maxPoints: DRONE_TRAIL_MAX_POINTS,
+            minDistanceMeters: DRONE_TRAIL_MIN_DISTANCE_M,
+            color: "#2f80ed",
+            weight: 3,
+            minOpacity: 0.1,
+            dashArray: "8 7",
+            pane: "traffic-drone",
+            className: "drone-trail"
+        })
+        : null;
+
+
+DRONES.applyTrailSettings = function(map) {
+    if (!DRONES.trails || !window.TRACK_HISTORY) {
+        return;
+    }
+
+    const settings =
+        window.TRACK_HISTORY.getCategorySettings(
+            "drone"
+        );
+
+    DRONES.trails.configure(
+        settings
+    );
+
+    const targetMap =
+        map ||
+        window.airNodeMap;
+
+    if (!targetMap) {
+        return;
+    }
+
+    if (settings.enabled) {
+        DRONES.trails.prune(
+            targetMap
+        );
+    } else {
+        DRONES.trails.clear(
+            targetMap
+        );
+    }
+};
+
+
+DRONES.clearTrails = function(map) {
+    if (
+        DRONES.trails &&
+        (map || window.airNodeMap)
+    ) {
+        DRONES.trails.clear(
+            map ||
+            window.airNodeMap
+        );
+    }
+};
 
 
 function isValidDronePosition(drone) {
@@ -34,6 +106,47 @@ function getDroneAgeMs(drone) {
     }
 
     return Math.max(0, Date.now() - timestamp);
+}
+
+
+function getDroneTrackId(drone) {
+    return (
+        drone.serial ||
+        drone.id ||
+        drone.uas_id ||
+        drone.operator_id ||
+        [
+            drone.source || "drone",
+            drone.vendor || "-",
+            drone.model || "-",
+            Number(drone.lat).toFixed(5),
+            Number(drone.lon).toFixed(5)
+        ].join(":")
+    );
+}
+
+
+function getDronePositionTimestampMs(drone) {
+    if (Number.isFinite(drone.updatedAt)) {
+        return drone.updatedAt;
+    }
+
+    const lastSeen =
+        Date.parse(drone.last_seen);
+
+    if (Number.isFinite(lastSeen)) {
+        return lastSeen;
+    }
+
+    if (Number.isFinite(drone.age_ms)) {
+        return Date.now() -
+            Math.max(
+                0,
+                drone.age_ms
+            );
+    }
+
+    return Date.now();
 }
 
 
@@ -179,8 +292,9 @@ DRONES.updateDroneLayer = function (
         }
 
         const id =
-            drone.serial ||
-            crypto.randomUUID();
+            getDroneTrackId(
+                drone
+            );
 
         seen.add(id);
 
@@ -223,7 +337,25 @@ DRONES.updateDroneLayer = function (
             marker,
             drone
         );
+
+        if (DRONES.trails) {
+            DRONES.trails.update(
+                map,
+                id,
+                drone.lat,
+                drone.lon,
+                getDronePositionTimestampMs(
+                    drone
+                )
+            );
+        }
     });
+
+    if (DRONES.trails) {
+        DRONES.trails.prune(
+            map
+        );
+    }
 
     Object.keys(DRONES.markers)
         .forEach(id => {
@@ -254,4 +386,13 @@ function() {
     });
 
     DRONES.markers = {};
+
+    if (
+        DRONES.trails &&
+        window.airNodeMap
+    ) {
+        DRONES.clearTrails(
+            window.airNodeMap
+        );
+    }
 };

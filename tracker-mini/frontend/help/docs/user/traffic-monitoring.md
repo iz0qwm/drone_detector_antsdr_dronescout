@@ -119,6 +119,8 @@ Mini Tracker also identifies some drone vendor and model information from receiv
 
 When packets are no longer received for a Remote ID drone, the marker becomes stale, fades visually and is removed after the configured retention period. This helps prevent old drone positions from remaining on the map as if they were current while still allowing for drones that transmit less frequently.
 
+The Dashboard also keeps a longer blue dashed trail for Remote ID drones. This helps the operator understand recent drone movement patterns, including repeated passes, grid-like search coverage and perimeter checks.
+
 ---
 
 ### OGN / FLARM
@@ -153,6 +155,8 @@ Meshtastic operators are part of team awareness rather than air traffic. They ar
 
 Operator messaging is handled from the Teams workflow rather than from traffic map markers.
 
+Operator movement can also be shown as a green dotted trail. Operator trails use a longer time window than aircraft or drone trails because people move slowly and their path can help show which parts of a search area have already been covered.
+
 ---
 
 ## Traffic Visualization
@@ -174,6 +178,18 @@ flowchart TB
 ```
 
 Changing the map source affects only the geographic base map. Traffic and team overlays remain operationally separate and continue to contribute to the same operational picture.
+
+Traffic trails are drawn with different colors and line patterns to keep movement history distinguishable:
+
+| Object Type | Trail Style | Operational Use |
+|-------------|-------------|-----------------|
+| ADS-B aircraft and helicopters | Red short trail | Shows recent fast-moving aircraft direction without leaving old tracks on the map. |
+| Remote ID drones | Blue dashed trail | Shows recent drone search passes, perimeter movement and coverage patterns. |
+| Meshtastic operators | Green dotted trail | Shows slow team movement and areas already walked during field activity. |
+
+All trail types fade as they age and are removed automatically after their configured time window. Trails are sampled by movement distance so stationary or nearly stationary objects do not create dense stacks of repeated points.
+
+The displayed trail types and history windows can be changed from the Maps panel. These preferences are local to the browser display and do not change traffic receivers or backend data collection.
 
 ---
 

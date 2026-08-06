@@ -59,6 +59,7 @@ Raffaello remains responsible for:
 * pulling pushed repository changes;
 * installing the Mini Tracker software package through the System Update functionality;
 * testing the installed package manually on the physical Mini Tracker;
+* compiling documentation with MkDocs when documentation output must be regenerated;
 * validating operational behavior;
 * deciding when a feature is ready for operational use.
 
@@ -534,6 +535,12 @@ Never edit generated documentation under:
 frontend/help/site/
 ```
 
+Kiro and Codex must not compile the documentation with MkDocs as part of normal development or validation.
+
+Raffaello manually runs MkDocs and regenerates documentation output when needed.
+
+Do not request sandbox escalation only to run a MkDocs build. Documentation validation by AI agents should be limited to source inspection, link/image reference checks when useful, and `git diff --check`.
+
 Documentation must:
 
 * be written in English;
@@ -559,6 +566,7 @@ The following decisions are currently approved:
 * Raffaello synchronizes through a normal `git pull`.
 * Kiro must not attempt to install the software on the physical Mini Tracker.
 * Raffaello performs manual package installation and testing through the Mini Tracker System Update functionality.
+* Kiro and Codex must not compile documentation with MkDocs; Raffaello runs MkDocs manually when needed.
 * Pushed history must never be rewritten.
 * Major features must use separate Feature Specs.
 * Features will be developed sequentially.
@@ -623,6 +631,136 @@ DSC integration test support: Not present
 ---
 
 ## Active Work Record
+
+```text
+Task: Map Trail Display Preferences
+Feature: Browser-local map visualization controls
+Owner: Codex
+Working branch: main
+Starting commit: Pending due local repository safe-directory restriction
+Latest commit: Pending
+Push status: Pending
+Status: Local implementation complete, physical Mini Tracker validation pending
+Started: 2026-08-06
+Last updated: 2026-08-06
+
+Observed issue:
+  - Movement trail visibility and history duration needed operator-facing map controls.
+  - Trail settings should be local to the browser/tablet display rather than Mini Tracker backend configuration.
+
+Files modified:
+  frontend/index.html
+  frontend/css/drawer.css
+  frontend/js/dashboard.js
+  frontend/js/traffic/track-history.js
+  frontend/js/air/air-layer.js
+  frontend/js/drones/drone-layer.js
+  frontend/js/meshtastic/meshtastic-layer.js
+  frontend/help/docs/user/maps.md
+  frontend/help/docs/user/traffic-monitoring.md
+  frontend/help/docs/developer/frontend.md
+  AI_HANDOFF.md
+
+Implementation:
+  - Added a Map Trails card inside the Maps drawer panel.
+  - Added browser-local toggles and duration selectors for ADS-B, Remote ID drone and Meshtastic operator trails.
+  - Added a Clear Trails action that removes currently displayed trails without disabling future rendering.
+  - Stored preferences in localStorage using mapTrails.* keys.
+  - Updated the shared track-history helper and each traffic layer so trail settings apply immediately without backend changes.
+
+Tests/checks:
+  - Passed: node --check frontend/js/traffic/track-history.js.
+  - Passed: node --check frontend/js/air/air-layer.js.
+  - Passed: node --check frontend/js/drones/drone-layer.js.
+  - Passed: node --check frontend/js/meshtastic/meshtastic-layer.js.
+  - Passed: node --check frontend/js/dashboard.js.
+  - Passed: Node smoke test with mocked localStorage and Leaflet polyline/container behavior for trail enable, disable, duration persistence and clear.
+  - Passed: git diff --check -- .
+  - Not run: MkDocs build, by explicit Raffaello instruction.
+
+Known limitations:
+  - Browser visual behavior must be validated by Raffaello after installing the package through System Update on the Raspberry Pi Mini Tracker.
+  - Trail preferences are browser-local and do not synchronize across tablets or browsers.
+```
+
+```text
+Task: Documentation Build Responsibility Clarification
+Feature: Documentation workflow boundary
+Owner: Codex
+Working branch: main
+Starting commit: Pending due local repository safe-directory restriction
+Latest commit: Pending
+Push status: Pending
+Status: Handoff guidance updated
+Started: 2026-08-06
+Last updated: 2026-08-06
+
+Files modified:
+  AI_HANDOFF.md
+
+Implementation:
+  - Clarified that Kiro and Codex must not compile documentation with MkDocs during normal development or validation.
+  - Documented that Raffaello manually runs MkDocs and regenerates documentation output when needed.
+  - Updated documentation workflow guidance and current architectural decisions.
+
+Tests/checks:
+  - Passed: git diff --check -- AI_HANDOFF.md.
+  - Not run: MkDocs build, by explicit Raffaello instruction.
+
+Known limitations:
+  - Documentation output regeneration remains a manual Raffaello step.
+```
+
+```text
+Task: Traffic, Drone and Operator Trail Fade
+Feature: Movement history visualization
+Owner: Codex
+Working branch: main
+Starting commit: Pending due local repository safe-directory restriction
+Latest commit: Pending
+Push status: Pending
+Status: Local implementation complete, physical Mini Tracker validation pending
+Started: 2026-08-06
+Last updated: 2026-08-06
+
+Observed issue:
+  - ADS-B aircraft trails could remain impressed on the Dashboard map after aircraft and helicopters were no longer present.
+  - Remote ID drones and Meshtastic operators did not have category-specific movement trails to support search-pattern awareness.
+
+Files created:
+  frontend/js/traffic/track-history.js
+
+Files modified:
+  frontend/index.html
+  frontend/js/air/air-layer.js
+  frontend/js/drones/drone-layer.js
+  frontend/js/meshtastic/meshtastic-layer.js
+  frontend/help/docs/user/traffic-monitoring.md
+  frontend/help/docs/user/teams.md
+  frontend/help/docs/developer/frontend.md
+  frontend/help/docs/hardware/ads-b.md
+  frontend/help/docs/hardware/remote-id.md
+  frontend/help/docs/hardware/meshtastic.md
+  AI_HANDOFF.md
+
+Implementation:
+  - Added a shared frontend track-history helper that stores timestamped movement points, samples by movement distance, renders faded Leaflet trail segments and removes expired segments.
+  - Replaced the old ADS-B trail implementation with the shared helper, fixing stale segment cleanup and keeping aircraft trails short.
+  - Added blue dashed Remote ID drone trails with a longer retention window for search-pass and perimeter movement awareness.
+  - Added green dotted Meshtastic operator trails with the longest retention window for slow team movement and search coverage awareness.
+  - Trails are cleared when their source layer is stopped and otherwise fade/remove independently from marker lifecycle.
+
+Tests/checks:
+  - Passed: node --check frontend/js/traffic/track-history.js.
+  - Passed: node --check frontend/js/air/air-layer.js.
+  - Passed: node --check frontend/js/drones/drone-layer.js.
+  - Passed: node --check frontend/js/meshtastic/meshtastic-layer.js.
+  - Passed: Node smoke test with mocked Leaflet polyline/container behavior for update and clear cleanup.
+
+Known limitations:
+  - Browser visual behavior must be validated by Raffaello after installing the package through System Update on the Raspberry Pi Mini Tracker.
+  - Local checks do not validate real ADS-B, Remote ID or Meshtastic timing on hardware.
+```
 
 ```text
 Task: Installation Responsibility Clarification

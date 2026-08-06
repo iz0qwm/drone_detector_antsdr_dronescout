@@ -2,8 +2,6 @@
 
 window.AIR = window.AIR || {};
 const AIRCRAFT_TTL_MS = 30000; // 30 secondi
-const MAX_TRAIL_POINTS = 10;
-const trailsByIcao = new Map();
 const MAX_MISSES = 2;
 const STALE_GRACE_MS = 60000; // 60 secondi (radar-style)
 const MAX_ALT_DEFAULT = 1000;
@@ -11,6 +9,26 @@ const MIN_AIRCRAFT_SPEED_MS = 5 / 3.6; // 5 km/h → m/s
 const FADE_WINDOW_MS = 10000; // ultimi 10 secondi
 const MOVE_THRESHOLD = 0.00002; // ~10 metri
 const HEADING_THRESHOLD = 2;   // gradi
+const AIR_TRAIL_MAX_AGE_MS = 90000;
+const AIR_TRAIL_MAX_POINTS = 16;
+const AIR_TRAIL_MIN_DISTANCE_M = 25;
+
+const airTrails =
+  window.TRACK_HISTORY
+    ? window.TRACK_HISTORY.create({
+        ...window.TRACK_HISTORY.getCategorySettings("air"),
+        maxAgeMs:
+          window.TRACK_HISTORY.getCategorySettings("air").maxAgeMs ||
+          AIR_TRAIL_MAX_AGE_MS,
+        maxPoints: AIR_TRAIL_MAX_POINTS,
+        minDistanceMeters: AIR_TRAIL_MIN_DISTANCE_M,
+        color: "#ff3b30",
+        weight: 3,
+        minOpacity: 0.1,
+        pane: "traffic-air",
+        className: "aircraft-trail"
+      })
+    : null;
 
 let airLayer = null;
 const markersByIcao = new Map();
@@ -39,8 +57,36 @@ AIR.createAirLayer = function (map) {
 
 AIR.clearAirLayer = function () {
   if (!airLayer) return;
+  if (airTrails) {
+    airTrails.clear(airLayer);
+  }
   airLayer.clearLayers();
   markersByIcao.clear();
+};
+
+AIR.applyTrailSettings = function () {
+  if (!airTrails || !window.TRACK_HISTORY) return;
+
+  const settings =
+    window.TRACK_HISTORY.getCategorySettings(
+      "air"
+    );
+
+  airTrails.configure(settings);
+
+  if (!airLayer) return;
+
+  if (settings.enabled) {
+    airTrails.prune(airLayer);
+  } else {
+    airTrails.clear(airLayer);
+  }
+};
+
+AIR.clearTrails = function () {
+  if (airTrails && airLayer) {
+    airTrails.clear(airLayer);
+  }
 };
 
 AIR.updateAirLayer = function (aircraftList) {
@@ -106,56 +152,22 @@ AIR.updateAirLayer = function (aircraftList) {
             }
 
 
-        // ===== TRAIL (semplice stile drone) =====
-        let trail = trailsByIcao.get(ac.icao);
-        if (!trail) {
-          trail = {
-            points: [],
-            segments: []
-          };
-          trailsByIcao.set(ac.icao, trail);
+        if (airTrails) {
+          airTrails.update(
+            airLayer,
+            ac.icao,
+            ac.lat,
+            ac.lon,
+            ac.updatedAt
+          );
         }
-
-        const coords = [ac.lat, ac.lon];
-
-        // aggiungi sempre (come nel tuo sistema funzionante)
-        trail.points.push(coords);
-
-        if (trail.points.length > MAX_TRAIL_POINTS) {
-          trail.points.shift();
-        }
-
-        // rimuovi vecchi segmenti
-        trail.segments.forEach(seg => {
-          if (seg && seg.polyline) {
-            airLayer.removeLayer(seg.polyline);
-          }
-        });
-        trail.segments = [];
-
-        // ridisegna tutto con fade semplice
-        for (let i = 1; i < trail.points.length; i++) {
-          const opacity = i / trail.points.length;
-
-          const segment = L.polyline(
-            [trail.points[i - 1], trail.points[i]],
-            {
-              color: "#ff3b30",
-              weight: 3,
-              opacity: opacity * 1,
-              pane: 'traffic-air'
-            }
-          ).addTo(airLayer);
-
-          trail.segments.push(segment);
-        }
-        if (trail.points.length >= MAX_TRAIL_POINTS) {
-          trail.points.shift();
-        }
-        
 
     }
   });
+
+  if (airTrails) {
+    airTrails.prune(airLayer);
+  }
 
     // ===== RIMOZIONE COME FACEVI PRIMA =====
     for (const [icao, marker] of markersByIcao.entries()) {
@@ -172,15 +184,6 @@ AIR.updateAirLayer = function (aircraftList) {
               marker._stale = true;
               marker._staleSince = Date.now();
 
-              // 👇 RIMUOVI SUBITO IL TRAIL
-              const trail = trailsByIcao.get(icao);
-              if (trail) {
-                trail.segments.forEach(seg => {
-                  if (seg) airLayer.removeLayer(seg);
-                });
-                trailsByIcao.delete(icao);
-              }
-
               // effetto visivo marker
               const el = marker.getElement();
               if (el) {
@@ -196,13 +199,6 @@ AIR.updateAirLayer = function (aircraftList) {
                     airLayer.removeLayer(marker);
                     markersByIcao.delete(icao);
 
-                    const trail = trailsByIcao.get(icao);
-                    if (trail) {
-                      trail.segments.forEach(seg => {
-                        if (seg) airLayer.removeLayer(seg);
-                      });
-                      trailsByIcao.delete(icao);
-                    }
                 }
             }
 

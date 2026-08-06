@@ -92,6 +92,8 @@ The Dashboard can display Remote ID drones as map markers. Selecting a drone mar
 
 When Remote ID packets are no longer received for a detected drone, the Dashboard marks the track as stale, fades the marker and removes it after the configured retention window expires. This prevents old Remote ID tracks from remaining on the operational map indefinitely while allowing slower-transmitting devices to remain visible long enough for field use.
 
+The Dashboard can also draw a blue dashed trail for Remote ID drone movement. Drone trails use a longer window than aircraft trails so search passes, perimeter checks and repeated movement patterns remain visible long enough to support field awareness. Trail segments fade and are removed automatically as they age.
+
 The top status bar includes a RID indicator. The system status area also includes a Remote ID traffic source control labeled Remote ID (DS110).
 
 The hardware status view shows:
@@ -113,6 +115,7 @@ The current Dashboard supports the following Remote ID workflows:
 - Verify DS110 heartbeat activity
 - Display detected drone markers on the map
 - Fade and remove stale Remote ID markers when packets are no longer received
+- Display recent Remote ID drone movement as a fading dashed trail
 - Clear displayed Remote ID markers when the source is disabled
 
 Remote ID detections may also be sent to DSC services when synchronization is enabled and Internet connectivity is available.

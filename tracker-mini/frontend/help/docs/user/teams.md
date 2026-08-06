@@ -127,6 +127,8 @@ Selecting the operator marker shows the operator name, short name, node identifi
 
 When an operator is no longer seen by the Meshtastic gateway, the marker becomes stale, fades visually and is removed after the configured retention period. The default retention period is intentionally long because Meshtastic position updates may be infrequent, especially when an operator is stationary.
 
+The Dashboard can also display a green dotted trail for operator movement. This trail is retained longer than aircraft and drone trails because people move slowly. During search activities it helps the team understand which paths have already been walked and where coverage gaps may remain.
+
 ![Operator On Map](../images/user/teams/teams_operatore_su_mappa.png)
 
 *Mission operator marker and details on the operational map.*

@@ -102,6 +102,8 @@ When operator nodes provide valid position information, Mini Tracker can display
 
 Operator markers use Meshtastic last seen timing to avoid keeping stale positions on the map indefinitely. The configured stale and retention windows are intentionally wider than Remote ID timing because Meshtastic nodes may transmit position updates infrequently when the operator is stationary.
 
+Operator movement can be drawn as a green dotted trail. Operator trails use a longer history window and distance-based sampling because people move slowly and their path can be operationally useful during area search, recovery and field coordination tasks. Trail segments fade and are removed automatically as they age.
+
 This allows the operator to understand where team members are located in relation to the mission area and other operational layers.
 
 ---

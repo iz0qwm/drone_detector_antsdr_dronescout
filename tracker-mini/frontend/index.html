@@ -185,6 +185,69 @@
 
                 </div>
 
+                <div class="info-card" style="margin-top:10px;">
+
+                    <b>Map Trails</b><br><br>
+
+                    <div class="trail-settings-row">
+                        <label>
+                            <input
+                                type="checkbox"
+                                id="airTrailsEnabled">
+                            ADS-B
+                        </label>
+                        <select
+                            id="airTrailDuration"
+                            class="rounded-input trail-duration-select">
+                            <option value="30000">30 s</option>
+                            <option value="60000">1 min</option>
+                            <option value="90000">90 s</option>
+                            <option value="120000">2 min</option>
+                        </select>
+                    </div>
+
+                    <div class="trail-settings-row">
+                        <label>
+                            <input
+                                type="checkbox"
+                                id="droneTrailsEnabled">
+                            Drones
+                        </label>
+                        <select
+                            id="droneTrailDuration"
+                            class="rounded-input trail-duration-select">
+                            <option value="900000">15 min</option>
+                            <option value="1800000">30 min</option>
+                            <option value="2700000">45 min</option>
+                            <option value="3600000">1 h</option>
+                        </select>
+                    </div>
+
+                    <div class="trail-settings-row">
+                        <label>
+                            <input
+                                type="checkbox"
+                                id="operatorTrailsEnabled">
+                            Operators
+                        </label>
+                        <select
+                            id="operatorTrailDuration"
+                            class="rounded-input trail-duration-select">
+                            <option value="1800000">30 min</option>
+                            <option value="3600000">1 h</option>
+                            <option value="7200000">2 h</option>
+                            <option value="14400000">4 h</option>
+                        </select>
+                    </div>
+
+                    <button
+                        id="clearMapTrails"
+                        class="btn-maps">
+                        Clear Trails
+                    </button>
+
+                </div>
+
             </div>
 
         </div>
@@ -1258,6 +1321,7 @@
     <script src="js/missions/mission-controller.js"></script>
     <script src="js/missions.js"></script>
     <script src="js/drawer.js"></script>
+    <script src="js/traffic/track-history.js"></script>
     <script src="js/air/air-network.js"></script>
     <script src="js/air/air-layer.js"></script>
     <script src="js/air/air-controller.js"></script>

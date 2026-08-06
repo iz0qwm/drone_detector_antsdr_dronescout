@@ -4,6 +4,88 @@ MESHTASTIC.operatorMarkers = {};
 MESHTASTIC.OPERATOR_STALE_MS = 600000;
 MESHTASTIC.OPERATOR_RETENTION_MS = 1800000;
 MESHTASTIC.OPERATOR_MIN_OPACITY = 0.25;
+MESHTASTIC.OPERATOR_TRAIL_MAX_AGE_MS = 2 * 60 * 60 * 1000;
+MESHTASTIC.OPERATOR_TRAIL_MAX_POINTS = 720;
+MESHTASTIC.OPERATOR_TRAIL_MIN_DISTANCE_M = 10;
+
+MESHTASTIC.operatorTrails =
+    window.TRACK_HISTORY
+        ? window.TRACK_HISTORY.create({
+            ...window.TRACK_HISTORY.getCategorySettings(
+                "operator"
+            ),
+            maxAgeMs:
+                window.TRACK_HISTORY.getCategorySettings(
+                    "operator"
+                ).maxAgeMs ||
+                MESHTASTIC.OPERATOR_TRAIL_MAX_AGE_MS,
+            maxPoints: MESHTASTIC.OPERATOR_TRAIL_MAX_POINTS,
+            minDistanceMeters: MESHTASTIC.OPERATOR_TRAIL_MIN_DISTANCE_M,
+            color: "#2ecc71",
+            weight: 3,
+            minOpacity: 0.1,
+            dashArray: "2 9",
+            pane: "traffic-drone",
+            className: "operator-trail"
+        })
+        : null;
+
+
+MESHTASTIC.applyOperatorTrailSettings = function(map) {
+
+    if (
+        !MESHTASTIC.operatorTrails ||
+        !window.TRACK_HISTORY
+    ) {
+        return;
+    }
+
+    const settings =
+        window.TRACK_HISTORY.getCategorySettings(
+            "operator"
+        );
+
+    MESHTASTIC.operatorTrails.configure(
+        settings
+    );
+
+    const targetMap =
+        map ||
+        window.airNodeMap;
+
+    if (!targetMap) {
+        return;
+    }
+
+    if (settings.enabled) {
+        MESHTASTIC.operatorTrails.prune(
+            targetMap
+        );
+    } else {
+        MESHTASTIC.operatorTrails.clear(
+            targetMap
+        );
+    }
+
+};
+
+
+MESHTASTIC.clearOperatorTrails = function(map) {
+
+    const targetMap =
+        map ||
+        window.airNodeMap;
+
+    if (
+        MESHTASTIC.operatorTrails &&
+        targetMap
+    ) {
+        MESHTASTIC.operatorTrails.clear(
+            targetMap
+        );
+    }
+
+};
 
 MESHTASTIC.operatorIcon = L.icon({
     iconUrl: "icons/operator.png",
@@ -26,6 +108,15 @@ MESHTASTIC.clearOperators = function() {
     });
 
     MESHTASTIC.operatorMarkers = {};
+
+    if (
+        MESHTASTIC.operatorTrails &&
+        window.airNodeMap
+    ) {
+        MESHTASTIC.clearOperatorTrails(
+            window.airNodeMap
+        );
+    }
 
 };
 
@@ -53,6 +144,31 @@ function getOperatorAgeMs(op) {
         0,
         Date.now() - timestamp
     );
+
+}
+
+
+function getOperatorPositionTimestampMs(op) {
+
+    const lastSeen =
+        Date.parse(
+            op.last_seen ||
+            op.lastSeen
+        );
+
+    if (Number.isFinite(lastSeen)) {
+        return lastSeen;
+    }
+
+    if (Number.isFinite(op.age_ms)) {
+        return Date.now() -
+            Math.max(
+                0,
+                op.age_ms
+            );
+    }
+
+    return Date.now();
 
 }
 
@@ -228,6 +344,18 @@ MESHTASTIC.updateOperatorsLayer = function(operators, freshness = {}) {
                 freshness
             );
 
+            if (MESHTASTIC.operatorTrails) {
+                MESHTASTIC.operatorTrails.update(
+                    window.airNodeMap,
+                    markerId,
+                    op.lat,
+                    op.lon,
+                    getOperatorPositionTimestampMs(
+                        op
+                    )
+                );
+            }
+
             return;
         }
 
@@ -260,7 +388,25 @@ MESHTASTIC.updateOperatorsLayer = function(operators, freshness = {}) {
         MESHTASTIC.operatorMarkers[markerId] =
             marker;
 
+        if (MESHTASTIC.operatorTrails) {
+            MESHTASTIC.operatorTrails.update(
+                window.airNodeMap,
+                markerId,
+                op.lat,
+                op.lon,
+                getOperatorPositionTimestampMs(
+                    op
+                )
+            );
+        }
+
     });
+
+    if (MESHTASTIC.operatorTrails) {
+        MESHTASTIC.operatorTrails.prune(
+            window.airNodeMap
+        );
+    }
 
     Object.keys(
         MESHTASTIC.operatorMarkers

@@ -177,7 +177,7 @@ The current Dashboard implementation supports:
 - aircraft icons based on available category information
 - a helicopter icon for aircraft identified as helicopters
 - heading-based marker rotation
-- short aircraft trails
+- short red aircraft trails with age-based fade and automatic removal
 - popup details including callsign, ICAO identifier, source, altitude and speed
 - stale marker fading before removal
 
@@ -227,6 +227,7 @@ Operators and maintainers should consider:
 - non-helicopter aircraft above 1000 meters are hidden unless the high-altitude option is enabled
 - aircraft without usable position data are not displayed
 - stale aircraft can fade before being removed from the map
+- aircraft trails fade and expire separately so old paths do not remain impressed on the map after the aircraft is gone
 
 Local reception can be useful when Internet connectivity is unavailable, but it still depends on the receiver and decoder running correctly on the Mini Tracker node.
 
