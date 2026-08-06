@@ -3,10 +3,22 @@ site_description: Manuale del Mini Tracker
 
 theme:
   name: material
-  language: it
+  language: en
 
 docs_dir: docs
 site_dir: site
+
+plugins:
+  - i18n:
+      default_language: en
+      languages:
+        en:
+          name: English
+          build: true
+        it:
+          name: Italiano
+          build: true
+      fallback_to_default: true
 
 extra_javascript:
   - javascripts/mermaid.min.js
