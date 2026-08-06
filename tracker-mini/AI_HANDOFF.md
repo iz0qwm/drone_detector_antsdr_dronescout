@@ -1,6 +1,6 @@
 # Mini Tracker AI Development Status
 
-Last updated: 2026-08-04
+Last updated: 2026-08-06
 
 ## Purpose
 
@@ -50,13 +50,15 @@ Kiro may:
 * commit directly on the current branch;
 * push completed and tested work to the current remote branch;
 * connect to the physical Mini Tracker through the LAN;
-* deploy committed versions to the staging installation;
-* execute hardware validation.
+* inspect runtime state when explicitly authorized and required.
 
 Raffaello remains responsible for:
 
 * approving requirements and design decisions;
 * approving potentially destructive system operations;
+* pulling pushed repository changes;
+* installing the Mini Tracker software package through the System Update functionality;
+* testing the installed package manually on the physical Mini Tracker;
 * validating operational behavior;
 * deciding when a feature is ready for operational use.
 
@@ -325,6 +327,16 @@ A separate feature branch is not required. Kiro works directly on the current ch
 
 Raffaello retrieves completed work using a normal `git pull`.
 
+### Installation and validation boundary
+
+Kiro must not attempt to install the Mini Tracker software on the physical device.
+
+The software is installed and tested manually by Raffaello using the package installation flow exposed through the Mini Tracker System Update functionality.
+
+Kiro's delivery responsibility ends at pushing completed, locally checked work to the GitHub repository and recording clear validation notes in `AI_HANDOFF.md`.
+
+After Kiro pushes to GitHub, Raffaello pulls the repository changes, creates or uses the appropriate installation package, installs it through System Update, and performs the physical Mini Tracker validation.
+
 ### Git safety
 
 The following are strictly prohibited:
@@ -433,7 +445,7 @@ Before testing a staging version:
 
 Development-machine tests do not prove correct hardware operation.
 
-Application-level checks after development can only be validated by Raffaello after deploying the tested version to the Raspberry Pi Mini Tracker.
+Application-level checks after development can only be validated by Raffaello after installing the tested package on the Raspberry Pi Mini Tracker through System Update.
 
 Mocked tests must be reported as mocked tests.
 
@@ -496,7 +508,7 @@ Rollback is complete only when:
 * critical services report the expected state;
 * no new persistent error remains in the logs.
 
-The physical staging installation (`/home/pi/tracker-mini-staging`) may be used when safe and practical for hardware testing. It does not require a separate Git branch. A committed version from the current branch may be deployed to the staging installation.
+Kiro must not deploy code or install packages into the stable or staging physical Mini Tracker installation. If staging validation is needed, Raffaello performs the pull, package installation through System Update, and physical validation.
 
 ---
 
@@ -545,6 +557,8 @@ The following decisions are currently approved:
 * Work is divided through Feature Specs and focused commits.
 * Completed and tested work is pushed to the current remote branch.
 * Raffaello synchronizes through a normal `git pull`.
+* Kiro must not attempt to install the software on the physical Mini Tracker.
+* Raffaello performs manual package installation and testing through the Mini Tracker System Update functionality.
 * Pushed history must never be rewritten.
 * Major features must use separate Feature Specs.
 * Features will be developed sequentially.
@@ -602,13 +616,40 @@ DSC integration test support: Not present
 * Operational warnings must avoid creating a false impression of certification.
 * DSC operational areas must remain clearly distinct from official airspace data.
 * No automated tests exist — all validation is manual.
-* Post-development application controls can only be proven by Raffaello after deployment on the Raspberry Pi Mini Tracker.
+* Post-development application controls can only be proven by Raffaello after package installation through System Update on the Raspberry Pi Mini Tracker.
 * Application logs are in-memory only (lost on restart).
 * Flash storage is the single point of persistence (power loss risk).
 
 ---
 
 ## Active Work Record
+
+```text
+Task: Installation Responsibility Clarification
+Feature: Repository workflow and physical validation boundary
+Owner: Codex
+Working branch: main
+Starting commit: Pending due local repository safe-directory restriction
+Latest commit: Pending
+Push status: Pending
+Status: Handoff guidance updated
+Started: 2026-08-06
+Last updated: 2026-08-06
+
+Files modified:
+  AI_HANDOFF.md
+
+Implementation:
+  - Clarified that Kiro must not attempt to install the Mini Tracker software on the physical device.
+  - Documented that Raffaello pulls pushed repository changes, installs the package through System Update, and manually tests the installed package.
+  - Updated repository workflow, ownership, validation boundary, rollback/staging guidance, architectural decisions and known constraints to use the manual System Update installation workflow.
+
+Tests/checks:
+  - Not run: documentation-only handoff update.
+
+Known limitations:
+  - Git status could not be verified locally because the parent repository is blocked by Git safe-directory ownership protection for the sandbox user.
+```
 
 ```text
 Task: Remote ID and Meshtastic Marker Lifecycle Settings
