@@ -185,6 +185,55 @@
 
                 </div>
 
+            </div>
+
+        </div>
+
+        <!-- MAPS -->
+
+        <div class="drawer-group">
+
+            <button class="drawer-group-btn" data-target="mapsPanel">
+                🗺️ Maps
+                <span class="drawer-arrow">▶</span>
+            </button>
+
+            <div id="mapsPanel" class="drawer-group-panel">
+
+                <button id="openMapsManager"
+                    class="btn-maps">
+                    Download Manager
+                </button>
+
+                <div class="info-card" style="margin-top:10px;">
+
+                    <b>Map Source</b><br><br>
+
+                    <select
+                        id="mapSourceSelect"
+                        class="rounded-input">
+
+                        <option value="auto">Automatic</option>
+                        <option value="online_topo">Online Topo</option>
+                        <option value="offline">Offline Maps</option>
+
+                    </select>
+                    <br><br>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="darkMapEnabled">
+                        Dark Map
+                    </label>
+                    <div
+                        id="mapSourceStatus"
+                        style="margin-top:8px;font-size:13px;">
+                        Loading...
+                    </div>
+
+                </div>
+
                 <div class="info-card" style="margin-top:10px;">
 
                     <b>Map Trails</b><br><br>
@@ -245,55 +294,6 @@
                         class="btn-maps">
                         Clear Trails
                     </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- MAPS -->
-
-        <div class="drawer-group">
-
-            <button class="drawer-group-btn" data-target="mapsPanel">
-                🗺️ Maps
-                <span class="drawer-arrow">▶</span>
-            </button>
-
-            <div id="mapsPanel" class="drawer-group-panel">
-
-                <button id="openMapsManager"
-                    class="btn-maps">
-                    Download Manager
-                </button>
-
-                <div class="info-card" style="margin-top:10px;">
-
-                    <b>Map Source</b><br><br>
-
-                    <select
-                        id="mapSourceSelect"
-                        class="rounded-input">
-
-                        <option value="auto">Automatic</option>
-                        <option value="online_topo">Online Topo</option>
-                        <option value="offline">Offline Maps</option>
-
-                    </select>
-                    <br><br>
-
-                    <label>
-                        <input
-                            type="checkbox"
-                            id="darkMapEnabled">
-                        Dark Map
-                    </label>
-                    <div
-                        id="mapSourceStatus"
-                        style="margin-top:8px;font-size:13px;">
-                        Loading...
-                    </div>
 
                 </div>
 

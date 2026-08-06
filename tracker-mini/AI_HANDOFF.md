@@ -667,6 +667,7 @@ Implementation:
   - Added a Clear Trails action that removes currently displayed trails without disabling future rendering.
   - Stored preferences in localStorage using mapTrails.* keys.
   - Updated the shared track-history helper and each traffic layer so trail settings apply immediately without backend changes.
+  - Post-deploy correction: moved the Map Trails card from the preceding Network drawer group into the actual Maps drawer panel after Raffaello reported it was not visible in Maps.
 
 Tests/checks:
   - Passed: node --check frontend/js/traffic/track-history.js.
