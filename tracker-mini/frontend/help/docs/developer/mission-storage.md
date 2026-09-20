@@ -1,5 +1,7 @@
 # Mission Storage
 
+For the opt-in private DSC+ projection of saved areas, see [Field Operations synchronization](field-operation-sync.md).
+
 ### Part of the Mini Tracker Developer Documentation
 
 ---

@@ -35,6 +35,7 @@ from routes.logs import logs_bp
 from routes.update import update_bp
 from routes.dsc import dsc_bp
 from services.dsc_heartbeat import (start_dsc_heartbeat)
+from services.field_sender import start_field_sender
 from routes.air_local import air_local_bp
 from routes.teams import teams_bp
 from services.meshtastic_service import start as start_meshtastic
@@ -205,4 +206,6 @@ def help_files(path):
 
 
 if __name__ == "__main__":
+    # System Update imports app for verification; it must not start a second uploader.
+    start_field_sender()
     app.run(host="0.0.0.0", port=5000)
