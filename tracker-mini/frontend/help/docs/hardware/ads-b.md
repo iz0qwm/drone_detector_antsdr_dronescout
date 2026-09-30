@@ -79,6 +79,8 @@ The backend reads the local readsb output file and converts aircraft records int
 
 By default, non-helicopter aircraft above 1000 meters are filtered from the local traffic view. The Dashboard includes a **Show all aircraft over 1000m** option for operators who need to display higher aircraft.
 
+The opt-in private DSC+ Field Operations sender separately reads the same local readsb file for recent `adsb_icao` aircraft. It does not use the Dashboard API's read-time `updatedAt`: its aircraft position age comes from readsb `now - seen_pos`. It keeps ICAO identity, distinguishes geometric WGS84 from barometric altitude, and does not assume missing altitude is zero or terrain-relative. The private scene uses the standard non-helicopter 1000-metre altitude limit, shares its 32-target limit with Remote ID, and does not import network ADS-B. The normal local Dashboard and public DSC traffic paths are unchanged.
+
 ---
 
 ## readsb Integration

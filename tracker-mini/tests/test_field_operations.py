@@ -11,9 +11,9 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
-from services.field_scene import SceneCollector, normalize, normalize_rid_targets, default_collector, SERIAL
+from services.field_scene import SceneCollector, normalize, normalize_rid_targets, normalize_adsb_targets, default_collector, SERIAL
 from services.field_sender import FieldSender, start_field_sender
-from services import layer_storage, mission_storage
+from services import field_adsb, layer_storage, mission_storage
 
 
 def layer(shape="Polygon"):
@@ -104,6 +104,98 @@ class ProjectionTests(unittest.TestCase):
         target = self.collector.collect()["targets"][0]
         self.assertEqual(target["id"], "rid:dji:TEST1")
         self.assertEqual(target["sourceEpoch"], "dsc-node02_dji")
+
+    def test_local_adsb_coexists_with_rid_outside_area_and_preserves_motion(self):
+        sampled = 2000000000000
+        self.collector.now = lambda: sampled / 1000
+        self.collector.traffic = lambda: [{"source": "RemoteID", "serial": "TEST1", "lat": 42.0, "lon": 12.0,
+                                           "position_observed_at": "2033-05-18T03:33:20+00:00"}]
+        self.collector.air_traffic = lambda: {"now": sampled / 1000, "aircraft": [
+            {"hex": "Ab12Cd", "type": "adsb_icao", "flight": " EJU624Q  ", "lat": 41.0, "lon": 11.0,
+             "seen_pos": 1.0, "alt_geom": 1000, "alt_baro": 900, "gs": 100, "track": 124}]}
+        targets = self.collector.collect()["targets"]
+        self.assertEqual([target["id"] for target in targets], ["rid:remoteid:TEST1", "adsb:ab12cd"])
+        aircraft = targets[1]
+        self.assertEqual(aircraft["name"], "EJU624Q")
+        self.assertEqual(aircraft["observedAt"], sampled - 1000)
+        self.assertEqual(aircraft["altitude"], {"value": 304.8, "unit": "m", "reference": "WGS84_ELLIPSOID"})
+        self.assertAlmostEqual(aircraft["speedMps"], 51.4444)
+        self.assertEqual(aircraft["heading"], 124)
+        self.assertEqual(aircraft["source"], "ADSBRx")
+
+    def test_adsb_file_reread_never_renews_position_and_same_icao_recovers(self):
+        sampled = 2000000000000
+        self.collector.now = lambda: sampled / 1000
+        readsb = {"now": sampled / 1000, "aircraft": [
+            {"hex": "ABC123", "type": "adsb_icao", "lat": 42.0, "lon": 12.0, "seen_pos": 1, "alt_baro": 500}]}
+        self.collector.air_traffic = lambda: readsb
+        first = self.collector.collect()["targets"][0]
+        self.assertEqual(first["id"], "adsb:abc123")
+        self.assertEqual(first["name"], "ABC123")
+        self.assertEqual(first["altitude"], {"value": 152.4, "unit": "m", "reference": "BARO"})
+        self.collector.now = lambda: (sampled + 5000) / 1000
+        self.assertEqual(self.collector.collect()["targets"][0]["observedAt"], first["observedAt"])
+        readsb["now"] = (sampled + 5000) / 1000
+        readsb["aircraft"][0]["seen_pos"] = 6
+        self.assertEqual(self.collector.collect()["targets"][0]["observedAt"], first["observedAt"])
+        self.collector.now = lambda: (sampled + 11000) / 1000
+        self.assertEqual(self.collector.collect()["targets"], [])
+        readsb["now"] = (sampled + 11000) / 1000
+        readsb["aircraft"][0]["seen_pos"] = 0
+        self.assertEqual(self.collector.collect()["targets"][0]["id"], first["id"])
+
+    def test_adsb_altitude_unknown_zero_and_explicit_rotorcraft(self):
+        now = 2000000000000
+        base = {"type": "adsb_icao", "lat": 42.0, "lon": 12.0, "seen_pos": 0}
+        data = {"now": now / 1000, "aircraft": [
+            {**base, "hex": "000001", "alt_geom": 0, "alt_baro": 900},
+            {**base, "hex": "000002", "alt_geom": "bad", "alt_baro": 0},
+            {**base, "hex": "000003", "alt_baro": "ground"},
+            {**base, "hex": "000004", "category": "A7", "alt_baro": 4000},
+            {**base, "hex": "000005", "alt_baro": 4000},
+            {**base, "hex": "~000006", "alt_geom": 100}]}
+        targets = {target["id"]: target for target in normalize_adsb_targets(data, now)}
+        self.assertEqual(targets["adsb:000001"]["altitude"], {"value": 0, "unit": "m", "reference": "WGS84_ELLIPSOID"})
+        self.assertEqual(targets["adsb:000002"]["altitude"], {"value": 0, "unit": "m", "reference": "BARO"})
+        self.assertNotIn("altitude", targets["adsb:000003"])
+        self.assertEqual(targets["adsb:000004"]["targetClass"], "ROTORCRAFT")
+        self.assertNotIn("adsb:000005", targets)
+        self.assertNotIn("adsb:000006", targets)
+
+    def test_adsb_source_checks_and_combined_target_bound(self):
+        now = 2000000000000
+        data = {"now": now / 1000, "aircraft": [
+            {"hex": f"{index:06x}", "type": "adsb_icao", "lat": 42.0, "lon": 12.0,
+             "seen_pos": 1} for index in range(40)] + [
+            {"hex": "ffffff", "type": "mlat", "lat": 42.0, "lon": 12.0, "seen_pos": 0}]}
+        self.assertEqual(len(normalize_adsb_targets(data, now)), 32)
+        self.assertEqual(normalize_adsb_targets({"now": now / 1000, "aircraft": [
+            {"hex": "abc123", "type": "adsb_icao", "lat": 42.0, "lon": 12.0, "seen_pos": 11}]}, now), [])
+        self.assertEqual(normalize_adsb_targets({"now": None, "aircraft": data["aircraft"]}, now), [])
+        self.assertEqual(normalize_adsb_targets({"now": now / 1000 + 30, "aircraft": data["aircraft"]}, now), [])
+        for invalid in ({"lat": 91}, {"lon": 181}, {"lat": 0, "lon": 0}, {"seen_pos": -1},
+                        {"type": "mlat"}, {"type": "adsb_icao_nt"}):
+            item = {"hex": "abc123", "type": "adsb_icao", "lat": 42.0, "lon": 12.0, "seen_pos": 0, **invalid}
+            self.assertEqual(normalize_adsb_targets({"now": now / 1000, "aircraft": [item]}, now), [])
+        self.collector.now = lambda: now / 1000
+        self.collector.traffic = lambda: [{"source": "RemoteID", "serial": "TEST1", "lat": 42.0, "lon": 12.0,
+                                           "position_observed_at": "2033-05-18T03:33:20+00:00"}]
+        self.collector.air_traffic = lambda: data
+        combined = self.collector.collect()["targets"]
+        self.assertEqual(len(combined), 32)
+        self.assertEqual(combined[0]["id"], "rid:remoteid:TEST1")
+
+    def test_local_readsb_adapter_handles_file_and_missing_device(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "aircraft.json"
+            with patch.object(field_adsb, "READSB_JSON", str(path)):
+                self.assertEqual(field_adsb.read_local_readsb()["aircraft"], [])
+                path.write_text(json.dumps({"now": 2000000000, "aircraft": [{"hex": "abc123"}]}), encoding="utf-8")
+                self.assertEqual(field_adsb.read_local_readsb()["aircraft"][0]["hex"], "abc123")
+                path.write_text("{broken", encoding="utf-8")
+                self.assertEqual(field_adsb.read_local_readsb()["aircraft"], [])
+                path.write_bytes(b" " * (field_adsb.MAX_READSB_BYTES + 1))
+                self.assertEqual(field_adsb.read_local_readsb()["aircraft"], [])
 
     def test_rectangle(self):
         self.layers = [layer("Rectangle")]

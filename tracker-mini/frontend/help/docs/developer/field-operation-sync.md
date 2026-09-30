@@ -55,7 +55,7 @@ The write endpoint validates its Secret Manager bearer token, identity, schema a
 
 Firestore rules deny all direct client read/list/write access, including for approved viewers. The authenticated read callable checks ACTIVE DSC_PLUS and `workspaceSync` with the existing account access resolver, plus one of the two Product Owner supplied UIDs. It returns the decoded canonical projection. Invalid/expired memberships and unrelated users are rejected.
 
-The DSC LIVE scene consumes this projection. Tracker presence remains public LIVE/MANUAL. The private projection supplies real DS110 Remote ID targets; synthetic RID and aircraft belong only to explicit DEMO mode. Last-good private areas remain during transient read errors; access denial clears them. Logout, context/source change and map/card close stop their listeners, and late callbacks cannot restore an old context. Private geometry is not stored in browser persistent storage.
+The DSC LIVE scene consumes this projection. Tracker presence remains public LIVE/MANUAL. The private projection supplies real DS110 Remote ID and local readsb ADS-B targets; synthetic RID and aircraft belong only to explicit DEMO mode. Last-good private areas remain during transient read errors; access denial clears them. Logout, context/source change and map/card close stop their listeners, and late callbacks cannot restore an old context. Private geometry is not stored in browser persistent storage.
 
 ## Real Remote ID targets in the private LIVE scene
 
@@ -65,9 +65,17 @@ The DSC write endpoint validates the bounded target list and keeps it in the pri
 
 The OpenDroneID geographic altitude, when valid, is exported as metres with `reference: WGS84_ELLIPSOID`. The separate decoded `height` value is not exported as an AGL altitude because the current decoder does not preserve its height reference type; a zero height is not a known ground level. DSC 2D details and replay retain the WGS84 reference. The 3D view keeps its existing ground marker fallback when no terrain conversion is available; it must not display the WGS84 value as height above terrain. Recordings preserve target ID, provenance and observation time. The public RID ingestion and normal DSC map remain on their existing path, so an operator viewing public traffic and the private Field Operations overlay together may see two representations of one detection until a coordinated deduplication design is implemented.
 
+## Real local ADS-B aircraft in the private LIVE scene
+
+The collector also reads `/run/readsb/aircraft.json` directly. It accepts only current `adsb_icao` records with a six-digit hexadecimal ICAO, valid position, and readsb `now` and `seen_pos` fields. The canonical ID is `adsb:<lowercase-icao>`; the trimmed callsign is a label, with ICAO as fallback. The source is `ADSBRx`, distinct from network `ADSBNet`. Re-reading an unchanged file does not change `observedAt`: it is `(readsb now - aircraft seen_pos)` in UTC milliseconds. Positions older than 10 seconds or more than two seconds in the future are omitted. Missing, malformed or oversized readsb files yield no private ADS-B targets without stopping the area and RID sender.
+
+Valid `alt_geom` has precedence and is converted from feet to metres with `reference: WGS84_ELLIPSOID`. Otherwise a numeric `alt_baro` becomes metres with `reference: BARO`. Missing/invalid values and the string `ground` are not converted to zero altitude; numeric zero remains valid. Ground speed `gs` becomes `speedMps` from knots, and `track` becomes heading. Category `A7` is the only explicit rotorcraft classification; other aircraft remain generic. The private acquisition retains the local API's non-rotorcraft 1000-metre altitude filter and the shared 32-target/128-KiB bounds. No fixed 20 km Field Operations acquisition radius exists in the current implementation: the local map API uses viewport bounds and the separate proximity engine uses a 10 km relationship radius. The private collector does not use polygon containment or network ADS-B.
+
+RID and ADS-B share one `targets` array, authenticated upload, LIVE source lifecycle, 2D/3D renderer, Geoawareness core and recorder/replay. The LIVE composer removes old positions on its regular refresh even if Firestore retains the last good projection; recovery with the same ICAO reuses the same ID. Google 3D keeps the truthful unresolved-altitude ground marker fallback for LIVE aircraft, retaining the source altitude in details. The normal DSC aircraft map reads its separate `traffic_live` collection; its writer is not present in this Mini Tracker workspace. Both map layers may show one real aircraft if enabled together. `scene.team` remains separate for future Meshtastic work.
+
 ## Configuration and release prerequisites
 
-No device configuration or cloud secret has been created by this task. No deployment, commit/push or physical installation has been performed.
+The existing private sender configuration and cloud secret are reused. This ADS-B change has not been deployed, committed, pushed or physically installed by this task.
 
 | Setting | Placement / purpose |
 | --- | --- |
@@ -108,4 +116,4 @@ To stop only this private integration, set `enabled` false and restart the track
 
 Also verify both approved accounts, unrelated/expired account denial, logout cleanup, and restart recovery. These are physical/deployed acceptance steps, not results of local mocks or the emulator.
 
-The private LIVE scene now includes received DS110 RID positions for the existing 2D, 3D and recorder/replay paths. Bidirectional edits and Mission V3 integration are outside this slice. Physical DS110 reception, deployed cloud authorization and rendering on the actual Mini Tracker display still require device and deployment checks.
+The private LIVE scene now includes received DS110 RID positions and local readsb ADS-B aircraft for the existing 2D, 3D and recorder/replay paths. Bidirectional edits and Mission V3 integration are outside this slice. Physical ADS-B ingestion into the private scene, deployed cloud authorization and rendering on the actual Mini Tracker display still require device and deployment checks.

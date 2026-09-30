@@ -10,6 +10,10 @@ NODE_ID = "dsc-node02"
 MAX_BYTES = 128 * 1024
 MAX_RID_TARGETS = 32
 RID_POSITION_MAX_AGE_MS = 10000
+MAX_PRIVATE_TARGETS = 32
+ADSB_POSITION_MAX_AGE_MS = 10000
+FEET_TO_METERS = 0.3048
+KNOTS_TO_MPS = 0.514444
 
 
 def text(value, maximum):
@@ -144,9 +148,67 @@ def normalize_rid_targets(aircraft, sampled_at):
     return list(unique.values())[:MAX_RID_TARGETS]
 
 
+def normalize_adsb_targets(readsb, sampled_at, maximum=MAX_PRIVATE_TARGETS):
+    """Project local readsb positions using file time, never collector read time."""
+    if not isinstance(readsb, dict) or not number(readsb.get("now")) or not isinstance(readsb.get("aircraft"), list):
+        return []
+    file_at = readsb["now"] * 1000
+    if file_at <= 0 or file_at > sampled_at + 2000:
+        return []
+    targets = {}
+    for item in readsb["aircraft"]:
+        if not isinstance(item, dict) or item.get("type") != "adsb_icao":
+            continue
+        icao = item.get("hex")
+        if not isinstance(icao, str) or not re.fullmatch(r"[0-9a-fA-F]{6}", icao):
+            continue
+        icao = icao.lower()
+        lat, lon, seen_pos = item.get("lat"), item.get("lon"), item.get("seen_pos")
+        if not number(lat) or not number(lon) or abs(lat) > 90 or abs(lon) > 180 or (lat == 0 and lon == 0):
+            continue
+        if not number(seen_pos) or seen_pos < 0:
+            continue
+        observed_at = int(round(file_at - seen_pos * 1000))
+        if observed_at <= 0 or observed_at > sampled_at + 2000 or sampled_at - observed_at > ADSB_POSITION_MAX_AGE_MS:
+            continue
+        altitude = None
+        for field, reference in (("alt_geom", "WGS84_ELLIPSOID"), ("alt_baro", "BARO")):
+            feet = item.get(field)
+            if number(feet):
+                meters = feet * FEET_TO_METERS
+                if -1000 < meters <= 30000:
+                    altitude = {"value": meters, "unit": "m", "reference": reference}
+                    break
+        rotorcraft = item.get("category") == "A7"
+        if not rotorcraft and altitude is not None and altitude["value"] > 1000:
+            continue
+        callsign = item.get("flight")
+        name = re.sub(r"[\x00-\x1f\x7f]", "", callsign).strip() if isinstance(callsign, str) else ""
+        target = {"id": f"adsb:{icao}", "name": name[:200] or icao.upper(),
+                  "type": "AIRCRAFT", "origin": "LIVE", "source": "ADSBRx",
+                  "position": {"lat": lat, "lon": lon}, "observedAt": observed_at,
+                  "observedAtMs": observed_at, "receivedAtUtcMs": observed_at,
+                  "timeBasis": "UTC", "timestampQuality": "SOURCE",
+                  "sources": ["ADSBRx"], "positionSource": "MINI_TRACKER_ADSBRX",
+                  "sourceEpoch": f"{NODE_ID}_adsbrx"}
+        if altitude is not None:
+            target["altitude"] = altitude
+        heading = item.get("track")
+        if number(heading) and 0 <= heading <= 360:
+            target["heading"] = heading % 360
+        speed = item.get("gs")
+        if number(speed) and 0 <= speed <= 2000:
+            target["speedMps"] = speed * KNOTS_TO_MPS
+        if rotorcraft:
+            target["targetClass"] = "ROTORCRAFT"
+            target["classification"] = {"evidence": "READSB_CATEGORY_A7", "source": "ADSBRx", "confidence": "EXPLICIT"}
+        targets[target["id"]] = target
+    return sorted(targets.values(), key=lambda target: (-target["observedAt"], target["id"]))[:maximum]
+
+
 class SceneCollector:
-    def __init__(self, current, layers, selected, now=time.time, traffic=lambda: []):
-        self.current, self.layers, self.selected, self.now, self.traffic = current, layers, selected, now, traffic
+    def __init__(self, current, layers, selected, now=time.time, traffic=lambda: [], air_traffic=lambda: {}):
+        self.current, self.layers, self.selected, self.now, self.traffic, self.air_traffic = current, layers, selected, now, traffic, air_traffic
 
     def collect(self):
         base = {"schemaVersion": 1, "nodeId": NODE_ID, "serial": SERIAL,
@@ -165,7 +227,9 @@ class SceneCollector:
                 projection = normalize(mission, self.layers(selected))
             if self.selected() != selected:
                 raise ValueError("selection_changed")
-            projection["targets"] = normalize_rid_targets(self.traffic(), base["sampledAt"])
+            rid = normalize_rid_targets(self.traffic(), base["sampledAt"])
+            aircraft = normalize_adsb_targets(self.air_traffic(), base["sampledAt"], MAX_PRIVATE_TARGETS - len(rid))
+            projection["targets"] = rid + aircraft
             result = {**base, "status": "OK", **projection}
             if len(json.dumps(result, ensure_ascii=False).encode("utf-8")) > MAX_BYTES:
                 raise ValueError("snapshot_too_large")
@@ -200,4 +264,6 @@ def default_collector():
             return []  # Development host without the DS110 runtime dependency.
         return get_aircraft()
 
-    return SceneCollector(get_current_mission, read_layers, read_selection, traffic=read_traffic)
+    from services.field_adsb import read_local_readsb
+    return SceneCollector(get_current_mission, read_layers, read_selection,
+                          traffic=read_traffic, air_traffic=read_local_readsb)

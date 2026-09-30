@@ -694,6 +694,8 @@ Response fields: `success`, `aircraft`.
 
 Aircraft fields include `icao`, `callsign`, `lat`, `lon`, `altitude`, `speed`, `heading`, `category`, `isHelicopter`, `source` and `updatedAt`.
 
+This local map API assigns `updatedAt` when it reads the file and combines `alt_geom`/`alt_baro` into a display altitude. Those fields are not position time or altitude provenance for private Field Operations. The private ADS-B adapter instead reads readsb `now`, `seen_pos`, `alt_geom` and `alt_baro` directly from `/run/readsb/aircraft.json`. The public API contract is unchanged.
+
 ### `GET /api/air/network`
 
 Returns network ADS-B aircraft from external sources.
