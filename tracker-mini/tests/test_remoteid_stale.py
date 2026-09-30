@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 import importlib
 import sys
 import types
+import struct
 
 
 def _load_ds110(monkeypatch):
@@ -90,3 +91,38 @@ def test_get_aircraft_removes_expired_remoteid_tracks(monkeypatch):
 
     assert ds110.get_aircraft() == []
     assert "expired" not in ds110.remoteid_aircraft
+
+
+def test_only_valid_location_renews_private_position_observation(monkeypatch):
+    ds110 = _load_ds110(monkeypatch)
+    first = _iso_timestamp(1000000)
+    later = _iso_timestamp(1000005)
+    track = {}
+    ds110.merge_odid_aircraft(track, {"source": "RemoteID", "serial": "TEST123",
+                                     "lat": 42.0, "lon": 12.0, "last_seen": first})
+    assert track["position_observed_at"] == first
+    ds110.merge_odid_aircraft(track, {"source": "RemoteID", "serial": "TEST123",
+                                     "operator_id": "operator", "lat": None, "lon": None,
+                                     "last_seen": later})
+    assert track["last_seen"] == later
+    assert track["position_observed_at"] == first
+    ds110.merge_odid_aircraft(track, {"lat": 0.0, "lon": 0.0, "last_seen": later})
+    assert track["position_observed_at"] == first
+    ds110.merge_odid_aircraft(track, {"lat": 42.001, "lon": 12.001,
+                                     "last_seen": later})
+    assert track["position_observed_at"] == later
+
+
+def test_location_decodes_geometric_altitude_and_separate_zero_height(monkeypatch):
+    ds110 = _load_ds110(monkeypatch)
+    block = bytearray(25)
+    block[0] = 0x10  # OpenDroneID Location
+    block[5:9] = struct.pack("<i", 420000000)
+    block[9:13] = struct.pack("<i", 120000000)
+    block[15:17] = struct.pack("<H", 2236)  # (118 + 1000) * 2
+    block[17:19] = struct.pack("<H", 2000)  # (0 + 1000) * 2
+    decoded = ds110.decode_odid_pack(block, 1)
+    assert decoded["altitude"] == 118
+    assert decoded["height"] == 0
+    assert decoded["lat"] == 42
+    assert decoded["lon"] == 12

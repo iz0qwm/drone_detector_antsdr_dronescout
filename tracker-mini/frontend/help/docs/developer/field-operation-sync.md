@@ -1,4 +1,4 @@
-# Private Field Operations area synchronization
+# Private Field Operations scene synchronization
 
 MF-DEMO-3 projects saved Mini Tracker mission areas into DSC+ Field Operations. Mini Tracker remains the authority; remote views cannot edit or command it. MF-DEMO-1/2 UI is Product Owner accepted. The implementation requires backend deployment and device configuration before physical validation.
 
@@ -6,7 +6,7 @@ MF-DEMO-3 projects saved Mini Tracker mission areas into DSC+ Field Operations. 
 
 `backend/services/field_scene.py` reads `get_current_mission()` and `list_layers(mission_id)` in-process. The existing `/home/pi/tracker-mini/missions` storage is unchanged. Only saved layers are read; editing gestures and browser-local Show/Hide are not publication controls.
 
-User layers have no `properties.source`. Imported DSC zones and other layers/features with a source are excluded. Points without Circle metadata and line geometries are excluded. Unsupported/malformed operational geometry rejects the complete cycle and reports an error, preserving the remote last good projection. Selected mission metadata, layer names and optional six-digit hex colors are preserved. Descriptions, team members, traffic targets, credentials and operational altitudes are not exported.
+User layers have no `properties.source`. Imported DSC zones and other layers/features with a source are excluded. Points without Circle metadata and line geometries are excluded. Unsupported/malformed operational geometry rejects the complete cycle and reports an error, preserving the remote last good projection. Selected mission metadata, layer names and optional six-digit hex colors are preserved. Descriptions, team members, credentials and operational altitudes are not exported. The separately collected DS110 Remote ID positions described below are the only traffic targets in this private projection.
 
 ```javascript
 {
@@ -55,7 +55,15 @@ The write endpoint validates its Secret Manager bearer token, identity, schema a
 
 Firestore rules deny all direct client read/list/write access, including for approved viewers. The authenticated read callable checks ACTIVE DSC_PLUS and `workspaceSync` with the existing account access resolver, plus one of the two Product Owner supplied UIDs. It returns the decoded canonical projection. Invalid/expired memberships and unrelated users are rejected.
 
-The existing DSC map consumes this projection. Tracker presence remains public LIVE/MANUAL; RID and aircraft remain explicit DEMO. Explicit DEMO mode still uses all synthetic fixtures. Last-good private areas remain during transient read errors; access denial clears them. Logout, context/source change and map/card close stop their listeners, and late callbacks cannot restore an old context. Private geometry is not stored in browser persistent storage.
+The DSC LIVE scene consumes this projection. Tracker presence remains public LIVE/MANUAL. The private projection supplies real DS110 Remote ID targets; synthetic RID and aircraft belong only to explicit DEMO mode. Last-good private areas remain during transient read errors; access denial clears them. Logout, context/source change and map/card close stop their listeners, and late callbacks cannot restore an old context. Private geometry is not stored in browser persistent storage.
+
+## Real Remote ID targets in the private LIVE scene
+
+The collector reads the existing in-memory DS110 aircraft state and sends at most 32 valid `RemoteID` or `DJI DroneID` positions in the same authenticated snapshot as the areas. This does not depend on the selected mission or whether a saved area contains the aircraft. Each private target has a stable `rid:remoteid:<serial>` or `rid:dji:<serial>` ID, `type: RID`, `origin: LIVE`, `source: LOCAL_RX`, receiver provenance, position and the receiver's time of the last valid location message. Basic ID and other non-location messages do not refresh that position time. Coordinates with no usable location, missing observation time, positions older than 10 seconds, and positions more than 2 seconds in the future are omitted. The receiver may continue to retain an older object for its local map after its private position has expired.
+
+The DSC write endpoint validates the bounded target list and keeps it in the private last-good projection. The LIVE composer checks position age again and removes an expired RID on its one-second refresh, including during sender/network outages. A later valid location message restores the same ID. Area status and target freshness are separate: an old last-good area can remain marked STALE while an old RID disappears. A valid RID outside all saved areas remains a LIVE target; Geoawareness uses the existing horizontal area and UAS relationship calculations when suitable references exist. A lone RID with no area or other target has no relationship to calculate.
+
+The OpenDroneID geographic altitude, when valid, is exported as metres with `reference: WGS84_ELLIPSOID`. The separate decoded `height` value is not exported as an AGL altitude because the current decoder does not preserve its height reference type; a zero height is not a known ground level. DSC 2D details and replay retain the WGS84 reference. The 3D view keeps its existing ground marker fallback when no terrain conversion is available; it must not display the WGS84 value as height above terrain. Recordings preserve target ID, provenance and observation time. The public RID ingestion and normal DSC map remain on their existing path, so an operator viewing public traffic and the private Field Operations overlay together may see two representations of one detection until a coordinated deduplication design is implemented.
 
 ## Configuration and release prerequisites
 
@@ -100,4 +108,4 @@ To stop only this private integration, set `enabled` false and restart the track
 
 Also verify both approved accounts, unrelated/expired account denial, logout cleanup, and restart recovery. These are physical/deployed acceptance steps, not results of local mocks or the emulator.
 
-No live RF target transport, 3D, animation, recording/replay, bidirectional edits or Mission V3 integration is implemented in this slice.
+The private LIVE scene now includes received DS110 RID positions for the existing 2D, 3D and recorder/replay paths. Bidirectional edits and Mission V3 integration are outside this slice. Physical DS110 reception, deployed cloud authorization and rendering on the actual Mini Tracker display still require device and deployment checks.

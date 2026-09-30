@@ -726,6 +726,8 @@ Response format: array of aircraft objects. Fields may include `source`, `serial
 
 `updatedAt` is the `last_seen` timestamp converted to epoch milliseconds. `age_ms` is the current age of the Remote ID track at response time. `stale` becomes true when the drone has exceeded the configured Remote ID freshness threshold, while the object remains available long enough for the frontend marker to fade before removal. Remote ID marker lifecycle timing is configured through `SETTINGS["remoteid"]["marker_stale_ms"]` and `SETTINGS["remoteid"]["marker_retention_ms"]`.
 
+`position_observed_at`, when present, records the receiver time of the last valid location message. It is not renewed by Basic ID or other messages without a valid position. The private Field Operations sender uses this value to enforce its 10-second position freshness limit; `last_seen` and `updatedAt` continue to describe the local Remote ID track lifecycle.
+
 ---
 
 ## Hardware Control API

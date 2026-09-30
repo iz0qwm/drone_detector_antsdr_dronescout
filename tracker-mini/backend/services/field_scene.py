@@ -1,12 +1,15 @@
-"""Private, bounded projection of saved mission areas. No network or hardware."""
+"""Private, bounded projection of saved mission areas and received RID state."""
 import json
 import math
 import re
 import time
+from datetime import datetime, timezone
 
 SERIAL = "MTRK26-0001"
 NODE_ID = "dsc-node02"
 MAX_BYTES = 128 * 1024
+MAX_RID_TARGETS = 32
+RID_POSITION_MAX_AGE_MS = 10000
 
 
 def text(value, maximum):
@@ -98,9 +101,52 @@ def normalize(mission, layers):
     return {"operation": operation, "areas": areas}
 
 
+def normalize_rid_targets(aircraft, sampled_at):
+    """Project recent DS110 Location observations without area containment."""
+    targets = []
+    if not isinstance(aircraft, list):
+        raise ValueError("invalid_rid_state")
+    for item in aircraft:
+        if not isinstance(item, dict) or item.get("source") not in ("RemoteID", "DJI DroneID"):
+            continue
+        serial = item.get("serial")
+        if not isinstance(serial, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,80}", serial):
+            continue
+        lat, lon = item.get("lat"), item.get("lon")
+        if not number(lat) or not number(lon) or abs(lat) > 90 or abs(lon) > 180 or (lat == 0 and lon == 0):
+            continue
+        try:
+            observed = datetime.fromisoformat(item["position_observed_at"].replace("Z", "+00:00"))
+            if observed.tzinfo is None:
+                continue
+            observed_at = int(observed.astimezone(timezone.utc).timestamp() * 1000)
+        except (KeyError, AttributeError, TypeError, ValueError, OverflowError):
+            continue
+        if observed_at <= 0 or observed_at > sampled_at + 2000 or sampled_at - observed_at > RID_POSITION_MAX_AGE_MS:
+            continue
+        source_id = "remoteid" if item["source"] == "RemoteID" else "dji"
+        target = {"id": f"rid:{source_id}:{serial}", "name": f"Remote ID {serial}",
+                  "type": "RID", "origin": "LIVE", "source": "LOCAL_RX",
+                  "position": {"lat": lat, "lon": lon}, "observedAt": observed_at,
+                  "observedAtMs": observed_at, "receivedAtUtcMs": observed_at,
+                  "timeBasis": "UTC", "timestampQuality": "SOURCE",
+                  "sources": ["LOCAL_RX"], "positionSource": "MINI_TRACKER_RID",
+                  "sourceEpoch": f"{NODE_ID}_{source_id}"}
+        altitude = item.get("altitude")
+        if number(altitude) and -1000 < altitude <= 30000:
+            target["altitude"] = {"value": altitude, "unit": "m", "reference": "WGS84_ELLIPSOID"}
+        heading = item.get("heading")
+        if number(heading) and 0 <= heading <= 360:
+            target["heading"] = heading % 360
+        targets.append(target)
+    targets.sort(key=lambda target: target["id"])
+    unique = {target["id"]: target for target in targets}
+    return list(unique.values())[:MAX_RID_TARGETS]
+
+
 class SceneCollector:
-    def __init__(self, current, layers, selected, now=time.time):
-        self.current, self.layers, self.selected, self.now = current, layers, selected, now
+    def __init__(self, current, layers, selected, now=time.time, traffic=lambda: []):
+        self.current, self.layers, self.selected, self.now, self.traffic = current, layers, selected, now, traffic
 
     def collect(self):
         base = {"schemaVersion": 1, "nodeId": NODE_ID, "serial": SERIAL,
@@ -119,6 +165,7 @@ class SceneCollector:
                 projection = normalize(mission, self.layers(selected))
             if self.selected() != selected:
                 raise ValueError("selection_changed")
+            projection["targets"] = normalize_rid_targets(self.traffic(), base["sampledAt"])
             result = {**base, "status": "OK", **projection}
             if len(json.dumps(result, ensure_ascii=False).encode("utf-8")) > MAX_BYTES:
                 raise ValueError("snapshot_too_large")
@@ -144,4 +191,13 @@ def default_collector():
             raise ValueError("layers_unavailable")
         return list_layers(mission_id)
 
-    return SceneCollector(get_current_mission, read_layers, read_selection)
+    def read_traffic():
+        try:
+            from services.ds110 import get_aircraft
+        except ModuleNotFoundError as error:
+            if error.name != "pymavlink":
+                raise
+            return []  # Development host without the DS110 runtime dependency.
+        return get_aircraft()
+
+    return SceneCollector(get_current_mission, read_layers, read_selection, traffic=read_traffic)

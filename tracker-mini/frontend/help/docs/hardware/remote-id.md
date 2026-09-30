@@ -59,6 +59,8 @@ The implementation also handles supported DJI DroneID-derived data when availabl
 
 Mini Tracker may identify vendor and model information from received identifiers when the identifier format is recognized. Vendor or model information may be absent for some detections.
 
+Valid DS110 location messages also feed the opt-in private DSC+ Field Operations LIVE snapshot when that sender is enabled. A RID position is sent only while its location observation is at most 10 seconds old; identification-only messages cannot renew it. A valid OpenDroneID geographic altitude is WGS84 ellipsoid height. The separately decoded height is not assumed to be ground-relative because its reference type is not retained by the current decoder. This integration does not change the local receiver, dashboard or existing public DSC traffic feed.
+
 ---
 
 ## Drone Detection

@@ -11,7 +11,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
-from services.field_scene import SceneCollector, normalize, default_collector, SERIAL
+from services.field_scene import SceneCollector, normalize, normalize_rid_targets, default_collector, SERIAL
 from services.field_sender import FieldSender, start_field_sender
 from services import layer_storage, mission_storage
 
@@ -48,6 +48,62 @@ class ProjectionTests(unittest.TestCase):
         self.assertEqual(result["status"], "OK")
         self.assertIsNone(result["operation"])
         self.assertEqual(result["areas"], [])
+
+    def test_live_rid_outside_area_is_stable_and_geometric_altitude_is_preserved(self):
+        seen = "2033-05-18T03:33:20+00:00"
+        sampled = 2000000000000
+        aircraft = {"source": "RemoteID", "serial": "TEST1596A34", "lat": 41.0, "lon": 11.0,
+                    "position_observed_at": seen, "last_seen": seen,
+                    "altitude": 118, "height": 0, "heading": 65, "speed": 0}
+        self.collector.now = lambda: sampled / 1000
+        self.collector.traffic = lambda: [aircraft]
+        first = self.collector.collect()
+        self.assertEqual(first["status"], "OK")
+        self.assertEqual(len(first["targets"]), 1)
+        target = first["targets"][0]
+        self.assertEqual(target["id"], "rid:remoteid:TEST1596A34")
+        self.assertEqual(target["position"], {"lat": 41.0, "lon": 11.0})
+        self.assertEqual(target["altitude"], {"value": 118, "unit": "m", "reference": "WGS84_ELLIPSOID"})
+        self.assertNotIn("height", target)
+        self.assertEqual(self.collector.collect()["targets"][0]["id"], target["id"])
+        self.mission = None
+        self.assertEqual(self.collector.collect()["targets"][0]["id"], target["id"])
+
+    def test_private_rid_uses_position_time_not_generic_packet_age(self):
+        sampled = 2000000000000
+        self.collector.now = lambda: sampled / 1000
+        aircraft = {"source": "RemoteID", "serial": "TEST1", "lat": 42.0, "lon": 12.0,
+                    "position_observed_at": "2033-05-18T03:33:19+00:00",
+                    "last_seen": "2033-05-18T03:33:20+00:00", "altitude": -1000, "height": 0}
+        self.collector.traffic = lambda: [aircraft]
+        target = self.collector.collect()["targets"][0]
+        self.assertNotIn("altitude", target)
+        self.assertEqual(target["observedAt"], sampled - 1000)
+        aircraft["last_seen"] = "2033-05-18T03:33:30+00:00"
+        self.collector.now = lambda: (sampled + 11000) / 1000
+        self.assertEqual(self.collector.collect()["targets"], [])
+        aircraft["position_observed_at"] = "2033-05-18T03:33:31+00:00"
+        self.assertEqual(self.collector.collect()["targets"][0]["id"], target["id"])
+
+    def test_private_rid_list_is_bounded_and_ignores_missing_location_time(self):
+        self.collector.now = lambda: 2000000000
+        base = {"source": "RemoteID", "lat": 42.0, "lon": 12.0,
+                "position_observed_at": "2033-05-18T03:33:20+00:00"}
+        self.collector.traffic = lambda: [{**base, "serial": f"TEST{index:03d}"} for index in range(40)] + [
+            {"source": "RemoteID", "serial": "MISSING", "lat": 42.0, "lon": 12.0}]
+        result = self.collector.collect()
+        self.assertEqual(result["status"], "OK")
+        self.assertEqual(len(result["targets"]), 32)
+        self.assertEqual(result["targets"][0]["id"], "rid:remoteid:TEST000")
+        self.assertEqual(result["targets"][-1]["id"], "rid:remoteid:TEST031")
+
+    def test_dji_rid_source_has_stable_distinct_identity(self):
+        self.collector.now = lambda: 2000000000
+        self.collector.traffic = lambda: [{"source": "DJI DroneID", "serial": "TEST1", "lat": 42.0,
+                                           "lon": 12.0, "position_observed_at": "2033-05-18T03:33:20+00:00"}]
+        target = self.collector.collect()["targets"][0]
+        self.assertEqual(target["id"], "rid:dji:TEST1")
+        self.assertEqual(target["sourceEpoch"], "dsc-node02_dji")
 
     def test_rectangle(self):
         self.layers = [layer("Rectangle")]

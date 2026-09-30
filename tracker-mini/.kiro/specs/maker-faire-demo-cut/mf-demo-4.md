@@ -21,11 +21,13 @@ Inside mission3d, a pure adapter validates/bounds geometry and computes Circle r
 Failure modes: unavailable Cesium/WebGL visible error; terrain unavailable explicit fallback; malformed shape skipped/reported; missing scene waits rather than auto-generating a LIVE fixture; invalid source messages ignored; removed/private-denied areas disappear; stale data remains labelled with parent status. Slow terrain work coalesces updates and does not let old geometry resurrect.
 
 ## Tasks and verification
-- [ ] Parent handoff/CTA and lifecycle
-- [ ] Dedicated viewer/adapter and terrain/volume/targets
-- [ ] Focused tests: secure handoff, Polygon/Circle/holes, immutable radius, ground placement, synthetic height, altitude labels/provenance, framing/recenter, stable updates/deletion, cleanup/invalidation and malformed data
-- [ ] Existing MF1/2/3 regression checks; confirm Preview3D/Airspace3D and private transport unchanged
-- [ ] Actual desktop WebGL: terrain, tracker, polygon, Circle, volume, RID/aircraft; orbit/zoom/recenter, dark/light, close/reopen/2D return
-- [ ] Demo Cut, AI_HANDOFF and delivery report with actual terrain status and 18-step PO review
+- [x] Parent handoff/CTA and lifecycle
+- [x] Dedicated viewer/adapter and terrain/volume/targets
+- [x] Focused tests: secure handoff, Polygon/Circle/holes, immutable radius, ground placement, synthetic height, altitude labels/provenance, framing/recenter, stable updates/deletion, cleanup/invalidation and malformed data
+- [x] Existing MF1/2/3 regression checks; confirm Preview3D/Airspace3D and private transport unchanged
+- [x] Actual desktop WebGL: terrain, tracker, polygon, Circle, volume, RID/aircraft; orbit/zoom/recenter, dark/light, close/reopen/2D return
+- [x] Demo Cut, AI_HANDOFF and delivery report with actual terrain status and 18-step PO review
+
+Implementation evidence: 151 DSC Node tests passed (16 dedicated 3D tests), nine JavaScript syntax checks and scoped whitespace checks. Actual in-app Chromium WebGL at 1440x900 rendered TERRAIN OK for Vescovio Polygon and Circle, with explicit DEMO data and simulated auth/Workspace in the isolated localhost harness. Real authenticated/private-area MF4 acceptance remains with the PO. Initial iframe sizing/frustum failure was corrected and subsequent reload/reopen validated. Aircraft display height is explicitly 600 m above sampled terrain while source 2400 ft MSL is preserved. Geometry updates preserve camera; target entities retain identity. Late terrain work is revision-guarded before changing shared ground/status state.
 
 No Mini Tracker runtime/transport modification, deploy, commit/push, physical installation or MkDocs. No target animation, recorder/replay, live RF, generic POI, Mission V3, Flight Plan or messaging.

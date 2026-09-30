@@ -123,6 +123,19 @@ def is_valid_position(lat, lon):
     return -90 <= lat <= 90 and -180 <= lon <= 180
 
 
+def merge_odid_aircraft(existing, decoded):
+    """Only a valid Location message renews the private position observation."""
+    for field, value in decoded.items():
+        if value is not None and field not in ("lat", "lon"):
+            existing[field] = value
+    lat, lon = decoded.get("lat"), decoded.get("lon")
+    if is_valid_position(lat, lon):
+        existing["lat"] = lat
+        existing["lon"] = lon
+        existing["position_observed_at"] = decoded["last_seen"]
+    return existing
+
+
 def clean_string(value):
     return value.replace("\x00", "").replace("\t", "").replace("\r", "").replace("\n", "").strip()
 
@@ -400,21 +413,7 @@ def ds110_worker():
 
                         existing = remoteid_aircraft.get(key, {})
 
-                        for field, value in decoded.items():
-                            if value is None:
-                                continue
-
-                            if field in ("lat", "lon"):
-                                continue
-
-                            existing[field] = value
-
-                        decoded_lat = decoded.get("lat")
-                        decoded_lon = decoded.get("lon")
-
-                        if is_valid_position(decoded_lat, decoded_lon):
-                            existing["lat"] = decoded_lat
-                            existing["lon"] = decoded_lon
+                        merge_odid_aircraft(existing, decoded)
 
                         remoteid_aircraft[key] = existing
 
@@ -481,6 +480,8 @@ def ds110_worker():
                                 timezone.utc
                             ).isoformat()
                         }
+                        if is_valid_position(lat, lon):
+                            remoteid_aircraft[serial]["position_observed_at"] = remoteid_aircraft[serial]["last_seen"]
 
                         # invia il drone a DSC
                         drone = remoteid_aircraft[serial]
@@ -530,22 +531,7 @@ def ds110_worker():
 
                     existing = remoteid_aircraft.get(key, {})
 
-                    for field, value in decoded.items():
-
-                        if value is None:
-                            continue
-
-                        if field in ("lat", "lon"):
-                            continue
-
-                        existing[field] = value
-
-                    decoded_lat = decoded.get("lat")
-                    decoded_lon = decoded.get("lon")
-
-                    if is_valid_position(decoded_lat, decoded_lon):
-                        existing["lat"] = decoded_lat
-                        existing["lon"] = decoded_lon
+                    merge_odid_aircraft(existing, decoded)
 
                     remoteid_aircraft[key] = existing
 
