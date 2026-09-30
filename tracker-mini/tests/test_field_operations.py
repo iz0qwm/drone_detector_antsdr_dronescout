@@ -2,16 +2,19 @@
 import copy
 import ast
 import json
+import importlib.util
 import sys
 import tempfile
 import threading
 import time
 import unittest
+import types
+from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import Mock, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
-from services.field_scene import SceneCollector, normalize, normalize_rid_targets, normalize_adsb_targets, default_collector, SERIAL
+from services.field_scene import SceneCollector, normalize, normalize_rid_targets, normalize_adsb_targets, normalize_team_operators, default_collector, SERIAL
 from services.field_sender import FieldSender, start_field_sender
 from services import field_adsb, layer_storage, mission_storage
 
@@ -48,6 +51,66 @@ class ProjectionTests(unittest.TestCase):
         self.assertEqual(result["status"], "OK")
         self.assertIsNone(result["operation"])
         self.assertEqual(result["areas"], [])
+
+    def test_configured_meshtastic_operator_is_separate_from_traffic_and_area(self):
+        sampled = 2000000000000
+        self.collector.now = lambda: sampled / 1000
+        operator = {"id": 7, "nodeId": "!A1B2C3D4", "longName": "Soccorritore Vescovio",
+                    "shortName": "SV01", "position_lat": 41.9, "position_lon": 12.5,
+                    "position_altitude": 80, "position_observed_at": "2033-05-18T03:33:19+00:00"}
+        self.collector.team_status = lambda: {"operators": [operator],
+                                              "external_nodes": [{"nodeId": "!11111111", "position_lat": 42}]}
+        result = self.collector.collect()
+        self.assertEqual(result["team"], [{"id": "mesh:!a1b2c3d4", "nodeId": "!a1b2c3d4",
+                                           "name": "Soccorritore Vescovio", "shortName": "SV01",
+                                           "role": "TEAM_OPERATOR", "origin": "LIVE", "source": "MESHTASTIC",
+                                           "position": {"lat": 41.9, "lon": 12.5}, "observedAt": sampled - 1000,
+                                           "altitude": {"value": 80, "unit": "m", "reference": "UNKNOWN"}}])
+        self.assertEqual(result["targets"], [])
+        self.collector.team_status = lambda: {"operators": [], "external_nodes": [operator]}
+        self.assertEqual(self.collector.collect()["team"], [])
+
+    def test_meshtastic_position_time_and_ambiguous_association(self):
+        sampled = 2000000000000
+        base = {"id": 7, "nodeId": "!a1b2c3d4", "longName": "Operator One", "shortName": "OP01",
+                "position_lat": 41.9, "position_lon": 12.5,
+                "position_observed_at": "2033-05-18T03:33:19+00:00"}
+        self.assertEqual(len(normalize_team_operators({"operators": [base]}, sampled)), 1)
+        self.assertEqual(normalize_team_operators({"operators": [{**base, "position_lat": None}]}, sampled), [])
+        self.assertEqual(normalize_team_operators({"operators": [{**base, "position_observed_at": "2033-05-18T03:03:19+00:00", "last_seen": sampled}]}, sampled), [])
+        self.assertEqual(normalize_team_operators({"operators": [base, {**base, "nodeId": "!11111111"}]}, sampled), [])
+        self.assertEqual(normalize_team_operators({"operators": []}, sampled), [])
+
+    def test_meshtastic_non_position_packet_and_poll_do_not_refresh_position(self):
+        source = Path(__file__).resolve().parents[1] / "backend" / "services" / "meshtastic_service.py"
+        fake_gps = types.ModuleType("services.gps")
+        fake_gps.get_gps_status = lambda: {}
+        fake_meshtastic = types.ModuleType("meshtastic")
+        fake_serial = types.ModuleType("meshtastic.serial_interface")
+        fake_serial.SerialInterface = object
+        fake_pubsub = types.ModuleType("pubsub")
+        fake_pubsub.pub = types.SimpleNamespace()
+        modules = {"services.gps": fake_gps, "meshtastic": fake_meshtastic,
+                   "meshtastic.serial_interface": fake_serial, "pubsub": fake_pubsub}
+        spec = importlib.util.spec_from_file_location("meshtastic_position_under_test", source)
+        service = importlib.util.module_from_spec(spec)
+        with patch.dict(sys.modules, modules):
+            spec.loader.exec_module(service)
+        service.log = lambda *args: None
+        service.record_text_packet = lambda *args: None
+        observed = int(time.time()) - 10
+        node = {"user": {"longName": "Operator", "shortName": "OP01"},
+                "position": {"latitude": 41.9, "longitude": 12.5}, "lastHeard": observed}
+        interface = types.SimpleNamespace(nodes={"!a1b2c3d4": node})
+        service.on_receive({"fromId": "!a1b2c3d4", "rxTime": observed + 1,
+                            "decoded": {"portnum": "POSITION_APP", "position": {
+                                "latitude": 41.9, "longitude": 12.5, "timestamp": observed}}}, interface)
+        original = service.meshtastic_nodes["!a1b2c3d4"]["position_observed_at"]
+        self.assertEqual(original, datetime.fromtimestamp(observed, timezone.utc).isoformat())
+        node["lastHeard"] = int(time.time())
+        service.on_receive({"fromId": "!a1b2c3d4", "decoded": {"portnum": "TEXT_MESSAGE_APP", "text": "hello"}}, interface)
+        service.update_node_from_meshtastic("!a1b2c3d4", node)
+        self.assertEqual(service.meshtastic_nodes["!a1b2c3d4"]["position_observed_at"], original)
 
     def test_live_rid_outside_area_is_stable_and_geometric_altitude_is_preserved(self):
         seen = "2033-05-18T03:33:20+00:00"

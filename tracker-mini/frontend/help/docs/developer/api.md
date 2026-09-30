@@ -571,6 +571,8 @@ Response fields:
 
 Operator entries may include `last_seen`, `updatedAt`, `age_ms`, `stale`, `expired`, `stale_ms` and `retention_ms`. These fields support map marker fade and removal based on Meshtastic last seen timing.
 
+Matched operator entries may also include `position_lat`, `position_lon`, `position_altitude` and `position_observed_at`. These are separate from the local marker's `last_seen`: only a valid `POSITION_APP` packet updates them. `position_observed_at` is an ISO UTC time from the decoded position timestamp when supplied, otherwise the packet receive time. The private Field Operations adapter uses these position-specific fields and never uses `last_seen` to refresh a person's geographic location. Meshtastic altitude reference is not established by this API.
+
 ### `GET /api/teams/config`
 
 Returns team configuration for the current mission.

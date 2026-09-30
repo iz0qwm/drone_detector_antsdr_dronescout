@@ -1,5 +1,6 @@
 import threading
 import time
+import math
 from datetime import datetime, timezone
 
 from config import SETTINGS
@@ -298,6 +299,24 @@ def on_receive(packet, interface):
 
         if node:
             update_node_from_meshtastic(from_id, node)
+
+        # NodeDB polling and non-position packets must not renew a location.
+        if portnum == "POSITION_APP" and isinstance(decoded.get("position"), dict):
+            position = decoded["position"]
+            lat, lon, altitude = decode_position(position)
+            valid = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+            if (valid(lat) and valid(lon) and abs(lat) <= 90 and abs(lon) <= 180 and
+                    (lat != 0 or lon != 0)):
+                received = packet.get("rxTime")
+                received = received if valid(received) and received > 0 else time.time()
+                observed = position.get("timestamp")
+                observed = observed if valid(observed) and observed > 0 else received
+                if observed <= received + 2 and received <= time.time() + 2:
+                    cached = meshtastic_nodes.setdefault(from_id, {"id": from_id})
+                    cached["position_lat"] = lat
+                    cached["position_lon"] = lon
+                    cached["position_altitude"] = altitude if valid(altitude) else None
+                    cached["position_observed_at"] = datetime.fromtimestamp(observed, tz=timezone.utc).isoformat()
 
         if portnum in [
             "TEXT_MESSAGE_APP",

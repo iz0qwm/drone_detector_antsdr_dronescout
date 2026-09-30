@@ -154,6 +154,10 @@ def normalize_node(node):
 
         "last_seen": node.get("last_seen"),
         "lastHeard": node.get("lastHeard"),
+        "position_lat": node.get("position_lat"),
+        "position_lon": node.get("position_lon"),
+        "position_altitude": node.get("position_altitude"),
+        "position_observed_at": node.get("position_observed_at"),
 
     }
 

@@ -12,6 +12,8 @@ MAX_RID_TARGETS = 32
 RID_POSITION_MAX_AGE_MS = 10000
 MAX_PRIVATE_TARGETS = 32
 ADSB_POSITION_MAX_AGE_MS = 10000
+TEAM_POSITION_RETENTION_MS = 1800000
+MAX_TEAM_OPERATORS = 32
 FEET_TO_METERS = 0.3048
 KNOTS_TO_MPS = 0.514444
 
@@ -206,9 +208,51 @@ def normalize_adsb_targets(readsb, sampled_at, maximum=MAX_PRIVATE_TARGETS):
     return sorted(targets.values(), key=lambda target: (-target["observedAt"], target["id"]))[:maximum]
 
 
+def normalize_team_operators(status, sampled_at):
+    """Project only configured Team matches with an observed position packet."""
+    if not isinstance(status, dict) or not isinstance(status.get("operators"), list):
+        return []
+    operators = status["operators"]
+    counts = {}
+    for item in operators:
+        if isinstance(item, dict) and isinstance(item.get("id"), int):
+            counts[item["id"]] = counts.get(item["id"], 0) + 1
+    team = {}
+    for item in operators:
+        if not isinstance(item, dict) or not isinstance(item.get("id"), int) or counts.get(item["id"]) != 1:
+            continue  # Two heard nodes matched one short name: association is ambiguous.
+        node_id = item.get("nodeId")
+        if not isinstance(node_id, str) or not re.fullmatch(r"![0-9a-fA-F]{8}", node_id):
+            continue
+        name, short_name = item.get("longName"), item.get("shortName")
+        if not isinstance(name, str) or not name.strip() or len(name) > 200 or not isinstance(short_name, str) or not short_name or len(short_name) > 32:
+            continue
+        lat, lon = item.get("position_lat"), item.get("position_lon")
+        if not number(lat) or not number(lon) or abs(lat) > 90 or abs(lon) > 180 or (lat == 0 and lon == 0):
+            continue
+        try:
+            observed = datetime.fromisoformat(item["position_observed_at"].replace("Z", "+00:00"))
+            if observed.tzinfo is None:
+                continue
+            observed_at = int(observed.astimezone(timezone.utc).timestamp() * 1000)
+        except (KeyError, AttributeError, TypeError, ValueError, OverflowError):
+            continue
+        if observed_at <= 0 or observed_at > sampled_at + 2000 or sampled_at - observed_at > TEAM_POSITION_RETENTION_MS:
+            continue
+        canonical = node_id.lower()
+        member = {"id": f"mesh:{canonical}", "nodeId": canonical, "name": name.strip(),
+                  "shortName": short_name, "role": "TEAM_OPERATOR", "origin": "LIVE", "source": "MESHTASTIC",
+                  "position": {"lat": lat, "lon": lon}, "observedAt": observed_at}
+        altitude = item.get("position_altitude")
+        if number(altitude) and -1000 < altitude <= 30000:
+            member["altitude"] = {"value": altitude, "unit": "m", "reference": "UNKNOWN"}
+        team[member["id"]] = member
+    return sorted(team.values(), key=lambda member: member["id"])[:MAX_TEAM_OPERATORS]
+
+
 class SceneCollector:
-    def __init__(self, current, layers, selected, now=time.time, traffic=lambda: [], air_traffic=lambda: {}):
-        self.current, self.layers, self.selected, self.now, self.traffic, self.air_traffic = current, layers, selected, now, traffic, air_traffic
+    def __init__(self, current, layers, selected, now=time.time, traffic=lambda: [], air_traffic=lambda: {}, team_status=lambda: {"operators": []}):
+        self.current, self.layers, self.selected, self.now, self.traffic, self.air_traffic, self.team_status = current, layers, selected, now, traffic, air_traffic, team_status
 
     def collect(self):
         base = {"schemaVersion": 1, "nodeId": NODE_ID, "serial": SERIAL,
@@ -230,6 +274,7 @@ class SceneCollector:
             rid = normalize_rid_targets(self.traffic(), base["sampledAt"])
             aircraft = normalize_adsb_targets(self.air_traffic(), base["sampledAt"], MAX_PRIVATE_TARGETS - len(rid))
             projection["targets"] = rid + aircraft
+            projection["team"] = normalize_team_operators(self.team_status(), base["sampledAt"])
             result = {**base, "status": "OK", **projection}
             if len(json.dumps(result, ensure_ascii=False).encode("utf-8")) > MAX_BYTES:
                 raise ValueError("snapshot_too_large")
@@ -265,5 +310,13 @@ def default_collector():
         return get_aircraft()
 
     from services.field_adsb import read_local_readsb
+    def read_team():
+        try:
+            from services.teams import get_team_status
+        except ModuleNotFoundError as error:
+            if error.name not in ("gpsd", "meshtastic", "pubsub"):
+                raise
+            return {"operators": []}  # Development host without the radio runtime.
+        return get_team_status()
     return SceneCollector(get_current_mission, read_layers, read_selection,
-                          traffic=read_traffic, air_traffic=read_local_readsb)
+                          traffic=read_traffic, air_traffic=read_local_readsb, team_status=read_team)
